@@ -53,6 +53,12 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Shield className="size-6" />
             </Link>
           )}
+          <Link to="/chats" className="rounded-full p-2" aria-label="Chats">
+            <MessageCircle className="size-6" />
+          </Link>
+          <Link to="/my-posts" className="rounded-full p-2" aria-label="Profile">
+            <User className="size-6" />
+          </Link>
           <Link to="/notifications" className="relative rounded-full p-2" aria-label="Notifications">
             <Bell className="size-6" />
             {unread > 0 && (
