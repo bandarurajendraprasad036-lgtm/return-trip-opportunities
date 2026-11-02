@@ -12,7 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedChatsRouteImport } from './routes/_authenticated/chats'
 import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated/feed'
+import { Route as AuthenticatedMyPostsRouteImport } from './routes/_authenticated/my-posts'
+import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
+import { Route as AuthenticatedChatUserIdRouteImport } from './routes/_authenticated/chat.$userId'
 import { Route as AuthenticatedPostNewRouteImport } from './routes/_authenticated/post.new'
 
 const IndexRoute = IndexRouteImport.update({
@@ -29,9 +34,35 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedChatsRoute = AuthenticatedChatsRouteImport.update({
+  id: '/chats',
+  path: '/chats',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedFeedRoute = AuthenticatedFeedRouteImport.update({
   id: '/feed',
   path: '/feed',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMyPostsRoute = AuthenticatedMyPostsRouteImport.update({
+  id: '/my-posts',
+  path: '/my-posts',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedNotificationsRoute =
+  AuthenticatedNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedChatUserIdRoute = AuthenticatedChatUserIdRouteImport.update({
+  id: '/chat/$userId',
+  path: '/chat/$userId',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPostNewRoute = AuthenticatedPostNewRouteImport.update({
@@ -43,13 +74,23 @@ const AuthenticatedPostNewRoute = AuthenticatedPostNewRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admin': typeof AuthenticatedAdminRoute
+  '/chats': typeof AuthenticatedChatsRoute
   '/feed': typeof AuthenticatedFeedRoute
+  '/my-posts': typeof AuthenticatedMyPostsRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
+  '/chat/$userId': typeof AuthenticatedChatUserIdRoute
   '/post/new': typeof AuthenticatedPostNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admin': typeof AuthenticatedAdminRoute
+  '/chats': typeof AuthenticatedChatsRoute
   '/feed': typeof AuthenticatedFeedRoute
+  '/my-posts': typeof AuthenticatedMyPostsRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
+  '/chat/$userId': typeof AuthenticatedChatUserIdRoute
   '/post/new': typeof AuthenticatedPostNewRoute
 }
 export interface FileRoutesById {
@@ -57,20 +98,48 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/chats': typeof AuthenticatedChatsRoute
   '/_authenticated/feed': typeof AuthenticatedFeedRoute
+  '/_authenticated/my-posts': typeof AuthenticatedMyPostsRoute
+  '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
+  '/_authenticated/chat/$userId': typeof AuthenticatedChatUserIdRoute
   '/_authenticated/post/new': typeof AuthenticatedPostNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/feed' | '/post/new'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/admin'
+    | '/chats'
+    | '/feed'
+    | '/my-posts'
+    | '/notifications'
+    | '/chat/$userId'
+    | '/post/new'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/feed' | '/post/new'
+  to:
+    | '/'
+    | '/auth'
+    | '/admin'
+    | '/chats'
+    | '/feed'
+    | '/my-posts'
+    | '/notifications'
+    | '/chat/$userId'
+    | '/post/new'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/admin'
+    | '/_authenticated/chats'
     | '/_authenticated/feed'
+    | '/_authenticated/my-posts'
+    | '/_authenticated/notifications'
+    | '/_authenticated/chat/$userId'
     | '/_authenticated/post/new'
   fileRoutesById: FileRoutesById
 }
@@ -103,11 +172,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/chats': {
+      id: '/_authenticated/chats'
+      path: '/chats'
+      fullPath: '/chats'
+      preLoaderRoute: typeof AuthenticatedChatsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/feed': {
       id: '/_authenticated/feed'
       path: '/feed'
       fullPath: '/feed'
       preLoaderRoute: typeof AuthenticatedFeedRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/my-posts': {
+      id: '/_authenticated/my-posts'
+      path: '/my-posts'
+      fullPath: '/my-posts'
+      preLoaderRoute: typeof AuthenticatedMyPostsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/notifications': {
+      id: '/_authenticated/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/chat/$userId': {
+      id: '/_authenticated/chat/$userId'
+      path: '/chat/$userId'
+      fullPath: '/chat/$userId'
+      preLoaderRoute: typeof AuthenticatedChatUserIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/post/new': {
@@ -121,12 +225,22 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedChatsRoute: typeof AuthenticatedChatsRoute
   AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
+  AuthenticatedMyPostsRoute: typeof AuthenticatedMyPostsRoute
+  AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
+  AuthenticatedChatUserIdRoute: typeof AuthenticatedChatUserIdRoute
   AuthenticatedPostNewRoute: typeof AuthenticatedPostNewRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedChatsRoute: AuthenticatedChatsRoute,
   AuthenticatedFeedRoute: AuthenticatedFeedRoute,
+  AuthenticatedMyPostsRoute: AuthenticatedMyPostsRoute,
+  AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
+  AuthenticatedChatUserIdRoute: AuthenticatedChatUserIdRoute,
   AuthenticatedPostNewRoute: AuthenticatedPostNewRoute,
 }
 
