@@ -9,10 +9,12 @@ import { useMe } from "@/lib/session";
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
     meta: [
-      { title: "అడ్మిన్ · Admin — Return Connect" },
-      { name: "description", content: "Admin dashboard for Return Connect." },
-      { property: "og:title", content: "Admin — Return Connect" },
-      { property: "og:description", content: "Admin dashboard for Return Connect." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { title: "అడ్మిన్ · Admin — గాయత్రి వన్ · Gayatri One" },
+      { name: "description", content: "Admin dashboard for గాయత్రి వన్ · Gayatri One." },
+      { property: "og:title", content: "Admin — గాయత్రి వన్ · Gayatri One" },
+      { property: "og:description", content: "Admin dashboard for గాయత్రి వన్ · Gayatri One." },
     ],
   }),
   component: Admin,

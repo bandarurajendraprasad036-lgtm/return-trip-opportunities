@@ -1,3 +1,4 @@
+import { Brand } from "@/components/Brand";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
@@ -13,10 +14,12 @@ import { AuthGuide } from "@/components/AuthGuide";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "లాగిన్ · Login — Return Connect" },
-      { name: "description", content: "Login to Return Connect with your phone number." },
-      { property: "og:title", content: "Login — Return Connect" },
-      { property: "og:description", content: "Login to Return Connect with your phone number." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { title: "లాగిన్ · Login — గాయత్రి వన్ · Gayatri One" },
+      { name: "description", content: "Login to గాయత్రి వన్ · Gayatri One with your phone number." },
+      { property: "og:title", content: "Login — గాయత్రి వన్ · Gayatri One" },
+      { property: "og:description", content: "Login to గాయత్రి వన్ · Gayatri One with your phone number." },
     ],
   }),
   component: AuthPage,
@@ -60,7 +63,7 @@ function AuthPage() {
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col bg-background">
       <div className="bg-hero px-5 pb-10 pt-8 text-primary-foreground">
-        <h1 className="text-4xl font-extrabold">Return<span className="text-secondary">Connect</span></h1>
+        <h1 className="text-4xl font-extrabold"><Brand /></h1>
         <p className="mt-1 text-lg">{mode === "login" ? "ఫోన్ నంబర్‌తో లాగిన్" : "కొత్త అకౌంట్"}</p>
         <p className="text-sm opacity-80">{mode === "login" ? "Login with phone" : "Create account"}</p>
       </div>

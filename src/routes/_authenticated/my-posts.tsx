@@ -10,10 +10,12 @@ import { useMe } from "@/lib/session";
 export const Route = createFileRoute("/_authenticated/my-posts")({
   head: () => ({
     meta: [
-      { title: "నా పోస్ట్‌లు · My Posts — Return Connect" },
-      { name: "description", content: "Manage your job and vehicle posts." },
-      { property: "og:title", content: "My Posts — Return Connect" },
-      { property: "og:description", content: "Manage your job and vehicle posts." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { title: "నా పోస్ట్‌లు · My Posts — గాయత్రి వన్ · Gayatri One" },
+      { name: "description", content: "గాయత్రి వన్ · Gayatri One — Manage your job and vehicle posts." },
+      { property: "og:title", content: "My Posts — గాయత్రి వన్ · Gayatri One" },
+      { property: "og:description", content: "గాయత్రి వన్ · Gayatri One — Manage your job and vehicle posts." },
     ],
   }),
   component: MyPosts,
