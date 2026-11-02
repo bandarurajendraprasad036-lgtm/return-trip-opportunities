@@ -1,0 +1,106 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, Phone, Send } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useMe } from "@/lib/session";
+
+export const Route = createFileRoute("/_authenticated/chat/$userId")({
+  head: () => ({
+    meta: [
+      { title: "చాట్ · Chat — Return Connect" },
+      { name: "description", content: "Chat directly with a Return Connect member." },
+      { property: "og:title", content: "Chat — Return Connect" },
+      { property: "og:description", content: "Chat directly with a Return Connect member." },
+    ],
+  }),
+  component: Chat,
+});
+
+function Chat() {
+  const { userId } = Route.useParams();
+  const { data: me } = useMe();
+  const qc = useQueryClient();
+  const [text, setText] = useState("");
+  const bottom = useRef<HTMLDivElement>(null);
+
+  const { data: other } = useQuery({
+    queryKey: ["profile", userId],
+    queryFn: async () => (await supabase.from("profiles").select("*").eq("id", userId).maybeSingle()).data,
+  });
+  const key = ["chat", userId];
+  const { data: msgs = [] } = useQuery({
+    queryKey: key,
+    enabled: !!me,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("messages")
+        .select("*")
+        .or(`and(sender_id.eq.${me!.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${me!.id})`)
+        .order("created_at");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  useEffect(() => {
+    if (!me) return;
+    const ch = supabase
+      .channel(`chat-${Math.random().toString(36).slice(2)}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.${me.id}` }, () =>
+        qc.invalidateQueries({ queryKey: key }),
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ch);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [me, userId]);
+
+  useEffect(() => bottom.current?.scrollIntoView(), [msgs.length]);
+
+  const send = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const body = text.trim().slice(0, 1000);
+    if (!body || !me) return;
+    setText("");
+    await supabase.from("messages").insert({ sender_id: me.id, receiver_id: userId, body });
+    qc.invalidateQueries({ queryKey: key });
+    qc.invalidateQueries({ queryKey: ["chats"] });
+  };
+
+  return (
+    <div className="flex h-[calc(100vh-8.5rem)] flex-col">
+      <div className="flex items-center gap-3 border-b bg-card px-3 py-2">
+        <Link to="/chats" aria-label="Back"><ArrowLeft /></Link>
+        <div className="flex-1">
+          <p className="font-bold">{other?.full_name || "User"}</p>
+          <p className="text-xs text-muted-foreground">{other?.location}</p>
+        </div>
+        {other?.phone && (
+          <Button asChild size="icon" variant="outline" aria-label="Call">
+            <a href={`tel:${other.phone}`}><Phone /></a>
+          </Button>
+        )}
+      </div>
+      <div className="flex-1 space-y-2 overflow-y-auto p-3">
+        {msgs.length === 0 && <p className="pt-10 text-center text-muted-foreground">నమస్కారం చెప్పండి 🙏 Say hello</p>}
+        {msgs.map((m) => {
+          const mine = m.sender_id === me?.id;
+          return (
+            <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+              <p className={`max-w-[80%] rounded-2xl px-3 py-2 text-base ${mine ? "bg-primary text-primary-foreground" : "bg-card shadow-card"}`}>{m.body}</p>
+            </div>
+          );
+        })}
+        <div ref={bottom} />
+      </div>
+      <form onSubmit={send} className="flex gap-2 border-t bg-card p-2">
+        <Input value={text} onChange={(e) => setText(e.target.value)} maxLength={1000} placeholder="సందేశం · Message" className="h-12 text-base" />
+        <Button type="submit" size="icon" className="size-12" aria-label="Send"><Send /></Button>
+      </form>
+    </div>
+  );
+}

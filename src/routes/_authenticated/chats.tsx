@@ -1,0 +1,59 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { MessageCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useMe } from "@/lib/session";
+
+export const Route = createFileRoute("/_authenticated/chats")({
+  head: () => ({
+    meta: [
+      { title: "చాట్స్ · Chats — Return Connect" },
+      { name: "description", content: "Your conversations on Return Connect." },
+      { property: "og:title", content: "Chats — Return Connect" },
+      { property: "og:description", content: "Your conversations on Return Connect." },
+    ],
+  }),
+  component: Chats,
+});
+
+function Chats() {
+  const { data: me } = useMe();
+  const { data = [] } = useQuery({
+    queryKey: ["chats", me?.id],
+    enabled: !!me,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("messages").select("*").order("created_at", { ascending: false }).limit(500);
+      if (error) throw error;
+      const latest = new Map<string, (typeof data)[number]>();
+      for (const m of data) {
+        const other = m.sender_id === me!.id ? m.receiver_id : m.sender_id;
+        if (!latest.has(other)) latest.set(other, m);
+      }
+      const ids = [...latest.keys()];
+      const { data: profiles } = ids.length ? await supabase.from("profiles").select("id, full_name, location").in("id", ids) : { data: [] };
+      return ids.map((id) => ({ id, last: latest.get(id)!, profile: profiles?.find((p) => p.id === id) }));
+    },
+  });
+
+  return (
+    <div className="space-y-2 p-4">
+      <h2 className="text-2xl font-bold">చాట్స్ <span className="text-base font-normal text-muted-foreground">Chats</span></h2>
+      {data.length === 0 && (
+        <div className="rounded-xl border border-dashed bg-card p-8 text-center text-muted-foreground">
+          <MessageCircle className="mx-auto mb-2 size-10" />ఫీడ్‌లో "చాట్" నొక్కండి<br />Tap "Chat" on any post to start
+        </div>
+      )}
+      {data.map((c) => (
+        <Link key={c.id} to="/chat/$userId" params={{ userId: c.id }} className="flex items-center gap-3 rounded-xl border bg-card p-3 shadow-card">
+          <span className="grid size-12 place-items-center rounded-full bg-accent text-lg font-bold text-accent-foreground">
+            {(c.profile?.full_name || "?").charAt(0).toUpperCase()}
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="font-bold">{c.profile?.full_name || "User"} <span className="text-xs font-normal text-muted-foreground">{c.profile?.location}</span></p>
+            <p className="truncate text-sm text-muted-foreground">{c.last.body}</p>
+          </div>
+        </Link>
+      ))}
+    </div>
+  );
+}
