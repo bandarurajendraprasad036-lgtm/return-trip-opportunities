@@ -8,7 +8,14 @@ import { PostCard, type Post } from "@/components/PostCard";
 import { useMe } from "@/lib/session";
 import { isMatch } from "@/lib/match";
 
+type FeedSearch = { module?: "all" | "job" | "vehicle"; from?: string; to?: string };
+
 export const Route = createFileRoute("/_authenticated/feed")({
+  validateSearch: (s: Record<string, unknown>): FeedSearch => ({
+    module: s.module === "job" || s.module === "vehicle" ? s.module : undefined,
+    from: typeof s.from === "string" && s.from ? s.from : undefined,
+    to: typeof s.to === "string" && s.to ? s.to : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "ఫీడ్ · Feed — Return Connect" },
@@ -28,10 +35,15 @@ const FILTERS = [
 
 function Feed() {
   const { data: me } = useMe();
-  const [filter, setFilter] = useState<"all" | "job" | "vehicle">("all");
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const filter = search.module ?? (search.from || search.to ? "vehicle" : "all");
+  const setFilter = (m: "all" | "job" | "vehicle") => navigate({ search: (p) => ({ ...p, module: m === "all" ? undefined : m }) });
   const [q, setQ] = useState("");
   const [initialised, setInit] = useState(false);
-  if (!initialised && me?.profile?.location) { setQ(me.profile.location); setInit(true); }
+  if (!initialised && me?.profile?.location && !search.from && !search.to) { setQ(me.profile.location); setInit(true); }
+  const fromT = search.from?.trim().toLowerCase();
+  const toT = search.to?.trim().toLowerCase();
 
   const { data: posts = [], isLoading } = useQuery({
     queryKey: ["posts"],
@@ -46,6 +58,8 @@ function Feed() {
   const shown = posts.filter(
     (p) =>
       (filter === "all" || p.module === filter) &&
+      (!fromT || p.from_place?.toLowerCase().includes(fromT)) &&
+      (!toT || p.to_place?.toLowerCase().includes(toT)) &&
       (!term || [p.location, p.from_place, p.to_place, p.title, p.skill].some((v) => v?.toLowerCase().includes(term))),
   );
 
@@ -69,6 +83,12 @@ function Feed() {
         </div>
       </div>
       <div className="space-y-3 p-4">
+        {(fromT || toT) && (
+          <div className="flex items-center justify-between rounded-lg bg-muted p-3 text-sm">
+            <span>{search.from || "?"} → {search.to || "?"} · {shown.length} రైడ్స్ / rides</span>
+            <button className="font-semibold text-primary" onClick={() => navigate({ search: {} })}>✕ క్లియర్</button>
+          </div>
+        )}
         {term && <p className="text-sm text-muted-foreground">"{q}" — {shown.length} పోస్ట్‌లు / posts</p>}
         {isLoading && <p className="text-center text-muted-foreground">లోడ్ అవుతోంది... Loading</p>}
         {!isLoading && shown.length === 0 && (
