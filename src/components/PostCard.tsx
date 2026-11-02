@@ -13,7 +13,7 @@ export function PostCard({
   actions,
 }: {
   post: Post;
-  meId?: string;
+  meId?: string | undefined;
   highlight?: boolean;
   actions?: React.ReactNode;
 }) {

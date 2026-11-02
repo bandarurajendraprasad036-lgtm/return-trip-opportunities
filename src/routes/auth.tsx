@@ -32,26 +32,26 @@ function AuthPage() {
   const [location, setLocation] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const submit = async (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     const p = phoneSchema.safeParse(phone);
-    if (!p.success) return toast.error(p.error.issues[0].message);
-    if (pin.length < 6) return toast.error("పాస్‌వర్డ్ కనీసం 6 అక్షరాలు / Password min 6 characters");
+    if (!p.success) { toast.error(p.error.issues[0]?.message ?? "Invalid phone"); return; }
+    if (pin.length < 6) { toast.error("పాస్‌వర్డ్ కనీసం 6 అక్షరాలు / Password min 6 characters"); return; }
     setBusy(true);
     const email = phoneToEmail(p.data);
     if (mode === "signup") {
-      if (!name.trim()) { setBusy(false); return toast.error("పేరు ఇవ్వండి / Enter name"); }
+      if (!name.trim()) { setBusy(false); toast.error("పేరు ఇవ్వండి / Enter name"); return; }
       const { error } = await supabase.auth.signUp({
         email,
         password: pin,
         options: { data: { full_name: name.trim().slice(0, 80), phone: p.data, location: location.trim().slice(0, 80) } },
       });
       setBusy(false);
-      if (error) return toast.error(error.message.includes("registered") ? "ఈ నంబర్ ఇప్పటికే ఉంది. లాగిన్ చేయండి / Number already registered" : error.message);
+      if (error) { toast.error(error.message.includes("registered") ? "ఈ నంబర్ ఇప్పటికే ఉంది. లాగిన్ చేయండి / Number already registered" : error.message); return; }
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password: pin });
       setBusy(false);
-      if (error) return toast.error("నంబర్ లేదా పాస్‌వర్డ్ తప్పు / Wrong number or password");
+      if (error) { toast.error("నంబర్ లేదా పాస్‌వర్డ్ తప్పు / Wrong number or password"); return; }
     }
     nav({ to: "/feed" });
   };

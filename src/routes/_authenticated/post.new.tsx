@@ -60,22 +60,22 @@ function NewPost() {
   const opt = OPTIONS.find((o) => o.kind === kind)!;
   const isJob = opt.module === "job";
 
-  const submit = async (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     if (!me) return;
     const schema = isJob
       ? z.object({ location: txt(80), skill: txt(100), salary: z.string().trim().max(40).optional(), description: z.string().trim().max(500).optional(), contact_phone: z.string().trim().max(15).optional() })
       : z.object({ from_place: txt(80), to_place: txt(80), trip_date: txt(10), ...(kind === "owner" ? { vehicle_type: txt(60) } : { goods_type: txt(80) }), description: z.string().trim().max(500).optional(), contact_phone: z.string().trim().max(15).optional() });
     const r = schema.safeParse(f);
-    if (!r.success) return toast.error(`${r.error.issues[0].path[0]}: ${r.error.issues[0].message}`);
+    if (!r.success) { const i = r.error.issues[0]; toast.error(`${String(i?.path[0] ?? "")}: ${i?.message ?? ""}`); return; }
     const v = r.data as Record<string, string>;
     const title = isJob
-      ? kind === "seeker" ? `${v.skill} పని కావాలి` : `${v.skill} కోసం పనివాడు కావాలి`
-      : kind === "owner" ? `${v.vehicle_type} ఖాళీగా వస్తోంది` : `${v.goods_type} కోసం వాహనం కావాలి`;
+      ? kind === "seeker" ? `${v["skill"]} పని కావాలి` : `${v["skill"]} కోసం పనివాడు కావాలి`
+      : kind === "owner" ? `${v["vehicle_type"]} ఖాళీగా వస్తోంది` : `${v["goods_type"]} కోసం వాహనం కావాలి`;
     setBusy(true);
     const { error } = await supabase.from("posts").insert({ ...v, user_id: me.id, module: opt.module, kind, title });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("పోస్ట్ అయ్యింది! మ్యాచ్ వస్తే అలర్ట్ వస్తుంది · Posted! You'll be alerted on a match");
     qc.invalidateQueries();
     nav({ to: "/my-posts" });
@@ -114,7 +114,7 @@ function NewPost() {
       {field("contact_phone", "ఫోన్", "Contact phone", { inputMode: "numeric", maxLength: 15 })}
       <div className="space-y-1">
         <Label className="text-base">వివరాలు · Details (optional)</Label>
-        <Textarea value={f.description ?? ""} onChange={set("description")} maxLength={500} className="text-base" />
+        <Textarea value={f["description"] ?? ""} onChange={set("description")} maxLength={500} className="text-base" />
       </div>
       <Button type="submit" variant="secondary" size="xl" className="w-full" disabled={busy}>
         {busy ? "..." : "పోస్ట్ చేయండి · Post"}
