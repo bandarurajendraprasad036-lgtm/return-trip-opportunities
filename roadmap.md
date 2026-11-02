@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Rebrand headers, favicon and every page's metadata to Gayatri One
 - [x] Home: clickable bell/chat/profile, Open buttons, From/To ride search, live counter
 - [x] Alerts page loads reliably on mobile
 - [x] AI "describe your need" matching page
