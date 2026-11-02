@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { phoneToEmail } from "@/lib/match";
+import { AuthGuide } from "@/components/AuthGuide";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -94,6 +95,7 @@ function AuthPage() {
           {mode === "login" ? "కొత్తవారా? రిజిస్టర్ చేయండి · New? Register" : "అకౌంట్ ఉందా? లాగిన్ · Have account? Login"}
         </button>
       </form>
+      <AuthGuide mode={mode} />
     </div>
   );
 }
