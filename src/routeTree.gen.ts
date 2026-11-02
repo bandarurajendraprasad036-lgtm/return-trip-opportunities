@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedAiMatchRouteImport } from './routes/_authenticated/ai-match'
 import { Route as AuthenticatedChatsRouteImport } from './routes/_authenticated/chats'
 import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated/feed'
 import { Route as AuthenticatedMyPostsRouteImport } from './routes/_authenticated/my-posts'
@@ -37,6 +38,11 @@ const AuthRoute = AuthRouteImport.update({
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAiMatchRoute = AuthenticatedAiMatchRouteImport.update({
+  id: '/ai-match',
+  path: '/ai-match',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedChatsRoute = AuthenticatedChatsRouteImport.update({
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/ai-match': typeof AuthenticatedAiMatchRoute
   '/chats': typeof AuthenticatedChatsRoute
   '/feed': typeof AuthenticatedFeedRoute
   '/my-posts': typeof AuthenticatedMyPostsRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/ai-match': typeof AuthenticatedAiMatchRoute
   '/chats': typeof AuthenticatedChatsRoute
   '/feed': typeof AuthenticatedFeedRoute
   '/my-posts': typeof AuthenticatedMyPostsRoute
@@ -99,6 +107,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/ai-match': typeof AuthenticatedAiMatchRoute
   '/_authenticated/chats': typeof AuthenticatedChatsRoute
   '/_authenticated/feed': typeof AuthenticatedFeedRoute
   '/_authenticated/my-posts': typeof AuthenticatedMyPostsRoute
@@ -112,6 +121,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/admin'
+    | '/ai-match'
     | '/chats'
     | '/feed'
     | '/my-posts'
@@ -123,6 +133,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/admin'
+    | '/ai-match'
     | '/chats'
     | '/feed'
     | '/my-posts'
@@ -135,6 +146,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/admin'
+    | '/_authenticated/ai-match'
     | '/_authenticated/chats'
     | '/_authenticated/feed'
     | '/_authenticated/my-posts'
@@ -177,6 +189,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ai-match': {
+      id: '/_authenticated/ai-match'
+      path: '/ai-match'
+      fullPath: '/ai-match'
+      preLoaderRoute: typeof AuthenticatedAiMatchRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/chats': {
@@ -226,6 +245,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAiMatchRoute: typeof AuthenticatedAiMatchRoute
   AuthenticatedChatsRoute: typeof AuthenticatedChatsRoute
   AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
   AuthenticatedMyPostsRoute: typeof AuthenticatedMyPostsRoute
@@ -236,6 +256,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAiMatchRoute: AuthenticatedAiMatchRoute,
   AuthenticatedChatsRoute: AuthenticatedChatsRoute,
   AuthenticatedFeedRoute: AuthenticatedFeedRoute,
   AuthenticatedMyPostsRoute: AuthenticatedMyPostsRoute,

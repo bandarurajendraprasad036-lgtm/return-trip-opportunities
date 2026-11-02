@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Search, Briefcase, Truck, LayoutGrid } from "lucide-react";
@@ -83,6 +83,7 @@ function Feed() {
         </div>
       </div>
       <div className="space-y-3 p-4">
+        <Link to="/ai-match" className="flex items-center gap-3 rounded-xl border-2 border-secondary bg-card p-4 font-bold">✨ మీ అవసరం చెప్పండి — AI వెతుకుతుంది<span className="ml-auto text-sm font-normal text-muted-foreground">AI Match →</span></Link>
         {(fromT || toT) && (
           <div className="flex items-center justify-between rounded-lg bg-muted p-3 text-sm">
             <span>{search.from || "?"} → {search.to || "?"} · {shown.length} రైడ్స్ / rides</span>
