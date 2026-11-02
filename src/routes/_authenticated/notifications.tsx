@@ -60,7 +60,7 @@ function Notifications() {
           లోడ్ కాలేదు — మళ్ళీ ప్రయత్నించండి · Tap to retry
         </button>
       )}
-      {!isLoading && data.length === 0 && (
+      {me && !isLoading && !isError && data.length === 0 && (
         <div className="rounded-xl border border-dashed bg-card p-8 text-center text-muted-foreground">
           <BellRing className="mx-auto mb-2 size-10" />
           ఇంకా మ్యాచ్‌లు లేవు. పోస్ట్ చేయండి!<br />No matches yet. <Link to="/post/new" className="text-primary underline">Create a post</Link>
