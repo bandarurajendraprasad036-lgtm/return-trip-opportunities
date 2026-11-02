@@ -94,6 +94,7 @@ function AuthPage() {
           {mode === "login" ? "కొత్తవారా? రిజిస్టర్ చేయండి · New? Register" : "అకౌంట్ ఉందా? లాగిన్ · Have account? Login"}
         </button>
       </form>
+      <AuthGuide mode={mode} />
     </div>
   );
 }

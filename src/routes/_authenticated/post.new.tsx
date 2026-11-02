@@ -11,6 +11,41 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useMe } from "@/lib/session";
 import type { Kind } from "@/lib/match";
+import { useServerFn } from "@tanstack/react-start";
+import { Sparkles } from "lucide-react";
+import { draftJobAd, type JobAdDraft } from "@/lib/ai-job-ad.functions";
+
+function AiJobAd({ kind, onDraft }: { kind: "seeker" | "employer"; onDraft: (d: JobAdDraft) => void }) {
+  const run = useServerFn(draftJobAd);
+  const [text, setText] = useState("");
+  const [busy, setBusy] = useState(false);
+  const go = async () => {
+    setBusy(true);
+    try {
+      const d = await run({ data: { text, kind } });
+      onDraft(d);
+      toast.success("AI ప్రకటన రెడీ! కింద చూసి సరిచేయండి · Ad ready, check below");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "AI failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="space-y-2 rounded-xl border-2 border-dashed border-primary/40 bg-card p-3">
+      <p className="font-bold">✨ AI తో ప్రకటన రాయండి · Write ad with AI</p>
+      <p className="text-sm text-muted-foreground">
+        {kind === "seeker"
+          ? "మీ పని, అనుభవం, ఊరు, జీతం మీ మాటల్లో చెప్పండి · Describe your skills & wanted work"
+          : "ఏ పనివాడు కావాలి, ఎక్కడ, జీతం చెప్పండి · Describe the worker you need"}
+      </p>
+      <Textarea value={text} onChange={(e) => setText(e.target.value)} maxLength={1000} className="text-base" placeholder={kind === "seeker" ? "e.g. నేను 5 సంవత్సరాలు ట్రాక్టర్ డ్రైవర్, గుంటూరు దగ్గర పని కావాలి, రోజుకు 700" : "e.g. విజయవాడలో షాప్ కి హెల్పర్ కావాలి, నెలకు 12000"} />
+      <Button type="button" className="w-full" size="lg" disabled={busy || text.trim().length < 3} onClick={go}>
+        <Sparkles />{busy ? "రాస్తోంది... Writing..." : "ప్రకటన తయారు చేయి · Create ad"}
+      </Button>
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/_authenticated/post/new")({
   head: () => ({
@@ -105,6 +140,7 @@ function NewPost() {
       </div>
       {isJob ? (
         <>
+          <AiJobAd kind={kind as "seeker" | "employer"} onDraft={(d) => setF((prev) => ({ ...prev, ...Object.fromEntries(Object.entries(d).filter(([, v]) => v)) }))} />
           {field("location", "ఊరు / ప్రాంతం", "Location", { placeholder: "e.g. Guntur" })}
           {field("skill", kind === "seeker" ? "మీ పని నైపుణ్యం" : "ఏ పని", kind === "seeker" ? "Skill" : "Work", { placeholder: "e.g. Driver, Mason, Farm work" })}
           {field("salary", kind === "seeker" ? "ఆశించే జీతం" : "జీతం", kind === "seeker" ? "Expected salary" : "Salary", { placeholder: "e.g. 15000/month or 600/day" })}
