@@ -1,0 +1,99 @@
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { z } from "zod";
+import { toast } from "sonner";
+import { Phone } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { phoneToEmail } from "@/lib/match";
+
+export const Route = createFileRoute("/auth")({
+  head: () => ({
+    meta: [
+      { title: "లాగిన్ · Login — Return Connect" },
+      { name: "description", content: "Login to Return Connect with your phone number." },
+      { property: "og:title", content: "Login — Return Connect" },
+      { property: "og:description", content: "Login to Return Connect with your phone number." },
+    ],
+  }),
+  component: AuthPage,
+});
+
+const phoneSchema = z.string().transform((v) => v.replace(/\D/g, "").slice(-10)).pipe(z.string().regex(/^[6-9]\d{9}$/, "సరైన 10 అంకెల నంబర్ ఇవ్వండి / Enter valid 10-digit mobile"));
+
+function AuthPage() {
+  const nav = useNavigate();
+  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [phone, setPhone] = useState("");
+  const [pin, setPin] = useState("");
+  const [name, setName] = useState("");
+  const [location, setLocation] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const p = phoneSchema.safeParse(phone);
+    if (!p.success) return toast.error(p.error.issues[0].message);
+    if (pin.length < 6) return toast.error("పాస్‌వర్డ్ కనీసం 6 అక్షరాలు / Password min 6 characters");
+    setBusy(true);
+    const email = phoneToEmail(p.data);
+    if (mode === "signup") {
+      if (!name.trim()) { setBusy(false); return toast.error("పేరు ఇవ్వండి / Enter name"); }
+      const { error } = await supabase.auth.signUp({
+        email,
+        password: pin,
+        options: { data: { full_name: name.trim().slice(0, 80), phone: p.data, location: location.trim().slice(0, 80) } },
+      });
+      setBusy(false);
+      if (error) return toast.error(error.message.includes("registered") ? "ఈ నంబర్ ఇప్పటికే ఉంది. లాగిన్ చేయండి / Number already registered" : error.message);
+    } else {
+      const { error } = await supabase.auth.signInWithPassword({ email, password: pin });
+      setBusy(false);
+      if (error) return toast.error("నంబర్ లేదా పాస్‌వర్డ్ తప్పు / Wrong number or password");
+    }
+    nav({ to: "/feed" });
+  };
+
+  return (
+    <div className="mx-auto flex min-h-screen max-w-md flex-col bg-background">
+      <div className="bg-hero px-5 pb-10 pt-8 text-primary-foreground">
+        <h1 className="text-4xl font-extrabold">Return<span className="text-secondary">Connect</span></h1>
+        <p className="mt-1 text-lg">{mode === "login" ? "ఫోన్ నంబర్‌తో లాగిన్" : "కొత్త అకౌంట్"}</p>
+        <p className="text-sm opacity-80">{mode === "login" ? "Login with phone" : "Create account"}</p>
+      </div>
+      <form onSubmit={submit} className="-mt-6 mx-4 space-y-4 rounded-2xl border bg-card p-5 shadow-card">
+        {mode === "signup" && (
+          <div className="space-y-1">
+            <Label className="text-base">పేరు · Name</Label>
+            <Input className="h-12 text-lg" value={name} onChange={(e) => setName(e.target.value)} maxLength={80} />
+          </div>
+        )}
+        <div className="space-y-1">
+          <Label className="text-base">ఫోన్ నంబర్ · Phone</Label>
+          <div className="flex items-center gap-2">
+            <span className="flex h-12 items-center gap-1 rounded-md border bg-muted px-3 text-lg"><Phone className="size-4" />+91</span>
+            <Input className="h-12 text-lg" inputMode="numeric" value={phone} onChange={(e) => setPhone(e.target.value)} maxLength={14} placeholder="98765 43210" />
+          </div>
+        </div>
+        <div className="space-y-1">
+          <Label className="text-base">పాస్‌వర్డ్ · Password</Label>
+          <Input className="h-12 text-lg" type="password" value={pin} onChange={(e) => setPin(e.target.value)} maxLength={64} placeholder="min 6" />
+        </div>
+        {mode === "signup" && (
+          <div className="space-y-1">
+            <Label className="text-base">మీ ఊరు · Your village/town</Label>
+            <Input className="h-12 text-lg" value={location} onChange={(e) => setLocation(e.target.value)} maxLength={80} />
+          </div>
+        )}
+        <Button type="submit" variant="secondary" size="xl" className="w-full" disabled={busy}>
+          {busy ? "..." : mode === "login" ? "లాగిన్ · Login" : "రిజిస్టర్ · Register"}
+        </Button>
+        <button type="button" className="w-full text-center text-base text-primary underline" onClick={() => setMode(mode === "login" ? "signup" : "login")}>
+          {mode === "login" ? "కొత్తవారా? రిజిస్టర్ చేయండి · New? Register" : "అకౌంట్ ఉందా? లాగిన్ · Have account? Login"}
+        </button>
+      </form>
+    </div>
+  );
+}
