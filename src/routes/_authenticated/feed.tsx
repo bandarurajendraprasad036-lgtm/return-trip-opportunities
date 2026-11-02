@@ -8,7 +8,7 @@ import { PostCard, type Post } from "@/components/PostCard";
 import { useMe } from "@/lib/session";
 import { isMatch } from "@/lib/match";
 
-type FeedSearch = { module?: "all" | "job" | "vehicle"; from?: string; to?: string };
+type FeedSearch = { module?: "all" | "job" | "vehicle" | undefined; from?: string | undefined; to?: string | undefined };
 
 export const Route = createFileRoute("/_authenticated/feed")({
   validateSearch: (s: Record<string, unknown>): FeedSearch => ({
