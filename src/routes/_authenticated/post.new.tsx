@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -40,6 +40,14 @@ function NewPost() {
   const [kind, setKind] = useState<Kind | null>(null);
   const [f, setF] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    if (!me?.profile) return;
+    setF((prev) => ({
+      ...prev,
+      location: prev["location"] || me.profile!.location,
+      contact_phone: prev["contact_phone"] || me.profile!.phone,
+    }));
+  }, [me, kind]);
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setF({ ...f, [k]: e.target.value });
 
   if (!kind) {
@@ -48,7 +56,7 @@ function NewPost() {
         <h2 className="text-2xl font-bold">మీకు ఏమి కావాలి?</h2>
         <p className="-mt-2 text-muted-foreground">What do you want to post?</p>
         {OPTIONS.map((o) => (
-          <button key={o.kind} onClick={() => { setKind(o.kind); setF({ location: me?.profile?.location ?? "", contact_phone: me?.profile?.phone ?? "" }); }} className="flex w-full items-center gap-4 rounded-xl border bg-card p-4 text-left shadow-card active:scale-[0.98]">
+          <button key={o.kind} onClick={() => setKind(o.kind)} className="flex w-full items-center gap-4 rounded-xl border bg-card p-4 text-left shadow-card active:scale-[0.98]">
             <span className={`grid size-14 place-items-center rounded-xl text-primary-foreground ${o.tone}`}><o.icon className="size-7" /></span>
             <span><span className="block text-lg font-bold">{o.te}</span><span className="text-muted-foreground">{o.en}</span></span>
           </button>
