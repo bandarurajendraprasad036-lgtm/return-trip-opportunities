@@ -12,9 +12,9 @@ type FeedSearch = { module?: "all" | "job" | "vehicle" | undefined; from?: strin
 
 export const Route = createFileRoute("/_authenticated/feed")({
   validateSearch: (s: Record<string, unknown>): FeedSearch => ({
-    module: s.module === "job" || s.module === "vehicle" ? s.module : undefined,
-    from: typeof s.from === "string" && s.from ? s.from : undefined,
-    to: typeof s.to === "string" && s.to ? s.to : undefined,
+    module: s["module"] === "job" || s["module"] === "vehicle" ? s["module"] : undefined,
+    from: typeof s["from"] === "string" && s["from"] ? s["from"] : undefined,
+    to: typeof s["to"] === "string" && s["to"] ? s["to"] : undefined,
   }),
   head: () => ({
     meta: [
