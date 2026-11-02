@@ -1,3 +1,4 @@
+import { Brand } from "@/components/Brand";
 import { useEffect, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -43,9 +44,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col bg-background">
-      <header className="sticky top-0 z-20 flex items-center justify-between bg-primary px-4 py-3 text-primary-foreground">
+      <header className="sticky top-0 z-20 flex items-center flex-wrap justify-between gap-2 bg-primary px-4 py-3 text-primary-foreground">
         <Link to="/feed" className="font-display text-2xl font-extrabold leading-none">
-          Return<span className="text-secondary">Connect</span>
+          <Brand />
         </Link>
         <div className="flex items-center gap-1">
           {me?.isAdmin && (

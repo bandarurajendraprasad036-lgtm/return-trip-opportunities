@@ -13,10 +13,10 @@ import { findAiMatches } from "@/lib/ai-match.functions";
 export const Route = createFileRoute("/_authenticated/ai-match")({
   head: () => ({
     meta: [
-      { title: "AI సహాయం · AI Match — Return Connect" },
-      { name: "description", content: "Describe your need in Telugu or English and find matching jobs or return trips." },
-      { property: "og:title", content: "AI Match — Return Connect" },
-      { property: "og:description", content: "Describe your need and find matching jobs or return trips." },
+      { title: "AI సహాయం · AI Match — గాయత్రి వన్ · Gayatri One" },
+      { name: "description", content: "గాయత్రి వన్ · Gayatri One — Describe your need in Telugu or English and find matching jobs or return trips." },
+      { property: "og:title", content: "AI Match — గాయత్రి వన్ · Gayatri One" },
+      { property: "og:description", content: "గాయత్రి వన్ · Gayatri One — Describe your need and find matching jobs or return trips." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

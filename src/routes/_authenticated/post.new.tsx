@@ -50,10 +50,12 @@ function AiJobAd({ kind, onDraft }: { kind: "seeker" | "employer"; onDraft: (d: 
 export const Route = createFileRoute("/_authenticated/post/new")({
   head: () => ({
     meta: [
-      { title: "కొత్త పోస్ట్ · New Post — Return Connect" },
-      { name: "description", content: "Post a job need, worker need or return vehicle trip." },
-      { property: "og:title", content: "New Post — Return Connect" },
-      { property: "og:description", content: "Post a job need, worker need or return vehicle trip." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { title: "కొత్త పోస్ట్ · New Post — గాయత్రి వన్ · Gayatri One" },
+      { name: "description", content: "గాయత్రి వన్ · Gayatri One — Post a job need, worker need or return vehicle trip." },
+      { property: "og:title", content: "New Post — గాయత్రి వన్ · Gayatri One" },
+      { property: "og:description", content: "గాయత్రి వన్ · Gayatri One — Post a job need, worker need or return vehicle trip." },
     ],
   }),
   component: NewPost,

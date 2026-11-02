@@ -18,10 +18,12 @@ export const Route = createFileRoute("/_authenticated/feed")({
   }),
   head: () => ({
     meta: [
-      { title: "ఫీడ్ · Feed — Return Connect" },
-      { name: "description", content: "Latest jobs and return vehicle posts near you." },
-      { property: "og:title", content: "Feed — Return Connect" },
-      { property: "og:description", content: "Latest jobs and return vehicle posts near you." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { title: "ఫీడ్ · Feed — గాయత్రి వన్ · Gayatri One" },
+      { name: "description", content: "గాయత్రి వన్ · Gayatri One — Latest jobs and return vehicle posts near you." },
+      { property: "og:title", content: "Feed — గాయత్రి వన్ · Gayatri One" },
+      { property: "og:description", content: "గాయత్రి వన్ · Gayatri One — Latest jobs and return vehicle posts near you." },
     ],
   }),
   component: Feed,

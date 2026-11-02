@@ -1,3 +1,4 @@
+import { Brand } from "@/components/Brand";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -10,10 +11,10 @@ import hero from "@/assets/hero-village.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Return Connect — ఉద్యోగాలు & రిటర్న్ వాహనాలు" },
-      { name: "description", content: "Find jobs, workers and empty return trucks in your area. Telugu + English." },
-      { property: "og:title", content: "Return Connect — Jobs & Return Vehicles" },
-      { property: "og:description", content: "Find jobs, workers and empty return trucks in your area. Telugu + English." },
+      { title: "గాయత్రి వన్ · Gayatri One — ఉద్యోగాలు & రిటర్న్ వాహనాలు" },
+      { name: "description", content: "గాయత్రి వన్ · Gayatri One — Find jobs, workers and empty return trucks in your area. Telugu + English." },
+      { property: "og:title", content: "గాయత్రి వన్ · Gayatri One — Jobs & Return Vehicles" },
+      { property: "og:description", content: "గాయత్రి వన్ · Gayatri One — Find jobs, workers and empty return trucks in your area. Telugu + English." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -49,9 +50,9 @@ function Index() {
   return (
     <div className="mx-auto min-h-screen max-w-md bg-background">
       <section className="bg-hero px-5 pb-8 pt-6 text-primary-foreground">
-        <div className="flex items-start justify-between">
+        <div className="flex flex-wrap items-start justify-between gap-3">
           <h1 className="text-4xl font-extrabold leading-none">
-            Return<span className="text-secondary">Connect</span>
+            <Brand />
           </h1>
           <div className="flex gap-2">
             <Link to="/notifications" className={iconLink} aria-label="Notifications"><Bell className="size-5" /></Link>

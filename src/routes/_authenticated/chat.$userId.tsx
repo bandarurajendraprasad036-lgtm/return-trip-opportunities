@@ -10,10 +10,12 @@ import { useMe } from "@/lib/session";
 export const Route = createFileRoute("/_authenticated/chat/$userId")({
   head: () => ({
     meta: [
-      { title: "చాట్ · Chat — Return Connect" },
-      { name: "description", content: "Chat directly with a Return Connect member." },
-      { property: "og:title", content: "Chat — Return Connect" },
-      { property: "og:description", content: "Chat directly with a Return Connect member." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { title: "చాట్ · Chat — గాయత్రి వన్ · Gayatri One" },
+      { name: "description", content: "Chat directly with a గాయత్రి వన్ · Gayatri One member." },
+      { property: "og:title", content: "Chat — గాయత్రి వన్ · Gayatri One" },
+      { property: "og:description", content: "Chat directly with a గాయత్రి వన్ · Gayatri One member." },
     ],
   }),
   component: Chat,
