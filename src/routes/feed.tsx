@@ -7,10 +7,11 @@ import { Input } from "@/components/ui/input";
 import { PostCard, type Post } from "@/components/PostCard";
 import { useMe } from "@/lib/session";
 import { isMatch } from "@/lib/match";
+import { AppShell } from "@/components/AppShell";
 
 type FeedSearch = { module?: "all" | "job" | "vehicle" | undefined; from?: string | undefined; to?: string | undefined };
 
-export const Route = createFileRoute("/_authenticated/feed")({
+export const Route = createFileRoute("/feed")({
   validateSearch: (s: Record<string, unknown>): FeedSearch => ({
     module: s["module"] === "job" || s["module"] === "vehicle" ? s["module"] : undefined,
     from: typeof s["from"] === "string" && s["from"] ? s["from"] : undefined,
@@ -26,7 +27,7 @@ export const Route = createFileRoute("/_authenticated/feed")({
       { property: "og:description", content: "గాయత్రి వన్ · Gayatri One — Latest jobs and return vehicle posts near you." },
     ],
   }),
-  component: Feed,
+  component: () => <AppShell><Feed /></AppShell>,
 });
 
 const FILTERS = [

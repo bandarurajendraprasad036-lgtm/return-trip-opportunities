@@ -48,6 +48,11 @@ export function AppShell({ children }: { children: ReactNode }) {
         <Link to="/feed" className="font-display text-2xl font-extrabold leading-none">
           <Brand />
         </Link>
+        {me === null ? (
+          <Link to="/auth" className="rounded-full bg-secondary px-4 py-2 text-sm font-bold text-secondary-foreground">
+            లాగిన్ / రిజిస్టర్
+          </Link>
+        ) : (
         <div className="flex items-center gap-1">
           {me?.isAdmin && (
             <Link to="/admin" className="rounded-full p-2" aria-label="Admin">
@@ -69,6 +74,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             )}
           </Link>
         </div>
+        )}
       </header>
       <main className="flex-1 pb-24">{children}</main>
       <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-md border-t bg-card">

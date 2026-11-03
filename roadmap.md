@@ -6,3 +6,5 @@
 - [x] AI job ad writer in job post form
 - [x] Step guide + common fixes on login/register
 - [ ] OTP phone verification at signup (needs Twilio account)
+- [ ] Forgot password (needs SMS/Twilio — phone accounts have no email)
+- [x] Public browsing of feed; login only for post/chat/private pages
