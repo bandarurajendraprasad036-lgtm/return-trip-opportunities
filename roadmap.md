@@ -16,3 +16,7 @@
 - [x] Public browsing of feed; login only for post/chat/private pages
 - [x] Auto-answer admin chat (AI); only payment/cash questions go to admin with a normal (non-bell) notification
 - [x] Admin chat answers with real jobs/vehicles and chat links, any language
+- [x] Daily morning referral reminder (schedule)
+- [x] Admin referral list (who referred whom, paid?, free month credited)
+- [x] Admin AI questions about referral data
+- [x] Support chat never reveals user counts or personal info; answers only what is asked

@@ -244,6 +244,7 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          free_months: number
           full_name: string
           id: string
           is_prime: boolean
@@ -259,6 +260,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          free_months?: number
           full_name?: string
           id: string
           is_prime?: boolean
@@ -274,6 +276,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          free_months?: number
           full_name?: string
           id?: string
           is_prime?: boolean
@@ -336,6 +339,7 @@ export type Database = {
         Args: { _approve: boolean; _id: string; _note?: string }
         Returns: undefined
       }
+      send_referral_reminders: { Args: never; Returns: number }
     }
     Enums: {
       app_role: "admin" | "user"
