@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] November 4 10:56: vehicle freshness uses color plus explicit text and accessible screen-reader label; stop timer when map closes or booking ends; tests at freshness thresholds with last-updated timestamp. Tracking implementation blocked on map/booking setup and unspecified freshness thresholds.
 - [ ] November 4 10:55: active-booking-only access/revocation automated tests, live movement/stale fallback tests; fresh/somewhat-old/old indicator updates with elapsed time and new location, last-update timestamp. Blocked on real Maps authorization and booking lifecycle; age thresholds not supplied.
 - [x] November 4 10:33 Point 8: both authenticated job submissions saved correct seeker/employer kinds and read back in My Posts; temporary test posts deleted; six rule tests passed.
 - [x] Point 9 partial: safe 100-point redemption RPC/ledger, ten private evidence images plus admin review, three-month/break guard, 20:30 bell guard, sound-only mute implemented; zero-balance redemption/self-credit/non-admin approval denied in real authenticated checks. Referral earning rate/morning restart and successful admin/redeem verification remain blocked.
