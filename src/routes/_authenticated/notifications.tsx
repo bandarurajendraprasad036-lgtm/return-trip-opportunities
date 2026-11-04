@@ -81,7 +81,7 @@ function Notifications() {
           ఇంకా మ్యాచ్‌లు లేవు. పోస్ట్ చేయండి!<br />No matches yet. <Link to="/post/new" className="text-primary underline">Create a post</Link>
         </div>
       )}
-      {data.map((n) => (
+      {(["job", "vehicle", "other"] as const).map((section) => { const items = data.filter((n) => (n.post?.module === "job" || n.post?.module === "vehicle" ? n.post.module : "other") === section); if (!items.length) return null; return <section key={section} className="space-y-2"><h3 className="border-b pt-2 text-xl font-bold">{section === "job" ? "ఉద్యోగ అలర్ట్స్ · Job alerts" : section === "vehicle" ? "వాహన అలర్ట్స్ · Vehicle alerts" : "ఇతర అలర్ట్స్ · Other alerts"}</h3>{items.map((n) => (
         <div key={n.id} className={`space-y-2 rounded-xl p-2 ${n.is_read ? "" : "bg-secondary/30"}`}>
           <p className="flex items-start gap-2 px-1 font-semibold">
             <BellRing className="mt-0.5 size-5 shrink-0 text-vehicle" />{n.message}
@@ -89,7 +89,7 @@ function Notifications() {
           <p className="px-1 text-xs text-muted-foreground">{new Date(n.created_at).toLocaleString("en-IN")}</p>
           {n.post && <PostCard post={n.post} meId={me?.id} highlight />}
         </div>
-      ))}
+      ))}</section>; })}
     </div>
   );
 }

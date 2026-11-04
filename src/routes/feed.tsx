@@ -49,10 +49,6 @@ function Feed() {
   const [q, setQ] = useState("");
   const [city, setCity] = useState(DEFAULT_CITY);
   const [cat, setCat] = useState("");
-  const services = useQuery({ queryKey: ["public-services-feed"], queryFn: async () => {
-    const { data, error } = await supabase.from("service_profiles").select("user_id,display_name,service,bio").eq("published", true).limit(100);
-    if (error) throw error; return data ?? [];
-  }});
   const fromT = search.from?.trim().toLowerCase();
   const toT = search.to?.trim().toLowerCase();
 
@@ -80,7 +76,6 @@ function Feed() {
     { title: "ముందస్తు తిరుగు వాహనాలు · Advance returns", posts: shown.filter(p => p.module === "vehicle" && !!p.trip_date && p.trip_date > today) },
     { title: "ఉద్యోగాలు · Jobs", posts: shown.filter(p => p.module === "job") },
   ];
-  const shownServices = (services.data ?? []).filter(p => !term || [p.display_name, p.service, p.bio].some(v => v.toLowerCase().includes(term)));
 
   return (
     <div>
@@ -130,7 +125,6 @@ function Feed() {
           </div>
         )}
         {sections.filter(section => section.posts.length > 0).map(section => <section key={section.title} className="space-y-3 border-t pt-4"><h2 className="text-xl font-bold">{section.title}</h2>{section.posts.map(p => <PostCard key={p.id} post={p} meId={me?.id} highlight={mine.some(m => isMatch(m, p))} />)}</section>)}
-        {false && shownServices.length > 0 && <section className="space-y-3 border-t pt-4"><h2 className="text-xl font-bold">సేవలు అందించేవారు · Service providers</h2>{shownServices.map(service => <article key={service.user_id} className="flex items-start gap-3 rounded-lg border bg-card p-3"><div className="min-w-0 flex-1"><Link to="/profile/$userId" params={{ userId: service.user_id }} className="font-bold underline">{service.display_name}</Link><p className="text-sm">{service.service}</p><p className="line-clamp-3 text-sm text-muted-foreground">{service.bio}</p></div><Button asChild variant="secondary" size="icon"><Link to="/chat/$userId" params={{ userId: service.user_id }} aria-label="సేవ కోసం చాట్ · Chat for service"><Bell className="size-5" /></Link></Button></article>)}</section>}
       </div>
     </div>
   );
