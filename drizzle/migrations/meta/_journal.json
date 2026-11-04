@@ -92,6 +92,20 @@
       "when": 1793764466094,
       "tag": "0012_referral_free_months_cron",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1793773028186,
+      "tag": "0013_service_profiles_engagement",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1793773284223,
+      "tag": "0014_service_review_public_authors",
+      "breakpoints": true
     }
   ]
 }

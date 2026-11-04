@@ -292,6 +292,157 @@ export type Database = {
         }
         Relationships: []
       }
+      service_likes: {
+        Row: {
+          profile_id: string
+          user_id: string
+        }
+        Insert: {
+          profile_id: string
+          user_id: string
+        }
+        Update: {
+          profile_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_likes_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "service_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      service_photos: {
+        Row: {
+          caption: string
+          id: string
+          path: string
+          user_id: string
+        }
+        Insert: {
+          caption?: string
+          id?: string
+          path: string
+          user_id: string
+        }
+        Update: {
+          caption?: string
+          id?: string
+          path?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_photos_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "service_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      service_profiles: {
+        Row: {
+          bio: string
+          display_name: string
+          photo_path: string
+          published: boolean
+          service: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bio?: string
+          display_name?: string
+          photo_path?: string
+          published?: boolean
+          service?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bio?: string
+          display_name?: string
+          photo_path?: string
+          published?: boolean
+          service?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_reviews: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          profile_id: string
+          rating: number
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          profile_id: string
+          rating: number
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          profile_id?: string
+          rating?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_reviews_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "service_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      service_views: {
+        Row: {
+          day: string
+          profile_id: string
+          visitor_hash: string
+        }
+        Insert: {
+          day?: string
+          profile_id: string
+          visitor_hash: string
+        }
+        Update: {
+          day?: string
+          profile_id?: string
+          visitor_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_views_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "service_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -334,12 +485,27 @@ export type Database = {
         Returns: boolean
       }
       public_stats: { Args: never; Returns: Json }
+      record_service_view: {
+        Args: { _id: string; _visitor: string }
+        Returns: undefined
+      }
       referral_target: { Args: { _d: string }; Returns: number }
       review_membership: {
         Args: { _approve: boolean; _id: string; _note?: string }
         Returns: undefined
       }
+      save_service_profile: {
+        Args: {
+          _bio: string
+          _name: string
+          _photo: string
+          _published: boolean
+          _service: string
+        }
+        Returns: undefined
+      }
       send_referral_reminders: { Args: never; Returns: number }
+      service_profile_data: { Args: { _id: string }; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "user"

@@ -1,5 +1,5 @@
 # Roadmap
-- [ ] Add opt-in public service profiles, WhatsApp sharing, work photos, authentic reviews, profile views and likes; protect private account data
+- [x] Add opt-in public service profiles, WhatsApp sharing, work photos, reviews, profile views and likes; tested signed-in save, upload/delete, likes, guest access, privacy and self-review rejection on phone. Cross-account review submission remains unverified because only one account is available.
 - [x] Redesign sharing poster in English: ₹99 plus status and nine people OR groups for one month full membership; without sharing ₹499; blank referral field because no code provided
 - [x] Show generated job-ad preview directly on creation screen and verify populated result on mobile
 - [x] Confirm Gayatri One home-screen installation button is available on homepage
