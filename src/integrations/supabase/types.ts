@@ -76,6 +76,8 @@ export type Database = {
           body: string
           created_at: string
           id: string
+          is_auto: boolean
+          needs_admin: boolean
           post_id: string | null
           receiver_id: string
           sender_id: string
@@ -84,6 +86,8 @@ export type Database = {
           body: string
           created_at?: string
           id?: string
+          is_auto?: boolean
+          needs_admin?: boolean
           post_id?: string | null
           receiver_id: string
           sender_id: string
@@ -92,6 +96,8 @@ export type Database = {
           body?: string
           created_at?: string
           id?: string
+          is_auto?: boolean
+          needs_admin?: boolean
           post_id?: string | null
           receiver_id?: string
           sender_id?: string
