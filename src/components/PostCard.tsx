@@ -1,4 +1,7 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
+import { Bell } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { Briefcase, Calendar, MapPin, MessageCircle, Phone, Truck, IndianRupee, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { KIND_LABEL, type Kind } from "@/lib/match";
@@ -19,6 +22,14 @@ export function PostCard({
 }) {
   const label = KIND_LABEL[post.kind as Kind];
   const isJob = post.module === "job";
+  const nav = useNavigate();
+  const showPhone = !isJob || post.show_contact;
+  const ring = async () => {
+    if (!meId) { nav({ to: "/auth" }); return; }
+    const { data, error } = await supabase.rpc("notify_matches", { _post_id: post.id });
+    if (error) toast.error(error.message);
+    else toast.success(data ? `${data} మందికి తెలియజేశాం · Notified ${data}` : "సరిపోయేవారు లేరు · No matching users yet");
+  };
   return (
     <article
       className={`overflow-hidden rounded-xl border bg-card shadow-card ${highlight ? "ring-2 ring-secondary" : ""}`}
@@ -33,7 +44,12 @@ export function PostCard({
         )}
       </div>
       <div className="space-y-2 p-3">
-        <h3 className="text-xl font-bold leading-tight">{post.title}</h3>
+        <div className="flex items-start gap-2">
+          <h3 className="flex-1 text-xl font-bold leading-tight">{post.title}</h3>
+          {isJob && post.status === "active" && (
+            <button onClick={ring} aria-label="Notify matches" className="rounded-full bg-secondary p-2 text-secondary-foreground"><Bell className="size-5" /></button>
+          )}
+        </div>
         {isJob ? (
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
             <span className="flex items-center gap-1"><MapPin className="size-4 text-accent" />{post.location}</span>
@@ -61,7 +77,7 @@ export function PostCard({
           {actions ??
             (meId !== post.user_id && (
               <>
-                {post.contact_phone && (
+                {showPhone && post.contact_phone && (
                   <Button asChild variant="outline" className="flex-1">
                     <a href={`tel:${post.contact_phone}`}><Phone />కాల్ Call</a>
                   </Button>
