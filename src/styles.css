@@ -146,9 +146,9 @@
 .home-mata { max-width: min(20rem, 40svh); }
 .home-bell-mata { top: 37%; width: 34%; aspect-ratio: 1; }
 .home-bell { transform-origin: top center; color: var(--gold); animation: bell-shine 4s ease-in-out infinite; }
-.home-bell:hover { color: var(--rose-gold); }
-.home-bell[data-touched="true"] { color: var(--bell-yellow); animation: none; filter: drop-shadow(0 0 8px color-mix(in oklab, var(--bell-yellow) 50%, transparent)); }
-@keyframes bell-shine { 0%, 100% { color: var(--gold); filter: drop-shadow(0 0 5px color-mix(in oklab, var(--gold) 35%, transparent)); } 50% { color: var(--rose-gold); filter: drop-shadow(0 0 9px color-mix(in oklab, var(--rose-gold) 50%, transparent)); } }
+.home-bell:hover { color: var(--gold); }
+.home-bell[data-touched="true"] { color: var(--gold); animation: none; filter: drop-shadow(0 0 8px color-mix(in oklab, var(--gold) 50%, transparent)); }
+@keyframes bell-shine { 0%, 100% { color: var(--gold); filter: drop-shadow(0 0 5px color-mix(in oklab, var(--gold) 35%, transparent)); } 50% { color: var(--gold); filter: drop-shadow(0 0 9px color-mix(in oklab, var(--gold) 50%, transparent)); } }
 .home-bell:active { animation: bell-ring .5s ease-in-out; }
 @keyframes bell-ring { 25% { transform: rotate(18deg); } 75% { transform: rotate(-18deg); } }
 @media (prefers-reduced-motion: reduce) { .profile-scroll { animation: none; white-space: normal; padding-inline: 12px; } .home-bell, .home-bell:active { animation: none; } }
