@@ -68,7 +68,8 @@ function Chat() {
     const body = text.trim().slice(0, 1000);
     if (!body || !me) return;
     setText("");
-    await supabase.from("messages").insert({ sender_id: me.id, receiver_id: userId, body });
+    try { await sendSupport({ data: { adminId: userId, body } }); }
+    catch { await supabase.from("messages").insert({ sender_id: me.id, receiver_id: userId, body }); }
     qc.invalidateQueries({ queryKey: key });
     qc.invalidateQueries({ queryKey: ["chats"] });
   };
