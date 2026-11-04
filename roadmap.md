@@ -1,7 +1,7 @@
 # Roadmap
 - [ ] Admin-only questions about noted, unimplemented points — paused at user's request; wait for remaining points and explicit permission to implement
 - [ ] Vehicle browsing free; vehicle posting/bell/owner chat require ₹499; non-members ₹99/month for one job post, members exempt — notes only; clarify job-post scope and wait for implementation permission
-- [ ] Identify supplied sharing photo; status plus nine recipients for extra job posts; clarify unlock count and verification — notes only, no website changes
+- [ ] Supplied sharing photo: remove top Theenmaar material, leave Gayatri One; status plus nine recipients for extra job posts; clarify old links/claims, unlock count and verification — notes only, no website changes
 - [ ] Clarify 5/10/15/20-member group prices and benefits — discussion only, no website changes
 - [x] Show the current website without adding new features
 - [ ] Clearly labeled sample jobs/vehicles/services across areas, with Already Booked interaction and no personal details
