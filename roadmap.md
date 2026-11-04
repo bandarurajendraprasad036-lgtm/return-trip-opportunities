@@ -1,4 +1,9 @@
 # Roadmap
+- [ ] November 4 23:11–23:12: closed-app push, permission/delivery status with truthful enable instructions, bell sound on/off setting; audit existing setup, connector and approval required before storage/server changes.
+- [ ] November 4 23:06: minimum 48px touch controls and adequate gaps, verified mobile.
+- [ ] November 4 23:05: verify black/gold rounded boxes on small/large phones, no clipped borders; hover/focus/active remain black/gold.
+- [ ] November 4 23:05: match new old-site references: pure #000000, #FFC107 borders/gold-filled buttons, 18–22px boxes, Job Apply/I Have Job, Local/Return Goods/Advance, From/To labels, current-location control and search. Do not fabricate geographic location.
+- [ ] November 4 23:01: notebook homepage layout, From/To, three vehicle displays, separate job apply/displays; original engraved Mata gold bell clickable without lower bell; black/gold all pages; remove old user count/search boxes; verify mobile and preserve data.
 - [x] November 4 17:12: use the original ornate gold temple bell instead of yellow SVG; daily Mata portrait remains uncropped. Four viewport checks and ten daily-artwork tests passed. Keep the lower bell gold, with no pink/yellow recoloring; no duplicate rebuild. Not published.
 - [x] November 4 11:11: compact homepage header and daily Gayatri Mata above lotus bell verified at 320×640, 360×640, 390×800 and 1280×1800; image loaded, bell visible and opens entry dialog, no horizontal overflow; 3 daily rotation tests pass. Published page inspected separately; new layout not published. Other points preserved.
 - [ ] November 4 10:58 supersedes freshness labels: show only last position timestamp, no fresh/aging/stale labels; timestamp formatting helper/tests replace classifier. Real map integration remains blocked.

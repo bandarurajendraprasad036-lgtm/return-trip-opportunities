@@ -82,7 +82,7 @@ function Feed() {
 
   return (
     <div>
-      <div className="space-y-3 bg-primary px-4 pb-4">
+      <div className="space-y-3 bg-background px-4 pb-4">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
           <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="ఉద్యోగం / ఊరు వెతకండి · Search job or place" className="h-12 bg-card pl-10 text-base" />
@@ -98,14 +98,14 @@ function Feed() {
           </div>
         )}
         {filter !== "vehicle" && city !== ANYWHERE && (
-          <button onClick={() => setCity(ANYWHERE)} className="text-sm font-semibold text-primary-foreground underline">🇮🇳 భారత్ అంతా చూపించు · Show anywhere in India</button>
+          <button onClick={() => setCity(ANYWHERE)} className="text-sm font-semibold text-foreground underline">🇮🇳 భారత్ అంతా చూపించు · Show anywhere in India</button>
         )}
         <div className="flex gap-2">
           {FILTERS.map((f) => (
             <button
               key={f.id}
               onClick={() => setFilter(f.id)}
-              className={`flex flex-1 items-center justify-center gap-1 rounded-full py-2 text-sm font-semibold ${filter === f.id ? "bg-secondary text-secondary-foreground" : "bg-primary-foreground/15 text-primary-foreground"}`}
+              className={`flex flex-1 items-center justify-center gap-1 rounded-full border py-2 text-sm font-semibold ${filter === f.id ? "bg-secondary text-secondary-foreground" : "bg-background text-foreground"}`}
             >
               <f.icon className="size-4" />{f.te}
             </button>
