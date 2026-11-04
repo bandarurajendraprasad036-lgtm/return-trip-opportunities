@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Trash2, Upload } from "lucide-react";
+import { canPublishPhoto } from "@/lib/service-profile-rules";
 
 const editorQuery = queryOptions({ queryKey: ["service-editor"], queryFn: async () => {
   const { data: auth } = await supabase.auth.getUser(); if (!auth.user) throw new Error("నమోదు అవసరం");
@@ -37,8 +38,8 @@ function Editor() {
   const store = async () => { await save({ data: { name, service, bio, photo, published } }); await queryClient.invalidateQueries({ queryKey: ["service-editor"] }); };
   const upload = async (file: File | undefined, avatar: boolean) => {
     if (!file) return;
-    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 5 * 1024 * 1024) { toast.error("5 మెగాబైట్లలోపు ఫోటో ఇవ్వండి · JPEG, PNG or WebP under 5MB"); return; }
     if (!consent) { toast.error("ఫోటో అనుమతి ఎంచుకోండి · Confirm photo permission"); return; }
+    if (!canPublishPhoto(file.type, file.size, consent)) { toast.error("5 మెగాబైట్లలోపు ఫోటో ఇవ్వండి · JPEG, PNG or WebP under 5MB"); return; }
     setBusy(true);
     const path = `${data.id}/${crypto.randomUUID()}.${file.type.split("/")[1]}`;
     try {
