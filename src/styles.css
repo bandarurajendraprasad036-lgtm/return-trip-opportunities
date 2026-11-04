@@ -73,51 +73,51 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-:root {
-  --royal: oklch(0.12 0 0);
-  --gold: oklch(0.82 0.14 85);
-  --rose-gold: oklch(0.78 0.10 35);
-  --bell-yellow: oklch(0.93 0.18 99);
-  --on-royal: oklch(0.96 0.015 90);
-  --radius: 0.75rem;
-  --background: oklch(0.97 0.006 200);
-  --foreground: oklch(0.22 0.04 220);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.04 220);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.04 220);
-  --primary: oklch(0.32 0.07 215);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.86 0.17 90);
-  --secondary-foreground: oklch(0.22 0.04 220);
-  --muted: oklch(0.94 0.01 210);
-  --muted-foreground: oklch(0.5 0.03 220);
-  --accent: oklch(0.72 0.14 185);
-  --accent-foreground: oklch(0.99 0 0);
-  --destructive: oklch(0.58 0.22 27);
-  --destructive-foreground: oklch(0.99 0 0);
-  --success: oklch(0.62 0.16 150);
-  --success-foreground: oklch(0.99 0 0);
-  --job: oklch(0.6 0.15 250);
-  --vehicle: oklch(0.68 0.17 50);
-  --border: oklch(0.9 0.01 210);
-  --input: oklch(0.88 0.015 210);
-  --ring: oklch(0.72 0.14 185);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
-  --shadow-card: 0 2px 10px -4px color-mix(in oklab, var(--primary) 25%, transparent);
-  --gradient-hero: linear-gradient(160deg, var(--primary), color-mix(in oklab, var(--primary) 60%, var(--accent)));
+:root, .dark {
+  --royal: oklch(0 0 0);
+  --gold: #ffc107;
+  --rose-gold: var(--gold);
+  --bell-yellow: var(--gold);
+  --on-royal: var(--gold);
+  --radius: 1.25rem;
+  --background: var(--royal);
+  --foreground: var(--gold);
+  --card: var(--royal);
+  --card-foreground: var(--gold);
+  --popover: var(--royal);
+  --popover-foreground: var(--gold);
+  --primary: var(--gold);
+  --primary-foreground: var(--royal);
+  --secondary: var(--gold);
+  --secondary-foreground: var(--royal);
+  --muted: var(--royal);
+  --muted-foreground: var(--gold);
+  --accent: var(--gold);
+  --accent-foreground: var(--royal);
+  --destructive: var(--gold);
+  --destructive-foreground: var(--royal);
+  --success: var(--gold);
+  --success-foreground: var(--royal);
+  --job: var(--royal);
+  --vehicle: var(--royal);
+  --border: var(--gold);
+  --input: var(--gold);
+  --ring: var(--gold);
+  --chart-1: var(--gold);
+  --chart-2: var(--gold);
+  --chart-3: var(--gold);
+  --chart-4: var(--gold);
+  --chart-5: var(--gold);
+  --sidebar: var(--royal);
+  --sidebar-foreground: var(--gold);
+  --sidebar-primary: var(--gold);
+  --sidebar-primary-foreground: var(--royal);
+  --sidebar-accent: var(--royal);
+  --sidebar-accent-foreground: var(--gold);
+  --sidebar-border: var(--gold);
+  --sidebar-ring: var(--gold);
+  --shadow-card: 0 0 12px color-mix(in oklab, var(--gold) 12%, transparent);
+  --gradient-hero: linear-gradient(var(--royal), var(--royal));
 }
 
 @layer base {
@@ -154,3 +154,30 @@
 @media (prefers-reduced-motion: reduce) { .profile-scroll { animation: none; white-space: normal; padding-inline: 12px; } .home-bell, .home-bell:active { animation: none; } }
 
 .gold-ring { display:grid; place-items:center; width:3rem; height:3rem; border-radius:9999px; border:2px solid var(--gold); color: var(--gold); box-shadow:0 0 12px color-mix(in oklab, var(--gold) 40%, transparent); }
+
+/* The notebook's columns share one black/gold canvas. */
+body { color-scheme: dark; letter-spacing: 0; }
+.home-temple-trigger { display: block; width: min(100%, 22rem); height: auto; margin: 1rem auto 0; padding: 0; background: var(--royal); border-radius: 0; border: 0; box-shadow: none; }
+.home-temple-trigger:hover, .home-temple-trigger:active { background: var(--royal); }
+.home-engraved-bell { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: contain; }
+.home-market-section { padding: 1rem 0; border-top: 2px solid var(--gold); }
+.home-section-title { display:flex; gap:.5rem; align-items:center; font-size: 1.125rem; font-weight:700; }
+.home-section-title svg { width:1.25rem; flex-shrink:0; }
+.home-location-form { display:grid; gap:.75rem; padding: .75rem 0; }
+.home-location-form label { font-size:.875rem; font-weight:700; display:block; margin-bottom:.5rem; }
+.home-location-form input { height:3.5rem; border-width:3px; border-radius:1.25rem; text-align:center; font-size:1.125rem; }
+.home-location-form button { height:3rem; border-radius:1.25rem; }
+.home-vehicle-columns { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); border:3px solid var(--gold); border-radius:1.25rem; padding:.5rem; gap:.5rem; }
+.home-job-columns { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.75rem; }
+.home-display-column { min-width:0; }
+.home-display-column h3 { display:flex; flex-direction:column; justify-content:center; min-height:6rem; text-align:center; font-size:.875rem; line-height:1.6; font-weight:700; border:2px solid var(--gold); border-radius:1.25rem; padding:.5rem .25rem; overflow-wrap:anywhere; }
+.home-display-column h3 span { font-size:.875rem; }
+.home-vehicle-columns .home-display-column:nth-child(2) h3 { background:var(--gold); color:var(--royal); }
+.home-display-list { padding-top:.5rem; }
+.home-empty { text-align:center; padding:.75rem .25rem; font-size:.8125rem; overflow-wrap:anywhere; }
+.home-apply { width:100%; min-height:6rem; height:auto; white-space:normal; padding:.75rem .5rem; border:3px solid var(--gold); border-radius:1.25rem; background:var(--gold); color:var(--royal); margin-bottom:.75rem; font-size:1rem; }
+.home-post-row { border-bottom:1px solid var(--gold); padding:.75rem .25rem; text-align:center; overflow-wrap:anywhere; }
+.home-post-row h4 { font-size:1rem; font-weight:700; }
+.home-post-row p { font-size:.8125rem; margin:.5rem 0; }
+.home-post-row button { background:var(--gold); color:var(--royal); border:2px solid var(--gold); }
+@media (prefers-reduced-motion: no-preference) { .home-temple-trigger:active { animation:bell-ring .5s ease-in-out; } }
