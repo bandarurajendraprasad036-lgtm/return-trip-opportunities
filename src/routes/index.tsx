@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import mata from "@/assets/gayatri-mata.jpg";
 import mataGreen from "@/assets/gayatri-mata-green.jpg";
 import mataIvory from "@/assets/gayatri-mata-ivory.jpg";
-import { dailyDevotionalIndex, indianDay } from "@/lib/daily-devotional";
+import { dailyDevotionalIndex, devotionalFallback, indianDay } from "@/lib/daily-devotional";
 import { getDailyArtwork } from "@/lib/devotional.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { DesignFooter } from "@/components/DesignFooter";
@@ -107,7 +107,7 @@ function Index() {
             <rect x="6" y="178" width="188" height="12" rx="6" fill="url(#bellg)" />
             <circle cx="100" cy="204" r="12" fill="url(#bellg)" />
           </svg>
-          <img src={scheduled.data || [mata, mataGreen, mataIvory][devotional]} alt="గాయత్రి మాత · Gayatri Mata" className="absolute left-1/2 top-[24%] size-32 -translate-x-1/2 rounded-full border-4 border-gold object-cover" width={768} height={768} onError={event => { event.currentTarget.src = [mata, mataGreen, mataIvory][devotional] ?? mata; }} />
+          <img src={scheduled.data || [mata, mataGreen, mataIvory][devotional]} alt="గాయత్రి మాత · Gayatri Mata" className="absolute left-1/2 top-[24%] size-32 -translate-x-1/2 rounded-full border-4 border-gold object-cover" width={768} height={768} onError={event => { const el = event.currentTarget; const tried = (el.dataset.tried ?? "").split("|").filter(Boolean); const next = devotionalFallback(el.src, [mata, mataGreen, mataIvory], devotional, tried); if (next) { el.dataset.tried = [...tried, el.src].join("|"); el.src = next; } else el.style.visibility = "hidden"; }}/>
         </div>
         <BellJoin />
         <p className="mt-2 text-center font-serif text-4xl font-extrabold text-gold">GAYATRI ONE</p>

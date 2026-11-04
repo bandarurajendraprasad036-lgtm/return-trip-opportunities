@@ -98,3 +98,6 @@
 - [x] Home: Gayatri Mata image changes once per India calendar day from existing images (already exists, dailyDevotionalIndex)
 - [ ] Home bell image: verify uncropped on small/large phones, portrait and landscape
 - [x] Daily Mata image tests: just before / just after India midnight, stable until day end
+- [x] Daily Mata image: fallback to bundled image if it fails to load (no broken image)
+- [x] Daily Mata image: tests that device timezone does not change the India-date choice
+- [x] Home bell layout check across phone sizes and orientations (scripts/check-bell-layout.py)
