@@ -5,7 +5,7 @@ import { z } from "zod";
 
 const profileSchema = z.object({ user_id: z.string(), display_name: z.string(), service: z.string(), bio: z.string(), photo_path: z.string(), published: z.boolean() });
 const payloadSchema = z.object({ profile: profileSchema, photos: z.array(z.object({ id: z.string(), path: z.string(), caption: z.string() })), reviews: z.array(z.object({ id: z.string(), rating: z.number(), body: z.string(), created_at: z.string() })), likes: z.number(), views: z.number() });
-export const getServiceProfile = createServerFn({ method: "GET" }).inputValidator((data: { id: string }) => ({ id: z.uuid().parse(data.id) })).handler(async ({ data }) => {
+export const getServiceProfile = createServerFn({ method: "GET" }).inputValidator((data: { id: string }) => ({ id: z.string().uuid().parse(data.id) })).handler(async ({ data }) => {
   const key = process.env['SUPABASE_PUBLISHABLE_KEY']!;
   const client = createClient(process.env['SUPABASE_URL']!, key, { auth: { persistSession: false }, global: { fetch: (input, init) => {
     const headers = new Headers(init?.headers); if (headers.get("Authorization") === `Bearer ${key}` && key.startsWith("sb_")) headers.delete("Authorization"); headers.set("apikey", key); return fetch(input, { ...init, headers });
@@ -24,7 +24,7 @@ export const getServiceProfile = createServerFn({ method: "GET" }).inputValidato
   return { ...value, photo: await image(value.profile.photo_path), photos: await Promise.all(value.photos.map(async (p) => ({ ...p, url: await image(p.path) }))) };
 });
 
-export const recordServiceView = createServerFn({ method: "POST" }).inputValidator((d: { id: string; visitor: string }) => ({ id: z.uuid().parse(d.id), visitor: z.string().regex(/^[a-f0-9]{64}$/).parse(d.visitor) })).handler(async ({ data }) => {
+export const recordServiceView = createServerFn({ method: "POST" }).inputValidator((d: { id: string; visitor: string }) => ({ id: z.string().uuid().parse(d.id), visitor: z.string().regex(/^[a-f0-9]{64}$/).parse(d.visitor) })).handler(async ({ data }) => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { error } = await supabaseAdmin.rpc("record_service_view", { _id: data.id, _visitor: data.visitor });
   if (error) throw new Error("వీక్షణ లెక్క సేవ్ కాలేదు");
