@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] November 4 10:54 follow-ups: filtered-empty message/clear regression tests; auto-update vehicle position; only active booking customer can read position, display last-known position and timestamp when stale. Maps authorization and real booking lifecycle are blockers.
 - [ ] November 4 10:54: booked/requesting customer can see vehicle's actual live location on map — blocked on authorized Maps connection, consensual driver location sharing, and a defined booking/participant permission flow; never expose all drivers' locations.
 - [ ] November 4 10:53: test daily reset before/exactly/after midnight and timezone changes; logout/login preference retention; individual/combined date/location/kind filters and individual/all clear restoration. Filter UI and detail route not yet implemented.
 - [ ] November 4 10:52: add job-alert date/location/kind filters and automated persisted-settings/quota-reset/job-detail navigation tests; overnight quiet-hour unit tests added, remaining integration checks pending.
