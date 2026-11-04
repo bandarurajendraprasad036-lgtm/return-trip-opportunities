@@ -79,6 +79,7 @@ function NewPost() {
   const [f, setF] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   useEffect(() => {
+  const checkText = useServerFn(checkPostText);
     if (!me?.profile) return;
     setF((prev) => ({
       ...prev,
