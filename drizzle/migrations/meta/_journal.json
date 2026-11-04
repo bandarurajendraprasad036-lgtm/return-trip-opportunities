@@ -78,6 +78,13 @@
       "when": 1793764079322,
       "tag": "0010_messages_needs_admin",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1793764429040,
+      "tag": "0011_daily_referral_reminder",
+      "breakpoints": true
     }
   ]
 }

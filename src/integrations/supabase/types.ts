@@ -336,6 +336,7 @@ export type Database = {
         Args: { _approve: boolean; _id: string; _note?: string }
         Returns: undefined
       }
+      send_referral_reminders: { Args: never; Returns: number }
     }
     Enums: {
       app_role: "admin" | "user"
