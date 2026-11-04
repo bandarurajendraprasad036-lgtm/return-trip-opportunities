@@ -1,0 +1,14 @@
+import { useState } from 'react';
+import { useQuery,useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { useMe } from '@/lib/session';
+import { rewardError } from '@/lib/reward-rules';
+export function AdminSharingClaims() {
+  const {data:me}=useMe(); const qc=useQueryClient(); const [busy,setBusy]=useState(false); const [images,setImages]=useState<string[]>([]);
+  const {data=[],error}=useQuery({queryKey:['admin-sharing-claims'],enabled:!!me?.isAdmin,queryFn:async()=>{const result=await supabase.from('sharing_claims').select('*').eq('status','pending').order('created_at');if(result.error)throw result.error;return result.data;}});
+  if(!me?.isAdmin)return null;
+  const review=async(id:string,approve:boolean)=>{if(!confirm(approve?'పది వేర్వేరు సమూహాల ఆధారాలు సరైనవని నిర్ధారించారా? · Confirm ten distinct groups?':'తిరస్కరించాలా? · Reject?'))return;setBusy(true);try{const result=await supabase.rpc('review_sharing_claim',{_id:id,_approve:approve,_note:''});if(result.error)throw result.error;setImages([]);await qc.invalidateQueries();}catch(e){toast.error(rewardError(String(e instanceof Error?e.message:e)));}finally{setBusy(false);}};
+  return <section className="space-y-3 border-y py-4"><h2 className="text-xl font-bold">పంచుకున్న ఆధారాల ఆమోదం · Sharing review</h2>{error&&<p role="alert">సమాచారం రాలేదు · Could not load</p>}{data.length===0&&<p>పెండింగ్ అభ్యర్థనలు లేవు · No pending claims</p>}{data.map(c=><article key={c.id} className="space-y-2 border p-3"><p>{new Date(c.created_at).toLocaleDateString('te-IN')} · {c.evidence_paths.length} చిత్రాలు</p><div className="flex flex-wrap gap-2"><Button disabled={busy} variant="outline" onClick={async()=>{setBusy(true);try{const result=await supabase.storage.from('sharing-evidence').createSignedUrls(c.evidence_paths,300);if(result.error)throw result.error;setImages(result.data.flatMap(i=>i.signedUrl?[i.signedUrl]:[]));}catch{toast.error('చిత్రాలు తెరవలేకపోయాం · Could not open evidence');}finally{setBusy(false);}}}>ఆధారాలు చూడండి · Evidence</Button><Button disabled={busy || images.length!==10} onClick={()=>review(c.id,true)}>ఆమోదించు · Approve</Button><Button disabled={busy} variant="destructive" onClick={()=>review(c.id,false)}>తిరస్కరించు · Reject</Button></div></article>)}<div className="grid grid-cols-2 gap-2">{images.map((url,index)=><a key={url} href={url} target="_blank" rel="noreferrer"><img src={url} alt={`ఆధారం ${index+1}`} className="aspect-square w-full object-contain" /></a>)}</div></section>;
+}

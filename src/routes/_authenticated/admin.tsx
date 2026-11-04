@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { AdminReferrals } from "@/components/AdminReferrals";
 import { AdminPayments } from "@/components/AdminPayments";
 import { AdminDevotional } from "@/components/AdminDevotional";
+import { AdminSharingClaims } from '@/components/AdminSharingClaims';
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -79,6 +80,7 @@ function Admin() {
       <AdminReferrals />
       <AdminDevotional />
       <AdminPayments />
+      <AdminSharingClaims />
       <div className="grid grid-cols-2 gap-3">
         {stats.map(([te, en, n]) => (
           <div key={en} className="rounded-xl bg-card p-3 shadow-card">
