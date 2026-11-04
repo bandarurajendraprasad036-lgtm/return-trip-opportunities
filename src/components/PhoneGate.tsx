@@ -30,7 +30,7 @@ export function PhoneGate() {
 
   return (
     <Dialog open>
-      <DialogContent className="max-w-sm [&>button]:hidden" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
+      <DialogContent className="max-w-sm [&>button:last-child]:hidden" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="text-xl">మొబైల్ నంబర్ ఇవ్వండి · Enter mobile number</DialogTitle>
           <DialogDescription>కొనసాగడానికి మీ మొబైల్ నంబర్ తప్పనిసరి · Required to continue</DialogDescription>
