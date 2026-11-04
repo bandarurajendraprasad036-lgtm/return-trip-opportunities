@@ -6,7 +6,15 @@ import { useMe } from '@/lib/session';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { BrowserNotificationSettings } from '@/components/BrowserNotificationSettings';
 export function NotificationSettings() {
+ const {data:me}=useMe();const qc=useQueryClient();const [enabled,setEnabled]=useState(true);const [limit,setLimit]=useState('3');const [zone,setZone]=useState('Asia/Kolkata');const [start,setStart]=useState('');const [end,setEnd]=useState('');const [busy,setBusy]=useState(false);
+ const {data,error}=useQuery({queryKey:['notification-settings',me?.id],enabled:!!me,queryFn:async()=>{if(!me)return null;const [prefs,quota]=await Promise.all([supabase.from('notification_preferences').select('*').eq('user_id',me.id).maybeSingle(),supabase.rpc('my_notification_quota')]);if(prefs.error||quota.error)throw prefs.error??quota.error;return {prefs:prefs.data,quota:quota.data as {remaining:number|null;resets_at:string;timezone:string}};},refetchInterval:30000});
+ useEffect(()=>{if(!data)return;const p=data.prefs;setEnabled(p?.enabled??true);setLimit(p?.daily_limit?.toString()??(me?.profile?.is_prime?'':'3'));setZone(p?.timezone??Intl.DateTimeFormat().resolvedOptions().timeZone);setStart(p?.quiet_start?.slice(0,5)??'');setEnd(p?.quiet_end?.slice(0,5)??'');},[data,me?.profile?.is_prime]);
+ if(!me)return null;
+ return <><BrowserNotificationSettings /><AccountNotificationSettings /></>;
+}
+function AccountNotificationSettings() {
  const {data:me}=useMe();const qc=useQueryClient();const [enabled,setEnabled]=useState(true);const [limit,setLimit]=useState('3');const [zone,setZone]=useState('Asia/Kolkata');const [start,setStart]=useState('');const [end,setEnd]=useState('');const [busy,setBusy]=useState(false);
  const {data,error}=useQuery({queryKey:['notification-settings',me?.id],enabled:!!me,queryFn:async()=>{if(!me)return null;const [prefs,quota]=await Promise.all([supabase.from('notification_preferences').select('*').eq('user_id',me.id).maybeSingle(),supabase.rpc('my_notification_quota')]);if(prefs.error||quota.error)throw prefs.error??quota.error;return {prefs:prefs.data,quota:quota.data as {remaining:number|null;resets_at:string;timezone:string}};},refetchInterval:30000});
  useEffect(()=>{if(!data)return;const p=data.prefs;setEnabled(p?.enabled??true);setLimit(p?.daily_limit?.toString()??(me?.profile?.is_prime?'':'3'));setZone(p?.timezone??Intl.DateTimeFormat().resolvedOptions().timeZone);setStart(p?.quiet_start?.slice(0,5)??'');setEnd(p?.quiet_end?.slice(0,5)??'');},[data,me?.profile?.is_prime]);

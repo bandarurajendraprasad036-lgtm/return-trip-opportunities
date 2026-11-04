@@ -3,12 +3,12 @@ import { Link } from "@tanstack/react-router";
 import { Bell, BellOff, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { enableBellAudio,playBell } from '@/lib/bell';
+import { playBell } from '@/lib/bell';
+import { useBellSound } from '@/lib/use-bell-sound';
 
 export function IncomingNotice({ userId }: { userId: string }) {
   const [notice, setNotice] = useState<{ body: string; sender?: string | undefined; post?: string | undefined } | null>(null);
-  const [muted, setMuted] = useState(false);
-  useEffect(() => { try { setMuted(localStorage.getItem("gayatri-notices-muted") === "yes"); } catch { /* Optional. */ } }, []);
+  const { muted, change } = useBellSound();
   useEffect(() => {
     const channel = supabase.channel(`screen-notice-${userId}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` }, payload => setNotice({ body: String(payload.new["message"] ?? "కొత్త సమాచారం · New alert") }))
@@ -16,8 +16,8 @@ export function IncomingNotice({ userId }: { userId: string }) {
       .subscribe();
     return () => { void supabase.removeChannel(channel); };
   }, [userId]);
-  useEffect(() => { if (notice && !muted) playBell(); }, [notice,muted]);
-  const toggleSound=()=>{setMuted(!muted);if(muted)enableBellAudio();try{localStorage.setItem('gayatri-notices-muted',muted?'no':'yes');}catch{/* Optional. */}};
+  useEffect(() => { if (notice) playBell(); }, [notice]);
+  const toggleSound=()=>change(muted);
   if (!notice) return <Button variant="outline" size="icon" aria-label={muted?'గంట శబ్దం ఆన్ · Enable bell sound':'గంట శబ్దం ఆఫ్ · Mute bell sound'} className="fixed right-3 top-28 z-40" onClick={toggleSound}>{muted?<BellOff/>:<Bell/>}</Button>;
   return <aside role="status" className="fixed inset-x-3 top-3 z-50 mx-auto max-w-md rounded-lg border border-secondary bg-card p-3 shadow-card">
     <div className="flex items-center gap-2"><Bell className="size-5 shrink-0 text-primary" /><p className="min-w-0 flex-1 text-sm font-bold">కొత్త సమాచారం · New information</p><Button variant="ghost" size="icon" aria-label={muted?'గంట శబ్దం ఆన్ · Enable bell sound':'గంట శబ్దం ఆఫ్ · Mute bell sound'} onClick={toggleSound}>{muted?<BellOff/>:<Bell/>}</Button><Button variant="ghost" size="icon" aria-label="మూసివేయండి · Dismiss" onClick={() => setNotice(null)}><X /></Button></div>

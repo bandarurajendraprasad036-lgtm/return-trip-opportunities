@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { toast } from 'sonner';
 import { permissionThanks } from '@/lib/friendly-notifications';
 import { enableBellAudio,playBell } from '@/lib/bell';
+import { permissionHelp, requestBrowserPermission } from '@/lib/browser-notifications';
 
 type InstallEvent = Event & { prompt: () => Promise<void> };
 
@@ -75,7 +76,7 @@ export function NotificationPermission({ userId }: { userId: string }) {
       <p className="font-bold">🔔 మ్యాచ్ వస్తే ఫోన్‌కు అలర్ట్ కావాలా?</p>
       <p className="text-sm text-muted-foreground">Get alerts on your phone when a match comes?</p>
       <div className="mt-3 flex gap-2">
-        <Button className="flex-1" onClick={async () => { enableBellAudio(); const permission=await Notification.requestPermission().catch(()=> 'denied'); setAsk(false); const message=permissionThanks(permission==='granted'); if(message){toast.success(message,{duration:10000});playBell();} }}>అవును · Allow</Button>
+        <Button className="flex-1" onClick={async () => { enableBellAudio(); const permission=await requestBrowserPermission(); setAsk(false); const message=permissionThanks(permission==='granted'); if(message){toast.success(message,{duration:10000});playBell();}else toast.info(permissionHelp[permission]); }}>అవును · Allow</Button>
         <Button variant="outline" className="flex-1" onClick={() => setAsk(false)}>తర్వాత · Later</Button>
       </div>
     </div>
