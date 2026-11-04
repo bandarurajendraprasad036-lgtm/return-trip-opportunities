@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] November 4 11:11: verify compact homepage header and daily Gayatri Mata above lotus bell together on narrow/short phones; preserve all other points. Published layout checked separately; do not publish without permission.
 - [ ] November 4 10:58 supersedes freshness labels: show only last position timestamp, no fresh/aging/stale labels; timestamp formatting helper/tests replace classifier. Real map integration remains blocked.
 - [x] November 4 10:57: confirmed freshness thresholds implemented in location-freshness.ts: <=5 minutes fresh, >5 and <=15 aging, >15 stale; exact boundary regression tests added. Not yet connected to a map; mapping/booking authorization remains blocked.
 - [ ] November 4 10:56: vehicle freshness uses color plus explicit text and accessible screen-reader label; stop timer when map closes or booking ends; tests at freshness thresholds with last-updated timestamp. Tracking implementation blocked on map/booking setup and unspecified freshness thresholds.

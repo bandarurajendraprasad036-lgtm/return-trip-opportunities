@@ -78,19 +78,19 @@ function Index() {
 
   return (
     <div className="mx-auto min-h-screen max-w-md bg-background">
-      <section className="bg-royal px-5 pb-6 pt-6 text-on-royal">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <h1 className="text-4xl font-extrabold leading-none">
+      <section className="home-devotional bg-royal px-5 pb-6 pt-4 text-on-royal">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h1 className="min-w-0 font-extrabold leading-none">
             <Brand />
           </h1>
           <div className="flex gap-2">
-            <Link to="/notifications" className={iconLink} aria-label="Notifications"><Bell className="size-5" /></Link>
-            <Link to="/chats" className={iconLink} aria-label="Chats"><MessageCircle className="size-5" /></Link>
-            <Link to="/my-posts" className={iconLink} aria-label="Profile"><User className="size-5" /></Link>
+            <Link to="/notifications" className={iconLink} aria-label="సమాచారాలు · Notifications"><Bell className="size-5" /></Link>
+            <Link to="/chats" className={iconLink} aria-label="సంభాషణలు · Chats"><MessageCircle className="size-5" /></Link>
+            <Link to="/my-posts" className={iconLink} aria-label="నా వివరాలు · Profile"><User className="size-5" /></Link>
           </div>
         </div>
         <p className="mt-3 text-center text-lg text-gold">మన ప్రాంత సమాచారం మన గుప్పెట్లో</p>
-        <img src={scheduled.data || [mata, mataGreen, mataIvory][devotional]} alt="గాయత్రి మాత" className="mx-auto mt-4 aspect-square w-full max-w-80 object-contain" width={768} height={768} onError={event => { event.currentTarget.src = [mata, mataGreen, mataIvory][devotional] ?? mata; }} />
+        <img src={scheduled.data || [mata, mataGreen, mataIvory][devotional]} alt="గాయత్రి మాత" className="home-mata mx-auto mt-3 aspect-square w-full max-w-80 object-contain" width={768} height={768} onError={event => { event.currentTarget.src = [mata, mataGreen, mataIvory][devotional] ?? mata; }} />
         <BellJoin />
         <DailyWelcome />
         <p className="mt-2 text-center text-sm opacity-80">యాక్టివ్ పోస్ట్‌లు · Active posts: {fmt(total)}</p>
