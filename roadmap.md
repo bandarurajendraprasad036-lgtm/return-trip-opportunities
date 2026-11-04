@@ -1,4 +1,6 @@
 # Roadmap
+- [ ] Extend existing AI job-ad drafting with separate skills, experience and expected-salary inputs; verify bilingual draft
+- [ ] Complete existing manifest-only phone installation with raster icons and install/fallback controls; no offline cache requested
 - [x] Explain domain purchase and included website hosting; active paid subscription confirmed, free one-year offer not verified
 - [ ] Combined implementation authorized November 4, 2026 at 05:50 UTC — clarify outstanding pricing/sharing/referral terms, audit existing features, then implement and verify together
 - [x] Explain screenshot's editor Publish button: releases current changes to the public website, unrelated to the poster

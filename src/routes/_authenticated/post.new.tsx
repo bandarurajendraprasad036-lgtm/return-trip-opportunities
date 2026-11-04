@@ -16,15 +16,21 @@ import { useServerFn } from "@tanstack/react-start";
 import { checkPostText } from "@/lib/moderation.functions";
 import { Sparkles } from "lucide-react";
 import { draftJobAd, type JobAdDraft } from "@/lib/ai-job-ad.functions";
+import { buildJobAdInput } from "@/lib/job-ad-input";
 
 function AiJobAd({ kind, onDraft }: { kind: "seeker" | "employer"; onDraft: (d: JobAdDraft) => void }) {
   const run = useServerFn(draftJobAd);
   const [text, setText] = useState("");
+  const [skills, setSkills] = useState("");
+  const [experience, setExperience] = useState("");
+  const [salary, setSalary] = useState("");
+  const [location, setLocation] = useState("");
   const [busy, setBusy] = useState(false);
+  const draftInput = kind === "seeker" ? buildJobAdInput({ text, skills, experience, salary, location }) : text.trim();
   const go = async () => {
     setBusy(true);
     try {
-      const d = await run({ data: { text, kind } });
+      const d = await run({ data: { text: draftInput, kind } });
       onDraft(d);
       toast.success("AI ప్రకటన రెడీ! కింద చూసి సరిచేయండి · Ad ready, check below");
     } catch (e) {
@@ -36,13 +42,21 @@ function AiJobAd({ kind, onDraft }: { kind: "seeker" | "employer"; onDraft: (d: 
   return (
     <div className="space-y-2 rounded-xl border-2 border-dashed border-primary/40 bg-card p-3">
       <p className="font-bold">✨ AI తో ప్రకటన రాయండి · Write ad with AI</p>
+      {kind === "seeker" && (
+        <div className="grid min-w-0 gap-3">
+          <div className="space-y-1"><Label htmlFor="ad-skills">నైపుణ్యాలు · Skills</Label><Input id="ad-skills" value={skills} onChange={(e) => setSkills(e.target.value)} maxLength={100} disabled={busy} /></div>
+          <div className="space-y-1"><Label htmlFor="ad-experience">అనుభవం · Experience</Label><Input id="ad-experience" value={experience} onChange={(e) => setExperience(e.target.value)} maxLength={100} disabled={busy} /></div>
+          <div className="space-y-1"><Label htmlFor="ad-salary">ఆశించిన జీతం · Expected salary</Label><Input id="ad-salary" value={salary} onChange={(e) => setSalary(e.target.value)} maxLength={40} disabled={busy} /></div>
+          <div className="space-y-1"><Label htmlFor="ad-location">పని కావాల్సిన ప్రాంతం · Work location</Label><Input id="ad-location" value={location} onChange={(e) => setLocation(e.target.value)} maxLength={80} disabled={busy} /></div>
+        </div>
+      )}
       <p className="text-sm text-muted-foreground">
         {kind === "seeker"
           ? "మీ పని, అనుభవం, ఊరు, జీతం మీ మాటల్లో చెప్పండి · Describe your skills & wanted work"
           : "ఏ పనివాడు కావాలి, ఎక్కడ, జీతం చెప్పండి · Describe the worker you need"}
       </p>
       <Textarea value={text} onChange={(e) => setText(e.target.value)} maxLength={1000} className="text-base" placeholder={kind === "seeker" ? "e.g. నేను 5 సంవత్సరాలు ట్రాక్టర్ డ్రైవర్, గుంటూరు దగ్గర పని కావాలి, రోజుకు 700" : "e.g. విజయవాడలో షాప్ కి హెల్పర్ కావాలి, నెలకు 12000"} />
-      <Button type="button" className="w-full" size="lg" disabled={busy || text.trim().length < 3} onClick={go}>
+      <Button type="button" className="h-auto min-h-12 w-full whitespace-normal px-2 py-2" size="lg" disabled={busy || draftInput.length < 3 || draftInput.length > 1000} onClick={go}>
         <Sparkles />{busy ? "రాస్తోంది... Writing..." : "ప్రకటన తయారు చేయి · Create ad"}
       </Button>
     </div>
@@ -81,11 +95,12 @@ function NewPost() {
   const [busy, setBusy] = useState(false);
   const checkText = useServerFn(checkPostText);
   useEffect(() => {
-    if (!me?.profile) return;
+    const profile = me?.profile;
+    if (!profile) return;
     setF((prev) => ({
       ...prev,
-      location: prev["location"] || me.profile!.location,
-      contact_phone: prev["contact_phone"] || me.profile!.phone,
+      location: prev["location"] || profile.location,
+      contact_phone: prev["contact_phone"] || profile.phone,
     }));
   }, [me, kind]);
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setF({ ...f, [k]: e.target.value });
@@ -105,7 +120,8 @@ function NewPost() {
     );
   }
 
-  const opt = OPTIONS.find((o) => o.kind === kind)!;
+  const opt = OPTIONS.find((o) => o.kind === kind);
+  if (!opt) return null;
   const isJob = opt.module === "job";
 
   const submit = async (e: React.FormEvent): Promise<void> => {
