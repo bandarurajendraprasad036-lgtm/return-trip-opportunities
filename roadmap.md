@@ -1,6 +1,6 @@
 # Roadmap
 - [ ] Add opt-in public service profiles, WhatsApp sharing, work photos, authentic reviews, profile views and likes; protect private account data
-- [ ] Redesign sharing poster in English: ₹99 plus status and nine people/groups; without sharing ₹499; clarify people-versus-groups requirement, benefit/duration and correct referral code
+- [x] Redesign sharing poster in English: ₹99 plus status and nine people OR groups for one month full membership; without sharing ₹499; blank referral field because no code provided
 - [x] Show generated job-ad preview directly on creation screen and verify populated result on mobile
 - [x] Confirm Gayatri One home-screen installation button is available on homepage
 - [x] Recheck old Return Connect branding in current app/demo — none visible; legacy synthetic sign-in domain retained to preserve existing accounts
