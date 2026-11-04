@@ -121,7 +121,7 @@ function NewPost() {
     setBusy(true);
     const { error } = await supabase.from("posts").insert({ ...v, show_contact: show_contact === "1", user_id: me.id, module: opt.module, kind, title });
     setBusy(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(error.message.includes("BAD_CONTENT") ? "🚫 బూతులు, చెడు మాటలు, దేశ వ్యతిరేక విషయాలు పోస్ట్ చేయకూడదు · Abusive or anti-national content is not allowed" : error.message); return; }
     toast.success("పోస్ట్ అయ్యింది! మ్యాచ్ వస్తే అలర్ట్ వస్తుంది · Posted! You'll be alerted on a match");
     qc.invalidateQueries();
     nav({ to: "/my-posts" });
