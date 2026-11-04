@@ -35,6 +35,7 @@ function AuthPage() {
   const [pin, setPin] = useState("");
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
+  const [ref, setRef] = useState("");
   const [busy, setBusy] = useState(false);
 
   const submit = async (e: React.FormEvent): Promise<void> => {
@@ -46,6 +47,8 @@ function AuthPage() {
     const email = phoneToEmail(p.data);
     if (mode === "signup") {
       if (!name.trim()) { setBusy(false); toast.error("పేరు ఇవ్వండి / Enter name"); return; }
+      const rc = ref.trim().toUpperCase();
+      if (/^[A-Z0-9]{4,16}$/.test(rc)) localStorage.setItem("g1_ref", rc);
       const { error } = await supabase.auth.signUp({
         email,
         password: pin,
@@ -90,6 +93,12 @@ function AuthPage() {
           <div className="space-y-1">
             <Label className="text-base">మీ ఊరు · Your village/town</Label>
             <Input className="h-12 text-lg" value={location} onChange={(e) => setLocation(e.target.value)} maxLength={80} />
+          </div>
+        )}
+        {mode === "signup" && (
+          <div className="space-y-1">
+            <Label className="text-base">రిఫరల్ కోడ్ (ఉంటే) · Referral code (optional)</Label>
+            <Input className="h-12 text-lg uppercase" value={ref} onChange={(e) => setRef(e.target.value)} maxLength={16} />
           </div>
         )}
         <Button type="submit" variant="secondary" size="xl" className="w-full" disabled={busy}>
