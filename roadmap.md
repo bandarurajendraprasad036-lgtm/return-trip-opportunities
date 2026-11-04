@@ -1,9 +1,9 @@
 # Roadmap
-- [ ] Point 8: job seeker/employer tabs, two-character village/work suggestions, general work box, and clear prohibited-word feedback; map each supplied subrequirement to source and tests.
-- [ ] Create and synchronize requirement traceability map; original 721 numbered points remain unavailable. Do not invent original point numbers.
-- [ ] Next confirmed sharing-image/profile-link improvement follows Point 8; original master number not supplied.
+- [x] Point 8: job seeker/employer tabs, two-character village/work suggestions, general work box, and clear prohibited-word feedback; 4 rules tests pass and signed-in mobile selection/blocked-post flow verified.
+- [x] Create requirement-map.md for supplied requirements and synchronize with current source/tests; original 721 numbered points remain unavailable. Do not invent original point numbers.
+- [x] Next confirmed sharing-image/profile-link inspection: separate editor and personal public-profile WhatsApp link already exist; image-only forwarding cannot carry a clickable destination. Cross-account review verification still blocked on second account.
 - [ ] November 4 10:08–10:09: map every completed change to supplied requirements, audit all previous points, and test mobile welcome/bell/chat/alerts/payment. User mentions 721 master items, but the numbered 721-item source is not present; request it rather than claim an exhaustive match.
-- [ ] November 4 10:01: implement new devotional shine/yellow bell, prominent wordmark, daily welcome, home notice, responsibility language choice and updated footer; attractive existing membership benefits.
+- [x] November 4 10:01: devotional shine/yellow bell, prominent wordmark, daily welcome, home notice, responsibility language choice, footer and membership benefits; mobile signed-in routes and successful once-daily audio verified without runtime errors.
 - [ ] November 4 10:01: real route map/distance, customer origin, structured vehicle/ton capacity and 20% endpoint matching — mapping service needed, custom domain requires own authorized browser key.
 - [ ] November 4 10:01: result bells open contextual chat, dismissible incoming banners, replies grouped per post, distinct area result sections.
 - [x] November 4 08:42 UTC: custom-domain homepage/feed/auth and protected-page guest redirects verified; signed-in dashboard/chats/alerts/post/service profile tested locally. Phone exposure fixed, 3 real authorization API tests pass; rescan no critical findings. Republish requested below.
