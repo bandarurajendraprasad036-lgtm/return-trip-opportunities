@@ -19,7 +19,7 @@ export const getServiceProfile = createServerFn({ method: "GET" }).inputValidato
     if (!path.startsWith(`${data.id}/`)) return "";
     const { data: signed } = await supabaseAdmin.storage.from("service-photos").createSignedUrl(path, 300);
     if (!signed) return "";
-    return signed.signedUrl.replace(process.env['SUPABASE_URL']!, import.meta.env.VITE_SUPABASE_URL);
+    return signed.signedUrl.replace(process.env['SUPABASE_URL']!, import.meta.env['VITE_SUPABASE_URL']);
   };
   return { ...value, photo: await image(value.profile.photo_path), photos: await Promise.all(value.photos.map(async (p) => ({ ...p, url: await image(p.path) }))) };
 });
