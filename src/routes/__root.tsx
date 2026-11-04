@@ -1,3 +1,4 @@
+import { PhoneGate } from "@/components/PhoneGate";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
