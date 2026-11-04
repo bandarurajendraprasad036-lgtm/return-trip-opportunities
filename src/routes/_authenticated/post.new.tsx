@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { JOB_CATEGORIES } from "@/lib/jobs";
 import { z } from "zod";
 import { Briefcase, Truck, UserSearch, Users, Package } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -109,16 +110,16 @@ function NewPost() {
     e.preventDefault();
     if (!me) return;
     const schema = isJob
-      ? z.object({ location: txt(80), skill: txt(100), salary: z.string().trim().max(40).optional(), description: z.string().trim().max(500).optional(), contact_phone: z.string().trim().max(15).optional() })
+      ? z.object({ location: txt(80), skill: txt(100), salary: z.string().trim().max(40).optional(), description: z.string().trim().max(500).optional(), contact_phone: z.string().trim().max(15).optional(), category: z.string().max(30).optional(), show_contact: z.string().optional() })
       : z.object({ from_place: txt(80), to_place: txt(80), trip_date: txt(10), ...(kind === "owner" ? { vehicle_type: txt(60) } : { goods_type: txt(80) }), description: z.string().trim().max(500).optional(), contact_phone: z.string().trim().max(15).optional() });
     const r = schema.safeParse(f);
     if (!r.success) { const i = r.error.issues[0]; toast.error(`${String(i?.path[0] ?? "")}: ${i?.message ?? ""}`); return; }
-    const v = r.data as Record<string, string>;
+    const { show_contact, ...v } = r.data as Record<string, string>;
     const title = isJob
       ? kind === "seeker" ? `${v["skill"]} పని కావాలి` : `${v["skill"]} కోసం పనివాడు కావాలి`
       : kind === "owner" ? `${v["vehicle_type"]} ఖాళీగా వస్తోంది` : `${v["goods_type"]} కోసం వాహనం కావాలి`;
     setBusy(true);
-    const { error } = await supabase.from("posts").insert({ ...v, user_id: me.id, module: opt.module, kind, title });
+    const { error } = await supabase.from("posts").insert({ ...v, show_contact: show_contact === "1", user_id: me.id, module: opt.module, kind, title });
     setBusy(false);
     if (error) { toast.error(error.message); return; }
     toast.success("పోస్ట్ అయ్యింది! మ్యాచ్ వస్తే అలర్ట్ వస్తుంది · Posted! You'll be alerted on a match");
@@ -145,6 +146,13 @@ function NewPost() {
           <AiJobAd kind={kind as "seeker" | "employer"} onDraft={(d) => setF((prev) => ({ ...prev, ...Object.fromEntries(Object.entries(d).filter(([, v]) => v)) }))} />
           {field("location", "ఊరు / ప్రాంతం", "Location", { placeholder: "e.g. Guntur" })}
           {field("skill", kind === "seeker" ? "మీ పని నైపుణ్యం" : "ఏ పని", kind === "seeker" ? "Skill" : "Work", { placeholder: "e.g. Driver, Mason, Farm work" })}
+          <div className="space-y-1">
+            <Label className="text-base">పని రకం · Category</Label>
+            <select className="h-12 w-full rounded-md border bg-card px-3 text-lg" value={f["category"] ?? ""} onChange={(e) => setF({ ...f, category: e.target.value })}>
+              <option value="">—</option>
+              {JOB_CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.te} · {c.en}</option>)}
+            </select>
+          </div>
           {field("salary", kind === "seeker" ? "ఆశించే జీతం" : "జీతం", kind === "seeker" ? "Expected salary" : "Salary", { placeholder: "e.g. 15000/month or 600/day" })}
         </>
       ) : (
@@ -157,7 +165,13 @@ function NewPost() {
             : field("goods_type", "సరుకు రకం", "Goods type", { placeholder: "e.g. Rice bags, Cement" })}
         </>
       )}
-      {field("contact_phone", "ఫోన్", "Contact phone", { inputMode: "numeric", maxLength: 15 })}
+      {isJob && (
+        <label className="flex items-start gap-2 rounded-lg bg-muted p-3 text-sm">
+          <input type="checkbox" className="mt-1 size-5" disabled={!me?.profile?.is_prime} checked={f["show_contact"] === "1"} onChange={(e) => setF({ ...f, show_contact: e.target.checked ? "1" : "" })} />
+          <span>⭐ ఫోన్ నంబర్ చూపించు (Prime మాత్రమే) · Show my phone (Prime only).<br /><span className="text-muted-foreground">ఉచిత పోస్ట్‌లో పేరు, ఫోన్ దాచబడతాయి · Free posts hide name & phone.</span></span>
+        </label>
+      )}
+      {(!isJob || f["show_contact"] === "1") && field("contact_phone", "ఫోన్", "Contact phone", { inputMode: "numeric", maxLength: 15 })}
       <div className="space-y-1">
         <Label className="text-base">వివరాలు · Details (optional)</Label>
         <Textarea value={f["description"] ?? ""} onChange={set("description")} maxLength={500} className="text-base" />
