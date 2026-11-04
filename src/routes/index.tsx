@@ -52,6 +52,10 @@ function Index() {
   const navigate = useNavigate();
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
+  const [place, setPlace] = useState("");
+  useEffect(() => { setPlace(localStorage.getItem("home-location") ?? ""); }, []);
+  const savePlace = (v: string) => { setPlace(v); localStorage.setItem("home-location", v); };
+  const loc = place.trim() || undefined;
   const { data: stats } = useQuery({
     queryKey: ["public-stats"],
     refetchInterval: 30000,
@@ -77,7 +81,7 @@ function Index() {
   const iconLink = "grid size-11 place-items-center rounded-full bg-primary-foreground/15";
 
   return (
-    <div className="mx-auto min-h-screen max-w-md bg-background">
+    <div className="mx-auto min-h-screen max-w-md bg-royal">
       <section className="home-devotional bg-royal px-5 pb-6 pt-4 text-on-royal">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h1 className="min-w-0 font-extrabold leading-none">
@@ -89,6 +93,10 @@ function Index() {
             <Link to="/my-posts" className={iconLink} aria-label="నా వివరాలు · Profile"><User className="size-5" /></Link>
           </div>
         </div>
+        <label className="mt-3 flex items-center gap-2 rounded-full border border-gold/50 px-3">
+          <span aria-hidden>📍</span>
+          <input value={place} onChange={e => savePlace(e.target.value)} placeholder="మీ ప్రాంతం · Your location" aria-label="మీ ప్రాంతం · Your location" className="h-11 min-w-0 flex-1 bg-transparent text-base text-on-royal placeholder:text-on-royal/60 outline-none" />
+        </label>
         <p className="mt-3 text-center text-lg text-gold">మన ప్రాంత సమాచారం మన గుప్పెట్లో</p>
         <img src={scheduled.data || [mata, mataGreen, mataIvory][devotional]} alt="గాయత్రి మాత" className="home-mata mx-auto mt-3 aspect-square w-full max-w-80 object-contain" width={768} height={768} onError={event => { event.currentTarget.src = [mata, mataGreen, mataIvory][devotional] ?? mata; }} />
         <BellJoin />
@@ -97,6 +105,10 @@ function Index() {
       </section>
       <ProfileNotice />
       <section className="space-y-3 px-5 pb-8 pt-4">
+        <div className="grid grid-cols-2 gap-2">
+          <Button asChild size="xl" className="w-full"><Link to="/feed" search={{ module: "job", loc }}><Briefcase />ఉద్యోగాలు · Jobs</Link></Button>
+          <Button asChild size="xl" variant="secondary" className="w-full"><Link to="/feed" search={{ module: "vehicle", loc }}><Truck />స్థానిక వాహనాలు · Local vehicles</Link></Button>
+        </div>
         <form onSubmit={searchRides} className="space-y-2 rounded-xl border bg-card p-4 shadow-card">
           <p className="font-bold">రిటర్న్ వాహనం వెతకండి · Find a ride</p>
           <Input value={from} onChange={(e) => setFrom(e.target.value)} placeholder="ఎక్కడ నుండి · Where from" className="h-12 text-base" />
@@ -106,7 +118,7 @@ function Index() {
         <div className="flex items-center gap-3 rounded-xl border bg-card p-4 shadow-card">
           <span className="grid size-12 place-items-center rounded-full bg-job text-primary-foreground"><Briefcase /></span>
           <div className="flex-1"><p className="text-lg font-bold">జాబ్ కనెక్ట్</p><p className="text-sm text-muted-foreground">{fmt(stats?.jobs)} jobs · Need job or worker</p></div>
-          <Button asChild><Link to="/feed" search={{ module: "job" }}>తెరవండి Open</Link></Button>
+          <Button asChild><Link to="/feed" search={{ module: "job", loc }}>తెరవండి Open</Link></Button>
         </div>
         <div className="flex items-center gap-3 rounded-xl border bg-card p-4 shadow-card">
           <span className="grid size-12 place-items-center rounded-full bg-vehicle text-primary-foreground"><Truck /></span>
