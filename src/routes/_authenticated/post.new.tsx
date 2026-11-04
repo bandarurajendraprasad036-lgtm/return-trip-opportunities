@@ -21,7 +21,7 @@ import { hasValidMobile } from "@/lib/phone";
 import { capacityInput } from "@/lib/vehicle-experience";
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { JobSuggestionInput } from '@/components/JobSuggestionInput';
-import { generalWorkValue, hasProhibitedJobWords, VILLAGE_SUGGESTIONS, WORK_SUGGESTIONS } from '@/lib/job-entry';
+import { generalWorkValue, hasProhibitedJobWords, jobPostIdentity, VILLAGE_SUGGESTIONS, WORK_SUGGESTIONS } from '@/lib/job-entry';
 
 function AiJobAd({ kind, onDraft }: { kind: "seeker" | "employer"; onDraft: (d: JobAdDraft) => void }) {
   const run = useServerFn(draftJobAd);
@@ -152,6 +152,7 @@ function NewPost() {
 
   const submit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
+    if (busy) return;
     if (!me) return;
     if (!hasValidMobile(me.profile?.phone)) { toast.error("ప్రకటనకు ముందు మొబైల్ నంబరు ఇవ్వండి · Mobile number required"); return; }
     const schema = isJob
@@ -168,13 +169,14 @@ function NewPost() {
     const capacity = !isJob && f["capacity_tons"] ? capacityInput.safeParse(f["capacity_tons"]) : null;
     if (capacity && !capacity.success) { toast.error("సరైన టన్నుల బరువు ఇవ్వండి · Enter a valid capacity"); return; }
     const { show_contact, ...v } = r.data as Record<string, string>;
-    const title = isJob
-      ? kind === "seeker" ? `${v["skill"]} పని కావాలి` : `${v["skill"]} కోసం పనివాడు కావాలి`
-      : kind === "owner" ? `${v["vehicle_type"]} ఖాళీగా వస్తోంది` : `${v["goods_type"]} కోసం వాహనం కావాలి`;
+    // Point 8: freeze the selected job kind before any asynchronous checks.
+    const identity = kind === 'seeker' || kind === 'employer'
+      ? jobPostIdentity(kind, v['skill'] ?? '')
+      : { module: opt.module, kind, title: kind === 'owner' ? `${v['vehicle_type']} ఖాళీగా వస్తోంది` : `${v['goods_type']} కోసం వాహనం కావాలి` };
     setBusy(true);
     const mod = await checkText({ data: { text: Object.values(v).join(" \n ") } }).catch(() => ({ ok: true }));
     if (!mod.ok) { setBusy(false); setContentError('అనుచిత పదాలు లేదా హింసను ప్రోత్సహించే విషయాలు అనుమతించబడవు. వివరాలు సరిచేసి మళ్లీ పంపండి. · Prohibited content: correct your details.'); return; }
-    const { error } = await supabase.from("posts").insert({ ...v, ...(!isJob ? { capacity_tons: capacity?.success ? capacity.data : null, vehicle_type: f["vehicle_type"]?.trim().slice(0, 60) || null } : {}), show_contact: show_contact === "1", user_id: me.id, module: opt.module, kind, title });
+    const { error } = await supabase.from("posts").insert({ ...v, ...(!isJob ? { capacity_tons: capacity?.success ? capacity.data : null, vehicle_type: f["vehicle_type"]?.trim().slice(0, 60) || null } : {}), show_contact: show_contact === "1", user_id: me.id, ...identity });
     setBusy(false);
     if (error) { toast.error(error.message.includes("MOBILE_REQUIRED") ? "ప్రకటనకు ముందు మొబైల్ నంబరు ఇవ్వండి · Mobile number required" : error.message.includes("BAD_CONTENT") ? "🚫 బూతులు, చెడు మాటలు, దేశ వ్యతిరేక విషయాలు పోస్ట్ చేయకూడదు · Abusive or anti-national content is not allowed" : error.message); return; }
     toast.success("పోస్ట్ అయ్యింది! మ్యాచ్ వస్తే అలర్ట్ వస్తుంది · Posted! You'll be alerted on a match");
@@ -194,13 +196,13 @@ function NewPost() {
       <div className={`flex items-center gap-3 rounded-xl p-3 text-primary-foreground ${opt.tone}`}>
         <opt.icon className="size-7" />
         <div><p className="text-lg font-bold">{opt.te}</p><p className="text-sm opacity-90">{opt.en}</p></div>
-        <Button type="button" variant="ghost" onClick={() => setKind(null)} className="ml-auto text-sm underline">మార్చు</Button>
+        <Button type="button" variant="ghost" disabled={busy} onClick={() => setKind(null)} className="ml-auto text-sm underline">మార్చు</Button>
       </div>
       {isJob ? (
         <>
           {/* Point 8: separately selectable job seeker/employer tabs. */}
-          <Tabs value={kind} onValueChange={value => { if (value === 'seeker' || value === 'employer') { setKind(value); setContentError(''); } }}>
-            <TabsList className="grid h-auto w-full grid-cols-2 gap-1"><TabsTrigger value="seeker" className="min-h-16 whitespace-normal text-base">నాకు ఉద్యోగం కావాలి · I need a job</TabsTrigger><TabsTrigger value="employer" className="min-h-16 whitespace-normal text-base">నేను ఉద్యోగం ఇస్తాను · I offer a job</TabsTrigger></TabsList>
+          <Tabs value={kind} onValueChange={value => { if (!busy && (value === 'seeker' || value === 'employer')) { setKind(value); setContentError(''); } }}>
+            <TabsList className="grid h-auto w-full grid-cols-2 gap-1"><TabsTrigger disabled={busy} value="seeker" className="min-h-16 whitespace-normal text-base">నాకు ఉద్యోగం కావాలి · I need a job</TabsTrigger><TabsTrigger disabled={busy} value="employer" className="min-h-16 whitespace-normal text-base">నేను ఉద్యోగం ఇస్తాను · I offer a job</TabsTrigger></TabsList>
           </Tabs>
           <AiJobAd kind={kind as "seeker" | "employer"} onDraft={(d) => setF((prev) => ({ ...prev, ...Object.fromEntries(Object.entries(d).filter(([, v]) => v)) }))} />
           <JobSuggestionInput id="job-location" label="ఊరు / ప్రాంతం · Location" value={f['location'] ?? ''} options={VILLAGE_SUGGESTIONS} maxLength={80} onChange={value => setF(prev => ({ ...prev, location: value }))} />

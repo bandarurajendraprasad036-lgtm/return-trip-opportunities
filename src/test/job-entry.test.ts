@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { generalWorkValue, hasProhibitedJobWords, jobSuggestions } from '@/lib/job-entry';
+import { generalWorkValue, hasProhibitedJobWords, jobSuggestions, jobPostIdentity } from '@/lib/job-entry';
 describe('Point 8 job entry', () => {
+  it('saves the need-job tab as a job seeker', () => {
+    expect(jobPostIdentity('seeker', ' డ్రైవర్ ')).toEqual({ module: 'job', kind: 'seeker', title: 'డ్రైవర్ పని కావాలి' });
+  });
+  it('saves the offer-job tab as a job employer', () => {
+    expect(jobPostIdentity('employer', ' డ్రైవర్ ')).toEqual({ module: 'job', kind: 'employer', title: 'డ్రైవర్ కోసం పనివాడు కావాలి' });
+  });
   it('starts village suggestions at two characters', () => {
     expect(jobSuggestions('G', ['Guntur'])).toEqual([]);
     expect(jobSuggestions('Gu', ['Guntur'])).toEqual(['Guntur']);
