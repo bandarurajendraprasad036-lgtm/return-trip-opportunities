@@ -14,3 +14,5 @@
 - First user to sign up becomes admin (handle_new_user trigger); roles live in user_roles.
 - Use the shared Brand component for the bilingual wordmark so headers stay consistent.
 - Keep the synthetic phone-email domain unchanged during rebrands because existing account credentials depend on it.
+- Job drafting composes structured seeker inputs into the existing authenticated drafting call; preserve one inference path and do not invent missing facts.
+- Phone installation is manifest-only with raster and maskable icons; do not add offline caching without an explicit offline requirement.
