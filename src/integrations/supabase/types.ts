@@ -243,8 +243,12 @@ export type Database = {
           is_prime: boolean
           location: string
           phone: string
+          prime_until: string | null
           public_brand: string
           public_photo: string
+          referral_code: string | null
+          referred_at: string | null
+          referred_by: string | null
           show_public: boolean
         }
         Insert: {
@@ -254,8 +258,12 @@ export type Database = {
           is_prime?: boolean
           location?: string
           phone?: string
+          prime_until?: string | null
           public_brand?: string
           public_photo?: string
+          referral_code?: string | null
+          referred_at?: string | null
+          referred_by?: string | null
           show_public?: boolean
         }
         Update: {
@@ -265,8 +273,12 @@ export type Database = {
           is_prime?: boolean
           location?: string
           phone?: string
+          prime_until?: string | null
           public_brand?: string
           public_photo?: string
+          referral_code?: string | null
+          referred_at?: string | null
+          referred_by?: string | null
           show_public?: boolean
         }
         Relationships: []
@@ -294,6 +306,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_referral: { Args: { _code: string }; Returns: boolean }
       can_notify: { Args: { _uid: string }; Returns: boolean }
       has_role: {
         Args: {
@@ -302,6 +315,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      my_referral_stats: { Args: never; Returns: Json }
       notify_matches: { Args: { _post_id: string }; Returns: number }
       posts_match_area: {
         Args: {
@@ -311,6 +325,7 @@ export type Database = {
         Returns: boolean
       }
       public_stats: { Args: never; Returns: Json }
+      referral_target: { Args: { _d: string }; Returns: number }
       review_membership: {
         Args: { _approve: boolean; _id: string; _note?: string }
         Returns: undefined
