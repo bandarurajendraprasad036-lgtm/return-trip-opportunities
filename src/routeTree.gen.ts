@@ -16,6 +16,7 @@ import { Route as FeedRouteImport } from './routes/feed'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAiMatchRouteImport } from './routes/_authenticated/ai-match'
 import { Route as AuthenticatedChatsRouteImport } from './routes/_authenticated/chats'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedMyPostsRouteImport } from './routes/_authenticated/my-posts'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedChatUserIdRouteImport } from './routes/_authenticated/chat.$userId'
@@ -55,6 +56,11 @@ const AuthenticatedChatsRoute = AuthenticatedChatsRouteImport.update({
   path: '/chats',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMyPostsRoute = AuthenticatedMyPostsRouteImport.update({
   id: '/my-posts',
   path: '/my-posts',
@@ -84,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/ai-match': typeof AuthenticatedAiMatchRoute
   '/chats': typeof AuthenticatedChatsRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/my-posts': typeof AuthenticatedMyPostsRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/chat/$userId': typeof AuthenticatedChatUserIdRoute
@@ -96,6 +103,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/ai-match': typeof AuthenticatedAiMatchRoute
   '/chats': typeof AuthenticatedChatsRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/my-posts': typeof AuthenticatedMyPostsRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/chat/$userId': typeof AuthenticatedChatUserIdRoute
@@ -110,6 +118,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/ai-match': typeof AuthenticatedAiMatchRoute
   '/_authenticated/chats': typeof AuthenticatedChatsRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/my-posts': typeof AuthenticatedMyPostsRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/chat/$userId': typeof AuthenticatedChatUserIdRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/ai-match'
     | '/chats'
+    | '/dashboard'
     | '/my-posts'
     | '/notifications'
     | '/chat/$userId'
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/ai-match'
     | '/chats'
+    | '/dashboard'
     | '/my-posts'
     | '/notifications'
     | '/chat/$userId'
@@ -149,6 +160,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/ai-match'
     | '/_authenticated/chats'
+    | '/_authenticated/dashboard'
     | '/_authenticated/my-posts'
     | '/_authenticated/notifications'
     | '/_authenticated/chat/$userId'
@@ -213,6 +225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedChatsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/my-posts': {
       id: '/_authenticated/my-posts'
       path: '/my-posts'
@@ -248,6 +267,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAiMatchRoute: typeof AuthenticatedAiMatchRoute
   AuthenticatedChatsRoute: typeof AuthenticatedChatsRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedMyPostsRoute: typeof AuthenticatedMyPostsRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedChatUserIdRoute: typeof AuthenticatedChatUserIdRoute
@@ -258,6 +278,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAiMatchRoute: AuthenticatedAiMatchRoute,
   AuthenticatedChatsRoute: AuthenticatedChatsRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedMyPostsRoute: AuthenticatedMyPostsRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedChatUserIdRoute: AuthenticatedChatUserIdRoute,
