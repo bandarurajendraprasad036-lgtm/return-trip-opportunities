@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] November 4 08:42 UTC: verify custom-domain homepage and main links, fix profile phone exposure while preserving chats, rescan and republish security fix.
 - [x] November 4 08:38 UTC: user-purchased gayatrione.com connected through registrar card; records written and primary set. Current changes submitted for publication.
 - [ ] Confirm gayatrione.com becomes active and latest deployment serves — setup still in progress at 08:40 UTC; publication scheduled, not yet verified.
 - [ ] Security: existing profiles SELECT policy exposes phone numbers to all signed-in users; critical finding remains unresolved and reported at publication.
