@@ -30,3 +30,4 @@
 - Point 8 job identity is captured before asynchronous submission and tab changes are disabled while sending, so persisted job kind cannot drift.
 - Free-membership rewards use locked SQL RPCs and an owner-readable ledger; private sharing evidence requires server-verified admin approval, and wallets have no client write grant.
 - Notification preferences are account-owned records; delivery eligibility and quota reset use their validated IANA timezone, while bell sound-only mute never removes the inbox subscription.
+- Vehicle-location freshness is a pure timestamp classifier with an explicit current time, so boundary tests stay deterministic and never invent location data.
