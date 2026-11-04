@@ -43,6 +43,13 @@
       "when": 1793750874010,
       "tag": "0005_admin_update_profiles",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793750936154,
+      "tag": "0006_hide_job_phone",
+      "breakpoints": true
     }
   ]
 }
