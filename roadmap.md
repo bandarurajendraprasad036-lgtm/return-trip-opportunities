@@ -1,9 +1,14 @@
 # Roadmap
-- [ ] November 4 08:30 UTC: calendar, date assignment, preview and upload type/size error messages; Google failure reasons and retry.
-- [ ] November 4 08:27 UTC: admin upload and date scheduling for daily Gayatri Mata images; use Indian calendar day, default bundled rotation on unscheduled days.
-- [ ] November 4 08:24 UTC: Google-only login (no passwords/reset), mandatory phone before ads, payment under-review screen and manual WhatsApp send button, unframed bell at lotus, footer only Design: Gayatri One, daily Mata rotation, explicit offline basic-page support. Verify together; do not publish automatically.
+- [x] Google-only visible entry, failure reasons and retry; existing Google provider enabled. No passwords/reset displayed. External Google consent completion remains a user check.
+- [x] Mandatory mobile before ads; fixed hidden Continue button, saved user's provided office number and verified readback and post form. Database trigger enforces the rule.
+- [x] Unframed bell at lotus, daily Mata rotation and Design: Gayatri One footer; verified 320/360/390/1280 layouts, 11 tests pass, no runtime errors.
+- [x] Add membership submission, Under review status, manual WhatsApp send button and admin review using existing RPC; signed-in payment screen verified, no fabricated transaction submitted.
+- [x] Add admin calendar, date assignment, private artwork upload, preview, type/size validation; unit tests passed.
+- [ ] End-to-end admin upload/schedule and payment review testing — blocked: requesting user's account has no admin role; do not grant or impersonate another admin silently.
+- [x] Add guarded generateSW public-page offline support; preview has no registered service workers and offline information page verified.
+- [ ] Published installed-phone offline test — blocked on final publication and a real installed device; editor deliberately refuses caching.
 - [ ] Finish current preview changes and report blockers; publish only at the end with user permission. Provide homepage demo screenshot.
-- [ ] Rotate Gayatri Mata portrait above the bell each Indian calendar day and test date boundaries.
+- [x] Rotate Gayatri Mata portrait above the bell each Indian calendar day and test date boundaries.
 - [ ] November 4 06:38 UTC explicit authorization: display new English sharing image on website with separate profile details; restore Gayatri Mata above gold bell, verify phone layout, deliver preview. WhatsApp payment notification needs connection and recipient confirmation.
 - [ ] Keep profile details on a separate screen from the redesigned sharing image; noted November 4, 2026 06:37 UTC, implementation remains paused.
 - [ ] Persist the sharing image so it remains available on the website; test in installed Gayatri One on a phone after combined implementation resumes. Do not claim a real installed-phone test from browser emulation alone.
@@ -44,7 +49,7 @@
 - [x] AI job ad writer in job post form
 - [x] Step guide + common fixes on login/register
 - [ ] OTP phone verification at signup (needs Twilio account)
-- [ ] Forgot password (needs SMS/Twilio — phone accounts have no email)
+- [x] Password/reset UI superseded by explicit Google-only entry; old account credentials kept internally.
 - [x] Public browsing of feed; login only for post/chat/private pages
 - [x] Auto-answer admin chat (AI); only payment/cash questions go to admin with a normal (non-bell) notification
 - [x] Admin chat answers with real jobs/vehicles and chat links, any language

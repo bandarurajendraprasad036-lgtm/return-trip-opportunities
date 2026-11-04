@@ -1,5 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, Briefcase, LogOut, PlusCircle, Sparkles, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,8 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 function Dashboard() {
+  const qc = useQueryClient();
+  const navigate = useNavigate();
   const { data: me } = useMe();
   const { data } = useQuery({
     queryKey: ["dashboard", me?.id],
@@ -49,7 +51,7 @@ function Dashboard() {
           <p className="text-sm text-muted-foreground">📞 {me?.profile?.phone} · 📍 {me?.profile?.location || "—"}</p>
           <p className="text-sm font-semibold">{prime ? "⭐ Prime సభ్యుడు · Prime member" : "ఉచిత ప్లాన్ · Free plan"}</p>
         </div>
-        <Button variant="outline" size="icon" aria-label="Logout" onClick={() => supabase.auth.signOut()}><LogOut /></Button>
+        <Button variant="outline" size="icon" aria-label="బయటకు రండి · Sign out" onClick={async () => { await qc.cancelQueries(); qc.clear(); await supabase.auth.signOut(); await navigate({ to: "/auth", replace: true }); }}><LogOut /></Button>
       </div>
       <div className="grid grid-cols-2 gap-3">
         <Link to="/my-posts" className={tile}><Briefcase className="size-7 text-primary" /><span className="text-2xl">{data?.posts ?? 0}</span>నా పోస్ట్‌లు · My posts</Link>
