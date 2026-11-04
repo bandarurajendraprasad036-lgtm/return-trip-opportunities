@@ -101,3 +101,5 @@
 - [x] Daily Mata image: fallback to bundled image if it fails to load (no broken image)
 - [x] Daily Mata image: tests that device timezone does not change the India-date choice
 - [x] Home bell layout check across phone sizes and orientations (scripts/check-bell-layout.py)
+- [ ] Bell image load/layout check in Chrome, Firefox, Safari engines
+- [ ] Alt text check for daily and fallback Mata image
