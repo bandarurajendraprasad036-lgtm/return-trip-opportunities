@@ -54,6 +54,7 @@ export function BellJoin() {
   const [phone, setPhone] = useState("");
   const [place, setPlace] = useState("");
   const [pin, setPin] = useState("");
+  const [ref, setRef] = useState(() => (typeof window !== "undefined" ? localStorage.getItem("g1_ref") ?? "" : ""));
   const [busy, setBusy] = useState(false);
 
   const join = async (e: React.FormEvent) => {
@@ -63,6 +64,8 @@ export function BellJoin() {
     if (!/^[6-9]\d{9}$/.test(digits)) return void toast.error("సరైన 10 అంకెల నంబర్ ఇవ్వండి / Enter valid mobile");
     if (pin.length < 6) return void toast.error("పాస్‌వర్డ్ కనీసం 6 అక్షరాలు / Password min 6");
     setBusy(true);
+    const rc = ref.trim().toUpperCase();
+    if (/^[A-Z0-9]{4,16}$/.test(rc)) localStorage.setItem("g1_ref", rc);
     const { error } = await supabase.auth.signUp({
       email: phoneToEmail(digits),
       password: pin,
@@ -124,6 +127,7 @@ export function BellJoin() {
               <Input className="h-12 text-lg" placeholder="మొబైల్ నంబర్ · Mobile" inputMode="numeric" value={phone} onChange={(e) => setPhone(e.target.value)} maxLength={14} />
               <Input className="h-12 text-lg" placeholder="ఊరు · Village" value={place} onChange={(e) => setPlace(e.target.value)} maxLength={80} />
               <Input className="h-12 text-lg" type="password" placeholder="పాస్‌వర్డ్ (6+) · Password" value={pin} onChange={(e) => setPin(e.target.value)} />
+              <Input className="h-12 text-lg uppercase" placeholder="రిఫరల్ కోడ్ (ఉంటే) · Referral code" value={ref} onChange={(e) => setRef(e.target.value)} maxLength={16} />
               <Button type="submit" size="xl" className="w-full" disabled={busy}>{busy ? "..." : "జాయిన్ అవ్వండి · Join"}</Button>
               <p className="text-center text-sm">ఇప్పటికే అకౌంట్ ఉందా? <Link to="/auth" className="font-bold underline">లాగిన్ · Login</Link></p>
             </form>
