@@ -1,8 +1,9 @@
 # Roadmap
-- [ ] November 4 08:42 UTC: verify custom-domain homepage and main links, fix profile phone exposure while preserving chats, rescan and republish security fix.
+- [x] November 4 08:42 UTC: custom-domain homepage/feed/auth and protected-page guest redirects verified; signed-in dashboard/chats/alerts/post/service profile tested locally. Phone exposure fixed, 3 real authorization API tests pass; rescan no critical findings. Republish requested below.
 - [x] November 4 08:38 UTC: user-purchased gayatrione.com connected through registrar card; records written and primary set. Current changes submitted for publication.
-- [ ] Confirm gayatrione.com becomes active and latest deployment serves — setup still in progress at 08:40 UTC; publication scheduled, not yet verified.
-- [ ] Security: existing profiles SELECT policy exposes phone numbers to all signed-in users; critical finding remains unresolved and reported at publication.
+- [x] Confirm gayatrione.com becomes active and latest deployment serves — connected and HTTP 200 confirmed, desktop/mobile homepage and main public pages verified.
+- [x] Security: private profiles restricted to owner/admin; chats use consented service display names and admin ID lookup. Fresh scan and authenticated API regression tests confirm exposure closed.
+- [ ] Verify newly republished chat changes on custom domain after deployment completes; external Google consent and admin operations remain user/admin checks.
 - [x] Google-only visible entry, failure reasons and retry; existing Google provider enabled. No passwords/reset displayed. External Google consent completion remains a user check.
 - [x] Mandatory mobile before ads; fixed hidden Continue button, saved user's provided office number and verified readback and post form. Database trigger enforces the rule.
 - [x] Unframed bell at lotus, daily Mata rotation and Design: Gayatri One footer; verified 320/360/390/1280 layouts, 11 tests pass, no runtime errors.
