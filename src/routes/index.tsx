@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import hero from "@/assets/hero-village.jpg";
 import { InstallButton } from "@/components/AppHelpers";
-import { BellJoin, GoalCounter } from "@/components/BellJoin";
+import { BellJoin } from "@/components/BellJoin";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -71,7 +71,6 @@ function Index() {
         <p className="mt-2 text-lg">మీ ఊరిలో పని & వాహనం — ఒకే చోట</p>
         <p className="text-sm opacity-80">Jobs & return vehicles near you</p>
         <BellJoin />
-        <GoalCounter users={stats?.users} />
         <p className="mt-2 text-center text-sm opacity-80">యాక్టివ్ పోస్ట్‌లు · Active posts: {fmt(total)}</p>
         <img src={hero} alt="Village road with truck and workers" className="mt-4 aspect-[4/3] w-full rounded-2xl object-cover" width={1024} height={768} />
       </section>
