@@ -32,6 +32,45 @@ export type Database = {
         }
         Relationships: []
       }
+      membership_payments: {
+        Row: {
+          admin_note: string
+          amount: number
+          created_at: string
+          id: string
+          membership_type: string
+          referral_numbers: string[]
+          reviewed_at: string | null
+          status: string
+          transaction_id: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string
+          amount?: number
+          created_at?: string
+          id?: string
+          membership_type?: string
+          referral_numbers?: string[]
+          reviewed_at?: string | null
+          status?: string
+          transaction_id: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string
+          amount?: number
+          created_at?: string
+          id?: string
+          membership_type?: string
+          referral_numbers?: string[]
+          reviewed_at?: string | null
+          status?: string
+          transaction_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           body: string
@@ -114,19 +153,25 @@ export type Database = {
       }
       posts: {
         Row: {
+          area_scope: string
           category: string | null
           contact_phone: string | null
           created_at: string
           description: string | null
+          district: string
           from_place: string | null
           goods_type: string | null
           id: string
           kind: string
           location: string | null
           module: string
+          public_brand: string
+          public_photo: string
           salary: string | null
+          service_type: string
           show_contact: boolean
           skill: string | null
+          state: string
           status: string
           title: string
           to_place: string | null
@@ -135,19 +180,25 @@ export type Database = {
           vehicle_type: string | null
         }
         Insert: {
+          area_scope?: string
           category?: string | null
           contact_phone?: string | null
           created_at?: string
           description?: string | null
+          district?: string
           from_place?: string | null
           goods_type?: string | null
           id?: string
           kind: string
           location?: string | null
           module: string
+          public_brand?: string
+          public_photo?: string
           salary?: string | null
+          service_type?: string
           show_contact?: boolean
           skill?: string | null
+          state?: string
           status?: string
           title?: string
           to_place?: string | null
@@ -156,19 +207,25 @@ export type Database = {
           vehicle_type?: string | null
         }
         Update: {
+          area_scope?: string
           category?: string | null
           contact_phone?: string | null
           created_at?: string
           description?: string | null
+          district?: string
           from_place?: string | null
           goods_type?: string | null
           id?: string
           kind?: string
           location?: string | null
           module?: string
+          public_brand?: string
+          public_photo?: string
           salary?: string | null
+          service_type?: string
           show_contact?: boolean
           skill?: string | null
+          state?: string
           status?: string
           title?: string
           to_place?: string | null
@@ -186,6 +243,9 @@ export type Database = {
           is_prime: boolean
           location: string
           phone: string
+          public_brand: string
+          public_photo: string
+          show_public: boolean
         }
         Insert: {
           created_at?: string
@@ -194,6 +254,9 @@ export type Database = {
           is_prime?: boolean
           location?: string
           phone?: string
+          public_brand?: string
+          public_photo?: string
+          show_public?: boolean
         }
         Update: {
           created_at?: string
@@ -202,6 +265,9 @@ export type Database = {
           is_prime?: boolean
           location?: string
           phone?: string
+          public_brand?: string
+          public_photo?: string
+          show_public?: boolean
         }
         Relationships: []
       }
@@ -237,7 +303,18 @@ export type Database = {
         Returns: boolean
       }
       notify_matches: { Args: { _post_id: string }; Returns: number }
+      posts_match_area: {
+        Args: {
+          a: Database["public"]["Tables"]["posts"]["Row"]
+          b: Database["public"]["Tables"]["posts"]["Row"]
+        }
+        Returns: boolean
+      }
       public_stats: { Args: never; Returns: Json }
+      review_membership: {
+        Args: { _approve: boolean; _id: string; _note?: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"
