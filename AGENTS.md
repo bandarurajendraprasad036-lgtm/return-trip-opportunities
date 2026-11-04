@@ -21,3 +21,4 @@
 - Membership submissions reuse the existing review_membership RPC; the WhatsApp button opens a manual send, never claims verified receipt or automatic delivery.
 - Shareable services use an opt-in service_profiles record separate from private profiles; photos stay in private storage and are signed only after checking publication, while reviewer and viewer identities remain private.
 - Homepage devotional selection rotates bundled portraits by the Asia/Kolkata calendar day; the persistent generic sharing artwork links to the separate authenticated profile editor, never exposes private account details.
+- Admin devotional schedules use date-keyed app_settings and private devotional-images storage; public artwork signing resolves only today's validated path, with bundled rotation as fallback.

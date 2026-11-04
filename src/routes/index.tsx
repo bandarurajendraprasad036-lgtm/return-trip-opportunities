@@ -9,7 +9,10 @@ import { supabase } from "@/integrations/supabase/client";
 import mata from "@/assets/gayatri-mata.jpg";
 import mataGreen from "@/assets/gayatri-mata-green.jpg";
 import mataIvory from "@/assets/gayatri-mata-ivory.jpg";
-import { dailyDevotionalIndex } from "@/lib/daily-devotional";
+import { dailyDevotionalIndex, indianDay } from "@/lib/daily-devotional";
+import { getDailyArtwork } from "@/lib/devotional.functions";
+import { useServerFn } from "@tanstack/react-start";
+import { DesignFooter } from "@/components/DesignFooter";
 import { SharingImage } from "@/components/SharingImage";
 import { InstallButton } from "@/components/AppHelpers";
 import { BellJoin } from "@/components/BellJoin";
@@ -33,8 +36,11 @@ type Stats = { users: number; jobs: number; rides: number; matches: number };
 
 function Index() {
   const [devotional, setDevotional] = useState(0);
+  const [day, setDay] = useState("");
+  const artwork = useServerFn(getDailyArtwork);
+  const scheduled = useQuery({ queryKey: ["daily-artwork", day], enabled: !!day, queryFn: () => artwork(), refetchInterval: 1800000 });
   useEffect(() => {
-    const update = () => setDevotional(dailyDevotionalIndex(new Date(), 3));
+    const update = () => { const now = new Date(); setDevotional(dailyDevotionalIndex(now, 3)); setDay(indianDay(now)); };
     update();
     const timer = window.setInterval(update, 60000);
     return () => window.clearInterval(timer);
@@ -80,7 +86,7 @@ function Index() {
           </div>
         </div>
         <p className="mt-3 text-center text-lg text-gold">మన ప్రాంత సమాచారం మన గుప్పెట్లో</p>
-        <img src={[mata, mataGreen, mataIvory][devotional]} alt="గాయత్రి మాత" className="mx-auto mt-4 aspect-square w-full max-w-80 object-contain" width={768} height={768} />
+        <img src={scheduled.data || [mata, mataGreen, mataIvory][devotional]} alt="గాయత్రి మాత" className="mx-auto mt-4 aspect-square w-full max-w-80 object-contain" width={768} height={768} onError={event => { event.currentTarget.src = [mata, mataGreen, mataIvory][devotional] ?? mata; }} />
         <BellJoin />
         <p className="mt-2 text-center text-sm opacity-80">యాక్టివ్ పోస్ట్‌లు · Active posts: {fmt(total)}</p>
       </section>
@@ -116,6 +122,7 @@ function Index() {
           <Link to="/feed">ఇప్పటికే అకౌంట్ ఉంది? Open app</Link>
         </Button>
       </section>
+      <DesignFooter />
     </div>
   );
 }
