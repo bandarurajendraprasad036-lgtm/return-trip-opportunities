@@ -93,3 +93,5 @@
 - [x] Admin AI questions about referral data
 - [x] Support chat never reveals user counts or personal info; answers only what is asked
 - [x] Hide service-provider features from site (jobs and vehicles only); data kept. 721-point source unavailable.
+- [x] Employer company name + vacancies (saved in details), job/vehicle alert sections, work name in experience box, service-provider pages removed.
+- [ ] Photo/Aadhaar upload label: no such upload exists in job section — needs user decision.

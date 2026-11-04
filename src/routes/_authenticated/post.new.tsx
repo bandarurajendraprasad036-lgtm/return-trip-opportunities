@@ -23,7 +23,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { JobSuggestionInput } from '@/components/JobSuggestionInput';
 import { generalWorkValue, hasProhibitedJobWords, jobPostIdentity, VILLAGE_SUGGESTIONS, WORK_SUGGESTIONS } from '@/lib/job-entry';
 
-function AiJobAd({ kind, onDraft }: { kind: "seeker" | "employer"; onDraft: (d: JobAdDraft) => void }) {
+function AiJobAd({ kind, onDraft, work }: { kind: "seeker" | "employer"; onDraft: (d: JobAdDraft) => void; work: string }) {
   const run = useServerFn(draftJobAd);
   const [text, setText] = useState("");
   const [skills, setSkills] = useState("");
@@ -57,7 +57,7 @@ function AiJobAd({ kind, onDraft }: { kind: "seeker" | "employer"; onDraft: (d: 
       {kind === "seeker" && (
         <div className="grid min-w-0 gap-3">
           <div className="space-y-1"><Label htmlFor="ad-skills">నైపుణ్యాలు · Skills</Label><Input id="ad-skills" value={skills} onChange={(e) => setSkills(e.target.value)} maxLength={100} disabled={busy} /></div>
-          <div className="space-y-1"><Label htmlFor="ad-experience">అనుభవం · Experience</Label><Input id="ad-experience" value={experience} onChange={(e) => setExperience(e.target.value)} maxLength={100} disabled={busy} /></div>
+          <div className="space-y-1"><Label htmlFor="ad-experience">అనుభవం · Experience{work.trim() ? ` — ${work.trim()}` : ""}</Label><Input id="ad-experience" placeholder={work.trim() ? `${work.trim()} పనిలో ఎన్ని సంవత్సరాలు? · Years in ${work.trim()}` : undefined} value={experience} onChange={(e) => setExperience(e.target.value)} maxLength={100} disabled={busy} /></div>
           <div className="space-y-1"><Label htmlFor="ad-salary">ఆశించిన జీతం · Expected salary</Label><Input id="ad-salary" value={salary} onChange={(e) => setSalary(e.target.value)} maxLength={40} disabled={busy} /></div>
           <div className="space-y-1"><Label htmlFor="ad-location">పని కావాల్సిన ప్రాంతం · Work location</Label><Input id="ad-location" value={location} onChange={(e) => setLocation(e.target.value)} maxLength={80} disabled={busy} /></div>
         </div>
@@ -159,7 +159,9 @@ function NewPost() {
       ? z.object({ location: txt(80), skill: txt(100), salary: z.string().trim().max(40).optional(), description: z.string().trim().max(500).optional(), contact_phone: z.string().trim().max(15).optional(), category: z.string().max(30).optional(), show_contact: z.string().optional() })
       : z.object({ from_place: txt(80), to_place: txt(80), trip_date: txt(10), ...(kind === "owner" ? { vehicle_type: txt(60) } : { goods_type: txt(80) }), description: z.string().trim().max(500).optional(), contact_phone: z.string().trim().max(15).optional() });
     setContentError('');
-    const jobData = isJob ? { ...f, skill: generalWorkValue(f['skill'] ?? '', f['general_work'] ?? '', generalWork), ...(generalWork ? { category: 'other' } : {}) } : f;
+    const { company_name: companyName = '', vacancies = '', ...fields } = f;
+    const employerInfo = kind === 'employer' ? [companyName.trim() && `కంపెనీ · Company: ${companyName.trim()}`, vacancies.trim() && `ఖాళీలు · Vacancies: ${vacancies.trim()}`].filter(Boolean).join('\n') : '';
+    const jobData = isJob ? { ...fields, ...(employerInfo ? { description: [employerInfo, fields['description']?.trim()].filter(Boolean).join('\n') } : {}), skill: generalWorkValue(f['skill'] ?? '', f['general_work'] ?? '', generalWork), ...(generalWork ? { category: 'other' } : {}) } : f;
     if (isJob && hasProhibitedJobWords(Object.values(jobData).join(' '))) {
       setContentError('అనుచిత పదాలు అనుమతించబడవు. ఊరు, పని, వివరాల్లో ఆ పదాలను తీసివేసి మళ్లీ పంపండి. · Remove prohibited words before posting.');
       return;
@@ -204,7 +206,7 @@ function NewPost() {
           <Tabs value={kind} onValueChange={value => { if (!busy && (value === 'seeker' || value === 'employer')) { setKind(value); setContentError(''); } }}>
             <TabsList className="grid h-auto w-full grid-cols-2 gap-1"><TabsTrigger disabled={busy} value="seeker" className="min-h-16 whitespace-normal text-base">నాకు ఉద్యోగం కావాలి · I need a job</TabsTrigger><TabsTrigger disabled={busy} value="employer" className="min-h-16 whitespace-normal text-base">నేను ఉద్యోగం ఇస్తాను · I offer a job</TabsTrigger></TabsList>
           </Tabs>
-          <AiJobAd kind={kind as "seeker" | "employer"} onDraft={(d) => setF((prev) => ({ ...prev, ...Object.fromEntries(Object.entries(d).filter(([, v]) => v)) }))} />
+          <AiJobAd work={generalWork ? (f["general_work"] ?? "") : (f["skill"] ?? "")} kind={kind as "seeker" | "employer"} onDraft={(d) => setF((prev) => ({ ...prev, ...Object.fromEntries(Object.entries(d).filter(([, v]) => v)) }))} />
           <JobSuggestionInput id="job-location" label="ఊరు / ప్రాంతం · Location" value={f['location'] ?? ''} options={VILLAGE_SUGGESTIONS} maxLength={80} onChange={value => setF(prev => ({ ...prev, location: value }))} />
           {!generalWork && <JobSuggestionInput id="job-work" label="పని పేరు · Work" value={f['skill'] ?? ''} options={WORK_SUGGESTIONS} maxLength={100} onChange={value => setF(prev => ({ ...prev, skill: value }))} />}
           <label className="flex items-center gap-2"><input type="checkbox" checked={generalWork} onChange={event => setGeneralWork(event.target.checked)} />జాబితాలో లేని పని · Other work</label>
@@ -216,6 +218,8 @@ function NewPost() {
               {JOB_CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.te} · {c.en}</option>)}
             </select>
           </div>
+          {kind === "employer" && field("company_name", "కంపెనీ పేరు", "Company name", { maxLength: 80 })}
+          {kind === "employer" && field("vacancies", "ఖాళీల సంఖ్య", "Vacancies", { type: "number", min: "1", max: "999", inputMode: "numeric", placeholder: "1, 2, 5" })}
           {field("salary", kind === "seeker" ? "ఆశించే జీతం" : "జీతం", kind === "seeker" ? "Expected salary" : "Salary", { placeholder: "e.g. 15000/month or 600/day" })}
         </>
       ) : (
