@@ -49,6 +49,17 @@ function Feed() {
   const [q, setQ] = useState("");
   const [city, setCity] = useState(DEFAULT_CITY);
   const [cat, setCat] = useState("");
+  const fromT = search.from?.trim().toLowerCase();
+  const toT = search.to?.trim().toLowerCase();
+
+  const { data: posts = [], isLoading } = useQuery({
+    queryKey: ["posts"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("posts").select("*").eq("status", "active").order("created_at", { ascending: false }).limit(200);
+      if (error) throw error;
+      return data as Post[];
+    },
+  });
   const mine = posts.filter((p) => p.user_id === me?.id);
   const term = q.trim().toLowerCase();
   const shown = posts.filter(
