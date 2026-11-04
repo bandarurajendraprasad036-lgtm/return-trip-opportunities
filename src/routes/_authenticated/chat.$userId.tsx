@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Phone, Send } from "lucide-react";
+import { ArrowLeft, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,18 +31,23 @@ function Chat() {
   const bottom = useRef<HTMLDivElement>(null);
 
   const { data: other } = useQuery({
-    queryKey: ["profile", userId],
-    queryFn: async () => (await supabase.from("profiles").select("*").eq("id", userId).maybeSingle()).data,
+    queryKey: ["chat-public-profile", userId],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("service_profiles").select("display_name").eq("user_id", userId).eq("published", true).maybeSingle();
+      if (error) throw error;
+      return data;
+    },
   });
   const key = ["chat", userId];
   const { data: msgs = [] } = useQuery({
     queryKey: key,
     enabled: !!me,
     queryFn: async () => {
+      if (!me) return [];
       const { data, error } = await supabase
         .from("messages")
         .select("*")
-        .or(`and(sender_id.eq.${me!.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${me!.id})`)
+        .or(`and(sender_id.eq.${me.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${me.id})`)
         .order("created_at");
       if (error) throw error;
       return data;
@@ -82,14 +87,8 @@ function Chat() {
       <div className="flex items-center gap-3 border-b bg-card px-3 py-2">
         <Link to="/chats" aria-label="Back"><ArrowLeft /></Link>
         <div className="flex-1">
-          <p className="font-bold">{other?.full_name || "User"}</p>
-          <p className="text-xs text-muted-foreground">{other?.location}</p>
+          <p className="font-bold">{other?.display_name || "సభ్యుడు · Member"}</p>
         </div>
-        {other?.phone && (
-          <Button asChild size="icon" variant="outline" aria-label="Call">
-            <a href={`tel:${other.phone}`}><Phone /></a>
-          </Button>
-        )}
       </div>
       <div className="flex-1 space-y-2 overflow-y-auto p-3">
         {msgs.length === 0 && <p className="pt-10 text-center text-muted-foreground">నమస్కారం చెప్పండి 🙏 Say hello</p>}

@@ -113,6 +113,13 @@
       "when": 1793780937644,
       "tag": "0015_require_mobile_before_posts_and_devotional_uploads",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1793781816852,
+      "tag": "0016_protect_private_profiles",
+      "breakpoints": true
     }
   ]
 }

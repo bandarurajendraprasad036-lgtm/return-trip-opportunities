@@ -506,6 +506,7 @@ export type Database = {
       }
       send_referral_reminders: { Args: never; Returns: number }
       service_profile_data: { Args: { _id: string }; Returns: Json }
+      support_admin_id: { Args: never; Returns: string }
     }
     Enums: {
       app_role: "admin" | "user"
