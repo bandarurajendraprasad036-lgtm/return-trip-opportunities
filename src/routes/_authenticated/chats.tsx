@@ -25,16 +25,18 @@ function Chats() {
     queryKey: ["chats", me?.id],
     enabled: !!me,
     queryFn: async () => {
+      if (!me) return [];
       const { data, error } = await supabase.from("messages").select("*").order("created_at", { ascending: false }).limit(500);
       if (error) throw error;
       const latest = new Map<string, (typeof data)[number]>();
       for (const m of data) {
-        const other = m.sender_id === me!.id ? m.receiver_id : m.sender_id;
+        const other = m.sender_id === me.id ? m.receiver_id : m.sender_id;
         if (!latest.has(other)) latest.set(other, m);
       }
       const ids = [...latest.keys()];
-      const { data: profiles } = ids.length ? await supabase.from("profiles").select("id, full_name, location").in("id", ids) : { data: [] };
-      return ids.map((id) => ({ id, last: latest.get(id)!, profile: profiles?.find((p) => p.id === id) }));
+      const { data: profiles, error: profileError } = ids.length ? await supabase.from("service_profiles").select("user_id, display_name").eq("published", true).in("user_id", ids) : { data: [], error: null };
+      if (profileError) throw profileError;
+      return [...latest.entries()].map(([id, last]) => ({ id, last, profile: profiles?.find((p) => p.user_id === id) }));
     },
   });
 
@@ -50,10 +52,10 @@ function Chats() {
       {data.map((c) => (
         <Link key={c.id} to="/chat/$userId" params={{ userId: c.id }} className="flex items-center gap-3 rounded-xl border bg-card p-3 shadow-card">
           <span className="grid size-12 place-items-center rounded-full bg-accent text-lg font-bold text-accent-foreground">
-            {(c.profile?.full_name || "?").charAt(0).toUpperCase()}
+            {(c.profile?.display_name || "?").charAt(0).toUpperCase()}
           </span>
           <div className="min-w-0 flex-1">
-            <p className="font-bold">{c.profile?.full_name || "User"} <span className="text-xs font-normal text-muted-foreground">{c.profile?.location}</span></p>
+            <p className="font-bold">{c.profile?.display_name || "సభ్యుడు · Member"}</p>
             <p className="truncate text-sm text-muted-foreground">{c.last.body}</p>
           </div>
         </Link>

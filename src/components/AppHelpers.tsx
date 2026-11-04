@@ -83,7 +83,7 @@ export function NotificationPermission({ userId }: { userId: string }) {
 export function useAdminChatTarget(phone: string) {
   const [id, setId] = useState<string | null>(null);
   useEffect(() => {
-    supabase.from("profiles").select("id").eq("phone", phone).maybeSingle().then(({ data }) => setId(data?.id ?? null));
+    supabase.rpc("support_admin_id").then(({ data }) => setId(data ?? null));
   }, [phone]);
   return id;
 }
