@@ -1,4 +1,8 @@
 # Roadmap
+- [ ] Point 9, November 4 10:34 follow-up: redeem 100 points for one free membership month, maximum three consecutive months; determine points earned per referral, verified ten-group sharing, and how the consecutive-month limit resets.
+- [ ] Point 9, November 4 10:34: inspect referral points, free month for sharing to ten groups, and bell quiet hours after 20:30; clarify points/verified sharing and morning restart before enforcing rewards.
+- [ ] November 4 10:33: verify both Point 8 job-tab submissions save the selected job kind and read back through My Posts; add regression tests and synchronize requirement-map.md.
+- [ ] November 4 10:33 follow-up: inspect the next confirmed unfinished requirement and implement it without inventing master-list numbers.
 - [x] Point 8: job seeker/employer tabs, two-character village/work suggestions, general work box, and clear prohibited-word feedback; 4 rules tests pass and signed-in mobile selection/blocked-post flow verified.
 - [x] Create requirement-map.md for supplied requirements and synchronize with current source/tests; original 721 numbered points remain unavailable. Do not invent original point numbers.
 - [x] Next confirmed sharing-image/profile-link inspection: separate editor and personal public-profile WhatsApp link already exist; image-only forwarding cannot carry a clickable destination. Cross-account review verification still blocked on second account.
