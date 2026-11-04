@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { phoneToEmail } from "@/lib/match";
 import { AuthGuide } from "@/components/AuthGuide";
+import { lovable } from "@/integrations/lovable/index";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -97,6 +98,15 @@ function AuthPage() {
         <button type="button" className="w-full text-center text-base text-primary underline" onClick={() => setMode(mode === "login" ? "signup" : "login")}>
           {mode === "login" ? "కొత్తవారా? రిజిస్టర్ చేయండి · New? Register" : "అకౌంట్ ఉందా? లాగిన్ · Have account? Login"}
         </button>
+        <div className="text-center text-sm text-muted-foreground">లేదా · or</div>
+        <Button type="button" variant="outline" size="xl" className="w-full" disabled={busy} onClick={async () => {
+          const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+          if (r.error) { toast.error(String(r.error.message ?? r.error)); return; }
+          if (r.redirected) return;
+          nav({ to: "/feed" });
+        }}>
+          Google తో కొనసాగండి · Continue with Google
+        </Button>
       </form>
       <AuthGuide mode={mode} />
     </div>
