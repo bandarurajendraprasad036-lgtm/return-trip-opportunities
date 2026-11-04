@@ -1,4 +1,5 @@
 # Roadmap
+- [x] November 4 17:12: use the original ornate gold temple bell instead of yellow SVG; daily Mata portrait remains uncropped. Four viewport checks and ten daily-artwork tests passed. Keep the lower bell gold, with no pink/yellow recoloring; no duplicate rebuild. Not published.
 - [x] November 4 11:11: compact homepage header and daily Gayatri Mata above lotus bell verified at 320×640, 360×640, 390×800 and 1280×1800; image loaded, bell visible and opens entry dialog, no horizontal overflow; 3 daily rotation tests pass. Published page inspected separately; new layout not published. Other points preserved.
 - [ ] November 4 10:58 supersedes freshness labels: show only last position timestamp, no fresh/aging/stale labels; timestamp formatting helper/tests replace classifier. Real map integration remains blocked.
 - [x] November 4 10:57: confirmed freshness thresholds implemented in location-freshness.ts: <=5 minutes fresh, >5 and <=15 aging, >15 stale; exact boundary regression tests added. Not yet connected to a map; mapping/booking authorization remains blocked.

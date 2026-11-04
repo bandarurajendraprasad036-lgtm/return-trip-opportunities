@@ -6,7 +6,7 @@ import asyncio, sys
 from playwright.async_api import async_playwright
 URL = "http://localhost:8080/"
 SIZES = [(320, 568), (360, 740), (412, 915), (568, 320), (740, 360), (915, 412)]
-EXPECT = 128  # px image size on the bell
+EXPECT = 98  # rounded px portrait size within the original 288px gold bell
 ALT = "గాయత్రి మాత · Gayatri Mata"
 JS = """e=>{const i=e.getBoundingClientRect(),p=e.parentElement.getBoundingClientRect();
 return {w:Math.round(i.width),h:Math.round(i.height),dx:Math.round((i.left+i.right)/2-(p.left+p.right)/2),

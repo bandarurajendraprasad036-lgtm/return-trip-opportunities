@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import mata from "@/assets/gayatri-mata.jpg";
 import mataGreen from "@/assets/gayatri-mata-green.jpg";
 import mataIvory from "@/assets/gayatri-mata-ivory.jpg";
+import templeBell from "@/assets/temple-bell.png.asset.json";
 import { dailyDevotionalIndex, devotionalFallback, indianDay } from "@/lib/daily-devotional";
 import { getDailyArtwork } from "@/lib/devotional.functions";
 import { useServerFn } from "@tanstack/react-start";
@@ -99,15 +100,9 @@ function Index() {
           <div className="min-w-0 flex-1"><p className="text-lg font-bold text-gold">జాబ్ సర్వీస్ · Job service</p><p className="text-sm opacity-80">నాకు జాబ్ కావాలి · నేను జాబ్ ఇస్తా</p></div>
           <Link to="/feed" search={{ module: "job", loc }} className="shrink-0 rounded-full bg-gold px-4 py-2 font-bold text-royal">ఓపెన్ · Open</Link>
         </div>
-        <div className="relative mx-auto mt-6 w-56">
-          <svg viewBox="0 0 200 220" className="w-full drop-shadow-[0_0_24px_var(--gold)]" aria-hidden>
-            <defs><linearGradient id="bellg" x1="0" x2="1"><stop offset="0" stopColor="var(--rose-gold)" /><stop offset=".5" stopColor="var(--bell-yellow)" /><stop offset="1" stopColor="var(--gold)" /></linearGradient></defs>
-            <circle cx="100" cy="14" r="10" fill="none" stroke="url(#bellg)" strokeWidth="5" />
-            <path d="M100 24c-46 0-62 44-64 100-2 30-14 44-26 56h180c-12-12-24-26-26-56-2-56-18-100-64-100z" fill="url(#bellg)" />
-            <rect x="6" y="178" width="188" height="12" rx="6" fill="url(#bellg)" />
-            <circle cx="100" cy="204" r="12" fill="url(#bellg)" />
-          </svg>
-          <img src={scheduled.data || [mata, mataGreen, mataIvory][devotional]} alt="గాయత్రి మాత · Gayatri Mata" className="absolute left-1/2 top-[24%] size-32 -translate-x-1/2 rounded-full border-4 border-gold object-cover" width={768} height={768} onError={event => { const el = event.currentTarget; const tried = (el.dataset["tried"] ?? "").split("|").filter(Boolean); const next = devotionalFallback(el.src, [mata, mataGreen, mataIvory], devotional, tried); if (next) { el.dataset["tried"] = [...tried, el.src].join("|"); el.src = next; } else el.style.visibility = "hidden"; }}/>
+        <div className="home-temple-bell relative mx-auto mt-6 aspect-square w-72 max-w-full">
+          <img src={templeBell.url} alt="బంగారు గుడి గంట · Golden temple bell" className="block size-full object-contain" width={816} height={816} />
+          <img src={scheduled.data || [mata, mataGreen, mataIvory][devotional]} alt="గాయత్రి మాత · Gayatri Mata" className="home-bell-mata absolute left-1/2 -translate-x-1/2 rounded-full border-2 border-gold bg-royal object-contain" width={768} height={768} onError={event => { const el = event.currentTarget; const tried = (el.dataset["tried"] ?? "").split("|").filter(Boolean); const next = devotionalFallback(el.src, [mata, mataGreen, mataIvory], devotional, tried); if (next) { el.dataset["tried"] = [...tried, el.src].join("|"); el.src = next; } else el.style.visibility = "hidden"; }}/>
         </div>
         <BellJoin />
         <p className="mt-2 text-center font-serif text-4xl font-extrabold text-gold">GAYATRI ONE</p>
