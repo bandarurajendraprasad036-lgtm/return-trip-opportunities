@@ -6,6 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useMe } from "@/lib/session";
+import { useServerFn } from "@tanstack/react-start";
+import { sendSupportMessage } from "@/lib/support.functions";
 
 export const Route = createFileRoute("/_authenticated/chat/$userId")({
   head: () => ({
@@ -63,12 +65,14 @@ function Chat() {
 
   useEffect(() => bottom.current?.scrollIntoView(), [msgs.length]);
 
+  const sendSupport = useServerFn(sendSupportMessage);
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
     const body = text.trim().slice(0, 1000);
     if (!body || !me) return;
     setText("");
-    await supabase.from("messages").insert({ sender_id: me.id, receiver_id: userId, body });
+    try { await sendSupport({ data: { adminId: userId, body } }); }
+    catch { await supabase.from("messages").insert({ sender_id: me.id, receiver_id: userId, body }); }
     qc.invalidateQueries({ queryKey: key });
     qc.invalidateQueries({ queryKey: ["chats"] });
   };
@@ -93,7 +97,14 @@ function Chat() {
           const mine = m.sender_id === me?.id;
           return (
             <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-              <p className={`max-w-[80%] rounded-2xl px-3 py-2 text-base ${mine ? "bg-primary text-primary-foreground" : "bg-card shadow-card"}`}>{m.body}</p>
+              <p className={`max-w-[80%] whitespace-pre-wrap rounded-2xl px-3 py-2 text-base ${mine ? "bg-primary text-primary-foreground" : "bg-card shadow-card"}`}>
+                {m.body.split(/(\/chat\/[0-9a-f-]{36})/).map((part, i) => {
+                  const id = part.match(/^\/chat\/([0-9a-f-]{36})$/)?.[1];
+                  return id
+                    ? <Link key={i} to="/chat/$userId" params={{ userId: id }} className="font-bold text-primary underline">💬 చాట్ చేయండి · Chat</Link>
+                    : <span key={i}>{part}</span>;
+                })}
+              </p>
             </div>
           );
         })}

@@ -35,6 +35,13 @@ export function NotificationPermission({ userId }: { userId: string }) {
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` }, (p) => {
         if (Notification.permission === "granted") new Notification("గాయత్రి వన్ · Gayatri One", { body: String((p.new as { message?: string }).message ?? ""), icon: "/favicon.svg" });
       })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.${userId}` }, async (p) => {
+        const m = p.new as { body?: string; needs_admin?: boolean; is_auto?: boolean };
+        if (Notification.permission !== "granted" || m.is_auto) return;
+        const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+        if (isAdmin && !m.needs_admin) return; // admin is alerted only for money questions
+        new Notification(isAdmin ? "💰 డబ్బు ప్రశ్న · Payment question" : "కొత్త మెసేజ్ · New message", { body: String(m.body ?? "").slice(0, 120), icon: "/favicon.svg" });
+      })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [userId]);

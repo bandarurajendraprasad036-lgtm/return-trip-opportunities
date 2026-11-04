@@ -64,6 +64,20 @@
       "when": 1793763180138,
       "tag": "0008_block_bad_posts",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793764007983,
+      "tag": "0009_referral_rewards",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793764079322,
+      "tag": "0010_messages_needs_admin",
+      "breakpoints": true
     }
   ]
 }
