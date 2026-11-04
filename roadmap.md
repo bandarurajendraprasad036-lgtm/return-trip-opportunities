@@ -1,4 +1,10 @@
 # Roadmap
+- [ ] Clearly labeled sample jobs/vehicles/services across areas, with Already Booked interaction and no personal details
+- [ ] Black/gold home with Gayatri image and separate actionable bell
+- [ ] Area scopes, service posts and matching bell/audio
+- [ ] Profile scrolling privacy message
+- [ ] Bank QR membership payment submissions and admin review
+- [ ] Prominent animated live user counter using verified actual totals, not invented 8,00,800+
 - [x] Rebrand headers, favicon and every page's metadata to Gayatri One
 - [x] Home: clickable bell/chat/profile, Open buttons, From/To ride search, live counter
 - [x] Alerts page loads reliably on mobile

@@ -1,0 +1,3 @@
+export function ProfileNotice() {
+  return <div className="overflow-hidden border-y border-secondary bg-muted py-3" aria-label="సమాచార సూచన · Information notice"><p className="profile-scroll whitespace-nowrap text-sm font-semibold">మీకు కావాల్సిన సమాచారాన్ని మాత్రమే మీకు నోటిఫికేషన్ రూపంలో వస్తుంది, ఇతర సమాచారం ఏదీ రాదు</p><p className="px-3 pt-1 text-xs text-muted-foreground">Only information matching your needs will be sent to you.</p></div>;
+}

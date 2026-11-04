@@ -10,6 +10,10 @@ export interface MatchablePost {
   from_place?: string | null;
   to_place?: string | null;
   trip_date?: string | null;
+  area_scope?: string;
+  district?: string;
+  state?: string;
+  service_type?: string;
 }
 
 export const oppositeKind = (k: string): Kind =>
@@ -19,10 +23,16 @@ const norm = (v?: string | null) => (v ?? "").trim().toLowerCase();
 
 /** Mirrors the database match trigger: job = same location, vehicle = same from, to and date. */
 export function isMatch(a: MatchablePost, b: MatchablePost): boolean {
-  if (a.user_id === b.user_id || a.module !== b.module) return false;
+  if (a.user_id === b.user_id || a.module !== b.module || (a.service_type ?? '') !== (b.service_type ?? '')) return false;
   if (b.kind !== oppositeKind(a.kind)) return false;
   if ((a.status ?? "active") !== "active" || (b.status ?? "active") !== "active") return false;
-  if (a.module === "job") return norm(a.location) !== "" && norm(a.location) === norm(b.location);
+  if (a.module === "job") {
+    const sa = a.area_scope ?? 'local'; const sb = b.area_scope ?? 'local';
+    if (sa === 'country' || sb === 'country') return true;
+    if (sa === 'state' || sb === 'state') return !!norm(a.state) && norm(a.state) === norm(b.state);
+    if (sa === 'district' || sb === 'district') return !!norm(a.district) && norm(a.district) === norm(b.district) && !!norm(a.state) && norm(a.state) === norm(b.state);
+    return norm(a.location) !== "" && norm(a.location) === norm(b.location);
+  }
   return (
     norm(a.from_place) !== "" &&
     norm(a.from_place) === norm(b.from_place) &&
