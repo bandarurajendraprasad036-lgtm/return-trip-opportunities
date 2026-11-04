@@ -26,9 +26,14 @@ export function PostCard({
   const showPhone = !isJob || post.show_contact;
   const ring = async () => {
     if (!meId) { nav({ to: "/auth" }); return; }
-    const { data, error } = await supabase.rpc("notify_matches", { _post_id: post.id });
-    if (error) toast.error(error.message);
-    else toast.success(data ? `${data} మందికి తెలియజేశాం · Notified ${data}` : "సరిపోయేవారు లేరు · No matching users yet");
+    if (post.user_id === meId) {
+      const { data, error } = await supabase.rpc("notify_matches", { _post_id: post.id });
+      if (error) toast.error(error.message); else toast.success(data ? `${data} మందికి తెలియజేశాం · Notified ${data}` : "సరిపోయేవారు లేరు · No matching users yet");
+      return;
+    }
+    const { data, error } = await supabase.rpc("ring_post", { _post_id: post.id });
+    if (error) { toast.error(error.message.includes("DAILY_ALERT_LIMIT") ? "అవతలి వ్యక్తి రోజువారీ సమాచార పరిమితి పూర్తయింది · Recipient's daily alert limit reached" : "సమాచారం పంపలేకపోయాం · Could not send interest"); return; }
+    if (data) nav({ to: "/chat/$userId", params: { userId: data }, search: { post: post.id } });
   };
   return (
     <article
@@ -46,8 +51,8 @@ export function PostCard({
       <div className="space-y-2 p-3">
         <div className="flex items-start gap-2">
           <h3 className="flex-1 text-xl font-bold leading-tight">{post.title}</h3>
-          {isJob && post.status === "active" && (
-            <button onClick={ring} aria-label="Notify matches" className="rounded-full bg-secondary p-2 text-secondary-foreground"><Bell className="size-5" /></button>
+          {post.status === "active" && (
+            <Button type="button" variant="secondary" size="icon" onClick={ring} aria-label="గంట కొట్టి చాట్ చేయండి · Ring and chat"><Bell className="size-5" /></Button>
           )}
         </div>
         {isJob ? (
@@ -68,6 +73,7 @@ export function PostCard({
                 <span className="flex items-center gap-1"><Calendar className="size-4" />{new Date(post.trip_date).toLocaleDateString("en-IN")}</span>
               )}
               {post.vehicle_type && <span>🚚 {post.vehicle_type}</span>}
+              {post.capacity_tons != null && <span>{post.capacity_tons} టన్నులు · tons</span>}
               {post.goods_type && <span>📦 {post.goods_type}</span>}
             </div>
           </div>
@@ -83,7 +89,7 @@ export function PostCard({
                   </Button>
                 )}
                 <Button asChild className="flex-1">
-                  <Link to="/chat/$userId" params={{ userId: post.user_id }}>
+                  <Link to="/chat/$userId" params={{ userId: post.user_id }} search={{ post: post.id }}>
                     <MessageCircle />చాట్ Chat
                   </Link>
                 </Button>

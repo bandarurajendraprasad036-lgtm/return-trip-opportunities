@@ -1,12 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, Briefcase, LogOut, PlusCircle, Sparkles, Star } from "lucide-react";
+import { Bell, Briefcase, LogOut, PlusCircle, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useMe } from "@/lib/session";
 import { AdminChatButton } from "@/components/AdminChatButton";
 import { InstallButton } from "@/components/AppHelpers";
-import { FREE_DAILY_ALERTS, PRIME_PRICE } from "@/lib/jobs";
 import { MembershipPayment } from "@/components/MembershipPayment";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -59,16 +58,6 @@ function Dashboard() {
         <Link to="/post/new" className={tile}><PlusCircle className="size-7 text-primary" />కొత్త పోస్ట్ · New post</Link>
         <Link to="/ai-match" className={tile}><Sparkles className="size-7 text-primary" />AI మ్యాచ్ · AI Match</Link>
       </div>
-      {!prime && (
-        <div className="rounded-xl border-2 border-secondary bg-card p-4">
-          <p className="flex items-center gap-2 text-lg font-bold"><Star className="size-5" />Prime · ₹{PRIME_PRICE}/నెల</p>
-          <ul className="mt-1 list-disc pl-5 text-sm">
-            <li>అపరిమిత అలర్ట్స్ (ఉచితం: రోజుకు {FREE_DAILY_ALERTS}) · Unlimited alerts</li>
-            <li>మీ పోస్ట్‌లో ఫోన్ నంబర్ చూపించవచ్చు · Show your phone on posts</li>
-          </ul>
-          <p className="mt-2 text-sm">Prime కోసం అడ్మిన్‌తో మాట్లాడండి · Talk to admin to activate Prime:</p>
-        </div>
-      )}
       <AdminChatButton />
       <MembershipPayment />
       <Button asChild variant="outline" className="h-auto min-h-12 w-full whitespace-normal py-3"><Link to="/service-profile">నా సేవల పరిచయం · My service profile</Link></Button>

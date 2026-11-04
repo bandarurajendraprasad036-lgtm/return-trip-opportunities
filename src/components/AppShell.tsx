@@ -1,12 +1,14 @@
 import { Brand } from "@/components/Brand";
 import { useEffect, type ReactNode } from "react";
-import { Link } from "@tanstack/react-router";
+import { ClientOnly, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, Home, MessageCircle, PlusCircle, User, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/session";
 import { NotificationPermission } from "@/components/AppHelpers";
 import { DesignFooter } from "@/components/DesignFooter";
+import { IncomingNotice } from "@/components/IncomingNotice";
+import { ResponsibilityNotice } from "@/components/ResponsibilityNotice";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { data: me } = useMe();
@@ -50,7 +52,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <Link to="/feed" className="font-display text-2xl font-extrabold leading-none">
           <Brand />
         </Link>
-        {me === null ? (
+        <ClientOnly fallback={<div className="h-10" />}>{me === null ? (
           <Link to="/auth" className="rounded-full bg-secondary px-4 py-2 text-sm font-bold text-secondary-foreground">
             లాగిన్ / రిజిస్టర్
           </Link>
@@ -76,9 +78,10 @@ export function AppShell({ children }: { children: ReactNode }) {
             )}
           </Link>
         </div>
-        )}
+        )}</ClientOnly>
       </header>
-      <main className="flex-1 pb-24">{children}<DesignFooter /></main>
+      <main className="flex-1 pb-24">{children}<ResponsibilityNotice /><DesignFooter /></main>
+      {me && <IncomingNotice userId={me.id} />}
       {me && <NotificationPermission userId={me.id} />}
       <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-md border-t bg-card">
         <Link to="/feed" className={tab} activeProps={active}>

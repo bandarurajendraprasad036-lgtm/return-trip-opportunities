@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Bell, Phone, BadgeCheck } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/session";
@@ -25,6 +25,12 @@ export function MembershipPayment() {
   const pending = payments.data?.some(payment => payment.status === "pending");
   return <section className="space-y-4 border-y py-4" aria-label="సభ్యత్వ చెల్లింపు">
     <h2 className="text-xl font-bold">సభ్యత్వ చెల్లింపు · Membership payment</h2>
+    <div className="space-y-3 bg-royal px-4 py-5 text-on-royal">
+      <div className="flex items-center gap-2 text-gold"><BadgeCheck className="size-6" /><h3 className="text-xl font-bold">మీ అవకాశాలకు ప్రాధాన్యం · Prime membership</h3></div>
+      <p className="text-3xl font-bold text-gold">₹{MEMBERSHIP_AMOUNT}<span className="ml-2 text-sm font-normal text-on-royal">/ నెల · month</span></p>
+      <ul className="space-y-3 text-sm"><li className="flex gap-2"><Bell className="size-5 shrink-0 text-gold" />రోజువారీ ఉచిత పరిమితికి మించి సరిపోయే సమాచారం · Matching alerts beyond the free daily limit</li><li className="flex gap-2"><Phone className="size-5 shrink-0 text-gold" />మీ అనుమతితో ఉద్యోగ ప్రకటనలో నేరుగా సంప్రదించే నంబరు · Opt-in direct contact on job posts</li><li className="flex gap-2"><BadgeCheck className="size-5 shrink-0 text-gold" />కార్యాలయం చెల్లింపు నిర్ధారించిన తరువాత సభ్యత్వం · Activated after payment approval</li></ul>
+      <p className="text-xs text-on-royal/80">ఉద్యోగం లేదా వాహనం దొరుకుతుందని హామీ కాదు · No job or vehicle booking guarantee.</p>
+    </div>
     {!me?.profile?.is_prime && !pending && <form className="space-y-3" onSubmit={async event => {
       event.preventDefault();
       if (!me) return;

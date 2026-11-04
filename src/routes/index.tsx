@@ -16,6 +16,10 @@ import { DesignFooter } from "@/components/DesignFooter";
 import { SharingImage } from "@/components/SharingImage";
 import { InstallButton } from "@/components/AppHelpers";
 import { BellJoin } from "@/components/BellJoin";
+import { DailyWelcome } from "@/components/DailyWelcome";
+import { ProfileNotice } from "@/components/ProfileNotice";
+import { ResponsibilityNotice } from "@/components/ResponsibilityNotice";
+import { AdminChatButton } from "@/components/AdminChatButton";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -88,8 +92,10 @@ function Index() {
         <p className="mt-3 text-center text-lg text-gold">మన ప్రాంత సమాచారం మన గుప్పెట్లో</p>
         <img src={scheduled.data || [mata, mataGreen, mataIvory][devotional]} alt="గాయత్రి మాత" className="mx-auto mt-4 aspect-square w-full max-w-80 object-contain" width={768} height={768} onError={event => { event.currentTarget.src = [mata, mataGreen, mataIvory][devotional] ?? mata; }} />
         <BellJoin />
+        <DailyWelcome />
         <p className="mt-2 text-center text-sm opacity-80">యాక్టివ్ పోస్ట్‌లు · Active posts: {fmt(total)}</p>
       </section>
+      <ProfileNotice />
       <section className="space-y-3 px-5 pb-8 pt-4">
         <form onSubmit={searchRides} className="space-y-2 rounded-xl border bg-card p-4 shadow-card">
           <p className="font-bold">రిటర్న్ వాహనం వెతకండి · Find a ride</p>
@@ -114,6 +120,7 @@ function Index() {
           </div>
         )}
         <InstallButton />
+        <AdminChatButton />
         <SharingImage />
         <Button asChild variant="secondary" size="xl" className="w-full">
           <Link to="/auth">ప్రారంభించండి · Get Started</Link>
@@ -122,6 +129,7 @@ function Index() {
           <Link to="/feed">ఇప్పటికే అకౌంట్ ఉంది? Open app</Link>
         </Button>
       </section>
+      <ResponsibilityNotice />
       <DesignFooter />
     </div>
   );

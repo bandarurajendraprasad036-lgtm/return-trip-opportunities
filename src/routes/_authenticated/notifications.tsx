@@ -31,16 +31,17 @@ function Notifications() {
     refetchOnWindowFocus: true,
     retry: 3,
     queryFn: async () => {
+      if (!me) return [];
       const { data, error } = await supabase
         .from("notifications")
         .select("*")
-        .eq("user_id", me!.id)
+        .eq("user_id", me.id)
         .order("created_at", { ascending: false })
         .limit(50);
       if (error) throw error;
-      const ids = [...new Set(data.map((n) => n.matched_post_id).filter(Boolean))] as string[];
+      const ids = [...new Set(data.map((n) => n.matched_post_id || n.post_id).filter(Boolean))] as string[];
       const { data: posts } = ids.length ? await supabase.from("posts").select("*").in("id", ids) : { data: [] as Post[] };
-      return data.map((n) => ({ ...n, post: (posts ?? []).find((p) => p.id === n.matched_post_id) as Post | undefined }));
+      return data.map((n) => ({ ...n, post: (posts ?? []).find((p) => p.id === (n.matched_post_id || n.post_id)) as Post | undefined }));
     },
   });
 

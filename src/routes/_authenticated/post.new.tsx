@@ -18,6 +18,10 @@ import { Sparkles } from "lucide-react";
 import { draftJobAd, type JobAdDraft } from "@/lib/ai-job-ad.functions";
 import { buildJobAdInput } from "@/lib/job-ad-input";
 import { hasValidMobile } from "@/lib/phone";
+import { capacityInput } from "@/lib/vehicle-experience";
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { JobSuggestionInput } from '@/components/JobSuggestionInput';
+import { generalWorkValue, hasProhibitedJobWords, VILLAGE_SUGGESTIONS, WORK_SUGGESTIONS } from '@/lib/job-entry';
 
 function AiJobAd({ kind, onDraft }: { kind: "seeker" | "employer"; onDraft: (d: JobAdDraft) => void }) {
   const run = useServerFn(draftJobAd);
@@ -99,7 +103,7 @@ export const Route = createFileRoute("/_authenticated/post/new")({
 
 const OPTIONS: { kind: Kind; module: "job" | "vehicle"; te: string; en: string; icon: typeof Briefcase; tone: string }[] = [
   { kind: "seeker", module: "job", te: "నాకు ఉద్యోగం కావాలి", en: "I need a job", icon: UserSearch, tone: "bg-job" },
-  { kind: "employer", module: "job", te: "నాకు పనివాడు కావాలి", en: "I need an employee", icon: Users, tone: "bg-job" },
+  { kind: "employer", module: "job", te: "నేను ఉద్యోగం ఇస్తాను", en: "I offer a job", icon: Users, tone: "bg-job" },
   { kind: "owner", module: "vehicle", te: "ఖాళీ రిటర్న్ ట్రిప్ ఉంది", en: "Empty return trip", icon: Truck, tone: "bg-vehicle" },
   { kind: "business", module: "vehicle", te: "రిటర్న్ వాహనం కావాలి", en: "Need return vehicle", icon: Package, tone: "bg-vehicle" },
 ];
@@ -113,6 +117,8 @@ function NewPost() {
   const [kind, setKind] = useState<Kind | null>(null);
   const [f, setF] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
+  const [generalWork, setGeneralWork] = useState(false);
+  const [contentError, setContentError] = useState('');
   const checkText = useServerFn(checkPostText);
   useEffect(() => {
     const profile = me?.profile;
@@ -131,10 +137,10 @@ function NewPost() {
         <h2 className="text-2xl font-bold">మీకు ఏమి కావాలి?</h2>
         <p className="-mt-2 text-muted-foreground">What do you want to post?</p>
         {OPTIONS.map((o) => (
-          <button key={o.kind} onClick={() => setKind(o.kind)} className="flex w-full items-center gap-4 rounded-xl border bg-card p-4 text-left shadow-card active:scale-[0.98]">
+          <Button key={o.kind} variant="outline" onClick={() => setKind(o.kind)} className="h-auto min-h-20 w-full justify-start gap-4 whitespace-normal p-4 text-left shadow-card">
             <span className={`grid size-14 place-items-center rounded-xl text-primary-foreground ${o.tone}`}><o.icon className="size-7" /></span>
             <span><span className="block text-lg font-bold">{o.te}</span><span className="text-muted-foreground">{o.en}</span></span>
-          </button>
+          </Button>
         ))}
       </div>
     );
@@ -151,16 +157,24 @@ function NewPost() {
     const schema = isJob
       ? z.object({ location: txt(80), skill: txt(100), salary: z.string().trim().max(40).optional(), description: z.string().trim().max(500).optional(), contact_phone: z.string().trim().max(15).optional(), category: z.string().max(30).optional(), show_contact: z.string().optional() })
       : z.object({ from_place: txt(80), to_place: txt(80), trip_date: txt(10), ...(kind === "owner" ? { vehicle_type: txt(60) } : { goods_type: txt(80) }), description: z.string().trim().max(500).optional(), contact_phone: z.string().trim().max(15).optional() });
-    const r = schema.safeParse(f);
+    setContentError('');
+    const jobData = isJob ? { ...f, skill: generalWorkValue(f['skill'] ?? '', f['general_work'] ?? '', generalWork), ...(generalWork ? { category: 'other' } : {}) } : f;
+    if (isJob && hasProhibitedJobWords(Object.values(jobData).join(' '))) {
+      setContentError('అనుచిత పదాలు అనుమతించబడవు. ఊరు, పని, వివరాల్లో ఆ పదాలను తీసివేసి మళ్లీ పంపండి. · Remove prohibited words before posting.');
+      return;
+    }
+    const r = schema.safeParse(jobData);
     if (!r.success) { const i = r.error.issues[0]; toast.error(`${String(i?.path[0] ?? "")}: ${i?.message ?? ""}`); return; }
+    const capacity = !isJob && f["capacity_tons"] ? capacityInput.safeParse(f["capacity_tons"]) : null;
+    if (capacity && !capacity.success) { toast.error("సరైన టన్నుల బరువు ఇవ్వండి · Enter a valid capacity"); return; }
     const { show_contact, ...v } = r.data as Record<string, string>;
     const title = isJob
       ? kind === "seeker" ? `${v["skill"]} పని కావాలి` : `${v["skill"]} కోసం పనివాడు కావాలి`
       : kind === "owner" ? `${v["vehicle_type"]} ఖాళీగా వస్తోంది` : `${v["goods_type"]} కోసం వాహనం కావాలి`;
     setBusy(true);
     const mod = await checkText({ data: { text: Object.values(v).join(" \n ") } }).catch(() => ({ ok: true }));
-    if (!mod.ok) { setBusy(false); toast.error("🚫 బూతులు, చెడు మాటలు, దేశ వ్యతిరేక విషయాలు పోస్ట్ చేయకూడదు · Abusive or anti-national content is not allowed"); return; }
-    const { error } = await supabase.from("posts").insert({ ...v, show_contact: show_contact === "1", user_id: me.id, module: opt.module, kind, title });
+    if (!mod.ok) { setBusy(false); setContentError('అనుచిత పదాలు లేదా హింసను ప్రోత్సహించే విషయాలు అనుమతించబడవు. వివరాలు సరిచేసి మళ్లీ పంపండి. · Prohibited content: correct your details.'); return; }
+    const { error } = await supabase.from("posts").insert({ ...v, ...(!isJob ? { capacity_tons: capacity?.success ? capacity.data : null, vehicle_type: f["vehicle_type"]?.trim().slice(0, 60) || null } : {}), show_contact: show_contact === "1", user_id: me.id, module: opt.module, kind, title });
     setBusy(false);
     if (error) { toast.error(error.message.includes("MOBILE_REQUIRED") ? "ప్రకటనకు ముందు మొబైల్ నంబరు ఇవ్వండి · Mobile number required" : error.message.includes("BAD_CONTENT") ? "🚫 బూతులు, చెడు మాటలు, దేశ వ్యతిరేక విషయాలు పోస్ట్ చేయకూడదు · Abusive or anti-national content is not allowed" : error.message); return; }
     toast.success("పోస్ట్ అయ్యింది! మ్యాచ్ వస్తే అలర్ట్ వస్తుంది · Posted! You'll be alerted on a match");
@@ -180,13 +194,19 @@ function NewPost() {
       <div className={`flex items-center gap-3 rounded-xl p-3 text-primary-foreground ${opt.tone}`}>
         <opt.icon className="size-7" />
         <div><p className="text-lg font-bold">{opt.te}</p><p className="text-sm opacity-90">{opt.en}</p></div>
-        <button type="button" onClick={() => setKind(null)} className="ml-auto text-sm underline">మార్చు</button>
+        <Button type="button" variant="ghost" onClick={() => setKind(null)} className="ml-auto text-sm underline">మార్చు</Button>
       </div>
       {isJob ? (
         <>
+          {/* Point 8: separately selectable job seeker/employer tabs. */}
+          <Tabs value={kind} onValueChange={value => { if (value === 'seeker' || value === 'employer') { setKind(value); setContentError(''); } }}>
+            <TabsList className="grid h-auto w-full grid-cols-2 gap-1"><TabsTrigger value="seeker" className="min-h-16 whitespace-normal text-base">నాకు ఉద్యోగం కావాలి · I need a job</TabsTrigger><TabsTrigger value="employer" className="min-h-16 whitespace-normal text-base">నేను ఉద్యోగం ఇస్తాను · I offer a job</TabsTrigger></TabsList>
+          </Tabs>
           <AiJobAd kind={kind as "seeker" | "employer"} onDraft={(d) => setF((prev) => ({ ...prev, ...Object.fromEntries(Object.entries(d).filter(([, v]) => v)) }))} />
-          {field("location", "ఊరు / ప్రాంతం", "Location", { placeholder: "e.g. Guntur" })}
-          {field("skill", kind === "seeker" ? "మీ పని నైపుణ్యం" : "ఏ పని", kind === "seeker" ? "Skill" : "Work", { placeholder: "e.g. Driver, Mason, Farm work" })}
+          <JobSuggestionInput id="job-location" label="ఊరు / ప్రాంతం · Location" value={f['location'] ?? ''} options={VILLAGE_SUGGESTIONS} maxLength={80} onChange={value => setF(prev => ({ ...prev, location: value }))} />
+          {!generalWork && <JobSuggestionInput id="job-work" label="పని పేరు · Work" value={f['skill'] ?? ''} options={WORK_SUGGESTIONS} maxLength={100} onChange={value => setF(prev => ({ ...prev, skill: value }))} />}
+          <label className="flex items-center gap-2"><input type="checkbox" checked={generalWork} onChange={event => setGeneralWork(event.target.checked)} />జాబితాలో లేని పని · Other work</label>
+          {generalWork && <div className="space-y-1"><Label htmlFor="general-work">ఇతర పని పేరు · General work</Label><Input id="general-work" className="h-12 text-lg" value={f['general_work'] ?? ''} required maxLength={100} onChange={set('general_work')} /></div>}
           <div className="space-y-1">
             <Label className="text-base">పని రకం · Category</Label>
             <select className="h-12 w-full rounded-md border bg-card px-3 text-lg" value={f["category"] ?? ""} onChange={(e) => setF({ ...f, category: e.target.value })}>
@@ -201,9 +221,9 @@ function NewPost() {
           {field("from_place", "ఎక్కడి నుండి", "From", { placeholder: "e.g. Hyderabad" })}
           {field("to_place", "ఎక్కడికి", "To", { placeholder: "e.g. Warangal" })}
           {field("trip_date", "తేదీ", "Date", { type: "date" })}
-          {kind === "owner"
-            ? field("vehicle_type", "వాహనం రకం", "Vehicle type", { placeholder: "e.g. Tata Ace, Lorry 10 ton, Tractor" })
-            : field("goods_type", "సరుకు రకం", "Goods type", { placeholder: "e.g. Rice bags, Cement" })}
+          <div className="space-y-1"><Label className="text-base">వాహనం రకం · Vehicle type</Label><select aria-label="వాహనం రకం · Vehicle type" value={f["vehicle_type"] ?? ""} onChange={event => setF({ ...f, vehicle_type: event.target.value })} className="h-12 w-full rounded-md border bg-card px-3 text-lg" required><option value="">ఎంచుకోండి · Choose</option><option value="Lorry">లారీ · Lorry</option><option value="407">407</option><option value="Trolley">ట్రాలీ · Trolley</option><option value="Tata Ace">చిన్న సరుకు వాహనం · Tata Ace</option><option value="Other">ఇతర · Other</option></select></div>
+          {field("capacity_tons", "బరువు సామర్థ్యం (టన్నులు)", "Capacity (tons)", { type: "number", min: "0.1", max: "100", step: "0.1", required: true })}
+          {kind === "business" && field("goods_type", "సరుకు రకం", "Goods type", { placeholder: "e.g. Rice bags, Cement" })}
         </>
       )}
       {isJob && (
@@ -217,6 +237,7 @@ function NewPost() {
         <Label className="text-base">వివరాలు · Details (optional)</Label>
         <Textarea value={f["description"] ?? ""} onChange={set("description")} maxLength={500} className="text-base" />
       </div>
+      {contentError && <p role="alert" className="break-words border border-destructive bg-card p-3 text-destructive">{contentError}</p>}
       <Button type="submit" variant="secondary" size="xl" className="w-full" disabled={busy}>
         {busy ? "..." : "పోస్ట్ చేయండి · Post"}
       </Button>

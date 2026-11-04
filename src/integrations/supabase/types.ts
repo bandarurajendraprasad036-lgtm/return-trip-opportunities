@@ -160,6 +160,7 @@ export type Database = {
       posts: {
         Row: {
           area_scope: string
+          capacity_tons: number | null
           category: string | null
           contact_phone: string | null
           created_at: string
@@ -187,6 +188,7 @@ export type Database = {
         }
         Insert: {
           area_scope?: string
+          capacity_tons?: number | null
           category?: string | null
           contact_phone?: string | null
           created_at?: string
@@ -214,6 +216,7 @@ export type Database = {
         }
         Update: {
           area_scope?: string
+          capacity_tons?: number | null
           category?: string | null
           contact_phone?: string | null
           created_at?: string
@@ -494,6 +497,7 @@ export type Database = {
         Args: { _approve: boolean; _id: string; _note?: string }
         Returns: undefined
       }
+      ring_post: { Args: { _post_id: string }; Returns: string }
       save_service_profile: {
         Args: {
           _bio: string
