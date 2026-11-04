@@ -32,6 +32,41 @@ export type Database = {
         }
         Relationships: []
       }
+      free_membership_months: {
+        Row: {
+          created_at: string
+          ends_on: string
+          id: string
+          source: string
+          starts_on: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          ends_on: string
+          id?: string
+          source: string
+          starts_on: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          ends_on?: string
+          id?: string
+          source?: string
+          starts_on?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "free_membership_months_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       membership_payments: {
         Row: {
           admin_note: string
@@ -295,6 +330,29 @@ export type Database = {
         }
         Relationships: []
       }
+      reward_wallets: {
+        Row: {
+          points: number
+          user_id: string
+        }
+        Insert: {
+          points?: number
+          user_id: string
+        }
+        Update: {
+          points?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reward_wallets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_likes: {
         Row: {
           profile_id: string
@@ -446,6 +504,44 @@ export type Database = {
           },
         ]
       }
+      sharing_claims: {
+        Row: {
+          admin_note: string
+          created_at: string
+          evidence_paths: string[]
+          id: string
+          reviewed_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string
+          created_at?: string
+          evidence_paths: string[]
+          id?: string
+          reviewed_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string
+          created_at?: string
+          evidence_paths?: string[]
+          id?: string
+          reviewed_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sharing_claims_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -471,6 +567,10 @@ export type Database = {
     Functions: {
       apply_referral: { Args: { _code: string }; Returns: boolean }
       can_notify: { Args: { _uid: string }; Returns: boolean }
+      grant_free_membership_month: {
+        Args: { _source: string; _user: string }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -492,8 +592,13 @@ export type Database = {
         Args: { _id: string; _visitor: string }
         Returns: undefined
       }
+      redeem_reward_points: { Args: never; Returns: string }
       referral_target: { Args: { _d: string }; Returns: number }
       review_membership: {
+        Args: { _approve: boolean; _id: string; _note?: string }
+        Returns: undefined
+      }
+      review_sharing_claim: {
         Args: { _approve: boolean; _id: string; _note?: string }
         Returns: undefined
       }
