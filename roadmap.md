@@ -92,3 +92,4 @@
 - [x] Admin referral list (who referred whom, paid?, free month credited)
 - [x] Admin AI questions about referral data
 - [x] Support chat never reveals user counts or personal info; answers only what is asked
+- [x] Hide service-provider features from site (jobs and vehicles only); data kept. 721-point source unavailable.
