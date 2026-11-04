@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] November 4 08:30 UTC: calendar, date assignment, preview and upload type/size error messages; Google failure reasons and retry.
 - [ ] November 4 08:27 UTC: admin upload and date scheduling for daily Gayatri Mata images; use Indian calendar day, default bundled rotation on unscheduled days.
 - [ ] November 4 08:24 UTC: Google-only login (no passwords/reset), mandatory phone before ads, payment under-review screen and manual WhatsApp send button, unframed bell at lotus, footer only Design: Gayatri One, daily Mata rotation, explicit offline basic-page support. Verify together; do not publish automatically.
 - [ ] Finish current preview changes and report blockers; publish only at the end with user permission. Provide homepage demo screenshot.

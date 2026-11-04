@@ -20,12 +20,11 @@ export default defineConfig({
       workbox: {
         globPatterns: ["**/*.{js,css,png,jpg,woff2}"],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-        navigateFallback: "/offline.html",
-        navigateFallbackDenylist: [/^\/~oauth/, /^\/api/, /^\/profile\//],
+        navigateFallback: undefined,
         runtimeCaching: [{
           urlPattern: ({ request, url }) => request.mode === "navigate" && url.origin === self.location.origin && !url.pathname.startsWith("/~oauth") && ["/", "/auth", "/feed"].includes(url.pathname),
           handler: "NetworkFirst",
-          options: { cacheName: "gayatri-public-pages", networkTimeoutSeconds: 4, expiration: { maxEntries: 8, maxAgeSeconds: 86400 } },
+          options: { cacheName: "gayatri-public-pages", networkTimeoutSeconds: 4, expiration: { maxEntries: 8, maxAgeSeconds: 86400 }, precacheFallback: { fallbackURL: "/offline.html" } },
         }],
       },
     })],

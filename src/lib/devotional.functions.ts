@@ -11,7 +11,7 @@ export const getDailyArtwork = createServerFn({ method: "GET" }).handler(async (
   if (!path || !/^artwork\/[a-f0-9-]+\.(jpg|png|webp)$/.test(path)) return null;
   const signed = await supabaseAdmin.storage.from("devotional-images").createSignedUrl(path, 3600);
   if (signed.error) throw signed.error;
-  const browserOrigin = import.meta.env.VITE_SUPABASE_URL;
+  const browserOrigin = import.meta.env['VITE_SUPABASE_URL'];
   if (!browserOrigin) return null;
   const signedUrl = new URL(signed.data.signedUrl);
   return `${browserOrigin.replace(/\/$/, "")}${signedUrl.pathname}${signedUrl.search}`;
