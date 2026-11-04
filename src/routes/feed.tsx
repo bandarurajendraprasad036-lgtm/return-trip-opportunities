@@ -75,8 +75,8 @@ function Feed() {
   );
   const today = indianDay(new Date());
   const sections = [
-    { title: "తిరుగు వాహనాలు · Return vehicles", posts: shown.filter(p => p.module === "vehicle" && (!p.trip_date || p.trip_date <= today)) },
-    { title: "ముందస్తు తిరుగు వాహనాలు · Advance returns", posts: shown.filter(p => p.module === "vehicle" && !!p.trip_date && p.trip_date > today) },
+    { title: "తిరిగి వచ్చే వాహనాలు · Return vehicles", posts: shown.filter(p => p.module === "vehicle" && (!p.trip_date || p.trip_date <= today)) },
+    { title: "తిరిగి వచ్చే వాహనాలు ముందస్తు · Advance returns", posts: shown.filter(p => p.module === "vehicle" && !!p.trip_date && p.trip_date > today) },
     { title: "ఉద్యోగాలు · Jobs", posts: shown.filter(p => p.module === "job") },
   ];
 
