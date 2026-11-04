@@ -1,4 +1,6 @@
 # Roadmap
+- [ ] November 4 10:58 supersedes freshness labels: show only last position timestamp, no fresh/aging/stale labels; timestamp formatting helper/tests replace classifier. Real map integration remains blocked.
+- [x] November 4 10:57: confirmed freshness thresholds implemented in location-freshness.ts: <=5 minutes fresh, >5 and <=15 aging, >15 stale; exact boundary regression tests added. Not yet connected to a map; mapping/booking authorization remains blocked.
 - [ ] November 4 10:56: vehicle freshness uses color plus explicit text and accessible screen-reader label; stop timer when map closes or booking ends; tests at freshness thresholds with last-updated timestamp. Tracking implementation blocked on map/booking setup and unspecified freshness thresholds.
 - [ ] November 4 10:55: active-booking-only access/revocation automated tests, live movement/stale fallback tests; fresh/somewhat-old/old indicator updates with elapsed time and new location, last-update timestamp. Blocked on real Maps authorization and booking lifecycle; age thresholds not supplied.
 - [x] November 4 10:33 Point 8: both authenticated job submissions saved correct seeker/employer kinds and read back in My Posts; temporary test posts deleted; six rule tests passed.
