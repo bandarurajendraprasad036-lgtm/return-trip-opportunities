@@ -1,4 +1,7 @@
 # Roadmap
+- [ ] November 4 10:01: implement new devotional shine/yellow bell, prominent wordmark, daily welcome, home notice, responsibility language choice and updated footer; attractive existing membership benefits.
+- [ ] November 4 10:01: real route map/distance, customer origin, structured vehicle/ton capacity and 20% endpoint matching — mapping service needed, custom domain requires own authorized browser key.
+- [ ] November 4 10:01: result bells open contextual chat, dismissible incoming banners, replies grouped per post, distinct area result sections.
 - [x] November 4 08:42 UTC: custom-domain homepage/feed/auth and protected-page guest redirects verified; signed-in dashboard/chats/alerts/post/service profile tested locally. Phone exposure fixed, 3 real authorization API tests pass; rescan no critical findings. Republish requested below.
 - [x] November 4 08:38 UTC: user-purchased gayatrione.com connected through registrar card; records written and primary set. Current changes submitted for publication.
 - [x] Confirm gayatrione.com becomes active and latest deployment serves — connected and HTTP 200 confirmed, desktop/mobile homepage and main public pages verified.
