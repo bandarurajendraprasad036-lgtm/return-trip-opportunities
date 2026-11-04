@@ -144,6 +144,7 @@
 .home-devotional .brand-wordmark > span:first-child { font-size: 1.5rem; }
 .home-devotional .brand-wordmark > span:last-child { font-size: .875rem; }
 .home-mata { max-width: min(20rem, 40svh); }
+.home-bell-mata { top: 37%; width: 34%; aspect-ratio: 1; }
 .home-bell { transform-origin: top center; color: var(--gold); animation: bell-shine 4s ease-in-out infinite; }
 .home-bell:hover { color: var(--rose-gold); }
 .home-bell[data-touched="true"] { color: var(--bell-yellow); animation: none; filter: drop-shadow(0 0 8px color-mix(in oklab, var(--bell-yellow) 50%, transparent)); }
