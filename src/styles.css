@@ -19,6 +19,9 @@
  */
 
 @theme inline {
+  --color-royal: var(--royal);
+  --color-gold: var(--gold);
+  --color-on-royal: var(--on-royal);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -69,6 +72,9 @@
 }
 
 :root {
+  --royal: oklch(0.12 0 0);
+  --gold: oklch(0.82 0.14 85);
+  --on-royal: oklch(0.96 0.015 90);
   --radius: 0.75rem;
   --background: oklch(0.97 0.006 200);
   --foreground: oklch(0.22 0.04 220);
@@ -125,3 +131,10 @@
 }
 
 @utility bg-hero { background-image: var(--gradient-hero); }
+
+.profile-scroll { animation: profile-scroll 24s linear infinite; }
+@keyframes profile-scroll { from { transform: translateX(100%); } to { transform: translateX(-200%); } }
+.home-bell { transform-origin: top center; }
+.home-bell:active { animation: bell-ring .5s ease-in-out; }
+@keyframes bell-ring { 25% { transform: rotate(18deg); } 75% { transform: rotate(-18deg); } }
+@media (prefers-reduced-motion: reduce) { .profile-scroll { animation: none; white-space: normal; padding-inline: 12px; } .home-bell:active { animation: none; } }
