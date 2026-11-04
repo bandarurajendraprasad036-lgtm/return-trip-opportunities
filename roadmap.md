@@ -1,4 +1,6 @@
 # Roadmap
+- [ ] Admin-only questions about noted, unimplemented points — paused at user's request; wait for remaining points and explicit permission to implement
+- [ ] Show the current website without adding new features
 - [ ] Clearly labeled sample jobs/vehicles/services across areas, with Already Booked interaction and no personal details
 - [ ] Black/gold home with Gayatri image and separate actionable bell
 - [ ] Area scopes, service posts and matching bell/audio
