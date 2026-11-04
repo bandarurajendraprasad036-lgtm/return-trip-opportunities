@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Clearly labeled sample jobs/vehicles/services across areas, with Already Booked interaction and no personal details
 - [ ] Black/gold home with Gayatri image and separate actionable bell
 - [ ] Area scopes, service posts and matching bell/audio
 - [ ] Profile scrolling privacy message
