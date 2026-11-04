@@ -151,3 +151,5 @@
 .home-bell:active { animation: bell-ring .5s ease-in-out; }
 @keyframes bell-ring { 25% { transform: rotate(18deg); } 75% { transform: rotate(-18deg); } }
 @media (prefers-reduced-motion: reduce) { .profile-scroll { animation: none; white-space: normal; padding-inline: 12px; } .home-bell, .home-bell:active { animation: none; } }
+
+.gold-ring { display:grid; place-items:center; width:3rem; height:3rem; border-radius:9999px; border:2px solid var(--gold); color: var(--gold); box-shadow:0 0 12px color-mix(in oklab, var(--gold) 40%, transparent); }
