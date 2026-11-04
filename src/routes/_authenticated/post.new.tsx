@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useMe } from "@/lib/session";
 import type { Kind } from "@/lib/match";
 import { useServerFn } from "@tanstack/react-start";
+import { checkPostText } from "@/lib/moderation.functions";
 import { Sparkles } from "lucide-react";
 import { draftJobAd, type JobAdDraft } from "@/lib/ai-job-ad.functions";
 
@@ -78,8 +79,8 @@ function NewPost() {
   const [kind, setKind] = useState<Kind | null>(null);
   const [f, setF] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
-  useEffect(() => {
   const checkText = useServerFn(checkPostText);
+  useEffect(() => {
     if (!me?.profile) return;
     setF((prev) => ({
       ...prev,
