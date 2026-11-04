@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Answer domain purchase, hosting availability and claimed free one-year offer using current account/offer information
 - [ ] Combined implementation authorized November 4, 2026 at 05:50 UTC — clarify outstanding pricing/sharing/referral terms, audit existing features, then implement and verify together
 - [x] Explain screenshot's editor Publish button: releases current changes to the public website, unrelated to the poster
 - [x] Fix Google sign-in button text clipping on narrow phones and verify login/signup layouts
