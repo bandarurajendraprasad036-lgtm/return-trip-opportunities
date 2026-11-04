@@ -1,6 +1,11 @@
 import { isBellNight } from '@/lib/bell-rules';
 let audio: AudioContext | undefined;
 export function bellMuted() { try { return localStorage.getItem('gayatri-notices-muted') === 'yes'; } catch { return false; } }
+export const BELL_PREFERENCE_EVENT = 'gayatri-bell-preference';
+export function setBellMuted(muted: boolean) {
+  try { localStorage.setItem('gayatri-notices-muted', muted ? 'yes' : 'no'); } catch { /* Device storage may be unavailable. */ }
+  window.dispatchEvent(new Event(BELL_PREFERENCE_EVENT));
+}
 export function enableBellAudio() {
   try { audio ??= new AudioContext(); void audio.resume(); } catch { /* Browser may not support audio. */ }
 }

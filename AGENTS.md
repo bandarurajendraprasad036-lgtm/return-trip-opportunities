@@ -30,6 +30,7 @@
 - Point 8 job identity is captured before asynchronous submission and tab changes are disabled while sending, so persisted job kind cannot drift.
 - Free-membership rewards use locked SQL RPCs and an owner-readable ledger; private sharing evidence requires server-verified admin approval, and wallets have no client write grant.
 - Notification preferences are account-owned records; delivery eligibility and quota reset use their validated IANA timezone, while bell sound-only mute never removes the inbox subscription.
+- Bell controls share one device preference and synchronization event; browser permission status never implies background delivery, preventing conflicting controls and false delivery claims.
 - Vehicle position display formats only the actual timestamp through a pure timezone-aware helper; never synthesize location data or a current-time substitute.
 - Homepage listings reuse the active-post query and existing PostCard bell action; local vehicles require identical named endpoints until real geographic data is authorized, so proximity is never inferred.
 - The large devotional bell is the sole home bell trigger; date-based bundled engraved variants preserve gold artwork without a separate portrait overlay.
