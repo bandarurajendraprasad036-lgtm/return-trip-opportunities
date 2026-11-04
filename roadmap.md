@@ -1,4 +1,6 @@
 # Roadmap
+- [ ] Shared profile image/message should lead the recipient to that person's public profile page; inspect existing sharing and add the missing link behavior.
+- [ ] Employer posts for any shop/company/person require ₹99 monthly payment for one post; additional posts require status plus nine recipients and an approval display. Clarify verification before enforcing publication.
 - [x] Add opt-in public service profiles, WhatsApp sharing, work photos, reviews, profile views and likes; tested signed-in save, upload/delete, likes, guest access, privacy and self-review rejection on phone. Cross-account review submission remains unverified because only one account is available.
 - [x] Redesign sharing poster in English: ₹99 plus status and nine people OR groups for one month full membership; without sharing ₹499; blank referral field because no code provided
 - [x] Show generated job-ad preview directly on creation screen and verify populated result on mobile
