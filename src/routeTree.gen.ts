@@ -19,8 +19,6 @@ import { Route as AuthenticatedChatsRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedMyPostsRouteImport } from './routes/_authenticated/my-posts'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
-import { Route as AuthenticatedServiceProfileRouteImport } from './routes/_authenticated/service-profile'
-import { Route as ProfileUserIdRouteImport } from './routes/profile.$userId'
 import { Route as AuthenticatedChatUserIdRouteImport } from './routes/_authenticated/chat.$userId'
 import { Route as AuthenticatedPostNewRouteImport } from './routes/_authenticated/post.new'
 
@@ -74,17 +72,6 @@ const AuthenticatedNotificationsRoute =
     path: '/notifications',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedServiceProfileRoute =
-  AuthenticatedServiceProfileRouteImport.update({
-    id: '/service-profile',
-    path: '/service-profile',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const ProfileUserIdRoute = ProfileUserIdRouteImport.update({
-  id: '/profile/$userId',
-  path: '/profile/$userId',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedChatUserIdRoute = AuthenticatedChatUserIdRouteImport.update({
   id: '/chat/$userId',
   path: '/chat/$userId',
@@ -106,8 +93,6 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/my-posts': typeof AuthenticatedMyPostsRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
-  '/service-profile': typeof AuthenticatedServiceProfileRoute
-  '/profile/$userId': typeof ProfileUserIdRoute
   '/chat/$userId': typeof AuthenticatedChatUserIdRoute
   '/post/new': typeof AuthenticatedPostNewRoute
 }
@@ -121,8 +106,6 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/my-posts': typeof AuthenticatedMyPostsRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
-  '/service-profile': typeof AuthenticatedServiceProfileRoute
-  '/profile/$userId': typeof ProfileUserIdRoute
   '/chat/$userId': typeof AuthenticatedChatUserIdRoute
   '/post/new': typeof AuthenticatedPostNewRoute
 }
@@ -138,8 +121,6 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/my-posts': typeof AuthenticatedMyPostsRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
-  '/_authenticated/service-profile': typeof AuthenticatedServiceProfileRoute
-  '/profile/$userId': typeof ProfileUserIdRoute
   '/_authenticated/chat/$userId': typeof AuthenticatedChatUserIdRoute
   '/_authenticated/post/new': typeof AuthenticatedPostNewRoute
 }
@@ -155,8 +136,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/my-posts'
     | '/notifications'
-    | '/service-profile'
-    | '/profile/$userId'
     | '/chat/$userId'
     | '/post/new'
   fileRoutesByTo: FileRoutesByTo
@@ -170,8 +149,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/my-posts'
     | '/notifications'
-    | '/service-profile'
-    | '/profile/$userId'
     | '/chat/$userId'
     | '/post/new'
   id:
@@ -186,8 +163,6 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/my-posts'
     | '/_authenticated/notifications'
-    | '/_authenticated/service-profile'
-    | '/profile/$userId'
     | '/_authenticated/chat/$userId'
     | '/_authenticated/post/new'
   fileRoutesById: FileRoutesById
@@ -197,7 +172,6 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   FeedRoute: typeof FeedRoute
-  ProfileUserIdRoute: typeof ProfileUserIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -272,20 +246,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/service-profile': {
-      id: '/_authenticated/service-profile'
-      path: '/service-profile'
-      fullPath: '/service-profile'
-      preLoaderRoute: typeof AuthenticatedServiceProfileRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/profile/$userId': {
-      id: '/profile/$userId'
-      path: '/profile/$userId'
-      fullPath: '/profile/$userId'
-      preLoaderRoute: typeof ProfileUserIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated/chat/$userId': {
       id: '/_authenticated/chat/$userId'
       path: '/chat/$userId'
@@ -310,7 +270,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedMyPostsRoute: typeof AuthenticatedMyPostsRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
-  AuthenticatedServiceProfileRoute: typeof AuthenticatedServiceProfileRoute
   AuthenticatedChatUserIdRoute: typeof AuthenticatedChatUserIdRoute
   AuthenticatedPostNewRoute: typeof AuthenticatedPostNewRoute
 }
@@ -322,7 +281,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedMyPostsRoute: AuthenticatedMyPostsRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
-  AuthenticatedServiceProfileRoute: AuthenticatedServiceProfileRoute,
   AuthenticatedChatUserIdRoute: AuthenticatedChatUserIdRoute,
   AuthenticatedPostNewRoute: AuthenticatedPostNewRoute,
 }
@@ -335,7 +293,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   FeedRoute: FeedRoute,
-  ProfileUserIdRoute: ProfileUserIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
