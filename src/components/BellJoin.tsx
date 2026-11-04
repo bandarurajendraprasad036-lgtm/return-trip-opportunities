@@ -29,7 +29,7 @@ function useCountUp(target: number) {
   return n;
 }
 
-export function GoalCounter({ users }: { users?: number }) {
+export function GoalCounter({ users }: { users?: number | undefined }) {
   const joined = useCountUp(users ?? 0);
   const pct = Math.max(1, Math.min(100, ((users ?? 0) / JOIN_GOAL) * 100));
   return (
