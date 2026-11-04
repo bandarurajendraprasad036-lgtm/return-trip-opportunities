@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] November 4 23:11–23:12: closed-app push, permission/delivery status with truthful enable instructions, bell sound on/off setting; audit existing setup, connector and approval required before storage/server changes.
 - [ ] November 4 23:06: minimum 48px touch controls and adequate gaps, verified mobile.
 - [ ] November 4 23:05: verify black/gold rounded boxes on small/large phones, no clipped borders; hover/focus/active remain black/gold.
 - [ ] November 4 23:05: match new old-site references: pure #000000, #FFC107 borders/gold-filled buttons, 18–22px boxes, Job Apply/I Have Job, Local/Return Goods/Advance, From/To labels, current-location control and search. Do not fabricate geographic location.
