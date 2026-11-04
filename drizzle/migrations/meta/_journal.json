@@ -36,6 +36,13 @@
       "when": 1793750853143,
       "tag": "0004_prime_settings_caps",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793750874010,
+      "tag": "0005_admin_update_profiles",
+      "breakpoints": true
     }
   ]
 }
