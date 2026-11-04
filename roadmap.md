@@ -97,3 +97,4 @@
 - [ ] Photo/Aadhaar upload label: no such upload exists in job section — needs user decision.
 - [x] Home: Gayatri Mata image changes once per India calendar day from existing images (already exists, dailyDevotionalIndex)
 - [ ] Home bell image: verify uncropped on small/large phones, portrait and landscape
+- [x] Daily Mata image tests: just before / just after India midnight, stable until day end
