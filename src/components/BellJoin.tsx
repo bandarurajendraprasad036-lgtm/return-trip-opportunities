@@ -90,14 +90,14 @@ export function BellJoin() {
 
   return (
     <>
-      <button
+      <Button
         type="button"
         onClick={() => { setDone(false); setOpen(true); }}
         aria-label="గంట కొట్టండి · Ring the bell"
-        className="mx-auto mt-4 grid size-24 place-items-center rounded-full bg-accent text-accent-foreground shadow-card ring-4 ring-accent/40 active:scale-95"
+        className="home-bell mx-auto mt-4 grid size-24 place-items-center rounded-full bg-gold text-royal shadow-card ring-4 ring-gold/40 hover:bg-gold active:scale-95"
       >
-        <Bell className="size-12 animate-pulse" />
-      </button>
+        <Bell className="size-12" />
+      </Button>
       <p className="mt-2 text-center text-lg font-bold">ఏది కావాలన్నా గంట కొట్టు 🔔</p>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-sm">

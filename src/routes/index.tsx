@@ -1,12 +1,16 @@
 import { Brand } from "@/components/Brand";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Briefcase, Truck, Bell, MessageCircle, User, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import hero from "@/assets/hero-village.jpg";
+import mata from "@/assets/gayatri-mata.jpg";
+import mataGreen from "@/assets/gayatri-mata-green.jpg";
+import mataIvory from "@/assets/gayatri-mata-ivory.jpg";
+import { dailyDevotionalIndex } from "@/lib/daily-devotional";
+import { SharingImage } from "@/components/SharingImage";
 import { InstallButton } from "@/components/AppHelpers";
 import { BellJoin } from "@/components/BellJoin";
 
@@ -28,6 +32,13 @@ type Stats = { users: number; jobs: number; rides: number; matches: number };
 
 
 function Index() {
+  const [devotional, setDevotional] = useState(0);
+  useEffect(() => {
+    const update = () => setDevotional(dailyDevotionalIndex(new Date(), 3));
+    update();
+    const timer = window.setInterval(update, 60000);
+    return () => window.clearInterval(timer);
+  }, []);
   const navigate = useNavigate();
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
@@ -57,7 +68,7 @@ function Index() {
 
   return (
     <div className="mx-auto min-h-screen max-w-md bg-background">
-      <section className="bg-hero px-5 pb-8 pt-6 text-primary-foreground">
+      <section className="bg-royal px-5 pb-6 pt-6 text-on-royal">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <h1 className="text-4xl font-extrabold leading-none">
             <Brand />
@@ -68,13 +79,12 @@ function Index() {
             <Link to="/my-posts" className={iconLink} aria-label="Profile"><User className="size-5" /></Link>
           </div>
         </div>
-        <p className="mt-2 text-lg">మీ ఊరిలో పని & వాహనం — ఒకే చోట</p>
-        <p className="text-sm opacity-80">Jobs & return vehicles near you</p>
+        <p className="mt-3 text-center text-lg text-gold">మన ప్రాంత సమాచారం మన గుప్పెట్లో</p>
+        <img src={[mata, mataGreen, mataIvory][devotional]} alt="గాయత్రి మాత" className="mx-auto mt-4 aspect-square w-full max-w-80 object-contain" width={768} height={768} />
         <BellJoin />
         <p className="mt-2 text-center text-sm opacity-80">యాక్టివ్ పోస్ట్‌లు · Active posts: {fmt(total)}</p>
-        <img src={hero} alt="Village road with truck and workers" className="mt-4 aspect-[4/3] w-full rounded-2xl object-cover" width={1024} height={768} />
       </section>
-      <section className="-mt-4 space-y-3 px-5 pb-8">
+      <section className="space-y-3 px-5 pb-8 pt-4">
         <form onSubmit={searchRides} className="space-y-2 rounded-xl border bg-card p-4 shadow-card">
           <p className="font-bold">రిటర్న్ వాహనం వెతకండి · Find a ride</p>
           <Input value={from} onChange={(e) => setFrom(e.target.value)} placeholder="ఎక్కడ నుండి · Where from" className="h-12 text-base" />
@@ -98,6 +108,7 @@ function Index() {
           </div>
         )}
         <InstallButton />
+        <SharingImage />
         <Button asChild variant="secondary" size="xl" className="w-full">
           <Link to="/auth">ప్రారంభించండి · Get Started</Link>
         </Button>

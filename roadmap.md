@@ -1,4 +1,7 @@
 # Roadmap
+- [ ] Finish current preview changes and report blockers; publish only at the end with user permission. Provide homepage demo screenshot.
+- [ ] Rotate Gayatri Mata portrait above the bell each Indian calendar day and test date boundaries.
+- [ ] November 4 06:38 UTC explicit authorization: display new English sharing image on website with separate profile details; restore Gayatri Mata above gold bell, verify phone layout, deliver preview. WhatsApp payment notification needs connection and recipient confirmation.
 - [ ] Keep profile details on a separate screen from the redesigned sharing image; noted November 4, 2026 06:37 UTC, implementation remains paused.
 - [ ] Persist the sharing image so it remains available on the website; test in installed Gayatri One on a phone after combined implementation resumes. Do not claim a real installed-phone test from browser emulation alone.
 - [ ] November 4, 2026 06:36 UTC: implementation paused again by user; record points only until user says the total list is complete and requests combined code.
