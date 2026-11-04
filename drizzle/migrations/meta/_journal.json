@@ -85,6 +85,13 @@
       "when": 1793764429040,
       "tag": "0011_daily_referral_reminder",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1793764466094,
+      "tag": "0012_referral_free_months_cron",
+      "breakpoints": true
     }
   ]
 }
