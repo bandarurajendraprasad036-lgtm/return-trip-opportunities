@@ -1,4 +1,6 @@
 # Roadmap
+- [ ] November 4 10:43: compare supplied 52-item vehicle/job/service list plus area-search and dismissible daily membership reminder against current app; preserve ₹499, privacy and truthful distance/notification claims. Source counts conflict: headings say 25+15+12 but numbered ranges are 25+18+9; retain supplied numbers exactly.
+- [ ] November 4 10:43: prepare combined implementation for confirmed missing items; true route/20% and service 5km require authorized geographic data. Do not fabricate results, notifications, share verification or PHP endpoints; use existing app architecture.
 - [ ] November 4 10:36: finish and test Point 9 changes; report implemented rules separately from unanswered reward rate and morning bell restart.
 - [ ] Point 9, November 4 10:34 follow-up: redeem 100 points for one free membership month, maximum three consecutive months; determine points earned per referral, verified ten-group sharing, and how the consecutive-month limit resets.
 - [ ] Point 9, November 4 10:34: inspect referral points, free month for sharing to ten groups, and bell quiet hours after 20:30; clarify points/verified sharing and morning restart before enforcing rewards.
