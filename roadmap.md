@@ -1,6 +1,6 @@
 # Roadmap
 - [x] Explain screenshot's editor Publish button: releases current changes to the public website, unrelated to the poster
-- [ ] Fix Google sign-in button text clipping on narrow phones and verify login/signup layouts
+- [x] Fix Google sign-in button text clipping on narrow phones and verify login/signup layouts
 - [ ] Admin-only questions about noted, unimplemented points — paused at user's request; wait for remaining points and explicit permission to implement
 - [ ] Vehicle browsing free; vehicle posting/bell/owner chat require ₹499; non-members ₹99/month for one job post, members exempt — notes only; clarify job-post scope and wait for implementation permission
 - [ ] Supplied sharing photo: remove top Theenmaar material, leave Gayatri One; status plus nine recipients for extra job posts; clarify old links/claims, unlock count and verification — notes only, no website changes
