@@ -7,6 +7,7 @@ import { useMe } from "@/lib/session";
 import { AdminChatButton } from "@/components/AdminChatButton";
 import { InstallButton } from "@/components/AppHelpers";
 import { FREE_DAILY_ALERTS, PRIME_PRICE } from "@/lib/jobs";
+import { MembershipPayment } from "@/components/MembershipPayment";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -28,9 +29,10 @@ function Dashboard() {
     queryKey: ["dashboard", me?.id],
     enabled: !!me,
     queryFn: async () => {
+      if (!me) return { posts: 0, unread: 0 };
       const [{ count: posts }, { count: unread }] = await Promise.all([
-        supabase.from("posts").select("id", { count: "exact", head: true }).eq("user_id", me!.id).eq("status", "active"),
-        supabase.from("notifications").select("id", { count: "exact", head: true }).eq("user_id", me!.id).eq("is_read", false),
+        supabase.from("posts").select("id", { count: "exact", head: true }).eq("user_id", me.id).eq("status", "active"),
+        supabase.from("notifications").select("id", { count: "exact", head: true }).eq("user_id", me.id).eq("is_read", false),
       ]);
       return { posts: posts ?? 0, unread: unread ?? 0 };
     },
@@ -66,6 +68,7 @@ function Dashboard() {
         </div>
       )}
       <AdminChatButton />
+      <MembershipPayment />
       <Button asChild variant="outline" className="h-auto min-h-12 w-full whitespace-normal py-3"><Link to="/service-profile">నా సేవల పరిచయం · My service profile</Link></Button>
       <InstallButton />
     </div>

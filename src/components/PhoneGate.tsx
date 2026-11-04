@@ -6,6 +6,7 @@ import { useMe } from "@/lib/session";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { hasValidMobile } from "@/lib/phone";
 
 /** Mandatory mobile number prompt for users (e.g. Google sign-in) without a phone in their profile. */
 export function PhoneGate() {
@@ -13,7 +14,7 @@ export function PhoneGate() {
   const qc = useQueryClient();
   const [phone, setPhone] = useState("");
   const [busy, setBusy] = useState(false);
-  const has = /^[6-9]\d{9}$/.test(me?.profile?.phone ?? "");
+  const has = hasValidMobile(me?.profile?.phone);
   if (!me || !me.profile || has) return null;
 
   const save = async () => {

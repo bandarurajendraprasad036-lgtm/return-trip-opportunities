@@ -106,6 +106,13 @@
       "when": 1793773284223,
       "tag": "0014_service_review_public_authors",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1793780937644,
+      "tag": "0015_require_mobile_before_posts_and_devotional_uploads",
+      "breakpoints": true
     }
   ]
 }

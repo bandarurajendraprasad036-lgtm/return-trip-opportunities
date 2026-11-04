@@ -1,0 +1,5 @@
+CREATE OR REPLACE FUNCTION public.require_post_mobile() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ BEGIN IF NOT EXISTS (SELECT 1 FROM public.profiles WHERE id=NEW.user_id AND phone ~ '^[6-9][0-9]{9}$') THEN RAISE EXCEPTION 'MOBILE_REQUIRED'; END IF; RETURN NEW; END $$;
+CREATE TRIGGER posts_require_mobile BEFORE INSERT ON public.posts FOR EACH ROW EXECUTE FUNCTION public.require_post_mobile();
+CREATE POLICY devotional_upload_admin ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id='devotional-images' AND public.has_role(auth.uid(),'admin'));
+CREATE POLICY devotional_delete_admin ON storage.objects FOR DELETE TO authenticated USING (bucket_id='devotional-images' AND public.has_role(auth.uid(),'admin'));
+CREATE POLICY devotional_read_admin ON storage.objects FOR SELECT TO authenticated USING (bucket_id='devotional-images' AND public.has_role(auth.uid(),'admin'));
