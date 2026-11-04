@@ -66,6 +66,7 @@ function Dashboard() {
         </div>
       )}
       <AdminChatButton />
+      <Button asChild variant="outline" className="h-auto min-h-12 w-full whitespace-normal py-3"><Link to="/service-profile">నా సేవల పరిచయం · My service profile</Link></Button>
       <InstallButton />
     </div>
   );
