@@ -18,6 +18,7 @@ import { Sparkles } from "lucide-react";
 import { draftJobAd, type JobAdDraft } from "@/lib/ai-job-ad.functions";
 import { buildJobAdInput } from "@/lib/job-ad-input";
 import { hasValidMobile } from "@/lib/phone";
+import { capacityInput } from "@/lib/vehicle-experience";
 
 function AiJobAd({ kind, onDraft }: { kind: "seeker" | "employer"; onDraft: (d: JobAdDraft) => void }) {
   const run = useServerFn(draftJobAd);
@@ -153,6 +154,8 @@ function NewPost() {
       : z.object({ from_place: txt(80), to_place: txt(80), trip_date: txt(10), ...(kind === "owner" ? { vehicle_type: txt(60) } : { goods_type: txt(80) }), description: z.string().trim().max(500).optional(), contact_phone: z.string().trim().max(15).optional() });
     const r = schema.safeParse(f);
     if (!r.success) { const i = r.error.issues[0]; toast.error(`${String(i?.path[0] ?? "")}: ${i?.message ?? ""}`); return; }
+    const capacity = !isJob && f["capacity_tons"] ? capacityInput.safeParse(f["capacity_tons"]) : null;
+    if (capacity && !capacity.success) { toast.error("సరైన టన్నుల బరువు ఇవ్వండి · Enter a valid capacity"); return; }
     const { show_contact, ...v } = r.data as Record<string, string>;
     const title = isJob
       ? kind === "seeker" ? `${v["skill"]} పని కావాలి` : `${v["skill"]} కోసం పనివాడు కావాలి`
@@ -160,7 +163,7 @@ function NewPost() {
     setBusy(true);
     const mod = await checkText({ data: { text: Object.values(v).join(" \n ") } }).catch(() => ({ ok: true }));
     if (!mod.ok) { setBusy(false); toast.error("🚫 బూతులు, చెడు మాటలు, దేశ వ్యతిరేక విషయాలు పోస్ట్ చేయకూడదు · Abusive or anti-national content is not allowed"); return; }
-    const { error } = await supabase.from("posts").insert({ ...v, show_contact: show_contact === "1", user_id: me.id, module: opt.module, kind, title });
+    const { error } = await supabase.from("posts").insert({ ...v, ...(!isJob ? { capacity_tons: capacity?.success ? capacity.data : null, vehicle_type: f["vehicle_type"]?.trim().slice(0, 60) || null } : {}), show_contact: show_contact === "1", user_id: me.id, module: opt.module, kind, title });
     setBusy(false);
     if (error) { toast.error(error.message.includes("MOBILE_REQUIRED") ? "ప్రకటనకు ముందు మొబైల్ నంబరు ఇవ్వండి · Mobile number required" : error.message.includes("BAD_CONTENT") ? "🚫 బూతులు, చెడు మాటలు, దేశ వ్యతిరేక విషయాలు పోస్ట్ చేయకూడదు · Abusive or anti-national content is not allowed" : error.message); return; }
     toast.success("పోస్ట్ అయ్యింది! మ్యాచ్ వస్తే అలర్ట్ వస్తుంది · Posted! You'll be alerted on a match");
@@ -201,9 +204,9 @@ function NewPost() {
           {field("from_place", "ఎక్కడి నుండి", "From", { placeholder: "e.g. Hyderabad" })}
           {field("to_place", "ఎక్కడికి", "To", { placeholder: "e.g. Warangal" })}
           {field("trip_date", "తేదీ", "Date", { type: "date" })}
-          {kind === "owner"
-            ? field("vehicle_type", "వాహనం రకం", "Vehicle type", { placeholder: "e.g. Tata Ace, Lorry 10 ton, Tractor" })
-            : field("goods_type", "సరుకు రకం", "Goods type", { placeholder: "e.g. Rice bags, Cement" })}
+          <div className="space-y-1"><Label className="text-base">వాహనం రకం · Vehicle type</Label><select aria-label="వాహనం రకం · Vehicle type" value={f["vehicle_type"] ?? ""} onChange={event => setF({ ...f, vehicle_type: event.target.value })} className="h-12 w-full rounded-md border bg-card px-3 text-lg" required><option value="">ఎంచుకోండి · Choose</option><option value="Lorry">లారీ · Lorry</option><option value="407">407</option><option value="Trolley">ట్రాలీ · Trolley</option><option value="Tata Ace">చిన్న సరుకు వాహనం · Tata Ace</option><option value="Other">ఇతర · Other</option></select></div>
+          {field("capacity_tons", "బరువు సామర్థ్యం (టన్నులు)", "Capacity (tons)", { type: "number", min: "0.1", max: "100", step: "0.1", required: true })}
+          {kind === "business" && field("goods_type", "సరుకు రకం", "Goods type", { placeholder: "e.g. Rice bags, Cement" })}
         </>
       )}
       {isJob && (
