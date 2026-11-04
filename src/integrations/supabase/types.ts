@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value?: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           body: string
@@ -96,6 +114,7 @@ export type Database = {
       }
       posts: {
         Row: {
+          category: string | null
           contact_phone: string | null
           created_at: string
           description: string | null
@@ -106,6 +125,7 @@ export type Database = {
           location: string | null
           module: string
           salary: string | null
+          show_contact: boolean
           skill: string | null
           status: string
           title: string
@@ -115,6 +135,7 @@ export type Database = {
           vehicle_type: string | null
         }
         Insert: {
+          category?: string | null
           contact_phone?: string | null
           created_at?: string
           description?: string | null
@@ -125,6 +146,7 @@ export type Database = {
           location?: string | null
           module: string
           salary?: string | null
+          show_contact?: boolean
           skill?: string | null
           status?: string
           title?: string
@@ -134,6 +156,7 @@ export type Database = {
           vehicle_type?: string | null
         }
         Update: {
+          category?: string | null
           contact_phone?: string | null
           created_at?: string
           description?: string | null
@@ -144,6 +167,7 @@ export type Database = {
           location?: string | null
           module?: string
           salary?: string | null
+          show_contact?: boolean
           skill?: string | null
           status?: string
           title?: string
@@ -159,6 +183,7 @@ export type Database = {
           created_at: string
           full_name: string
           id: string
+          is_prime: boolean
           location: string
           phone: string
         }
@@ -166,6 +191,7 @@ export type Database = {
           created_at?: string
           full_name?: string
           id: string
+          is_prime?: boolean
           location?: string
           phone?: string
         }
@@ -173,6 +199,7 @@ export type Database = {
           created_at?: string
           full_name?: string
           id?: string
+          is_prime?: boolean
           location?: string
           phone?: string
         }
@@ -201,6 +228,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_notify: { Args: { _uid: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -208,6 +236,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      notify_matches: { Args: { _post_id: string }; Returns: number }
       public_stats: { Args: never; Returns: Json }
     }
     Enums: {

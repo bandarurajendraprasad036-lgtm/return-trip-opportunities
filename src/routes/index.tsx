@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import hero from "@/assets/hero-village.jpg";
+import { InstallButton } from "@/components/AppHelpers";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -24,6 +25,7 @@ export const Route = createFileRoute("/")({
 
 type Stats = { users: number; jobs: number; rides: number; matches: number };
 
+
 function Index() {
   const navigate = useNavigate();
   const [from, setFrom] = useState("");
@@ -37,6 +39,11 @@ function Index() {
       return data as unknown as Stats;
     },
   });
+  const { data: video } = useQuery({
+    queryKey: ["setting", "youtube_url"],
+    queryFn: async () => (await supabase.from("app_settings").select("value").eq("key", "youtube_url").maybeSingle()).data?.value ?? "",
+  });
+  const ytId = video?.match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/)?.[1];
   const fmt = (n?: number) => (n ?? 0).toLocaleString("en-IN");
   const total = stats ? stats.jobs + stats.rides : undefined;
 
@@ -85,6 +92,13 @@ function Index() {
           <div className="flex-1"><p className="text-lg font-bold">రిటర్న్ వాహనం</p><p className="text-sm text-muted-foreground">{fmt(stats?.rides)} trips · Empty trip or need vehicle</p></div>
           <Button asChild><Link to="/feed" search={{ module: "vehicle" }}>తెరవండి Open</Link></Button>
         </div>
+        {ytId && (
+          <div className="overflow-hidden rounded-xl border bg-card shadow-card">
+            <p className="p-3 font-bold">🎬 మా గురించి · About us</p>
+            <iframe className="aspect-video w-full" src={`https://www.youtube.com/embed/${ytId}`} title="About Gayatri One" allowFullScreen />
+          </div>
+        )}
+        <InstallButton />
         <Button asChild variant="secondary" size="xl" className="w-full">
           <Link to="/auth">ప్రారంభించండి · Get Started</Link>
         </Button>

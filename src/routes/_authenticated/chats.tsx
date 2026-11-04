@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/session";
+import { AdminChatButton } from "@/components/AdminChatButton";
 
 export const Route = createFileRoute("/_authenticated/chats")({
   head: () => ({
@@ -40,6 +41,7 @@ function Chats() {
   return (
     <div className="space-y-2 p-4">
       <h2 className="text-2xl font-bold">చాట్స్ <span className="text-base font-normal text-muted-foreground">Chats</span></h2>
+      <AdminChatButton />
       {data.length === 0 && (
         <div className="rounded-xl border border-dashed bg-card p-8 text-center text-muted-foreground">
           <MessageCircle className="mx-auto mb-2 size-10" />ఫీడ్‌లో "చాట్" నొక్కండి<br />Tap "Chat" on any post to start

@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, Home, MessageCircle, PlusCircle, User, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/session";
+import { NotificationPermission } from "@/components/AppHelpers";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { data: me } = useMe();
@@ -62,7 +63,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Link to="/chats" className="rounded-full p-2" aria-label="Chats">
             <MessageCircle className="size-6" />
           </Link>
-          <Link to="/my-posts" className="rounded-full p-2" aria-label="Profile">
+          <Link to="/dashboard" className="rounded-full p-2" aria-label="Dashboard">
             <User className="size-6" />
           </Link>
           <Link to="/notifications" className="relative rounded-full p-2" aria-label="Notifications">
@@ -77,6 +78,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         )}
       </header>
       <main className="flex-1 pb-24">{children}</main>
+      {me && <NotificationPermission userId={me.id} />}
       <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-md border-t bg-card">
         <Link to="/feed" className={tab} activeProps={active}>
           <Home className="size-6" />
@@ -92,9 +94,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           </span>
           పోస్ట్ Post
         </Link>
-        <Link to="/my-posts" className={tab} activeProps={active}>
+        <Link to="/dashboard" className={tab} activeProps={active}>
           <User className="size-6" />
-          నా పోస్ట్‌లు
+          నా పేజీ
         </Link>
         <Link to="/notifications" className={tab} activeProps={active}>
           <Bell className="size-6" />

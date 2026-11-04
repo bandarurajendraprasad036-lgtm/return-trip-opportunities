@@ -5,6 +5,7 @@ import { BellRing } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PostCard, type Post } from "@/components/PostCard";
 import { useMe } from "@/lib/session";
+import { FREE_DAILY_ALERTS, PRIME_PRICE } from "@/lib/jobs";
 
 export const Route = createFileRoute("/_authenticated/notifications")({
   head: () => ({
@@ -43,6 +44,9 @@ function Notifications() {
     },
   });
 
+  const today = new Date().toDateString();
+  const todayCount = data.filter((n) => new Date(n.created_at).toDateString() === today).length;
+  const capped = !me?.profile?.is_prime && todayCount >= FREE_DAILY_ALERTS;
   const hasUnread = data.some((n) => !n.is_read);
   useEffect(() => {
     if (!hasUnread || !me?.id) return;
@@ -56,6 +60,14 @@ function Notifications() {
   return (
     <div className="space-y-3 p-4">
       <h2 className="text-2xl font-bold">మ్యాచ్ అలర్ట్స్ <span className="text-base font-normal text-muted-foreground">Match alerts</span></h2>
+      {capped && (
+        <div className="rounded-xl border-2 border-secondary bg-secondary/20 p-4">
+          <p className="font-bold">⚠️ ఈ రోజు {FREE_DAILY_ALERTS} ఉచిత అలర్ట్స్ పూర్తయ్యాయి</p>
+          <p className="text-sm">ఉచిత వినియోగదారులకు రోజుకు {FREE_DAILY_ALERTS} అలర్ట్స్ మాత్రమే. అపరిమిత అలర్ట్స్ కోసం నెలకు ₹{PRIME_PRICE} Prime తీసుకోండి.</p>
+          <p className="text-xs text-muted-foreground">Free users get up to {FREE_DAILY_ALERTS} alerts a day. Upgrade to the ₹{PRIME_PRICE}/month plan for unlimited alerts.</p>
+          <Link to="/dashboard" className="mt-2 inline-block rounded-lg bg-secondary px-4 py-2 font-bold text-secondary-foreground">⭐ Prime · ₹{PRIME_PRICE}/నెల</Link>
+        </div>
+      )}
       {(isLoading || !me) && !isError && <p className="text-muted-foreground">లోడ్ అవుతోంది... Loading</p>}
       {isError && (
         <button onClick={() => refetch()} className="w-full rounded-xl border bg-card p-4 font-semibold text-primary">

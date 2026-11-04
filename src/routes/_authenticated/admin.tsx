@@ -5,6 +5,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { PostCard, type Post } from "@/components/PostCard";
 import { useMe } from "@/lib/session";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -27,14 +30,17 @@ function Admin() {
     queryKey: ["admin"],
     enabled: !!me?.isAdmin,
     queryFn: async () => {
-      const [{ data: posts }, { count: users }] = await Promise.all([
+      const [{ data: posts }, { count: users }, { data: people }, { data: yt }] = await Promise.all([
         supabase.from("posts").select("*").order("created_at", { ascending: false }).limit(300),
         supabase.from("profiles").select("id", { count: "exact", head: true }),
+        supabase.from("profiles").select("id, full_name, phone, is_prime").order("created_at", { ascending: false }).limit(200),
+        supabase.from("app_settings").select("value").eq("key", "youtube_url").maybeSingle(),
       ]);
-      return { posts: (posts ?? []) as Post[], users: users ?? 0 };
+      return { posts: (posts ?? []) as Post[], users: users ?? 0, people: people ?? [], yt: yt?.value ?? "" };
     },
   });
 
+  const [yt, setYt] = useState<string | null>(null);
   if (isLoading) return null;
   if (!me?.isAdmin) return <p className="p-8 text-center text-muted-foreground">అనుమతి లేదు · Admins only</p>;
 
@@ -55,6 +61,15 @@ function Admin() {
     qc.invalidateQueries();
   };
 
+  const saveYt = async () => {
+    const { error } = await supabase.from("app_settings").upsert({ key: "youtube_url", value: (yt ?? "").trim(), updated_at: new Date().toISOString() });
+    if (error) toast.error(error.message); else { toast.success("సేవ్ అయ్యింది · Saved"); qc.invalidateQueries(); }
+  };
+  const togglePrime = async (id: string, v: boolean) => {
+    const { error } = await supabase.from("profiles").update({ is_prime: v }).eq("id", id);
+    if (error) toast.error(error.message); else qc.invalidateQueries();
+  };
+
   return (
     <div className="space-y-4 p-4">
       <h2 className="text-2xl font-bold">అడ్మిన్ డాష్‌బోర్డ్ <span className="text-base font-normal text-muted-foreground">Admin</span></h2>
@@ -65,6 +80,22 @@ function Admin() {
             <p className="text-sm font-semibold">{te}</p>
             <p className="text-xs text-muted-foreground">{en}</p>
           </div>
+        ))}
+      </div>
+      <div className="space-y-2 rounded-xl bg-card p-3 shadow-card">
+        <p className="font-bold">🎬 YouTube About వీడియో లింక్ · About video URL</p>
+        <div className="flex gap-2">
+          <Input value={yt ?? data?.yt ?? ""} onChange={(e) => setYt(e.target.value)} placeholder="https://youtube.com/watch?v=..." className="h-11" />
+          <Button onClick={saveYt}>సేవ్ Save</Button>
+        </div>
+      </div>
+      <div className="space-y-2 rounded-xl bg-card p-3 shadow-card">
+        <p className="font-bold">⭐ Prime సభ్యులు · Prime members</p>
+        {(data?.people ?? []).map((u) => (
+          <label key={u.id} className="flex items-center gap-2 border-b py-1 text-sm last:border-0">
+            <span className="flex-1">{u.full_name || "—"} · {u.phone}</span>
+            <input type="checkbox" className="size-5" checked={u.is_prime} onChange={(e) => togglePrime(u.id, e.target.checked)} />
+          </label>
         ))}
       </div>
       <h3 className="text-xl font-bold">అన్ని పోస్ట్‌లు · All posts</h3>

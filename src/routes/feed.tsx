@@ -8,6 +8,7 @@ import { PostCard, type Post } from "@/components/PostCard";
 import { useMe } from "@/lib/session";
 import { isMatch } from "@/lib/match";
 import { AppShell } from "@/components/AppShell";
+import { CITIES, JOB_CATEGORIES, ANYWHERE, DEFAULT_CITY, locationMatches } from "@/lib/jobs";
 
 type FeedSearch = { module?: "all" | "job" | "vehicle" | undefined; from?: string | undefined; to?: string | undefined };
 
@@ -43,8 +44,8 @@ function Feed() {
   const filter = search.module ?? (search.from || search.to ? "vehicle" : "all");
   const setFilter = (m: "all" | "job" | "vehicle") => navigate({ search: (p) => ({ ...p, module: m === "all" ? undefined : m }) });
   const [q, setQ] = useState("");
-  const [initialised, setInit] = useState(false);
-  if (!initialised && me?.profile?.location && !search.from && !search.to) { setQ(me.profile.location); setInit(true); }
+  const [city, setCity] = useState(DEFAULT_CITY);
+  const [cat, setCat] = useState("");
   const fromT = search.from?.trim().toLowerCase();
   const toT = search.to?.trim().toLowerCase();
 
@@ -63,6 +64,7 @@ function Feed() {
       (filter === "all" || p.module === filter) &&
       (!fromT || p.from_place?.toLowerCase().includes(fromT)) &&
       (!toT || p.to_place?.toLowerCase().includes(toT)) &&
+      (p.module !== "job" || (locationMatches(p.location, city) && (!cat || p.category === cat))) &&
       (!term || [p.location, p.from_place, p.to_place, p.title, p.skill].some((v) => v?.toLowerCase().includes(term))),
   );
 
@@ -71,8 +73,21 @@ function Feed() {
       <div className="space-y-3 bg-primary px-4 pb-4">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="ఊరు వెతకండి · Search location" className="h-12 bg-card pl-10 text-base" />
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="ఉద్యోగం / ఊరు వెతకండి · Search job or place" className="h-12 bg-card pl-10 text-base" />
         </div>
+        {filter !== "vehicle" && (
+          <div className="flex gap-2">
+            <input list="cities" value={city === ANYWHERE ? "" : city} onChange={(e) => setCity(e.target.value || ANYWHERE)} placeholder="🇮🇳 భారత్ అంతా · Anywhere in India" aria-label="City, district or state" className="h-11 min-w-0 flex-1 rounded-md bg-card px-3 text-base" />
+            <datalist id="cities">{CITIES.map((c) => <option key={c} value={c} />)}</datalist>
+            <select value={cat} onChange={(e) => setCat(e.target.value)} aria-label="Job category" className="h-11 rounded-md bg-card px-2 text-base">
+              <option value="">అన్ని పనులు · All</option>
+              {JOB_CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.te} · {c.en}</option>)}
+            </select>
+          </div>
+        )}
+        {filter !== "vehicle" && city !== ANYWHERE && (
+          <button onClick={() => setCity(ANYWHERE)} className="text-sm font-semibold text-primary-foreground underline">🇮🇳 భారత్ అంతా చూపించు · Show anywhere in India</button>
+        )}
         <div className="flex gap-2">
           {FILTERS.map((f) => (
             <button
