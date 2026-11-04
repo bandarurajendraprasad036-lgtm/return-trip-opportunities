@@ -1,5 +1,6 @@
 # Roadmap
-- [ ] Show generated job-ad preview directly on creation screen and verify populated result on mobile
+- [ ] Redesign sharing poster with original English subject matter and referral details; clarify conflicting old offers and correct referral code before delivery
+- [x] Show generated job-ad preview directly on creation screen and verify populated result on mobile
 - [x] Confirm Gayatri One home-screen installation button is available on homepage
 - [x] Recheck old Return Connect branding in current app/demo — none visible; legacy synthetic sign-in domain retained to preserve existing accounts
 - [x] Extend existing AI job-ad drafting with separate skills, experience and expected-salary inputs; verify bilingual draft
