@@ -13,13 +13,14 @@ import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { indianDay } from "@/lib/daily-devotional";
 
-type FeedSearch = { module?: "all" | "job" | "vehicle" | undefined; from?: string | undefined; to?: string | undefined };
+type FeedSearch = { module?: "all" | "job" | "vehicle" | undefined; from?: string | undefined; to?: string | undefined; loc?: string | undefined };
 
 export const Route = createFileRoute("/feed")({
   validateSearch: (s: Record<string, unknown>): FeedSearch => ({
     module: s["module"] === "job" || s["module"] === "vehicle" ? s["module"] : undefined,
     from: typeof s["from"] === "string" && s["from"] ? s["from"] : undefined,
     to: typeof s["to"] === "string" && s["to"] ? s["to"] : undefined,
+    loc: typeof s["loc"] === "string" && s["loc"] ? s["loc"] : undefined,
   }),
   head: () => ({
     meta: [
@@ -47,10 +48,11 @@ function Feed() {
   const filter = search.module ?? (search.from || search.to ? "vehicle" : "all");
   const setFilter = (m: "all" | "job" | "vehicle") => navigate({ search: (p) => ({ ...p, module: m === "all" ? undefined : m }) });
   const [q, setQ] = useState("");
-  const [city, setCity] = useState(DEFAULT_CITY);
+  const [city, setCity] = useState(search.loc || DEFAULT_CITY);
   const [cat, setCat] = useState("");
   const fromT = search.from?.trim().toLowerCase();
   const toT = search.to?.trim().toLowerCase();
+  const locT = search.loc?.trim().toLowerCase();
 
   const { data: posts = [], isLoading } = useQuery({
     queryKey: ["posts"],
@@ -67,6 +69,7 @@ function Feed() {
       (filter === "all" || p.module === filter) &&
       (!fromT || p.from_place?.toLowerCase().includes(fromT)) &&
       (!toT || p.to_place?.toLowerCase().includes(toT)) &&
+      (p.module !== "vehicle" || !locT || [p.from_place, p.to_place, p.location].some((v) => v?.toLowerCase().includes(locT))) &&
       (p.module !== "job" || (locationMatches(p.location, city) && (!cat || p.category === cat))) &&
       (!term || [p.location, p.from_place, p.to_place, p.title, p.skill].some((v) => v?.toLowerCase().includes(term))),
   );
@@ -115,6 +118,12 @@ function Feed() {
           <div className="flex items-center justify-between rounded-lg bg-muted p-3 text-sm">
             <span>{search.from || "?"} → {search.to || "?"} · {shown.length} రైడ్స్ / rides</span>
             <button className="font-semibold text-primary" onClick={() => navigate({ search: {} })}>✕ క్లియర్</button>
+          </div>
+        )}
+        {locT && filter === "vehicle" && (
+          <div className="flex items-center justify-between rounded-lg bg-muted p-3 text-sm">
+            <span>📍 {search.loc} · స్థానిక వాహనాలు · Local vehicles: {shown.length}</span>
+            <button className="font-semibold text-primary" onClick={() => navigate({ search: (p) => ({ ...p, loc: undefined }) })}>✕ క్లియర్</button>
           </div>
         )}
         {term && <p className="text-sm text-muted-foreground">"{q}" — {shown.length} పోస్ట్‌లు / posts</p>}
