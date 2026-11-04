@@ -1,0 +1,30 @@
+import { useEffect, useState } from "react";
+import { ShieldCheck } from "lucide-react";
+
+const statements: Record<string, { label: string; text: string }> = {
+  te: { label: "తెలుగు", text: "మాకు ఈ వ్యక్తులతో ఎలాంటి సంబంధం లేదు. ఏ వాహనం బుక్ చేసుకున్నా, ఏ వ్యాపారస్తులు లేదా ఉద్యోగులు మాట్లాడుకున్నా, కేవలం సమాచారం అందించడం మాత్రమే మా బాధ్యత. బుకింగ్, చెల్లింపు, వ్యక్తుల వివరాలను మీరే నిర్ధారించుకోండి." },
+  en: { label: "English", text: "We are not affiliated with these individuals. Whether you book a vehicle or speak with businesses or workers, our responsibility is only to provide information. Verify people, bookings and payments independently." },
+  hi: { label: "हिन्दी", text: "इन व्यक्तियों से हमारा कोई संबंध नहीं है। वाहन बुक करने या व्यापारियों और कर्मचारियों से बात करने में हमारी जिम्मेदारी केवल जानकारी देना है। व्यक्ति, बुकिंग और भुगतान की पुष्टि स्वयं करें।" },
+  ta: { label: "தமிழ்", text: "இந்த நபர்களுடன் எங்களுக்கு எந்தத் தொடர்பும் இல்லை. வாகனம் பதிவு செய்தாலும், வணிகர்கள் அல்லது பணியாளர்களுடன் பேசினாலும் தகவல் வழங்குவது மட்டுமே எங்கள் பொறுப்பு. நபர்கள், முன்பதிவு மற்றும் பணம் செலுத்துதலை நீங்களே உறுதிப்படுத்துங்கள்." },
+  kn: { label: "ಕನ್ನಡ", text: "ಈ ವ್ಯಕ್ತಿಗಳೊಂದಿಗೆ ನಮಗೆ ಯಾವುದೇ ಸಂಬಂಧವಿಲ್ಲ. ವಾಹನ ಕಾಯ್ದಿರಿಸಿದರೂ, ವ್ಯಾಪಾರಿಗಳು ಅಥವಾ ಉದ್ಯೋಗಿಗಳೊಂದಿಗೆ ಮಾತನಾಡಿದರೂ ಮಾಹಿತಿ ನೀಡುವುದು ಮಾತ್ರ ನಮ್ಮ ಜವಾಬ್ದಾರಿ. ವ್ಯಕ್ತಿಗಳು, ಬುಕಿಂಗ್ ಮತ್ತು ಪಾವತಿಯನ್ನು ನೀವೇ ಪರಿಶೀಲಿಸಿ." },
+  ml: { label: "മലയാളം", text: "ഈ വ്യക്തികളുമായി ഞങ്ങൾക്ക് ബന്ധമില്ല. വാഹനം ബുക്ക് ചെയ്യുന്നതിലോ വ്യാപാരികളുമായോ തൊഴിലാളികളുമായോ സംസാരിക്കുന്നതിലോ വിവരങ്ങൾ നൽകുക മാത്രമാണ് ഞങ്ങളുടെ ഉത്തരവാദിത്തം. വ്യക്തികൾ, ബുക്കിംഗ്, പണമടയ്ക്കൽ എന്നിവ സ്വയം സ്ഥിരീകരിക്കുക." },
+  mr: { label: "मराठी", text: "या व्यक्तींशी आमचा कोणताही संबंध नाही. वाहन बुक करणे किंवा व्यापारी व कामगारांशी बोलणे यासाठी केवळ माहिती देणे हीच आमची जबाबदारी आहे. व्यक्ती, बुकिंग आणि पैसे स्वतः पडताळा." },
+  bn: { label: "বাংলা", text: "এই ব্যক্তিদের সঙ্গে আমাদের কোনো সম্পর্ক নেই। যানবাহন বুক করা বা ব্যবসায়ী ও কর্মীদের সঙ্গে কথা বলার ক্ষেত্রে আমাদের দায়িত্ব শুধু তথ্য দেওয়া। ব্যক্তি, বুকিং ও অর্থপ্রদান নিজে যাচাই করুন।" },
+  gu: { label: "ગુજરાતી", text: "આ વ્યક્તિઓ સાથે અમારો કોઈ સંબંધ નથી. વાહન બુક કરવું કે વેપારીઓ અને કર્મચારીઓ સાથે વાત કરવી, અમારી જવાબદારી માત્ર માહિતી આપવાની છે. વ્યક્તિઓ, બુકિંગ અને ચુકવણી જાતે ચકાસો." },
+  pa: { label: "ਪੰਜਾਬੀ", text: "ਇਨ੍ਹਾਂ ਵਿਅਕਤੀਆਂ ਨਾਲ ਸਾਡਾ ਕੋਈ ਸੰਬੰਧ ਨਹੀਂ ਹੈ। ਵਾਹਨ ਬੁੱਕ ਕਰਨ ਜਾਂ ਵਪਾਰੀਆਂ ਅਤੇ ਕਰਮਚਾਰੀਆਂ ਨਾਲ ਗੱਲ ਕਰਨ ਵਿੱਚ ਸਾਡੀ ਜ਼ਿੰਮੇਵਾਰੀ ਸਿਰਫ਼ ਜਾਣਕਾਰੀ ਦੇਣਾ ਹੈ। ਵਿਅਕਤੀਆਂ, ਬੁਕਿੰਗ ਅਤੇ ਭੁਗਤਾਨ ਦੀ ਪੁਸ਼ਟੀ ਖੁਦ ਕਰੋ।" },
+  ur: { label: "اردو", text: "ان افراد سے ہمارا کوئی تعلق نہیں ہے۔ گاڑی بک کرنے یا تاجروں اور کارکنوں سے بات کرنے میں ہماری ذمہ داری صرف معلومات فراہم کرنا ہے۔ افراد، بکنگ اور ادائیگی کی تصدیق خود کریں۔" },
+  or: { label: "ଓଡ଼ିଆ", text: "ଏହି ବ୍ୟକ୍ତିମାନଙ୍କ ସହ ଆମର କୌଣସି ସମ୍ପର୍କ ନାହିଁ। ଗାଡ଼ି ବୁକିଂ କିମ୍ବା ବ୍ୟବସାୟୀ ଓ କର୍ମଚାରୀଙ୍କ ସହ କଥାବାର୍ତ୍ତାରେ କେବଳ ସୂଚନା ଦେବା ଆମର ଦାୟିତ୍ୱ। ବ୍ୟକ୍ତି, ବୁକିଂ ଓ ଦେୟ ନିଜେ ଯାଞ୍ଚ କରନ୍ତୁ।" },
+  as: { label: "অসমীয়া", text: "এই ব্যক্তিসকলৰ সৈতে আমাৰ কোনো সম্পৰ্ক নাই। বাহন বুক কৰা বা ব্যৱসায়ী আৰু কৰ্মীৰ সৈতে কথা পতাৰ ক্ষেত্ৰত কেৱল তথ্য দিয়াই আমাৰ দায়িত্ব। ব্যক্তি, বুকিং আৰু ধন পৰিশোধ নিজে যাচাই কৰক।" },
+};
+
+export function ResponsibilityNotice() {
+  const [language, setLanguage] = useState("te");
+  useEffect(() => {
+    try { const saved = localStorage.getItem("gayatri-notice-language") ?? navigator.language.split("-")[0]; if (saved && statements[saved]) setLanguage(saved); } catch { /* Default Telugu. */ }
+  }, []);
+  const statement = statements[language] ?? statements["te"];
+  return <section className="space-y-2 border-y bg-muted px-4 py-4" aria-label="బాధ్యత ప్రకటన · Responsibility">
+    <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="flex items-center gap-2 text-base font-bold"><ShieldCheck className="size-5 text-primary" />బాధ్యత · Responsibility</h2><select aria-label="ప్రకటన భాష · Notice language" value={language} className="min-h-10 max-w-full rounded-md border bg-card px-2 text-sm" onChange={event => { setLanguage(event.target.value); try { localStorage.setItem("gayatri-notice-language", event.target.value); } catch { /* Optional. */ } }}>{Object.entries(statements).map(([code, item]) => <option key={code} value={code}>{item.label}</option>)}</select></div>
+    <p lang={language} dir={language === "ur" ? "rtl" : undefined} className="text-sm leading-relaxed">{statement?.text}</p>
+  </section>;
+}
