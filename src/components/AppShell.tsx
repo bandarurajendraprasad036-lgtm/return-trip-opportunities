@@ -1,6 +1,6 @@
 import { Brand } from "@/components/Brand";
 import { useEffect, type ReactNode } from "react";
-import { Link } from "@tanstack/react-router";
+import { ClientOnly, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, Home, MessageCircle, PlusCircle, User, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -52,7 +52,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <Link to="/feed" className="font-display text-2xl font-extrabold leading-none">
           <Brand />
         </Link>
-        {me === null ? (
+        <ClientOnly fallback={<div className="h-10" />}>{me === null ? (
           <Link to="/auth" className="rounded-full bg-secondary px-4 py-2 text-sm font-bold text-secondary-foreground">
             లాగిన్ / రిజిస్టర్
           </Link>
@@ -78,7 +78,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             )}
           </Link>
         </div>
-        )}
+        )}</ClientOnly>
       </header>
       <main className="flex-1 pb-24">{children}<ResponsibilityNotice /><DesignFooter /></main>
       {me && <IncomingNotice userId={me.id} />}
