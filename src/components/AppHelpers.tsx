@@ -1,22 +1,43 @@
 import { useEffect, useState } from "react";
 import { Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 type InstallEvent = Event & { prompt: () => Promise<void> };
 
 /** "Add to Home screen" button — appears only when the browser allows installing. */
 export function InstallButton() {
   const [evt, setEvt] = useState<InstallEvent | null>(null);
+  const [installed, setInstalled] = useState(false);
+  const [help, setHelp] = useState(false);
+  const [ios, setIos] = useState(false);
   useEffect(() => {
+    setInstalled(window.matchMedia("(display-mode: standalone)").matches || ("standalone" in navigator && navigator.standalone === true));
+    setIos(/iPad|iPhone|iPod/.test(navigator.userAgent));
     const h = (e: Event) => { e.preventDefault(); setEvt(e as InstallEvent); };
+    const done = () => { setInstalled(true); setEvt(null); };
     window.addEventListener("beforeinstallprompt", h);
-    return () => window.removeEventListener("beforeinstallprompt", h);
+    window.addEventListener("appinstalled", done);
+    return () => { window.removeEventListener("beforeinstallprompt", h); window.removeEventListener("appinstalled", done); };
   }, []);
-  if (!evt) return null;
+  if (installed) return null;
   return (
-    <button onClick={() => { void evt.prompt(); setEvt(null); }} className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-secondary bg-card p-3 font-bold">
-      <Download className="size-5" />హోమ్ స్క్రీన్‌కు జోడించు · Add to Home screen
-    </button>
+    <>
+      <Button variant="outline" className="h-auto min-h-14 w-full whitespace-normal border-2 border-secondary px-3 py-3" onClick={async () => {
+        if (!evt) { setHelp(true); return; }
+        try { await evt.prompt(); } catch { setHelp(true); } finally { setEvt(null); }
+      }}>
+        <Download className="size-5 shrink-0" /><span className="min-w-0"><span className="block">ఫోన్ తెరపై జోడించు</span><span className="block text-sm">Add to Home screen</span></span>
+      </Button>
+      <Dialog open={help} onOpenChange={setHelp}>
+        <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-sm">
+          <DialogHeader><DialogTitle>ఫోన్ తెరపై జోడించు · Add to Home screen</DialogTitle><DialogDescription>
+            {ios ? "పంచుకునే గుర్తు నొక్కి, ‘హోమ్ స్క్రీన్‌కు జోడించు’ ఎంచుకోండి. · Tap Share, then Add to Home Screen." : "వెబ్‌సైట్‌ను మీ బ్రౌజర్‌లో తెరిచి, మూడు చుక్కల దగ్గర ‘యాప్ ఇన్‌స్టాల్’ లేదా ‘హోమ్ స్క్రీన్‌కు జోడించు’ ఎంచుకోండి. · Open the published site in your browser, then choose Install app or Add to Home screen from its menu."}
+          </DialogDescription></DialogHeader>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
