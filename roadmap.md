@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] November 4 10:08–10:09: map every completed change to supplied requirements, audit all previous points, and test mobile welcome/bell/chat/alerts/payment. User mentions 721 master items, but the numbered 721-item source is not present; request it rather than claim an exhaustive match.
 - [ ] November 4 10:01: implement new devotional shine/yellow bell, prominent wordmark, daily welcome, home notice, responsibility language choice and updated footer; attractive existing membership benefits.
 - [ ] November 4 10:01: real route map/distance, customer origin, structured vehicle/ton capacity and 20% endpoint matching — mapping service needed, custom domain requires own authorized browser key.
 - [ ] November 4 10:01: result bells open contextual chat, dismissible incoming banners, replies grouped per post, distinct area result sections.

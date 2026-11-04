@@ -8,11 +8,10 @@ import { Input } from "@/components/ui/input";
 import { useMe } from "@/lib/session";
 import { useServerFn } from "@tanstack/react-start";
 import { sendSupportMessage } from "@/lib/support.functions";
-import { ResponsibilityNotice } from "@/components/ResponsibilityNotice";
 import { z } from "zod";
 
 export const Route = createFileRoute("/_authenticated/chat/$userId")({
-  validateSearch: (search: Record<string, unknown>) => ({ post: typeof search["post"] === "string" && z.string().uuid().safeParse(search["post"]).success ? search["post"] : undefined }),
+  validateSearch: (search: Record<string, unknown>): { post?: string | undefined } => ({ post: typeof search["post"] === "string" && z.string().uuid().safeParse(search["post"]).success ? search["post"] : undefined }),
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },

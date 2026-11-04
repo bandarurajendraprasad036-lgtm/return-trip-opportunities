@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
 export function IncomingNotice({ userId }: { userId: string }) {
-  const [notice, setNotice] = useState<{ body: string; sender?: string; post?: string } | null>(null);
+  const [notice, setNotice] = useState<{ body: string; sender?: string | undefined; post?: string | undefined } | null>(null);
   const [muted, setMuted] = useState(false);
   useEffect(() => { try { setMuted(localStorage.getItem("gayatri-notices-muted") === "yes"); } catch { /* Optional. */ } }, []);
   useEffect(() => {
