@@ -4,6 +4,7 @@ export const JOB_CATEGORIES = [
   { id: "labour", te: "కూలి / మేస్త్రి", en: "Labour" },
   { id: "security", te: "సెక్యూరిటీ", en: "Security" },
   { id: "farm", te: "వ్యవసాయం", en: "Farm" },
+  { id: "teacher", te: "ఉపాధ్యాయుడు", en: "Teacher" },
   { id: "other", te: "ఇతర", en: "Other" },
 ] as const;
 

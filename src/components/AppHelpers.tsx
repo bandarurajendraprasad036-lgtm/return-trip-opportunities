@@ -3,6 +3,9 @@ import { Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { toast } from 'sonner';
+import { permissionThanks } from '@/lib/friendly-notifications';
+import { enableBellAudio,playBell } from '@/lib/bell';
 
 type InstallEvent = Event & { prompt: () => Promise<void> };
 
@@ -54,14 +57,14 @@ export function NotificationPermission({ userId }: { userId: string }) {
     const ch = supabase
       .channel(`push-${userId}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` }, (p) => {
-        if (Notification.permission === "granted") new Notification("గాయత్రి వన్ · Gayatri One", { body: String((p.new as { message?: string }).message ?? ""), icon: "/favicon.svg" });
+        if (Notification.permission === "granted") new Notification("గాయత్రి వన్ · Gayatri One", { body: String((p.new as { message?: string }).message ?? ""), icon: "/favicon.svg",silent:true });
       })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.${userId}` }, async (p) => {
         const m = p.new as { body?: string; needs_admin?: boolean; is_auto?: boolean };
         if (Notification.permission !== "granted" || m.is_auto) return;
         const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
         if (isAdmin && !m.needs_admin) return; // admin is alerted only for money questions
-        new Notification(isAdmin ? "💰 డబ్బు ప్రశ్న · Payment question" : "కొత్త మెసేజ్ · New message", { body: String(m.body ?? "").slice(0, 120), icon: "/favicon.svg" });
+        new Notification(isAdmin ? "💰 డబ్బు ప్రశ్న · Payment question" : "కొత్త మెసేజ్ · New message", { body: String(m.body ?? "").slice(0, 120), icon: "/favicon.svg",silent:true });
       })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
@@ -72,8 +75,8 @@ export function NotificationPermission({ userId }: { userId: string }) {
       <p className="font-bold">🔔 మ్యాచ్ వస్తే ఫోన్‌కు అలర్ట్ కావాలా?</p>
       <p className="text-sm text-muted-foreground">Get alerts on your phone when a match comes?</p>
       <div className="mt-3 flex gap-2">
-        <button className="flex-1 rounded-lg bg-secondary py-2 font-bold text-secondary-foreground" onClick={() => { void Notification.requestPermission(); setAsk(false); }}>అవును · Allow</button>
-        <button className="flex-1 rounded-lg border py-2" onClick={() => setAsk(false)}>తర్వాత · Later</button>
+        <Button className="flex-1" onClick={async () => { enableBellAudio(); const permission=await Notification.requestPermission().catch(()=> 'denied'); setAsk(false); const message=permissionThanks(permission==='granted'); if(message){toast.success(message,{duration:10000});playBell();} }}>అవును · Allow</Button>
+        <Button variant="outline" className="flex-1" onClick={() => setAsk(false)}>తర్వాత · Later</Button>
       </div>
     </div>
   );
