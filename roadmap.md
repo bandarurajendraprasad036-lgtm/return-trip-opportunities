@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Point 9, November 4 10:34 follow-up: redeem 100 points for one free membership month, maximum three consecutive months; determine points earned per referral, verified ten-group sharing, and how the consecutive-month limit resets.
 - [ ] Point 9, November 4 10:34: inspect referral points, free month for sharing to ten groups, and bell quiet hours after 20:30; clarify points/verified sharing and morning restart before enforcing rewards.
 - [ ] November 4 10:33: verify both Point 8 job-tab submissions save the selected job kind and read back through My Posts; add regression tests and synchronize requirement-map.md.
 - [ ] November 4 10:33 follow-up: inspect the next confirmed unfinished requirement and implement it without inventing master-list numbers.
