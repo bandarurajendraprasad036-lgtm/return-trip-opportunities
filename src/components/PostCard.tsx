@@ -24,7 +24,6 @@ export function PostCard({
   const isJob = post.module === "job";
   const nav = useNavigate();
   const showPhone = !isJob || post.show_contact;
-  const [unused] = [];
   const ring = async () => {
     if (!meId) { nav({ to: "/auth" }); return; }
     if (post.user_id === meId) {

@@ -9,6 +9,9 @@ import { useMe } from "@/lib/session";
 import { isMatch } from "@/lib/match";
 import { AppShell } from "@/components/AppShell";
 import { CITIES, JOB_CATEGORIES, ANYWHERE, DEFAULT_CITY, locationMatches } from "@/lib/jobs";
+import { Bell } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { indianDay } from "@/lib/daily-devotional";
 
 type FeedSearch = { module?: "all" | "job" | "vehicle" | undefined; from?: string | undefined; to?: string | undefined };
 
@@ -46,6 +49,10 @@ function Feed() {
   const [q, setQ] = useState("");
   const [city, setCity] = useState(DEFAULT_CITY);
   const [cat, setCat] = useState("");
+  const services = useQuery({ queryKey: ["public-services-feed"], queryFn: async () => {
+    const { data, error } = await supabase.from("service_profiles").select("user_id,display_name,service,bio").eq("published", true).limit(100);
+    if (error) throw error; return data ?? [];
+  }});
   const fromT = search.from?.trim().toLowerCase();
   const toT = search.to?.trim().toLowerCase();
 
@@ -67,6 +74,13 @@ function Feed() {
       (p.module !== "job" || (locationMatches(p.location, city) && (!cat || p.category === cat))) &&
       (!term || [p.location, p.from_place, p.to_place, p.title, p.skill].some((v) => v?.toLowerCase().includes(term))),
   );
+  const today = indianDay(new Date());
+  const sections = [
+    { title: "తిరుగు వాహనాలు · Return vehicles", posts: shown.filter(p => p.module === "vehicle" && (!p.trip_date || p.trip_date <= today)) },
+    { title: "ముందస్తు తిరుగు వాహనాలు · Advance returns", posts: shown.filter(p => p.module === "vehicle" && !!p.trip_date && p.trip_date > today) },
+    { title: "ఉద్యోగాలు · Jobs", posts: shown.filter(p => p.module === "job") },
+  ];
+  const shownServices = (services.data ?? []).filter(p => !term || [p.display_name, p.service, p.bio].some(v => v.toLowerCase().includes(term)));
 
   return (
     <div>
@@ -110,14 +124,13 @@ function Feed() {
         )}
         {term && <p className="text-sm text-muted-foreground">"{q}" — {shown.length} పోస్ట్‌లు / posts</p>}
         {isLoading && <p className="text-center text-muted-foreground">లోడ్ అవుతోంది... Loading</p>}
-        {!isLoading && shown.length === 0 && (
+         {!isLoading && shown.length === 0 && shownServices.length === 0 && (
           <div className="rounded-xl border border-dashed bg-card p-8 text-center text-muted-foreground">
             ఇక్కడ పోస్ట్‌లు లేవు<br />No posts here yet. Try another location.
           </div>
         )}
-        {shown.map((p) => (
-          <PostCard key={p.id} post={p} meId={me?.id} highlight={mine.some((m) => isMatch(m, p))} />
-        ))}
+        {sections.filter(section => section.posts.length > 0).map(section => <section key={section.title} className="space-y-3 border-t pt-4"><h2 className="text-xl font-bold">{section.title}</h2>{section.posts.map(p => <PostCard key={p.id} post={p} meId={me?.id} highlight={mine.some(m => isMatch(m, p))} />)}</section>)}
+        {filter !== "vehicle" && shownServices.length > 0 && <section className="space-y-3 border-t pt-4"><h2 className="text-xl font-bold">సేవలు అందించేవారు · Service providers</h2>{shownServices.map(service => <article key={service.user_id} className="flex items-start gap-3 rounded-lg border bg-card p-3"><div className="min-w-0 flex-1"><Link to="/profile/$userId" params={{ userId: service.user_id }} className="font-bold underline">{service.display_name}</Link><p className="text-sm">{service.service}</p><p className="line-clamp-3 text-sm text-muted-foreground">{service.bio}</p></div><Button asChild variant="secondary" size="icon"><Link to="/chat/$userId" params={{ userId: service.user_id }} aria-label="సేవ కోసం చాట్ · Chat for service"><Bell className="size-5" /></Link></Button></article>)}</section>}
       </div>
     </div>
   );

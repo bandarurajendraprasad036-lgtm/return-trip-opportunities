@@ -23,3 +23,5 @@
 - Homepage devotional selection rotates bundled portraits by the Asia/Kolkata calendar day; the persistent generic sharing artwork links to the separate authenticated profile editor, never exposes private account details.
 - Admin devotional schedules use date-keyed app_settings and private devotional-images storage; public artwork signing resolves only today's validated path, with bundled rotation as fallback.
 - Private profiles are readable only by their owner or an admin; chats show only opted-in service display names, and support targeting resolves an admin UUID without phone lookup to prevent private-data leakage.
+- Contextual interest uses authenticated ring_post to write an alert and post-linked message; replies group by post_id, while individual conversations stay participant-private.
+- Welcome audio is a pre-generated reusable asset, played once per Indian calendar day after successful playback; browser autoplay rejection offers an explicit play control.
