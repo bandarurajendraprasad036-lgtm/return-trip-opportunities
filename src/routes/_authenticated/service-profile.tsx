@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { saveServiceProfile } from "@/lib/service-profile.functions";
@@ -24,6 +24,7 @@ export const Route = createFileRoute("/_authenticated/service-profile")({
 });
 function Editor() {
   const { data } = useSuspenseQuery(editorQuery);
+  const queryClient = useQueryClient();
   const [name, setName] = useState(data.profile?.display_name ?? "");
   const [service, setService] = useState(data.profile?.service ?? "");
   const [bio, setBio] = useState(data.profile?.bio ?? "");
@@ -33,7 +34,7 @@ function Editor() {
   const [photos, setPhotos] = useState(data.photos);
   const [busy, setBusy] = useState(false);
   const save = useServerFn(saveServiceProfile);
-  const store = async () => save({ data: { name, service, bio, photo, published } });
+  const store = async () => { await save({ data: { name, service, bio, photo, published } }); await queryClient.invalidateQueries({ queryKey: ["service-editor"] }); };
   const upload = async (file: File | undefined, avatar: boolean) => {
     if (!file) return;
     if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 5 * 1024 * 1024) { toast.error("5 మెగాబైట్లలోపు ఫోటో ఇవ్వండి · JPEG, PNG or WebP under 5MB"); return; }
