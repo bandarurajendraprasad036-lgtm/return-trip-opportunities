@@ -45,7 +45,7 @@ describe('device timezone does not change the daily image', () => {
     const before = dailyDevotionalIndex(new Date('2026-11-04T18:29:59Z'), 3);
     const after = dailyDevotionalIndex(new Date('2026-11-04T18:30:00Z'), 3);
     for (const tz of ['America/New_York', 'Europe/London', 'Asia/Tokyo', 'UTC']) {
-      process.env.TZ = tz;
+      process.env["TZ"] = tz;
       expect(dailyDevotionalIndex(new Date('2026-11-04T18:29:59Z'), 3)).toBe(before);
       expect(dailyDevotionalIndex(new Date('2026-11-04T18:30:00Z'), 3)).toBe(after);
       expect(indianDay(new Date('2026-11-04T18:30:00Z'))).toBe('2026-11-05');
