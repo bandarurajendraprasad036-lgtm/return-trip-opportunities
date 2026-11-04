@@ -88,7 +88,7 @@ function AiJobAd({ kind, onDraft, work }: { kind: "seeker" | "employer"; onDraft
 }
 
 export const Route = createFileRoute("/_authenticated/post/new")({
-  validateSearch: (search: Record<string, unknown>): { kind?: 'seeker' | 'employer'; loc?: string } => ({
+  validateSearch: (search: Record<string, unknown>): { kind?: 'seeker' | 'employer' | undefined; loc?: string | undefined } => ({
     kind: search['kind'] === 'seeker' || search['kind'] === 'employer' ? search['kind'] : undefined,
     loc: typeof search['loc'] === 'string' ? search['loc'].trim().slice(0, 80) : undefined,
   }),
@@ -143,7 +143,7 @@ function NewPost() {
         <p className="-mt-2 text-muted-foreground">What do you want to post?</p>
         {OPTIONS.map((o) => (
           <Button key={o.kind} variant="outline" onClick={() => setKind(o.kind)} className="h-auto min-h-20 w-full justify-start gap-4 whitespace-normal p-4 text-left shadow-card">
-            <span className={`grid size-14 place-items-center rounded-xl text-primary-foreground ${o.tone}`}><o.icon className="size-7" /></span>
+            <span className={`grid size-14 place-items-center rounded-xl text-foreground ${o.tone}`}><o.icon className="size-7" /></span>
             <span><span className="block text-lg font-bold">{o.te}</span><span className="text-muted-foreground">{o.en}</span></span>
           </Button>
         ))}
@@ -200,7 +200,7 @@ function NewPost() {
 
   return (
     <form onSubmit={submit} className="space-y-4 p-4">
-      <div className={`flex items-center gap-3 rounded-xl p-3 text-primary-foreground ${opt.tone}`}>
+      <div className={`flex items-center gap-3 rounded-xl border p-3 text-foreground ${opt.tone}`}>
         <opt.icon className="size-7" />
         <div><p className="text-lg font-bold">{opt.te}</p><p className="text-sm opacity-90">{opt.en}</p></div>
         <Button type="button" variant="ghost" disabled={busy} onClick={() => setKind(null)} className="ml-auto text-sm underline">మార్చు</Button>

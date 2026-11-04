@@ -31,3 +31,5 @@
 - Free-membership rewards use locked SQL RPCs and an owner-readable ledger; private sharing evidence requires server-verified admin approval, and wallets have no client write grant.
 - Notification preferences are account-owned records; delivery eligibility and quota reset use their validated IANA timezone, while bell sound-only mute never removes the inbox subscription.
 - Vehicle position display formats only the actual timestamp through a pure timezone-aware helper; never synthesize location data or a current-time substitute.
+- Homepage listings reuse the active-post query and existing PostCard bell action; local vehicles require identical named endpoints until real geographic data is authorized, so proximity is never inferred.
+- The large devotional bell is the sole home bell trigger; date-based bundled engraved variants preserve gold artwork without a separate portrait overlay.

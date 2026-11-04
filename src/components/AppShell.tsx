@@ -49,8 +49,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col bg-background">
-      <header className="sticky top-0 z-20 flex items-center flex-wrap justify-between gap-2 bg-primary px-4 py-3 text-primary-foreground">
-        <Link to="/feed" className="font-display text-2xl font-extrabold leading-none">
+      <header className="sticky top-0 z-20 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b bg-background px-3 py-3 text-foreground">
+        <Link to="/feed" className="min-w-0 font-display text-lg font-extrabold leading-none">
           <Brand />
         </Link>
         <ClientOnly fallback={<div className="h-10" />}>{me === null ? (

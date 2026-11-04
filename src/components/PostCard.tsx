@@ -50,7 +50,7 @@ export function PostCard({
     <article
       className={`overflow-hidden rounded-xl border bg-card shadow-card ${highlight ? "ring-2 ring-secondary" : ""}`}
     >
-      <div className={`flex items-center gap-2 px-3 py-2 text-sm font-semibold text-primary-foreground ${isJob ? "bg-job" : "bg-vehicle"}`}>
+      <div className={`flex items-center gap-2 border-b px-3 py-2 text-sm font-semibold text-foreground ${isJob ? "bg-job" : "bg-vehicle"}`}>
         {isJob ? <Briefcase className="size-4" /> : <Truck className="size-4" />}
         {label.te} · {label.en}
         {highlight && (
