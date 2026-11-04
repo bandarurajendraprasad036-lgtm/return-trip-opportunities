@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Add opt-in public service profiles, WhatsApp sharing, work photos, authentic reviews, profile views and likes; protect private account data
 - [ ] Redesign sharing poster in English: ₹99 plus status and nine people/groups; without sharing ₹499; clarify people-versus-groups requirement, benefit/duration and correct referral code
 - [x] Show generated job-ad preview directly on creation screen and verify populated result on mobile
 - [x] Confirm Gayatri One home-screen installation button is available on homepage
