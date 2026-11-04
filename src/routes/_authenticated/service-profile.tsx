@@ -50,7 +50,7 @@ function Editor() {
       toast.success("ఫోటో సేవ్ అయింది · Photo saved");
     } catch { toast.error("ఫోటో సేవ్ కాలేదు · Upload failed"); } finally { setBusy(false); }
   };
-  return <form className="space-y-4 p-4" onSubmit={async (e) => { e.preventDefault(); setBusy(true); try { await store(); toast.success("పరిచయం సేవ్ అయింది · Profile saved"); } catch { toast.error("పరిచయం సేవ్ కాలేదు"); } finally { setBusy(false); } }}>
+  return <form className="space-y-4 p-4 pb-28" onSubmit={async (e) => { e.preventDefault(); setBusy(true); try { await store(); toast.success("పరిచయం సేవ్ అయింది · Profile saved"); } catch { toast.error("పరిచయం సేవ్ కాలేదు"); } finally { setBusy(false); } }}>
     <h1 className="text-2xl font-bold">నా సేవల పరిచయం · My services</h1>
     <div><Label htmlFor="profile-name">పేరు · Name</Label><Input id="profile-name" value={name} onChange={(e) => setName(e.target.value)} maxLength={80} required /></div>
     <div><Label htmlFor="profile-service">సేవలు · Services</Label><Input id="profile-service" value={service} onChange={(e) => setService(e.target.value)} maxLength={100} required /></div>
