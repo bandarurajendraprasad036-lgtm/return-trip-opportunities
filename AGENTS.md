@@ -25,3 +25,4 @@
 - Private profiles are readable only by their owner or an admin; chats show only opted-in service display names, and support targeting resolves an admin UUID without phone lookup to prevent private-data leakage.
 - Contextual interest uses authenticated ring_post to write an alert and post-linked message; replies group by post_id, while individual conversations stay participant-private.
 - Welcome audio is a pre-generated reusable asset, played once per Indian calendar day after successful playback; browser autoplay rejection offers an explicit play control.
+- Job-entry suggestions are local advisory options with a grapheme-aware minimum; unlisted work uses the existing skill/category payload, and client word feedback supplements rather than replaces authenticated moderation and the database guard.
