@@ -27,3 +27,6 @@
 - Welcome audio is a pre-generated reusable asset, played once per Indian calendar day after successful playback; browser autoplay rejection offers an explicit play control.
 - Job-entry suggestions are local advisory options with a grapheme-aware minimum; unlisted work uses the existing skill/category payload, and client word feedback supplements rather than replaces authenticated moderation and the database guard.
 - Keep requirement-map.md synchronized with requirement-related source and tests; use only user-supplied master numbers and explicitly distinguish implementation from end-to-end verification.
+- Point 8 job identity is captured before asynchronous submission and tab changes are disabled while sending, so persisted job kind cannot drift.
+- Free-membership rewards use locked SQL RPCs and an owner-readable ledger; private sharing evidence requires server-verified admin approval, and wallets have no client write grant.
+- Notification preferences are account-owned records; delivery eligibility and quota reset use their validated IANA timezone, while bell sound-only mute never removes the inbox subscription.

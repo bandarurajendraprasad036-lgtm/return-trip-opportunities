@@ -1,5 +1,10 @@
 import { CITIES, JOB_CATEGORIES } from '@/lib/jobs';
 
+/** Point 8: capture the selected tab in the persisted job identity. */
+export function jobPostIdentity(kind: 'seeker' | 'employer', skill: string) {
+  return { module: 'job' as const, kind, title: kind === 'seeker' ? `${skill.trim()} పని కావాలి` : `${skill.trim()} కోసం పనివాడు కావాలి` };
+}
+
 // Point 8: these are local suggestions, not geocoding or verified job listings.
 const TELUGU_CITIES = ['హైదరాబాద్', 'మంచిర్యాల', 'ముంబై', 'వరంగల్', 'కరీంనగర్', 'విజయవాడ', 'గుంటూరు', 'విశాఖపట్నం', 'బెంగళూరు', 'చెన్నై'];
 export const VILLAGE_SUGGESTIONS = [...CITIES, ...TELUGU_CITIES];

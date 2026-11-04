@@ -7,6 +7,8 @@ import { useMe } from "@/lib/session";
 import { AdminChatButton } from "@/components/AdminChatButton";
 import { InstallButton } from "@/components/AppHelpers";
 import { MembershipPayment } from "@/components/MembershipPayment";
+import { RewardMembership } from '@/components/RewardMembership';
+import { NotificationSettings } from '@/components/NotificationSettings';
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -60,6 +62,8 @@ function Dashboard() {
       </div>
       <AdminChatButton />
       <MembershipPayment />
+      <RewardMembership />
+      <NotificationSettings />
       <Button asChild variant="outline" className="h-auto min-h-12 w-full whitespace-normal py-3"><Link to="/service-profile">నా సేవల పరిచయం · My service profile</Link></Button>
       <InstallButton />
     </div>
