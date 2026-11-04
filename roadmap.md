@@ -19,3 +19,4 @@
 - [ ] Daily morning referral reminder (schedule)
 - [ ] Admin referral list (who referred whom, paid?, free month credited)
 - [ ] Admin AI questions about referral data
+- [x] Support chat never reveals user counts or personal info; answers only what is asked
