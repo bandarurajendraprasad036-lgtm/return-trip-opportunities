@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] November 4 23:05: verify black/gold rounded boxes on small/large phones, no clipped borders; hover/focus/active remain black/gold.
 - [ ] November 4 23:05: match new old-site references: pure #000000, #FFC107 borders/gold-filled buttons, 18–22px boxes, Job Apply/I Have Job, Local/Return Goods/Advance, From/To labels, current-location control and search. Do not fabricate geographic location.
 - [ ] November 4 23:01: notebook homepage layout, From/To, three vehicle displays, separate job apply/displays; original engraved Mata gold bell clickable without lower bell; black/gold all pages; remove old user count/search boxes; verify mobile and preserve data.
 - [x] November 4 17:12: use the original ornate gold temple bell instead of yellow SVG; daily Mata portrait remains uncropped. Four viewport checks and ten daily-artwork tests passed. Keep the lower bell gold, with no pink/yellow recoloring; no duplicate rebuild. Not published.
