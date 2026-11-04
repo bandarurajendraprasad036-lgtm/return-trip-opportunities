@@ -61,7 +61,7 @@ export const sendSupportMessage = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (reply) {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      await supabaseAdmin.from("messages").insert({ sender_id: data.adminId, receiver_id: userId, body: `🤖 ${reply}`, is_auto: true });
+      try { await supabaseAdmin.from("messages").insert({ sender_id: data.adminId, receiver_id: userId, body: `🤖 ${reply}`, is_auto: true }); } catch (e) { console.error(e); }
     }
     return { ok: true };
   });

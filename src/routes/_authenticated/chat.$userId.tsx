@@ -6,6 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useMe } from "@/lib/session";
+import { useServerFn } from "@tanstack/react-start";
+import { sendSupportMessage } from "@/lib/support.functions";
 
 export const Route = createFileRoute("/_authenticated/chat/$userId")({
   head: () => ({
@@ -63,6 +65,7 @@ function Chat() {
 
   useEffect(() => bottom.current?.scrollIntoView(), [msgs.length]);
 
+  const sendSupport = useServerFn(sendSupportMessage);
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
     const body = text.trim().slice(0, 1000);
