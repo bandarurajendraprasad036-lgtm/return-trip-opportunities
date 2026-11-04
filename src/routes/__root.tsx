@@ -1,3 +1,4 @@
+import { Referral } from "@/components/Referral";
 import { PhoneGate } from "@/components/PhoneGate";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
@@ -141,6 +142,7 @@ function RootComponent() {
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
       <PhoneGate />
+      <Referral />
       <Toaster position="top-center" richColors />
     </QueryClientProvider>
   );
