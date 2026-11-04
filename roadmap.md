@@ -1,6 +1,6 @@
 # Roadmap
 - [x] November 4 23:11–23:12: existing sound-only mute shared with settings; permission status and enable help added, explicit no closed-app delivery. 8 new tests passed; signed-in reload/synchronized controls verified with original preference restored. Firebase declined; no schema/server changes.
-- [ ] Closed-app delivery: unavailable; user declined the delivery-service connection. Do not reconnect or claim delivery.
+- [ ] Closed-app delivery: Firebase now approved and linked; check web-push configuration, request database-change approval for private device registration/durable dispatch, then implement and verify closed-page delivery without promising browser custom bell sound.
 - [x] November 4 23:06: 48px button controls and gaps; signed-in browser measured no visible target below 44px at 320×640, 390×844, 844×390, 1280×1800, no overflow.
 - [ ] November 4 23:05: verify black/gold rounded boxes on small/large phones, no clipped borders; hover/focus/active remain black/gold.
 - [ ] November 4 23:05: match new old-site references: pure #000000, #FFC107 borders/gold-filled buttons, 18–22px boxes, Job Apply/I Have Job, Local/Return Goods/Advance, From/To labels, current-location control and search. Do not fabricate geographic location.
