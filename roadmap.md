@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] November 4 08:24 UTC: Google-only login (no passwords/reset), mandatory phone before ads, payment under-review screen and manual WhatsApp send button, unframed bell at lotus, footer only Design: Gayatri One, daily Mata rotation, explicit offline basic-page support. Verify together; do not publish automatically.
 - [ ] Finish current preview changes and report blockers; publish only at the end with user permission. Provide homepage demo screenshot.
 - [ ] Rotate Gayatri Mata portrait above the bell each Indian calendar day and test date boundaries.
 - [ ] November 4 06:38 UTC explicit authorization: display new English sharing image on website with separate profile details; restore Gayatri Mata above gold bell, verify phone layout, deliver preview. WhatsApp payment notification needs connection and recipient confirmation.
