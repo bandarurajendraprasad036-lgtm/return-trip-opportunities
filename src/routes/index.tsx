@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import hero from "@/assets/hero-village.jpg";
+import { InstallButton } from "@/components/AppHelpers";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -24,7 +25,6 @@ export const Route = createFileRoute("/")({
 
 type Stats = { users: number; jobs: number; rides: number; matches: number };
 
-import { InstallButton } from "@/components/AppHelpers";
 
 function Index() {
   const navigate = useNavigate();
