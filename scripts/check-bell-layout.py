@@ -15,7 +15,15 @@ loaded:e.complete&&e.naturalWidth>0,visible:getComputedStyle(e).visibility!=='hi
 sw:document.documentElement.scrollWidth,vw:innerWidth}}"""
 fails = []
 async def check(page, label, ref):
-    r = await page.locator(f'img[alt="{ALT}"]').evaluate(JS)
+    image = page.locator(f'img[alt="{ALT}"]')
+    await image.wait_for(state='visible')
+    for attempt in range(3):
+        try:
+            r = await image.evaluate(JS)
+            break
+        except Exception:
+            if attempt == 2: raise
+            await page.wait_for_timeout(500)
     bad = [k for k, ok in {"loads": r["loaded"] and r["visible"], "inside bell": r["inside"],
         "size": 0 < r["w"] <= 352 and abs(r["w"] - r["h"]) <= 1, "centered": abs(r["dx"]) <= 1,
         "no sideways scroll": r["sw"] <= r["vw"], "alt text": r["alt"] == ALT}.items() if not ok]
