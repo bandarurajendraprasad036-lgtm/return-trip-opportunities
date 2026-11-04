@@ -80,7 +80,7 @@ function Index() {
   const iconLink = "grid size-11 place-items-center rounded-full bg-primary-foreground/15";
 
   return (
-    <div className="mx-auto min-h-screen max-w-md bg-royal">
+    <div className="mx-auto min-h-screen max-w-md overflow-x-hidden bg-royal">
       <section className="home-devotional bg-royal px-4 pb-6 pt-4 text-on-royal">
         <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2">
           <Link to="/chats" className="gold-ring" aria-label="చాట్ · Chat"><MessageCircle className="size-6" /></Link>
