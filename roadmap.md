@@ -1,5 +1,7 @@
 # Roadmap
-- [ ] November 4 08:38 UTC: publish current verified changes and connect user-purchased gayatrione.com. Domain check shows it is not connected to this project; complete connection card before claiming custom-domain delivery.
+- [x] November 4 08:38 UTC: user-purchased gayatrione.com connected through registrar card; records written and primary set. Current changes submitted for publication.
+- [ ] Confirm gayatrione.com becomes active and latest deployment serves — setup still in progress at 08:40 UTC; publication scheduled, not yet verified.
+- [ ] Security: existing profiles SELECT policy exposes phone numbers to all signed-in users; critical finding remains unresolved and reported at publication.
 - [x] Google-only visible entry, failure reasons and retry; existing Google provider enabled. No passwords/reset displayed. External Google consent completion remains a user check.
 - [x] Mandatory mobile before ads; fixed hidden Continue button, saved user's provided office number and verified readback and post form. Database trigger enforces the rule.
 - [x] Unframed bell at lotus, daily Mata rotation and Design: Gayatri One footer; verified 320/360/390/1280 layouts, 11 tests pass, no runtime errors.
