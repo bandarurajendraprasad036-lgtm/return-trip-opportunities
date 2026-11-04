@@ -6,8 +6,8 @@ import asyncio, sys
 from playwright.async_api import async_playwright
 URL = "http://localhost:8080/"
 SIZES = [(320, 568), (360, 740), (412, 915), (568, 320), (740, 360), (915, 412)]
-EXPECT = 98  # rounded px portrait size within the original 288px gold bell
-ALT = "గాయత్రి మాత · Gayatri Mata"
+EXPECT = None  # Full bell artwork fits its responsive 352px maximum trigger.
+ALT = "గాయత్రి మాత చెక్కిన బంగారు గుడి గంట · Gayatri Mata engraved gold temple bell"
 JS = """e=>{const i=e.getBoundingClientRect(),p=e.parentElement.getBoundingClientRect();
 return {w:Math.round(i.width),h:Math.round(i.height),dx:Math.round((i.left+i.right)/2-(p.left+p.right)/2),
 dy:Math.round(i.top-p.top),inside:i.left>=p.left&&i.right<=p.right&&i.top>=p.top&&i.bottom<=p.bottom,
@@ -17,7 +17,7 @@ fails = []
 async def check(page, label, ref):
     r = await page.locator(f'img[alt="{ALT}"]').evaluate(JS)
     bad = [k for k, ok in {"loads": r["loaded"] and r["visible"], "inside bell": r["inside"],
-        "size": r["w"] == EXPECT and r["h"] == EXPECT, "centered": abs(r["dx"]) <= 1,
+        "size": 0 < r["w"] <= 352 and abs(r["w"] - r["h"]) <= 1, "centered": abs(r["dx"]) <= 1,
         "no sideways scroll": r["sw"] <= r["vw"], "alt text": r["alt"] == ALT}.items() if not ok]
     if ref is not None and r["dy"] != ref: bad.append("position moved")
     print(("FAIL " if bad else "ok   ") + label, r if bad else "", bad or "")
@@ -31,7 +31,7 @@ async def open_page(pg):
             if attempt == 2: raise
 async def main():
     async with async_playwright() as p:
-        for name in ["chromium", "firefox", "webkit"]:
+        for name in sys.argv[1:] or ["chromium", "firefox", "webkit"]:
             b = await getattr(p, name).launch(headless=True); ref = None
             for w, h in SIZES:
                 pg = await b.new_page(viewport={"width": w, "height": h})
@@ -44,7 +44,7 @@ async def main():
                 if not first: first["u"] = route.request.url; await route.abort()
                 elif route.request.url == first["u"]: await route.abort()
                 else: await route.continue_()
-            await pg.route("**/gayatri-mata*", block)
+            await pg.route("**/gayatri-bell*", block)
             await open_page(pg); await pg.wait_for_timeout(700)
             await check(pg, f"{name} fallback image", None); await pg.close(); await b.close()
     print("FAILED:", fails) if fails else print("ALL PASSED")

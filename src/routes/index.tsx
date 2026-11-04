@@ -39,10 +39,18 @@ function Index() {
   const [devotional, setDevotional] = useState(0);
   const [day, setDay] = useState("");
   useEffect(() => {
-    const update = () => { const now = new Date(); setDevotional(dailyDevotionalIndex(now, 3)); setDay(indianDay(now)); };
+    let timer: ReturnType<typeof setTimeout>;
+    const update = () => {
+      clearTimeout(timer);
+      const now = new Date();
+      setDevotional(dailyDevotionalIndex(now, 3)); setDay(indianDay(now));
+      const midnight = Date.parse(`${indianDay(now)}T00:00:00+05:30`) + 86400000;
+      timer = setTimeout(update, Math.max(1, midnight - now.getTime()));
+    };
     update();
-    const timer = window.setInterval(update, 60000);
-    return () => window.clearInterval(timer);
+    const visible = () => { if (document.visibilityState === 'visible') update(); };
+    document.addEventListener('visibilitychange', visible);
+    return () => { clearTimeout(timer); document.removeEventListener('visibilitychange', visible); };
   }, []);
   const { data: video } = useQuery({
     queryKey: ["setting", "youtube_url"],
