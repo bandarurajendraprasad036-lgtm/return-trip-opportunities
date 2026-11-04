@@ -8,6 +8,7 @@ import { useMe } from "@/lib/session";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
+import { AdminReferrals } from "@/components/AdminReferrals";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -73,6 +74,7 @@ function Admin() {
   return (
     <div className="space-y-4 p-4">
       <h2 className="text-2xl font-bold">అడ్మిన్ డాష్‌బోర్డ్ <span className="text-base font-normal text-muted-foreground">Admin</span></h2>
+      <AdminReferrals />
       <div className="grid grid-cols-2 gap-3">
         {stats.map(([te, en, n]) => (
           <div key={en} className="rounded-xl bg-card p-3 shadow-card">
