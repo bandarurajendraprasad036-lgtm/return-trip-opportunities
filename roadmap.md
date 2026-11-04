@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] November 4 10:52: add job-alert date/location/kind filters and automated persisted-settings/quota-reset/job-detail navigation tests; overnight quiet-hour unit tests added, remaining integration checks pending.
 - [ ] November 4 10:50–10:51: persist notification choices per account, link alerts to job detail, show remaining daily cap/reset, use local IANA timezone for quiet intervals including midnight crossing; inbox stays readable.
 - [ ] November 4 10:50: add explicit notification opt-out, user daily cap, and selectable quiet times; sound-only mute must not disable inbox notifications, explicit notification opt-out may stop new delivery; preserve free-plan cap.
 - [ ] November 4 10:49 follow-ups: warm thank-you immediately after granted notification permission; Prasad-signed notices only for actual matched jobs in selected location. Nearby village targeting requires real geographic data, do not fabricate proximity.
