@@ -1,4 +1,11 @@
 # Roadmap
+- [ ] Keep profile details on a separate screen from the redesigned sharing image; noted November 4, 2026 06:37 UTC, implementation remains paused.
+- [ ] Persist the sharing image so it remains available on the website; test in installed Gayatri One on a phone after combined implementation resumes. Do not claim a real installed-phone test from browser emulation alone.
+- [ ] November 4, 2026 06:36 UTC: implementation paused again by user; record points only until user says the total list is complete and requests combined code.
+- [ ] Expand ad viewing area to show more advertisement details and test on a phone; noted only during pause.
+- [ ] Review submitted by a shared-profile viewer must appear on the reviewed person's profile page; inspect existing functionality and verify cross-account behavior after pause is lifted.
+- [ ] Shared profile image/message should lead the recipient to that person's public profile page; inspect existing sharing and add the missing link behavior.
+- [ ] Employer posts for any shop/company/person require ₹99 monthly payment for one post; additional posts require status plus nine recipients and an approval display. Clarify verification before enforcing publication.
 - [x] Add opt-in public service profiles, WhatsApp sharing, work photos, reviews, profile views and likes; tested signed-in save, upload/delete, likes, guest access, privacy and self-review rejection on phone. Cross-account review submission remains unverified because only one account is available.
 - [x] Redesign sharing poster in English: ₹99 plus status and nine people OR groups for one month full membership; without sharing ₹499; blank referral field because no code provided
 - [x] Show generated job-ad preview directly on creation screen and verify populated result on mobile
