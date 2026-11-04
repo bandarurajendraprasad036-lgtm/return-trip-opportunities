@@ -11,7 +11,9 @@ describe.skipIf(!session)("private profile API authorization", () => {
   const key = "sb_publishable_mt_ficWmT4BtHokB-lP8Dw_wPQsvLBV";
   async function get(path: string, authenticated = true) {
     if (!session) throw new Error("Authenticated fixture required");
-    const payload = JSON.parse(Buffer.from(session.access_token.split(".")[1], "base64url").toString());
+    const tokenBody = session.access_token.split(".")[1];
+    if (!tokenBody) throw new Error("Invalid authenticated fixture");
+    const payload = JSON.parse(Buffer.from(tokenBody, "base64url").toString());
     const base = payload.iss.replace(/\/auth\/v1$/, "");
     const response = await fetch(`${base}/rest/v1/${path}`, { headers: {
       apikey: key, ...(authenticated ? { Authorization: `Bearer ${session.access_token}` } : {}),
