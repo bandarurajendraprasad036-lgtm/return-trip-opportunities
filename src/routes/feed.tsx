@@ -124,13 +124,13 @@ function Feed() {
         )}
         {term && <p className="text-sm text-muted-foreground">"{q}" — {shown.length} పోస్ట్‌లు / posts</p>}
         {isLoading && <p className="text-center text-muted-foreground">లోడ్ అవుతోంది... Loading</p>}
-         {!isLoading && shown.length === 0 && shownServices.length === 0 && (
+         {!isLoading && shown.length === 0 && (
           <div className="rounded-xl border border-dashed bg-card p-8 text-center text-muted-foreground">
             ఇక్కడ పోస్ట్‌లు లేవు<br />No posts here yet. Try another location.
           </div>
         )}
         {sections.filter(section => section.posts.length > 0).map(section => <section key={section.title} className="space-y-3 border-t pt-4"><h2 className="text-xl font-bold">{section.title}</h2>{section.posts.map(p => <PostCard key={p.id} post={p} meId={me?.id} highlight={mine.some(m => isMatch(m, p))} />)}</section>)}
-        {filter !== "vehicle" && shownServices.length > 0 && <section className="space-y-3 border-t pt-4"><h2 className="text-xl font-bold">సేవలు అందించేవారు · Service providers</h2>{shownServices.map(service => <article key={service.user_id} className="flex items-start gap-3 rounded-lg border bg-card p-3"><div className="min-w-0 flex-1"><Link to="/profile/$userId" params={{ userId: service.user_id }} className="font-bold underline">{service.display_name}</Link><p className="text-sm">{service.service}</p><p className="line-clamp-3 text-sm text-muted-foreground">{service.bio}</p></div><Button asChild variant="secondary" size="icon"><Link to="/chat/$userId" params={{ userId: service.user_id }} aria-label="సేవ కోసం చాట్ · Chat for service"><Bell className="size-5" /></Link></Button></article>)}</section>}
+        {false && shownServices.length > 0 && <section className="space-y-3 border-t pt-4"><h2 className="text-xl font-bold">సేవలు అందించేవారు · Service providers</h2>{shownServices.map(service => <article key={service.user_id} className="flex items-start gap-3 rounded-lg border bg-card p-3"><div className="min-w-0 flex-1"><Link to="/profile/$userId" params={{ userId: service.user_id }} className="font-bold underline">{service.display_name}</Link><p className="text-sm">{service.service}</p><p className="line-clamp-3 text-sm text-muted-foreground">{service.bio}</p></div><Button asChild variant="secondary" size="icon"><Link to="/chat/$userId" params={{ userId: service.user_id }} aria-label="సేవ కోసం చాట్ · Chat for service"><Bell className="size-5" /></Link></Button></article>)}</section>}
       </div>
     </div>
   );
