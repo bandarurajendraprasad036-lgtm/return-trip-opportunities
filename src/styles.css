@@ -154,6 +154,8 @@
 @media (prefers-reduced-motion: reduce) { .profile-scroll { animation: none; white-space: normal; padding-inline: 12px; } .home-bell, .home-bell:active { animation: none; } }
 
 .gold-ring { display:grid; place-items:center; width:3rem; height:3rem; border-radius:9999px; border:2px solid var(--gold); color: var(--gold); box-shadow:0 0 12px color-mix(in oklab, var(--gold) 40%, transparent); }
+.gold-ring:hover, .gold-ring:active { background:var(--gold); color:var(--royal); }
+.gold-ring:focus-visible, .home-temple-trigger:focus-visible { outline:3px solid var(--gold); outline-offset:4px; }
 
 /* The notebook's columns share one black/gold canvas. */
 body { color-scheme: dark; letter-spacing: 0; }
