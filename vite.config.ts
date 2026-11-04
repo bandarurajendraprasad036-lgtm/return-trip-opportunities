@@ -20,7 +20,7 @@ export default defineConfig({
       workbox: {
         globPatterns: ["**/*.{js,css,png,jpg,woff2}"],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-        navigateFallback: undefined,
+        navigateFallback: null,
         runtimeCaching: [{
           urlPattern: ({ request, url }) => request.mode === "navigate" && url.origin === self.location.origin && !url.pathname.startsWith("/~oauth") && ["/", "/auth", "/feed"].includes(url.pathname),
           handler: "NetworkFirst",
