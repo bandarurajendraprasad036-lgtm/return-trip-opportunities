@@ -1,0 +1,11 @@
+{
+  "name": "గాయత్రి వన్ · Gayatri One",
+  "short_name": "Gayatri One",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0f4a5a",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
