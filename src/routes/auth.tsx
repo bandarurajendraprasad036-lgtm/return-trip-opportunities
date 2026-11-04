@@ -80,9 +80,9 @@ function AuthPage() {
         )}
         <div className="space-y-1">
           <Label className="text-base">ఫోన్ నంబర్ · Phone</Label>
-          <div className="flex items-center gap-2">
-            <span className="flex h-12 items-center gap-1 rounded-md border bg-muted px-3 text-lg"><Phone className="size-4" />+91</span>
-            <Input className="h-12 text-lg" inputMode="numeric" value={phone} onChange={(e) => setPhone(e.target.value)} maxLength={14} placeholder="98765 43210" />
+          <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-2">
+            <span className="flex h-12 shrink-0 items-center gap-1 rounded-md border bg-muted px-3 text-lg"><Phone className="size-4" />+91</span>
+            <Input className="h-12 min-w-0 text-lg" inputMode="numeric" value={phone} onChange={(e) => setPhone(e.target.value)} maxLength={14} placeholder="98765 43210" />
           </div>
         </div>
         <div className="space-y-1">
@@ -108,13 +108,14 @@ function AuthPage() {
           {mode === "login" ? "కొత్తవారా? రిజిస్టర్ చేయండి · New? Register" : "అకౌంట్ ఉందా? లాగిన్ · Have account? Login"}
         </button>
         <div className="text-center text-sm text-muted-foreground">లేదా · or</div>
-        <Button type="button" variant="outline" size="xl" className="w-full" disabled={busy} onClick={async () => {
+        <Button type="button" variant="outline" size="xl" className="h-20 w-full min-w-0 flex-col gap-1 whitespace-normal px-2 text-base leading-normal" disabled={busy} onClick={async () => {
           const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
           if (r.error) { toast.error(String(r.error.message ?? r.error)); return; }
           if (r.redirected) return;
           nav({ to: "/feed" });
         }}>
-          Google తో కొనసాగండి · Continue with Google
+          <span className="max-w-full">గూగుల్‌తో కొనసాగండి</span>
+          <span className="max-w-full text-sm font-medium">Continue with Google</span>
         </Button>
       </form>
       <AuthGuide mode={mode} />
