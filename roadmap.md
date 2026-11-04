@@ -96,3 +96,10 @@
 - [x] Employer company name + vacancies (saved in details), job/vehicle alert sections, work name in experience box, service-provider pages removed.
 - [ ] Photo/Aadhaar upload label: no such upload exists in job section — needs user decision.
 - [x] Home: Gayatri Mata image changes once per India calendar day from existing images (already exists, dailyDevotionalIndex)
+- [x] Home bell image: verify uncropped on small/large phones, portrait and landscape
+- [x] Daily Mata image tests: just before / just after India midnight, stable until day end
+- [x] Daily Mata image: fallback to bundled image if it fails to load (no broken image)
+- [x] Daily Mata image: tests that device timezone does not change the India-date choice
+- [x] Home bell layout check across phone sizes and orientations (scripts/check-bell-layout.py)
+- [ ] Bell image load/layout check: Chrome + Firefox pass; Safari engine crashes in test machine (unverified)
+- [x] Alt text check for daily and fallback Mata image
