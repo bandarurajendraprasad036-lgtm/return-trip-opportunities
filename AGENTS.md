@@ -15,6 +15,10 @@
 - Use the shared Brand component for the bilingual wordmark so headers stay consistent.
 - Keep the synthetic phone-email domain unchanged during rebrands because existing account credentials depend on it.
 - Job drafting composes structured seeker inputs into the existing authenticated drafting call; preserve one inference path and do not invent missing facts.
-- Phone installation is manifest-only with raster and maskable icons; do not add offline caching without an explicit offline requirement.
+- Phone installation uses generateSW through vite-plugin-pwa for the explicitly requested offline public pages; register only through the guarded wrapper and never cache private data or OAuth.
+- Google is the only visible sign-in flow; preserve existing accounts and password credentials internally, never require a password reset during this change.
+- Post inserts require a valid profile mobile through a database trigger; the same rule is checked in the form.
+- Membership submissions reuse the existing review_membership RPC; the WhatsApp button opens a manual send, never claims verified receipt or automatic delivery.
 - Shareable services use an opt-in service_profiles record separate from private profiles; photos stay in private storage and are signed only after checking publication, while reviewer and viewer identities remain private.
 - Homepage devotional selection rotates bundled portraits by the Asia/Kolkata calendar day; the persistent generic sharing artwork links to the separate authenticated profile editor, never exposes private account details.
+- Admin devotional schedules use date-keyed app_settings and private devotional-images storage; public artwork signing resolves only today's validated path, with bundled rotation as fallback.

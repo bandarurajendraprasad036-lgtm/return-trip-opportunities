@@ -17,6 +17,7 @@ import { checkPostText } from "@/lib/moderation.functions";
 import { Sparkles } from "lucide-react";
 import { draftJobAd, type JobAdDraft } from "@/lib/ai-job-ad.functions";
 import { buildJobAdInput } from "@/lib/job-ad-input";
+import { hasValidMobile } from "@/lib/phone";
 
 function AiJobAd({ kind, onDraft }: { kind: "seeker" | "employer"; onDraft: (d: JobAdDraft) => void }) {
   const run = useServerFn(draftJobAd);
@@ -146,6 +147,7 @@ function NewPost() {
   const submit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     if (!me) return;
+    if (!hasValidMobile(me.profile?.phone)) { toast.error("ప్రకటనకు ముందు మొబైల్ నంబరు ఇవ్వండి · Mobile number required"); return; }
     const schema = isJob
       ? z.object({ location: txt(80), skill: txt(100), salary: z.string().trim().max(40).optional(), description: z.string().trim().max(500).optional(), contact_phone: z.string().trim().max(15).optional(), category: z.string().max(30).optional(), show_contact: z.string().optional() })
       : z.object({ from_place: txt(80), to_place: txt(80), trip_date: txt(10), ...(kind === "owner" ? { vehicle_type: txt(60) } : { goods_type: txt(80) }), description: z.string().trim().max(500).optional(), contact_phone: z.string().trim().max(15).optional() });
@@ -160,7 +162,7 @@ function NewPost() {
     if (!mod.ok) { setBusy(false); toast.error("🚫 బూతులు, చెడు మాటలు, దేశ వ్యతిరేక విషయాలు పోస్ట్ చేయకూడదు · Abusive or anti-national content is not allowed"); return; }
     const { error } = await supabase.from("posts").insert({ ...v, show_contact: show_contact === "1", user_id: me.id, module: opt.module, kind, title });
     setBusy(false);
-    if (error) { toast.error(error.message.includes("BAD_CONTENT") ? "🚫 బూతులు, చెడు మాటలు, దేశ వ్యతిరేక విషయాలు పోస్ట్ చేయకూడదు · Abusive or anti-national content is not allowed" : error.message); return; }
+    if (error) { toast.error(error.message.includes("MOBILE_REQUIRED") ? "ప్రకటనకు ముందు మొబైల్ నంబరు ఇవ్వండి · Mobile number required" : error.message.includes("BAD_CONTENT") ? "🚫 బూతులు, చెడు మాటలు, దేశ వ్యతిరేక విషయాలు పోస్ట్ చేయకూడదు · Abusive or anti-national content is not allowed" : error.message); return; }
     toast.success("పోస్ట్ అయ్యింది! మ్యాచ్ వస్తే అలర్ట్ వస్తుంది · Posted! You'll be alerted on a match");
     qc.invalidateQueries();
     nav({ to: "/my-posts" });

@@ -1,5 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, Briefcase, LogOut, PlusCircle, Sparkles, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { useMe } from "@/lib/session";
 import { AdminChatButton } from "@/components/AdminChatButton";
 import { InstallButton } from "@/components/AppHelpers";
 import { FREE_DAILY_ALERTS, PRIME_PRICE } from "@/lib/jobs";
+import { MembershipPayment } from "@/components/MembershipPayment";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -23,14 +24,17 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 function Dashboard() {
+  const qc = useQueryClient();
+  const navigate = useNavigate();
   const { data: me } = useMe();
   const { data } = useQuery({
     queryKey: ["dashboard", me?.id],
     enabled: !!me,
     queryFn: async () => {
+      if (!me) return { posts: 0, unread: 0 };
       const [{ count: posts }, { count: unread }] = await Promise.all([
-        supabase.from("posts").select("id", { count: "exact", head: true }).eq("user_id", me!.id).eq("status", "active"),
-        supabase.from("notifications").select("id", { count: "exact", head: true }).eq("user_id", me!.id).eq("is_read", false),
+        supabase.from("posts").select("id", { count: "exact", head: true }).eq("user_id", me.id).eq("status", "active"),
+        supabase.from("notifications").select("id", { count: "exact", head: true }).eq("user_id", me.id).eq("is_read", false),
       ]);
       return { posts: posts ?? 0, unread: unread ?? 0 };
     },
@@ -47,7 +51,7 @@ function Dashboard() {
           <p className="text-sm text-muted-foreground">📞 {me?.profile?.phone} · 📍 {me?.profile?.location || "—"}</p>
           <p className="text-sm font-semibold">{prime ? "⭐ Prime సభ్యుడు · Prime member" : "ఉచిత ప్లాన్ · Free plan"}</p>
         </div>
-        <Button variant="outline" size="icon" aria-label="Logout" onClick={() => supabase.auth.signOut()}><LogOut /></Button>
+        <Button variant="outline" size="icon" aria-label="బయటకు రండి · Sign out" onClick={async () => { await qc.cancelQueries(); qc.clear(); await supabase.auth.signOut(); await navigate({ to: "/auth", replace: true }); }}><LogOut /></Button>
       </div>
       <div className="grid grid-cols-2 gap-3">
         <Link to="/my-posts" className={tile}><Briefcase className="size-7 text-primary" /><span className="text-2xl">{data?.posts ?? 0}</span>నా పోస్ట్‌లు · My posts</Link>
@@ -66,6 +70,7 @@ function Dashboard() {
         </div>
       )}
       <AdminChatButton />
+      <MembershipPayment />
       <Button asChild variant="outline" className="h-auto min-h-12 w-full whitespace-normal py-3"><Link to="/service-profile">నా సేవల పరిచయం · My service profile</Link></Button>
       <InstallButton />
     </div>

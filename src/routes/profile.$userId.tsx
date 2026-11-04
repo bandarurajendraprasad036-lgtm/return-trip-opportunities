@@ -12,6 +12,7 @@ import { Heart, Share2, Eye, Star } from "lucide-react";
 import { Brand } from "@/components/Brand";
 import { toast } from "sonner";
 import { canReviewService, serviceReviewSchema } from "@/lib/service-profile-rules";
+import { DesignFooter } from "@/components/DesignFooter";
 const profileQuery = (id: string) => queryOptions({ queryKey: ["service-profile", id], queryFn: () => getServiceProfile({ data: { id } }) });
 export const Route = createFileRoute("/profile/$userId")({
   loader: ({ params, context }) => context.queryClient.ensureQueryData(profileQuery(params.userId)),
@@ -41,5 +42,6 @@ function Profile() {
     <section className="space-y-3 border-t pt-4"><h2 className="text-xl font-bold">అభిప్రాయాలు · Reviews</h2>{data.reviews.length === 0 && <p className="text-muted-foreground">ఇంకా అభిప్రాయాలు లేవు · No reviews yet</p>}{data.reviews.map((r) => <article key={r.id} className="border-b py-3"><div className="mb-2 flex items-center gap-2">{r.author_photo && <img src={r.author_photo} alt={r.author_name} className="size-10 rounded-full object-cover" />}<span>{r.author_name || "సేవ వినియోగదారు · Customer"}</span></div><p className="flex gap-1 text-primary">{Array.from({ length: r.rating }, (_, i) => <Star key={i} className="size-4" />)}</p><p className="mt-2 whitespace-pre-wrap break-words">{r.body}</p><time className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString("en-IN")}</time></article>)}</section>
     {me && canReviewService(me.id, userId) ? <form className="space-y-3 border-t pt-4" onSubmit={async (e) => { e.preventDefault(); const valid = serviceReviewSchema.safeParse({ rating, body }); if (!valid.success) { toast.error("అభిప్రాయం వివరాలు సరిచూడండి"); return; } setBusy(true); const r = await supabase.from("service_reviews").upsert({ profile_id: userId, author_id: me.id, ...valid.data }, { onConflict: "profile_id,author_id" }); setBusy(false); if (r.error) { toast.error("అభిప్రాయం సేవ్ కాలేదు"); return; } setBody(""); refresh(); toast.success("అభిప్రాయం సేవ్ అయింది · Review saved"); }}><Label htmlFor="rating">మీ అంచనా · Rating</Label><select id="rating" className="h-11 w-full rounded-md border bg-card px-3" value={rating} onChange={(e) => setRating(Number(e.target.value))}>{[1, 2, 3, 4, 5].map((v) => <option key={v} value={v}>{v} ★</option>)}</select><Label htmlFor="review">మీ సేవ అనుభవం · Your experience</Label><Textarea id="review" required minLength={3} maxLength={1000} value={body} onChange={(e) => setBody(e.target.value)} /><Button disabled={busy} type="submit">అభిప్రాయం ఇవ్వండి · Submit review</Button></form> : !me && <Button asChild variant="outline"><Link to="/auth">అభిప్రాయం ఇవ్వడానికి నమోదు · Sign in to review</Link></Button>}
     {me?.id === userId && <Button asChild variant="outline"><Link to="/service-profile">నా వివరాలు మార్చు · Edit profile</Link></Button>}
+    <DesignFooter />
   </main>;
 }

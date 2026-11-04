@@ -6,6 +6,7 @@ import { useMe } from "@/lib/session";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { hasValidMobile } from "@/lib/phone";
 
 /** Mandatory mobile number prompt for users (e.g. Google sign-in) without a phone in their profile. */
 export function PhoneGate() {
@@ -13,7 +14,7 @@ export function PhoneGate() {
   const qc = useQueryClient();
   const [phone, setPhone] = useState("");
   const [busy, setBusy] = useState(false);
-  const has = /^[6-9]\d{9}$/.test(me?.profile?.phone ?? "");
+  const has = hasValidMobile(me?.profile?.phone);
   if (!me || !me.profile || has) return null;
 
   const save = async () => {
@@ -29,7 +30,7 @@ export function PhoneGate() {
 
   return (
     <Dialog open>
-      <DialogContent className="max-w-sm [&>button]:hidden" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
+      <DialogContent className="max-w-sm [&>button:last-child]:hidden" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="text-xl">మొబైల్ నంబర్ ఇవ్వండి · Enter mobile number</DialogTitle>
           <DialogDescription>కొనసాగడానికి మీ మొబైల్ నంబర్ తప్పనిసరి · Required to continue</DialogDescription>

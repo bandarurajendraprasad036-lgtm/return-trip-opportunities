@@ -6,6 +6,7 @@ import { Bell, Home, MessageCircle, PlusCircle, User, Shield } from "lucide-reac
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/session";
 import { NotificationPermission } from "@/components/AppHelpers";
+import { DesignFooter } from "@/components/DesignFooter";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { data: me } = useMe();
@@ -77,7 +78,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
         )}
       </header>
-      <main className="flex-1 pb-24">{children}</main>
+      <main className="flex-1 pb-24">{children}<DesignFooter /></main>
       {me && <NotificationPermission userId={me.id} />}
       <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-md border-t bg-card">
         <Link to="/feed" className={tab} activeProps={active}>
