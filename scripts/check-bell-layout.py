@@ -23,13 +23,19 @@ async def check(page, label, ref):
     print(("FAIL " if bad else "ok   ") + label, r if bad else "", bad or "")
     if bad: fails.append(label)
     return r["dy"]
+async def open_page(pg):
+    for attempt in range(3):
+        try:
+            await pg.goto(URL, wait_until="load", timeout=45000); await pg.wait_for_timeout(1500); return
+        except Exception:
+            if attempt == 2: raise
 async def main():
     async with async_playwright() as p:
         for name in ["chromium", "firefox", "webkit"]:
             b = await getattr(p, name).launch(headless=True); ref = None
             for w, h in SIZES:
                 pg = await b.new_page(viewport={"width": w, "height": h})
-                await pg.goto(URL, wait_until="networkidle"); await pg.wait_for_timeout(800)
+                await open_page(pg)
                 ref = await check(pg, f"{name} {w}x{h}", ref) if ref is None else (await check(pg, f"{name} {w}x{h}", ref), ref)[1]
                 await pg.close()
             # fallback: today's image fails -> another bundled image, still with alt text
@@ -39,7 +45,7 @@ async def main():
                 elif route.request.url == first["u"]: await route.abort()
                 else: await route.continue_()
             await pg.route("**/gayatri-mata*", block)
-            await pg.goto(URL, wait_until="networkidle"); await pg.wait_for_timeout(1500)
+            await open_page(pg); await pg.wait_for_timeout(700)
             await check(pg, f"{name} fallback image", None); await pg.close(); await b.close()
     print("FAILED:", fails) if fails else print("ALL PASSED")
     sys.exit(1 if fails else 0)
