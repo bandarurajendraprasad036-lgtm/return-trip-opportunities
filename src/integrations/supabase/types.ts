@@ -147,6 +147,41 @@ export type Database = {
           },
         ]
       }
+      notification_preferences: {
+        Row: {
+          daily_limit: number | null
+          enabled: boolean
+          quiet_end: string | null
+          quiet_start: string | null
+          timezone: string
+          user_id: string
+        }
+        Insert: {
+          daily_limit?: number | null
+          enabled?: boolean
+          quiet_end?: string | null
+          quiet_start?: string | null
+          timezone?: string
+          user_id: string
+        }
+        Update: {
+          daily_limit?: number | null
+          enabled?: boolean
+          quiet_end?: string | null
+          quiet_start?: string | null
+          timezone?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string
@@ -578,6 +613,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      my_notification_quota: { Args: never; Returns: Json }
       my_referral_stats: { Args: never; Returns: Json }
       notify_matches: { Args: { _post_id: string }; Returns: number }
       posts_match_area: {

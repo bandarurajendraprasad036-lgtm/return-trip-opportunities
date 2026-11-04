@@ -134,6 +134,13 @@
       "when": 1793789160059,
       "tag": "0018_point9_reward_redemption_and_sharing",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1793789529704,
+      "tag": "0019_account_notification_preferences",
+      "breakpoints": true
     }
   ]
 }
