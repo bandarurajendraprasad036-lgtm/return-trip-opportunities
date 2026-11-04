@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { JOB_CATEGORIES } from "@/lib/jobs";
@@ -25,13 +25,19 @@ function AiJobAd({ kind, onDraft }: { kind: "seeker" | "employer"; onDraft: (d: 
   const [experience, setExperience] = useState("");
   const [salary, setSalary] = useState("");
   const [location, setLocation] = useState("");
+  const [draft, setDraft] = useState<JobAdDraft | null>(null);
+  const previewRef = useRef<HTMLElement>(null);
   const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    if (draft) previewRef.current?.scrollIntoView({ behavior: "auto", block: "center" });
+  }, [draft]);
   const draftInput = kind === "seeker" ? buildJobAdInput({ text, skills, experience, salary, location }) : text.trim();
   const go = async () => {
     setBusy(true);
     try {
       const d = await run({ data: { text: draftInput, kind } });
       onDraft(d);
+      setDraft(d);
       toast.success("AI ప్రకటన రెడీ! కింద చూసి సరిచేయండి · Ad ready, check below");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "AI failed");
@@ -40,6 +46,7 @@ function AiJobAd({ kind, onDraft }: { kind: "seeker" | "employer"; onDraft: (d: 
     }
   };
   return (
+    <section className="space-y-3">
     <div className="space-y-2 rounded-xl border-2 border-dashed border-primary/40 bg-card p-3">
       <p className="font-bold">✨ AI తో ప్రకటన రాయండి · Write ad with AI</p>
       {kind === "seeker" && (
@@ -60,6 +67,18 @@ function AiJobAd({ kind, onDraft }: { kind: "seeker" | "employer"; onDraft: (d: 
         <Sparkles />{busy ? "రాస్తోంది... Writing..." : "ప్రకటన తయారు చేయి · Create ad"}
       </Button>
     </div>
+    {draft && (
+      <section ref={previewRef} aria-label="తయారైన ఉద్యోగ ప్రకటన" aria-live="polite" className="min-w-0 space-y-3 border-y border-primary/30 py-4">
+        <h3 className="text-lg font-bold">తయారైన ప్రకటన · Ad preview</h3>
+        <p className="break-words text-lg font-semibold">{draft.skill}</p>
+        <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-2 text-sm">
+          {draft.location && <><dt className="text-muted-foreground">ప్రాంతం · Location</dt><dd className="min-w-0 break-words">{draft.location}</dd></>}
+          {draft.salary && <><dt className="text-muted-foreground">జీతం · Salary</dt><dd className="min-w-0 break-words">{draft.salary}</dd></>}
+        </dl>
+        <p className="whitespace-pre-wrap break-words text-base leading-relaxed">{draft.description}</p>
+      </section>
+    )}
+    </section>
   );
 }
 
