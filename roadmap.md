@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] November 4 10:49 follow-ups: warm thank-you immediately after granted notification permission; Prasad-signed notices only for actual matched jobs in selected location. Nearby village targeting requires real geographic data, do not fabricate proximity.
 - [ ] November 4 10:49: after user allows notifications, thank them once with supplied Prasad message; friendly dismissible membership reminder; only real matching notifications, no invented jobs/counts or claims of first priority/closed-app delivery.
 - [ ] November 4 10:43: compare supplied 52-item vehicle/job/service list plus area-search and dismissible daily membership reminder against current app; preserve ₹499, privacy and truthful distance/notification claims. Source counts conflict: headings say 25+15+12 but numbered ranges are 25+18+9; retain supplied numbers exactly.
 - [ ] November 4 10:43: prepare combined implementation for confirmed missing items; true route/20% and service 5km require authorized geographic data. Do not fabricate results, notifications, share verification or PHP endpoints; use existing app architecture.
