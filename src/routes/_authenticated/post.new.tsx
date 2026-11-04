@@ -88,6 +88,10 @@ function AiJobAd({ kind, onDraft, work }: { kind: "seeker" | "employer"; onDraft
 }
 
 export const Route = createFileRoute("/_authenticated/post/new")({
+  validateSearch: (search: Record<string, unknown>): { kind?: 'seeker' | 'employer'; loc?: string } => ({
+    kind: search['kind'] === 'seeker' || search['kind'] === 'employer' ? search['kind'] : undefined,
+    loc: typeof search['loc'] === 'string' ? search['loc'].trim().slice(0, 80) : undefined,
+  }),
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
@@ -111,11 +115,12 @@ const OPTIONS: { kind: Kind; module: "job" | "vehicle"; te: string; en: string; 
 const txt = (max: number) => z.string().trim().min(1, "అవసరం / Required").max(max);
 
 function NewPost() {
+  const search = Route.useSearch();
   const { data: me } = useMe();
   const nav = useNavigate();
   const qc = useQueryClient();
-  const [kind, setKind] = useState<Kind | null>(null);
-  const [f, setF] = useState<Record<string, string>>({});
+  const [kind, setKind] = useState<Kind | null>(search.kind ?? null);
+  const [f, setF] = useState<Record<string, string>>(search.loc ? { location: search.loc } : {});
   const [busy, setBusy] = useState(false);
   const [generalWork, setGeneralWork] = useState(false);
   const [contentError, setContentError] = useState('');

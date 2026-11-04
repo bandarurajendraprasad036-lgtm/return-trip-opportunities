@@ -14,11 +14,15 @@ export function PostCard({
   meId,
   highlight,
   actions,
+  compact = false,
+  hideDate = false,
 }: {
   post: Post;
   meId?: string | undefined;
   highlight?: boolean;
   actions?: React.ReactNode;
+  compact?: boolean;
+  hideDate?: boolean;
 }) {
   const label = KIND_LABEL[post.kind as Kind];
   const isJob = post.module === "job";
@@ -35,6 +39,13 @@ export function PostCard({
     if (error) { toast.error(error.message.includes("DAILY_ALERT_LIMIT") ? "అవతలి వ్యక్తి రోజువారీ సమాచార పరిమితి పూర్తయింది · Recipient's daily alert limit reached" : "సమాచారం పంపలేకపోయాం · Could not send interest"); return; }
     if (data) nav({ to: "/chat/$userId", params: { userId: data }, search: { post: post.id } });
   };
+  if (compact) return <article className="home-post-row">
+    <h4>{isJob ? post.title : post.vehicle_type || post.title}</h4>
+    {!isJob && <p>{post.capacity_tons != null ? `${post.capacity_tons} టన్నులు · tons` : 'సామర్థ్యం ఇవ్వలేదు · Capacity not listed'}</p>}
+    {isJob && <p>{post.location}</p>}
+    {!isJob && !hideDate && post.trip_date && <p>{new Date(`${post.trip_date}T00:00:00`).toLocaleDateString('en-IN')}</p>}
+    <Button type="button" variant="outline" size="icon" onClick={ring} aria-label="గంట కొట్టి చాట్ చేయండి · Ring and chat"><Bell /></Button>
+  </article>;
   return (
     <article
       className={`overflow-hidden rounded-xl border bg-card shadow-card ${highlight ? "ring-2 ring-secondary" : ""}`}
