@@ -1,5 +1,6 @@
 # Roadmap
 - [ ] Admin-only questions about noted, unimplemented points — paused at user's request; wait for remaining points and explicit permission to implement
+- [ ] Vehicle free return-trip posts, ₹500 paid bell for ten recipients, and 5/10/15/20-member membership details — notes only; wait for combined implementation permission and confirmed group terms
 - [x] Show the current website without adding new features
 - [ ] Clearly labeled sample jobs/vehicles/services across areas, with Already Booked interaction and no personal details
 - [ ] Black/gold home with Gayatri image and separate actionable bell
