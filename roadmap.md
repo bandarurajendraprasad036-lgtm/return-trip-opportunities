@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Persist the sharing image so it remains available on the website; test in installed Gayatri One on a phone after combined implementation resumes. Do not claim a real installed-phone test from browser emulation alone.
 - [ ] November 4, 2026 06:36 UTC: implementation paused again by user; record points only until user says the total list is complete and requests combined code.
 - [ ] Expand ad viewing area to show more advertisement details and test on a phone; noted only during pause.
 - [ ] Review submitted by a shared-profile viewer must appear on the reviewed person's profile page; inspect existing functionality and verify cross-account behavior after pause is lifted.
