@@ -15,4 +15,4 @@
 - [ ] Forgot password (needs SMS/Twilio — phone accounts have no email)
 - [x] Public browsing of feed; login only for post/chat/private pages
 - [x] Auto-answer admin chat (AI); only payment/cash questions go to admin with a normal (non-bell) notification
-- [ ] Admin chat answers with real jobs/vehicles and chat links, any language
+- [x] Admin chat answers with real jobs/vehicles and chat links, any language

@@ -33,13 +33,21 @@ export const sendSupportMessage = createServerFn({ method: "POST" })
     const { data: prof } = await supabase.from("profiles").select("is_prime, prime_until").eq("id", userId).maybeSingle();
     const { data: pays } = await supabase.from("membership_payments").select("status, created_at").eq("user_id", userId).order("created_at", { ascending: false }).limit(3);
 
+    const { data: posts } = await supabase.from("posts")
+      .select("user_id, module, kind, title, location, district, state, skill, salary, category, from_place, to_place, trip_date, vehicle_type, goods_type, service_type")
+      .eq("status", "active").neq("user_id", userId).order("created_at", { ascending: false }).limit(80);
+    const listing = (posts ?? []).map((p) => {
+      const where = p.module === "vehicle" ? `${p.from_place ?? ""} -> ${p.to_place ?? ""} on ${p.trip_date ?? ""}` : [p.location, p.district, p.state].filter(Boolean).join(", ");
+      const what = [p.title, p.skill, p.salary, p.category, p.vehicle_type, p.goods_type, p.service_type].filter(Boolean).join(" | ");
+      return `- [${p.module}/${p.kind}] ${what} @ ${where} chat:/chat/${p.user_id}`;
+    }).join("\n");
     let reply = "";
     let handoff = false;
     try {
       const { generateResponse } = await import("@lovable.dev/ai-gateway");
       const res = await generateResponse({
         model: "openai/gpt-6-astra",
-        instructions: `You are the Gayatri One support assistant replying on behalf of admin. Reply in the user's language (Telugu first if Telugu), short and simple for village users. Use ONLY these facts:\n${HELP}\nUser account: prime=${prof?.is_prime ? "yes" : "no"}, prime_until=${prof?.prime_until ?? "-"}, recent payments=${JSON.stringify(pays ?? [])}.\nSet handoff=true (and reply that admin will contact them soon) if the question is about money/cash/payment problems, refunds, a payment not approved, or if you are not sure of the answer.`,
+        instructions: `You are the Gayatri One support assistant replying on behalf of admin. Reply in the user's language (Telugu first if Telugu), short and simple for village users. Use ONLY these facts:\n${HELP}\nUser account: prime=${prof?.is_prime ? "yes" : "no"}, prime_until=${prof?.prime_until ?? "-"}, recent payments=${JSON.stringify(pays ?? [])}.\n\nCurrent active posts (jobs, return vehicles, services):\n${listing || "(none)"}\nWhen the user asks where a job/vehicle/service is, list the matching posts (max 5) with place/date and put its chat path exactly like /chat/<id> on its own line so they can chat. Never invent posts; if none match, say so and suggest posting one. Also explain how any app feature works.\nSet handoff=true (and reply that admin will contact them soon) if the question is about money/cash/payment problems, refunds, a payment not approved, or if you are not sure of the answer.`,
         input: [
           ...((hist ?? []).reverse().map((m) => ({ role: (m.sender_id === userId ? "user" : "assistant") as "user" | "assistant", content: m.body }))),
           { role: "user", content: data.body },

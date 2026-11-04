@@ -97,7 +97,14 @@ function Chat() {
           const mine = m.sender_id === me?.id;
           return (
             <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-              <p className={`max-w-[80%] rounded-2xl px-3 py-2 text-base ${mine ? "bg-primary text-primary-foreground" : "bg-card shadow-card"}`}>{m.body}</p>
+              <p className={`max-w-[80%] whitespace-pre-wrap rounded-2xl px-3 py-2 text-base ${mine ? "bg-primary text-primary-foreground" : "bg-card shadow-card"}`}>
+                {m.body.split(/(\/chat\/[0-9a-f-]{36})/).map((part, i) => {
+                  const id = part.match(/^\/chat\/([0-9a-f-]{36})$/)?.[1];
+                  return id
+                    ? <Link key={i} to="/chat/$userId" params={{ userId: id }} className="font-bold text-primary underline">💬 చాట్ చేయండి · Chat</Link>
+                    : <span key={i}>{part}</span>;
+                })}
+              </p>
             </div>
           );
         })}
