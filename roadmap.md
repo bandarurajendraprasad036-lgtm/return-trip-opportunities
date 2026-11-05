@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] November 5 05:58: noted only, implementation paused: header profile icon to the right of bell; one consistent private profile page for all users with business vehicle/route needs and simple employee/shop/company/driver choices. Do not change code or database until user resumes.
 - [ ] November 5 05:46: audit complete: exact-route/date post alerts exist, private saved frequent routes do not. November 5 05:50 supersedes approval: pause implementation and explain the proposed flow first; no database or application code changes made for this feature. Wait for fresh implementation instruction.
 - [x] November 5 05:38: reuse the existing responsibility disclaimer in large text at vehicle contact actions, compact bell opens notice before interest; no confirmed booking system exists.
 - [x] November 5 04:28: Google Maps linked; authenticated automatic area detection, movement refresh and actual-address fallback implemented without database changes. 13 area/lifecycle/home-listing tests pass; signed-in 390×844 permission-denied/manual-entry flow has no overflow or runtime errors; build OK.
