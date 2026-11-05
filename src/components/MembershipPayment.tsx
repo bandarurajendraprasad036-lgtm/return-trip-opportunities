@@ -33,6 +33,7 @@ export function MembershipPayment() {
       <div className="flex items-center gap-2 text-gold"><BadgeCheck className="size-6" /><h3 className="text-xl font-bold">మీ అవకాశాలకు ప్రాధాన్యం · Prime membership</h3></div>
       <p className="text-2xl font-bold text-gold">ఒక్కరికి ₹{MEMBERSHIP_AMOUNT} / నెల · Individual</p>
       <p className="text-xl font-bold text-gold">నలుగురికి ₹{GROUP_MEMBERSHIP_AMOUNT} / నెల · Four people</p>
+      <p className="text-base">₹699 చెల్లింపు ఆమోదం తర్వాత సభ్యత్వ నెలలో మూడు ఉద్యోగ ప్రకటనలు; ఒక్కో ప్రకటన నెలపాటు ఉంటుంది. · Approved ₹699 plan: three jobs per membership month, each visible for one month.</p>
       <ul className="space-y-3 text-sm"><li className="flex gap-2"><Bell className="size-5 shrink-0 text-gold" />రోజువారీ ఉచిత పరిమితికి మించి సరిపోయే సమాచారం · Matching alerts beyond the free daily limit</li><li className="flex gap-2"><Phone className="size-5 shrink-0 text-gold" />మీ అనుమతితో ఉద్యోగ ప్రకటనలో నేరుగా సంప్రదించే నంబరు · Opt-in direct contact on job posts</li><li className="flex gap-2"><BadgeCheck className="size-5 shrink-0 text-gold" />కార్యాలయం చెల్లింపు నిర్ధారించిన తరువాత సభ్యత్వం · Activated after payment approval</li></ul>
       <p className="text-xs text-on-royal/80">ఉద్యోగం లేదా వాహనం దొరుకుతుందని హామీ కాదు · No job or vehicle booking guarantee.</p>
     </div>

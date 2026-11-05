@@ -12,6 +12,7 @@ import { CITIES, JOB_CATEGORIES, ANYWHERE, DEFAULT_CITY, locationMatches } from 
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { indianDay } from "@/lib/daily-devotional";
+import { jobIsVisible } from '@/lib/post-publication';
 
 type FeedSearch = { module?: "all" | "job" | "vehicle" | undefined; from?: string | undefined; to?: string | undefined; loc?: string | undefined };
 
@@ -59,7 +60,7 @@ function Feed() {
     queryFn: async () => {
       const { data, error } = await supabase.from("posts").select("*").eq("status", "active").order("created_at", { ascending: false }).limit(200);
       if (error) throw error;
-      return data as Post[];
+      return (data as Post[]).filter(post => jobIsVisible(post));
     },
   });
   const mine = posts.filter((p) => p.user_id === me?.id);
