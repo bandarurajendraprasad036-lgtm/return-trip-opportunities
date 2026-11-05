@@ -1,5 +1,5 @@
 # Roadmap
-- [ ] November 5 11:36: persistent account mobile and notifications after phone/browser history changes. Explain push is device registration, not phone-number delivery; OTP/SMS not configured, no lifelong/unstoppable receipt promise. Await user choice for potentially paid SMS versus push re-registration; preserve opt-out/deletion and account privacy.
+- [ ] November 5 11:36 resolved: free app notifications only, no paid SMS/OTP. Keep account mobile saved across device/history changes; explain same-account sign-in plus device re-registration is required after phone change/cleared site data, no lifelong guaranteed receipt.
 - [ ] November 5 11:28 point 1 first: extend actual approximate 20% endpoint targeting to eligible businesses and vehicle owners; audit existing dispatcher/consent/evidence and verify safe durable delivery.
 - [ ] November 5 11:28 points 2/3: genuine advance availability notices and previous route request/travel audiences; no booking or completed travel inferred from bell/chat.
 - [ ] November 5 11:28 point 4: cars-only selector/listings, no bicycles; do not delete historical posts.
