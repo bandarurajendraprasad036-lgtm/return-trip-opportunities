@@ -65,7 +65,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Shield className="size-6" />
             </Link>
           )}
-          <AdminChatButton compact />
+          <AdminChatButton labeled />
           <Link to="/notifications" className="relative rounded-full p-2" aria-label="Notifications">
             <Bell className="size-6" />
             {unread > 0 && (
@@ -74,8 +74,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               </span>
             )}
           </Link>
-          <Link to="/dashboard" className="gold-ring" aria-label="ప్రొఫైల్ · Profile">
-            <User className="size-6" />
+          <Link to="/dashboard" className="flex min-h-11 items-center gap-1.5 rounded-full border-2 border-primary bg-card px-3 text-xs font-bold text-primary" aria-label="ప్రొఫైల్ · Profile">
+            <User className="size-5" />
+            ప్రొఫైల్ · Profile
           </Link>
         </div>
         )}</ClientOnly>
