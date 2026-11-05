@@ -1,8 +1,9 @@
 # Roadmap
-- [ ] November 5 05:38: show the existing responsibility disclaimer prominently at the vehicle booking/contact action; audit existing flow first, do not invent a booking system.
-- [ ] November 5 04:28: connect available Google Maps, implement authenticated automatic current-area detection and movement refresh with actual-address fallback; no database changes or live Maps sandbox checks.
-- [ ] November 5 00:02: refresh the merchant's area name automatically while moving; if no area name exists, show actual local address details. Blocked: address-name connection was declined; never show invented names.
-- [ ] November 4 23:59: on first homepage opening, request location permission and show the actual current area name (not coordinates) in the From field; preserve manual entry and errors, no invented places. Requires authorized geocoding connection.
+- [x] November 5 05:38: reuse the existing responsibility disclaimer in large text at vehicle contact actions, compact bell opens notice before interest; no confirmed booking system exists.
+- [x] November 5 04:28: Google Maps linked; authenticated automatic area detection, movement refresh and actual-address fallback implemented without database changes. Rule/lifecycle verification below.
+- [x] November 5 00:02: movement-triggered area refresh with bounded requests/session cache and actual-address fallback implemented; no invented names.
+- [x] November 4 23:59: signed-in homepage requests device permission and fills actual area into From/work location; manual entries protected from overwrite.
+- [ ] Verify actual area/movement on an authorized published origin with user's phone permission; Maps-dependent live checks are unsupported in sandbox. Publication not performed.
 - [x] November 4 23:11–23:12: existing sound-only mute shared with settings; permission status and enable help added, explicit no closed-app delivery. 8 new tests passed; signed-in reload/synchronized controls verified with original preference restored. Firebase declined; no schema/server changes.
 - [x] Closed-app delivery implementation: Firebase linked with web-push config, approved private device/outbox migration applied, separate messaging worker and authenticated once-per-minute dispatch configured; 20 tests pass, signed-in phone settings/no runtime errors and unauthorized dispatcher 401 verified; Firebase validate-only request returned 200 without sending a notification.
 - [ ] Closed-app real-device delivery verification: awaiting publication and the user's phone permission/device registration; no real closed-phone receipt or custom bell sound verified. Existing geographic tasks remain blocked on declined geocoding connection.
