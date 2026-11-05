@@ -13,6 +13,7 @@ import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { indianDay } from "@/lib/daily-devotional";
 import { jobIsVisible } from '@/lib/post-publication';
+import { listedVehicle } from '@/lib/vehicle-types';
 
 type FeedSearch = { module?: "all" | "job" | "vehicle" | undefined; from?: string | undefined; to?: string | undefined; loc?: string | undefined };
 
@@ -67,6 +68,7 @@ function Feed() {
   const term = q.trim().toLowerCase();
   const shown = posts.filter(
     (p) =>
+      listedVehicle(p) &&
       (filter === "all" || p.module === filter) &&
       (!fromT || p.from_place?.toLowerCase().includes(fromT)) &&
       (!toT || p.to_place?.toLowerCase().includes(toT)) &&

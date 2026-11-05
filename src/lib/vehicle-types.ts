@@ -1,10 +1,5 @@
 export const VEHICLE_TYPES = [
   { value: 'Car', te: 'కారు', en: 'Car' },
-  { value: 'Lorry', te: 'లారీ', en: 'Lorry' },
-  { value: '407', te: '407', en: '407' },
-  { value: 'Trolley', te: 'ట్రాలీ', en: 'Trolley' },
-  { value: 'Tata Ace', te: 'చిన్న సరుకు వాహనం', en: 'Tata Ace' },
-  { value: 'Other', te: 'ఇతర', en: 'Other' },
 ] as const;
 
 export function isCar(value: string | null | undefined) {
@@ -14,4 +9,7 @@ export function isCar(value: string | null | undefined) {
 export function vehicleTypeLabel(value: string | null | undefined) {
   const type = VEHICLE_TYPES.find(type => type.value.toLowerCase() === value?.trim().toLowerCase());
   return type ? `${type.te} · ${type.en}` : value;
+}
+export function listedVehicle(post: { module: string; vehicle_type?: string | null }) {
+  return post.module !== 'vehicle' || isCar(post.vehicle_type);
 }

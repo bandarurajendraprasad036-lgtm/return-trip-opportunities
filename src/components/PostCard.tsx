@@ -11,6 +11,7 @@ import { ResponsibilityNotice } from '@/components/ResponsibilityNotice';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { jobIsVisible } from '@/lib/post-publication';
 import { isCar, vehicleTypeLabel } from '@/lib/vehicle-types';
+import { VehicleAlertActions } from '@/components/VehicleAlertActions';
 
 export type Post = Database["public"]["Tables"]["posts"]["Row"];
 
@@ -41,6 +42,7 @@ export function PostCard({
       <ResponsibilityNotice prominent />
       <Button onClick={() => { setNoticeOpen(false); void ring(); }}><Bell />గంట కొట్టి చాట్ చేయండి · Ring and chat</Button>
       {post.contact_phone && <Button asChild variant="outline"><a href={`tel:${post.contact_phone}`}><Phone />కాల్ · Call</a></Button>}
+      <VehicleAlertActions post={post} meId={meId} />
     </DialogContent>
   </Dialog>;
   const contact = () => { if (!isJob && post.user_id !== meId) setNoticeOpen(true); else void ring(); };
@@ -109,6 +111,7 @@ export function PostCard({
         )}
         {post.description && <p className="text-sm text-muted-foreground">{post.description}</p>}
         {!isJob && meId !== post.user_id && <ResponsibilityNotice prominent />}
+        {!isJob && jobIsVisible(post) && <VehicleAlertActions post={post} meId={meId} />}
         <div className="flex gap-2 pt-1">
           {actions ??
             (meId !== post.user_id && (
