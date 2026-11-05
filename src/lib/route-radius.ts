@@ -1,6 +1,12 @@
+import { getDistance } from 'geolib';
+import type { Coordinates } from './india-places';
 export const ROUTE_RADIUS_PERCENT = 20;
-// Input must be an actual road distance, never an inferred map/search distance.
-export function routeRadiusKm(roadDistanceKm: number) {
-  if (!Number.isFinite(roadDistanceKm) || roadDistanceKm <= 0) return null;
-  return roadDistanceKm * ROUTE_RADIUS_PERCENT / 100;
+// Distance provenance must be labeled by callers; never claim this is road distance.
+export function routeRadiusKm(distanceKm: number) {
+  if (!Number.isFinite(distanceKm) || distanceKm <= 0) return null;
+  return distanceKm * ROUTE_RADIUS_PERCENT / 100;
+}
+export function approximateDistanceKm(from: Coordinates, to: Coordinates) {
+  if (![from, to].every(p => Number.isFinite(p.latitude) && Number.isFinite(p.longitude) && Math.abs(p.latitude) <= 90 && Math.abs(p.longitude) <= 180)) return null;
+  return getDistance(from, to, 0.001) / 1000;
 }
