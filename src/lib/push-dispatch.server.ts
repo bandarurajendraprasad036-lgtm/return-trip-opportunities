@@ -1,6 +1,8 @@
 import { pushFailure, pushPolicy } from './push-rules';
 
 export async function dispatchPush() {
+  const {cleanupExpiredEvidence}=await import('./evidence-cleanup.server');
+  await cleanupExpiredEvidence();
   const key = process.env['LOVABLE_API_KEY']; const connection = process.env['FIREBASE_MESSAGING_API_KEY'];
   if (!key || !connection) throw new Error('Push connection not configured');
   const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
