@@ -35,7 +35,7 @@
 - Homepage listings reuse active posts and PostCard bells; local-trip classification requires identical endpoints, while separate local-area search matches named endpoint/address terms only and never implies proximity or confirmed local travel.
 - The large devotional bell is the sole home bell trigger; date-based bundled engraved variants preserve gold artwork without a separate portrait overlay.
 - Firebase messaging uses a separate non-caching worker scope, owner-scoped device registration and a service-only durable delivery queue dispatched by a managed authenticated schedule; pushes contain no private job/message data and provider acceptance is never a delivery receipt.
-- Homepage uses a fixed keyless national Google Maps iframe and national search link; From/To filter actual listings independently, and map/form output never establishes booking confirmation.
+- Homepage keyless Google Maps iframe and external search follow the latest submitted vehicle endpoints, local area or job area, defaulting to India when cleared; listing filters remain independent and map output never establishes booking or verified route geometry.
 - Vehicle contact surfaces reuse the shared responsibility notice; compact bells show it before interest submission without implying a confirmed booking.
 - Search examples are separate presentation-only objects without post or user IDs; their bells never call interest or booking APIs.
 - Membership prices share one frontend source; SQL validates new plans while retaining historical amounts, and locked admin review grants group time atomically to four distinct registered accounts.

@@ -12,6 +12,7 @@ import { VILLAGE_SUGGESTIONS } from '@/lib/job-entry';
 import { SearchExample } from '@/components/SearchExample';
 import { vehicleExample, jobExample } from '@/lib/search-examples';
 import { IndiaMap } from '@/components/IndiaMap';
+import type { MapSelection } from '@/lib/area-map';
 
 const sections: { key: VehicleSection; te: string; en: string }[] = [
   { key: 'local', te: 'స్థానిక వాహనాలు', en: 'Local' },
@@ -27,6 +28,8 @@ export function HomeListings({ today }: { today: string }) {
   const [jobLocation, setJobLocation] = useState('');
   const [localInput, setLocalInput] = useState('');
   const [localArea, setLocalArea] = useState('');
+  const [mapSelection, setMapSelection] = useState<MapSelection>({});
+  const searchLocal = () => { const area = localInput.trim(); setLocalArea(area); setMapSelection({ area }); };
   const { data: me } = useMe();
   const { data: posts = [], isLoading, isError } = useQuery({
     queryKey: ['posts'],
@@ -48,7 +51,7 @@ export function HomeListings({ today }: { today: string }) {
     <p className="py-3 text-center text-base font-semibold text-gold">భారతదేశమంతా సేవలు — భారతదేశంలో ఎక్కడి నుంచైనా ఎక్కడికైనా<span className="mt-1 block">Serving All Over India - From Anywhere to Anywhere in India</span></p>
     <section className="home-market-section" aria-labelledby="vehicle-location-heading">
       <h2 id="vehicle-location-heading" className="home-section-title"><MapPin />వాహన ప్రయాణ వివరాలు · Booking form</h2>
-      <form className="home-location-form" onSubmit={event => { event.preventDefault(); setRoute({ from: from.trim(), to: to.trim() }); }}>
+      <form className="home-location-form" onSubmit={event => { event.preventDefault(); const next = { from: from.trim(), to: to.trim() }; setRoute(next); setMapSelection(next); }}>
         <div className="grid grid-cols-2 gap-2">
         <div className="min-w-0"><label htmlFor="home-from">నుండి · From Location<span className="block text-sm">భారత్‌లో ఎక్కడైనా · Anywhere in India</span></label><Input id="home-from" list="home-places" value={from} onChange={e => setFrom(e.target.value)} maxLength={80} placeholder="భారత్‌లో ఎక్కడైనా" /></div>
         <div className="min-w-0"><label htmlFor="home-to">వరకు · To Location<span className="block text-sm">భారత్‌లో ఎక్కడైనా · Anywhere in India</span></label><Input id="home-to" list="home-places" value={to} onChange={e => setTo(e.target.value)} maxLength={80} placeholder="భారత్‌లో ఎక్కడైనా" /></div>
@@ -56,12 +59,12 @@ export function HomeListings({ today }: { today: string }) {
         <Button type="submit" aria-label="వాహనాలు వెతకండి · Search vehicles"><Search />వెతకండి · SEARCH</Button>
       </form>
       <datalist id="home-places">{VILLAGE_SUGGESTIONS.map(place => <option value={place} key={place} />)}</datalist>
-      {(route.from || route.to) && <div className="flex items-center justify-between gap-2 py-2 text-sm"><span>{route.from || '…'} → {route.to || '…'}</span><Button variant="ghost" size="icon" aria-label="వాహన ప్రాంతం తీసేయండి · Clear vehicle location" onClick={() => { setRoute({ from: '', to: '' }); setFrom(''); setTo(''); }}><X /></Button></div>}
-      <IndiaMap />
-      <form className="space-y-2 py-3" onSubmit={event => { event.preventDefault(); setLocalArea(localInput.trim()); }}>
+      {(route.from || route.to) && <div className="flex items-center justify-between gap-2 py-2 text-sm"><span>{route.from || '…'} → {route.to || '…'}</span><Button variant="ghost" size="icon" aria-label="వాహన ప్రాంతం తీసేయండి · Clear vehicle location" onClick={() => { setRoute({ from: '', to: '' }); setFrom(''); setTo(''); setMapSelection({}); }}><X /></Button></div>}
+      <IndiaMap selection={mapSelection} />
+      <form className="space-y-2 py-3" onSubmit={event => { event.preventDefault(); searchLocal(); }}>
         <label htmlFor="home-local-area" className="block font-semibold">స్థానిక సరకు వాహనాల ప్రాంతం · Local goods vehicle area</label>
         <Input id="home-local-area" value={localInput} onChange={event => setLocalInput(event.target.value)} maxLength={120} placeholder="ఊరు, కాలనీ లేదా గల్లీ · City, colony or street" />
-        <div className="flex gap-2"><Button type="submit" onClick={() => setLocalArea(localInput.trim())} className="flex-1 whitespace-normal"><Search />స్థానిక వాహనాలు వెతకండి · Search local vehicles</Button>{localArea && <Button type="button" variant="ghost" size="icon" aria-label="స్థానిక ప్రాంతం తీసేయండి · Clear local area" onClick={() => { setLocalInput(''); setLocalArea(''); }}><X /></Button>}</div>
+        <div className="flex gap-2"><Button type="button" onClick={searchLocal} className="flex-1 whitespace-normal"><Search />స్థానిక వాహనాలు వెతకండి · Search local vehicles</Button>{localArea && <Button type="button" variant="ghost" size="icon" aria-label="స్థానిక ప్రాంతం తీసేయండి · Clear local area" onClick={() => { setLocalInput(''); setLocalArea(''); setMapSelection({}); }}><X /></Button>}</div>
       </form>
       <div className="home-vehicle-columns">
         {sections.map(section => {
@@ -76,10 +79,10 @@ export function HomeListings({ today }: { today: string }) {
     </section>
     <section className="home-market-section" aria-labelledby="job-location-heading">
       <h2 id="job-location-heading" className="home-section-title"><MapPin />ఉద్యోగాల ప్రాంతం · Job location</h2>
-      <form className="flex items-end gap-2 py-3" onSubmit={event => { event.preventDefault(); setJobLocation(location.trim()); }}>
+      <form className="flex items-end gap-2 py-3" onSubmit={event => { event.preventDefault(); const area = location.trim(); setJobLocation(area); setMapSelection({ area }); }}>
         <div className="min-w-0 flex-1"><label htmlFor="home-job-location">పని ప్రాంతం · Work location</label><Input id="home-job-location" list="home-places" value={location} onChange={e => setLocation(e.target.value)} maxLength={80} placeholder="ఊరు / జిల్లా · Place" /></div>
         <Button type="submit" size="icon" variant="outline" aria-label="ఉద్యోగాలు వెతకండి · Search jobs"><Search /></Button>
-        {jobLocation && <Button type="button" size="icon" variant="ghost" aria-label="ఉద్యోగ ప్రాంతం తీసేయండి · Clear job location" onClick={() => { setLocation(''); setJobLocation(''); }}><X /></Button>}
+        {jobLocation && <Button type="button" size="icon" variant="ghost" aria-label="ఉద్యోగ ప్రాంతం తీసేయండి · Clear job location" onClick={() => { setLocation(''); setJobLocation(''); setMapSelection({}); }}><X /></Button>}
       </form>
       <div className="home-job-columns">
         {([{ kind: 'seeker', te: 'నేను పని వెతుకుతున్నాను', en: 'Job Apply', display: 'పని కావాల్సినవారు', displayEn: 'Wanted Display' }, { kind: 'employer', te: 'నా దగ్గర పని ఉంది', en: 'I Have Job', display: 'ఉద్యోగ ఖాళీలు', displayEn: 'Jobs Display' }] as const).map(section => {
