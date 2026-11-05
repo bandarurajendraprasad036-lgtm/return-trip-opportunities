@@ -36,7 +36,7 @@
 - Home categories share submitted route/area filters and car catalog; advance feed stays. Saved routes are owner-only preferences, not bookings/travel.
 - Approximate radius alerts use owner-private user-selected endpoint coordinates and a bounded durable SQL queue; label straight-line estimates, recheck eligibility/visibility/quotas at dispatch, and never infer bookings or road geometry.
 - Availability subscriptions are private explicit requests, not bookings; only owner-declared availability dispatches them, while follow-route reuses consented private saved routes and never fabricates travel history.
-- The devotional bell reuses account mobile storage and device registration with explicit consent; own notices respect quotas and target only the selected device, never implying mobile verification or SMS delivery.
+- The devotional bell saves account mobile independently of push permission and confirms row readback; device registration requires explicit consent, respects quotas and targets only the selected device, never implying mobile verification or SMS delivery.
 - India autocomplete uses attributed static GeoNames prefix shards, not paid geocoding or public Nominatim; Leaflet imports only after opening the endpoint picker to preserve SSR safety.
 - The large devotional bell is the sole home bell trigger; date-based bundled engraved variants preserve gold artwork without a separate portrait overlay.
 - Firebase messaging uses a separate non-caching worker scope, owner-scoped device registration and a service-only durable delivery queue dispatched by a managed authenticated schedule; pushes contain no private job/message data and provider acceptance is never a delivery receipt.

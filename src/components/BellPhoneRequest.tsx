@@ -23,6 +23,16 @@ export function BellPhoneRequest() {
   return <section className="space-y-3 border-b pb-4" aria-label="నా ఫోన్‌కు సూచన · My phone alert">
     <Label htmlFor="bell-mobile">మొబైల్ నంబరు · Mobile number</Label>
     <Input id="bell-mobile" type="tel" inputMode="numeric" value={phone} maxLength={10} disabled={busy} onChange={e => setPhone(e.target.value.replace(/\D/g, ''))} />
+    <Button variant="outline" disabled={busy || !hasValidMobile(phone)} className="w-full whitespace-normal" onClick={async () => {
+      setBusy(true); setStatus('');
+      try {
+        const saved = await supabase.from('profiles').update({ phone }).eq('id', me.id).select('phone').single();
+        if (saved.error || saved.data?.phone !== phone) throw new Error('మొబైల్ నంబరు భద్రపడలేదు · Mobile not saved');
+        await qc.invalidateQueries({ queryKey: ['me'] });
+        setStatus('మొబైల్ నంబరు ఖాతాలో భద్రపరిచాం · Mobile saved in your account');
+      } catch (e) { setStatus(e instanceof Error ? e.message : 'మొబైల్ నంబరు భద్రపడలేదు · Mobile not saved'); }
+      finally { setBusy(false); }
+    }}>మొబైల్ నంబరు భద్రపరచండి · Save mobile</Button>
     <label className="flex items-start gap-2 text-sm"><input type="checkbox" checked={consent} disabled={busy} onChange={e => setConsent(e.target.checked)} className="mt-1 size-5 shrink-0" />ఈ ఫోన్‌కు సూచన పంపేందుకు అంగీకరిస్తున్నాను · I agree to a notice on this device</label>
     <Button disabled={busy || !consent || !hasValidMobile(phone)} className="w-full whitespace-normal" onClick={async () => {
       // Start permission directly on the click, before asynchronous profile saving.
