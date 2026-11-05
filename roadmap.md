@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] November 5 05:46: audit and add account-owned frequent return-vehicle From/To needs and automatic alerts for actual matching vehicle posts, available to any user; obtain user permission before database changes, preserve notification opt-out/limits/privacy.
 - [x] November 5 05:38: reuse the existing responsibility disclaimer in large text at vehicle contact actions, compact bell opens notice before interest; no confirmed booking system exists.
 - [x] November 5 04:28: Google Maps linked; authenticated automatic area detection, movement refresh and actual-address fallback implemented without database changes. 13 area/lifecycle/home-listing tests pass; signed-in 390×844 permission-denied/manual-entry flow has no overflow or runtime errors; build OK.
 - [ ] Verify vehicle disclaimer on an actual available vehicle listing: no vehicle rows rendered in checked feed; source checked, no fake post created.
