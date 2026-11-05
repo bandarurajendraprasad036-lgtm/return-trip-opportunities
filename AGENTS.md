@@ -33,7 +33,7 @@
 - Bell controls share one device preference and synchronization event; browser permission status never implies background delivery, preventing conflicting controls and false delivery claims.
 - Vehicle position display formats only the actual timestamp through a pure timezone-aware helper; never synthesize location data or a current-time substitute.
 - Homepage listings reuse active posts and PostCard bells; local-trip classification requires identical endpoints, while separate local-area search matches named endpoint/address terms only and never implies proximity or confirmed local travel.
-- Homepage vehicle categories share a submitted route/area filter and controlled result panel; car types use a shared catalog, while future-return records remain available in the feed.
+- Home categories share submitted route/area filters and car catalog; advance feed stays. Saved routes are owner-only preferences, not bookings/travel.
 - Route-radius settings present the shared fixed percentage as inactive until verified road distance and recipient geography exist; no editable or saved delivery claim is made without server support.
 - The large devotional bell is the sole home bell trigger; date-based bundled engraved variants preserve gold artwork without a separate portrait overlay.
 - Firebase messaging uses a separate non-caching worker scope, owner-scoped device registration and a service-only durable delivery queue dispatched by a managed authenticated schedule; pushes contain no private job/message data and provider acceptance is never a delivery receipt.
