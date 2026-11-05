@@ -940,6 +940,81 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicle_availability: {
+        Row: {
+          available: boolean
+          post_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          available?: boolean
+          post_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          available?: boolean
+          post_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_availability_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_availability_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicle_availability_requests: {
+        Row: {
+          created_at: string
+          id: string
+          notified_at: string | null
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notified_at?: string | null
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notified_at?: string | null
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_availability_requests_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_availability_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicle_post_points: {
         Row: {
           created_at: string
@@ -1099,6 +1174,7 @@ export type Database = {
         }
       }
       dispatch_approximate_route_alerts: { Args: never; Returns: number }
+      dispatch_vehicle_availability: { Args: never; Returns: number }
       dispatch_visible_post_matches: { Args: never; Returns: number }
       grant_free_membership_month: {
         Args: { _source: string; _user: string }
@@ -1133,6 +1209,8 @@ export type Database = {
       }
       redeem_reward_points: { Args: never; Returns: string }
       referral_target: { Args: { _d: string }; Returns: number }
+      request_own_bell_notice: { Args: { _device: string }; Returns: string }
+      request_vehicle_availability: { Args: { _post: string }; Returns: string }
       review_membership: {
         Args: { _approve: boolean; _id: string; _note?: string }
         Returns: undefined
@@ -1187,6 +1265,7 @@ export type Database = {
       }
       send_referral_reminders: { Args: never; Returns: number }
       service_profile_data: { Args: { _id: string }; Returns: Json }
+      set_vehicle_available: { Args: { _post: string }; Returns: undefined }
       straight_line_km: {
         Args: { a_lat: number; a_lng: number; b_lat: number; b_lng: number }
         Returns: number
@@ -1206,6 +1285,10 @@ export type Database = {
         Returns: string
       }
       support_admin_id: { Args: never; Returns: string }
+      vehicle_alert_context: {
+        Args: { _target: string; _user: string }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "admin" | "user"
