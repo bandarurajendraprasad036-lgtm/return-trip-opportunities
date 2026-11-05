@@ -58,6 +58,65 @@ export type Database = {
         }
         Relationships: []
       }
+      approximate_route_alerts: {
+        Row: {
+          created_at: string
+          id: string
+          notification_id: string | null
+          post_id: string
+          processed_at: string | null
+          route_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notification_id?: string | null
+          post_id: string
+          processed_at?: string | null
+          route_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notification_id?: string | null
+          post_id?: string
+          processed_at?: string | null
+          route_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "approximate_route_alerts_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "approximate_route_alerts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "approximate_route_alerts_route_id_fkey"
+            columns: ["route_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_route_preferences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "approximate_route_alerts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       evidence_content_registry: {
         Row: {
           created_at: string
@@ -881,6 +940,93 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicle_post_points: {
+        Row: {
+          created_at: string
+          from_lat: number
+          from_lng: number
+          post_id: string
+          to_lat: number
+          to_lng: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          from_lat: number
+          from_lng: number
+          post_id: string
+          to_lat: number
+          to_lng: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          from_lat?: number
+          from_lng?: number
+          post_id?: string
+          to_lat?: number
+          to_lng?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_post_points_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_post_points_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicle_route_points: {
+        Row: {
+          from_lat: number
+          from_lng: number
+          route_id: string
+          to_lat: number
+          to_lng: number
+          user_id: string
+        }
+        Insert: {
+          from_lat: number
+          from_lng: number
+          route_id: string
+          to_lat: number
+          to_lng: number
+          user_id: string
+        }
+        Update: {
+          from_lat?: number
+          from_lng?: number
+          route_id?: string
+          to_lat?: number
+          to_lng?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_route_points_route_id_fkey"
+            columns: ["route_id"]
+            isOneToOne: true
+            referencedRelation: "vehicle_route_preferences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_route_points_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicle_route_preferences: {
         Row: {
           created_at: string
@@ -952,6 +1098,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      dispatch_approximate_route_alerts: { Args: never; Returns: number }
       dispatch_visible_post_matches: { Args: never; Returns: number }
       grant_free_membership_month: {
         Args: { _source: string; _user: string }
@@ -1013,12 +1160,37 @@ export type Database = {
         }
         Returns: undefined
       }
+      save_vehicle_post_points: {
+        Args: {
+          _from_lat: number
+          _from_lng: number
+          _post: string
+          _to_lat: number
+          _to_lng: number
+        }
+        Returns: undefined
+      }
       save_vehicle_route: {
         Args: { _from: string; _to: string }
         Returns: string
       }
+      save_vehicle_route_points: {
+        Args: {
+          _from: string
+          _from_lat: number
+          _from_lng: number
+          _to: string
+          _to_lat: number
+          _to_lng: number
+        }
+        Returns: string
+      }
       send_referral_reminders: { Args: never; Returns: number }
       service_profile_data: { Args: { _id: string }; Returns: Json }
+      straight_line_km: {
+        Args: { a_lat: number; a_lng: number; b_lat: number; b_lng: number }
+        Returns: number
+      }
       submit_post_evidence: {
         Args: { _paths: string[]; _post: string; _purpose: string }
         Returns: string
