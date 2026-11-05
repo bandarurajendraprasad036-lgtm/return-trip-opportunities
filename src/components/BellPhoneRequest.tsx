@@ -47,6 +47,7 @@ export function BellPhoneRequest() {
       finally { setBusy(false); }
     }}>నా ఫోన్‌కు సూచన కోరండి · Request phone notice</Button>
     {status && <p role="status" className="break-words text-sm">{status}</p>}
+    <p className="text-xs text-muted-foreground">మొబైల్ నంబరు మీ ఖాతాలో నిలుస్తుంది; చరిత్ర తొలగించినా పోదు. ఫోన్ మారితే లేదా సైట్ వివరాలు తొలగిస్తే అదే ఖాతాలో ప్రవేశించి ఫోన్ సూచనలను మళ్లీ అనుమతించాలి. · Mobile stays in your account; sign in and re-enable device alerts after changing phones or clearing site data.</p>
     <p className="text-xs text-muted-foreground">నంబరు నమోదు మాత్రమే; ధృవీకరణ కాదు. ఇది యాప్ సూచన; ఫోన్ సందేశం కాదు. · Number entry is not verification; app push, not SMS.</p>
   </section>;
 }
