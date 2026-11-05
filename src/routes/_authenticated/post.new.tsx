@@ -169,7 +169,7 @@ function NewPost() {
     const jobData = isJob ? { ...fields, ...(employerInfo ? { description: [employerInfo, fields['description']?.trim()].filter(Boolean).join('\n') } : {}), skill: generalWorkValue(f['skill'] ?? '', f['general_work'] ?? '', generalWork), ...(generalWork ? { category: 'other' } : {}) } : f;
     if (isJob && hasProhibitedJobWords(Object.values(jobData).join(' '))) {
       setContentError('అనుచిత పదాలు అనుమతించబడవు. ఊరు, పని, వివరాల్లో ఆ పదాలను తీసివేసి మళ్లీ పంపండి. · Remove prohibited words before posting.');
-      return;
+      // The authenticated moderation check must also inspect submitted prohibited content.
     }
     const r = schema.safeParse(jobData);
     if (!r.success) { const i = r.error.issues[0]; toast.error(`${String(i?.path[0] ?? "")}: ${i?.message ?? ""}`); return; }
@@ -181,12 +181,12 @@ function NewPost() {
       ? jobPostIdentity(kind, v['skill'] ?? '')
       : { module: opt.module, kind, title: kind === 'owner' ? `${v['vehicle_type']} ఖాళీగా వస్తోంది` : `${v['goods_type']} కోసం వాహనం కావాలి` };
     setBusy(true);
-    const mod = await checkText({ data: { text: Object.values(v).join(" \n ") } }).catch(() => ({ ok: true }));
-    if (!mod.ok) { setBusy(false); setContentError('అనుచిత పదాలు లేదా హింసను ప్రోత్సహించే విషయాలు అనుమతించబడవు. వివరాలు సరిచేసి మళ్లీ పంపండి. · Prohibited content: correct your details.'); return; }
-    const { error } = await supabase.from("posts").insert({ ...v, ...(!isJob ? { capacity_tons: capacity?.success ? capacity.data : null, vehicle_type: f["vehicle_type"]?.trim().slice(0, 60) || null } : {}), show_contact: show_contact === "1", user_id: me.id, ...identity });
+    const mod = await checkText({ data: { text: Object.values(v).join(" \n ") } }).catch(() => ({ ok: false }));
+    if (!mod.ok) { setBusy(false); await qc.invalidateQueries({queryKey:['me']}); setContentError('తనిఖీ పూర్తికాలేదు లేదా అనుమతించని విషయం ఉంది; ప్రకటన పంపలేదు. · Check unavailable or prohibited content; not submitted.'); return; }
+    const { data: savedPost, error } = await supabase.from("posts").insert({ ...v, ...(!isJob ? { capacity_tons: capacity?.success ? capacity.data : null, vehicle_type: f["vehicle_type"]?.trim().slice(0, 60) || null } : {}), show_contact: show_contact === "1", user_id: me.id, ...identity }).select('visible_after').single();
     setBusy(false);
-    if (error) { toast.error(error.message.includes("MOBILE_REQUIRED") ? "ప్రకటనకు ముందు మొబైల్ నంబరు ఇవ్వండి · Mobile number required" : error.message.includes("BAD_CONTENT") ? "🚫 బూతులు, చెడు మాటలు, దేశ వ్యతిరేక విషయాలు పోస్ట్ చేయకూడదు · Abusive or anti-national content is not allowed" : error.message); return; }
-    toast.success("పోస్ట్ అయ్యింది! మ్యాచ్ వస్తే అలర్ట్ వస్తుంది · Posted! You'll be alerted on a match");
+    if (error) { toast.error(error.message.includes('THREE_MONTHLY_JOBS_USED') ? 'ఈ సభ్యత్వ నెలలో మూడు ఉద్యోగ ప్రకటనలు ఉపయోగించారు · Three monthly job posts used' : error.message.includes("MOBILE_REQUIRED") ? "ప్రకటనకు ముందు మొబైల్ నంబరు ఇవ్వండి · Mobile number required" : error.message.includes("BAD_CONTENT") ? "🚫 బూతులు, చెడు మాటలు, దేశ వ్యతిరేక విషయాలు పోస్ట్ చేయకూడదు · Abusive or anti-national content is not allowed" : error.message); return; }
+    toast.success(savedPost?.visible_after&&Date.parse(savedPost.visible_after)>Date.now()?"మీ సమాచారం మాకు సమర్పించారు; మరో ఐదు గంటల్లో చూడవచ్చు · Submitted; visible after five hours":"మీ సమాచారం మాకు సమర్పించారు; మీ ప్రకటన ఇప్పుడు చూడవచ్చు · Submitted; now visible");
     qc.invalidateQueries();
     nav({ to: "/my-posts" });
   };

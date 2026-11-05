@@ -9,6 +9,7 @@ import { useMe } from "@/lib/session";
 import { useServerFn } from "@tanstack/react-start";
 import { sendSupportMessage } from "@/lib/support.functions";
 import { z } from "zod";
+import { PostEvidence } from '@/components/PostEvidence';
 
 export const Route = createFileRoute("/_authenticated/chat/$userId")({
   validateSearch: (search: Record<string, unknown>): { post?: string | undefined } => ({ post: typeof search["post"] === "string" && z.string().uuid().safeParse(search["post"]).success ? search["post"] : undefined }),
@@ -109,6 +110,7 @@ function Chat() {
       </div>
       {contextPost && <section className="space-y-1 border-b bg-muted px-3 py-3 text-sm" aria-label="ప్రయాణ వివరాలు · Route details"><p className="font-bold">{contextPost.title}</p>{contextPost.module === "vehicle" ? <><p>{contextPost.from_place} → {contextPost.to_place}</p><p>{contextPost.vehicle_type} {contextPost.capacity_tons != null && `· ${contextPost.capacity_tons} టన్నులు · tons`} · {contextPost.trip_date}</p></> : <p>{contextPost.location}</p>}</section>}
       <div className="flex-1 space-y-2 overflow-y-auto p-3">
+        {postId && <PostEvidence postId={postId} admin={!!me?.isAdmin}/>}
         {msgs.length === 0 && <p className="pt-10 text-center text-muted-foreground">నమస్కారం చెప్పండి 🙏 Say hello</p>}
         {msgs.map((m) => {
           const mine = m.sender_id === me?.id;

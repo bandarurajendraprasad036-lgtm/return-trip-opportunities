@@ -6,6 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { PostCard, type Post } from "@/components/PostCard";
 import { useMe } from "@/lib/session";
+import { jobIsVisible } from '@/lib/post-publication';
+import { PostEvidence } from '@/components/PostEvidence';
 
 export const Route = createFileRoute("/_authenticated/my-posts")({
   head: () => ({
@@ -28,7 +30,8 @@ function MyPosts() {
     queryKey: ["my-posts", me?.id],
     enabled: !!me,
     queryFn: async () => {
-      const { data, error } = await supabase.from("posts").select("*").eq("user_id", me!.id).order("created_at", { ascending: false });
+      if (!me) return [];
+      const { data, error } = await supabase.from("posts").select("*").eq("user_id", me.id).order("created_at", { ascending: false });
       if (error) throw error;
       return data as Post[];
     },
@@ -64,19 +67,21 @@ function MyPosts() {
       )}
       {data.map((p) => (
         <div key={p.id} className={p.status !== "active" ? "opacity-60" : ""}>
+          {p.visible_after && Date.parse(p.visible_after)>Date.now()&&<p role="status" className="py-3 font-semibold">మీ సమాచారం మాకు సమర్పించారు; ఐదు గంటల తర్వాత చూడవచ్చు. · Submitted; visible after five hours.<br/>ప్రచురణ సమయం · Available: {new Date(p.visible_after).toLocaleString('te-IN',{timeZone:'Asia/Kolkata'})}</p>}
           <PostCard
             post={p}
             actions={
               <>
-                {p.status === "active" ? (
+                {jobIsVisible(p) ? (
                   <Button variant="outline" className="flex-1" onClick={() => close(p.id)}><CheckCircle2 />పూర్తి Done</Button>
                 ) : (
-                  <span className="flex-1 self-center text-sm font-semibold text-muted-foreground">మూసివేయబడింది · Closed</span>
+                  <span className="flex-1 self-center text-sm font-semibold text-muted-foreground">{p.status === 'active' ? p.visible_after&&Date.parse(p.visible_after)>Date.now()?'ప్రచురణ కోసం వేచి ఉంది · Awaiting publication':'గడువు ముగిసింది · Expired' : 'మూసివేయబడింది · Closed'}</span>
                 )}
                 <Button variant="destructive" className="flex-1" onClick={() => del(p.id)}><Trash2 />తొలగించు</Button>
               </>
             }
           />
+          <PostEvidence postId={p.id}/>
         </div>
       ))}
     </div>

@@ -1,4 +1,5 @@
 import type { Post } from '@/components/PostCard';
+import { jobIsVisible } from '@/lib/post-publication';
 
 export type VehicleSection = 'local' | 'return' | 'advance';
 const normalized = (value: string | null | undefined) => value?.trim().toLocaleLowerCase() ?? '';
@@ -22,6 +23,6 @@ export function homeVehicles(posts: Post[], from: string, to: string, today: str
 export function homeJobs(posts: Post[], location: string, kind: 'seeker' | 'employer') {
   const place = normalized(location);
   if (!place) return [];
-  return posts.filter(post => post.status === 'active' && post.module === 'job'
+  return posts.filter(post => jobIsVisible(post) && post.module === 'job'
     && post.kind === kind && normalized(post.location).includes(place));
 }

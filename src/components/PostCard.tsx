@@ -9,6 +9,7 @@ import type { Database } from "@/integrations/supabase/types";
 import { useState } from 'react';
 import { ResponsibilityNotice } from '@/components/ResponsibilityNotice';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { jobIsVisible } from '@/lib/post-publication';
 
 export type Post = Database["public"]["Tables"]["posts"]["Row"];
 
@@ -77,7 +78,7 @@ export function PostCard({
       <div className="space-y-2 p-3">
         <div className="flex items-start gap-2">
           <h3 className="flex-1 text-xl font-bold leading-tight">{post.title}</h3>
-          {post.status === "active" && (
+          {jobIsVisible(post) && (
             <Button type="button" variant="secondary" size="icon" onClick={contact} aria-label="గంట కొట్టి చాట్ చేయండి · Ring and chat"><Bell className="size-5" /></Button>
           )}
         </div>

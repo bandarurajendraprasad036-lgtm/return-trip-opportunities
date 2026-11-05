@@ -14,6 +14,32 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_blocks: {
+        Row: {
+          blocked_at: string
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          blocked_at?: string
+          reason: string
+          user_id: string
+        }
+        Update: {
+          blocked_at?: string
+          reason?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_blocks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       app_settings: {
         Row: {
           key: string
@@ -31,6 +57,32 @@ export type Database = {
           value?: string
         }
         Relationships: []
+      }
+      evidence_content_registry: {
+        Row: {
+          created_at: string
+          hash: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          hash: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          hash?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evidence_content_registry_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       free_membership_months: {
         Row: {
@@ -60,6 +112,84 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "free_membership_months_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_post_entitlements: {
+        Row: {
+          ends_at: string
+          id: string
+          payment_id: string
+          starts_at: string
+          user_id: string
+        }
+        Insert: {
+          ends_at: string
+          id?: string
+          payment_id: string
+          starts_at: string
+          user_id: string
+        }
+        Update: {
+          ends_at?: string
+          id?: string
+          payment_id?: string
+          starts_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_post_entitlements_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "membership_payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_post_entitlements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_post_uses: {
+        Row: {
+          created_at: string
+          entitlement_id: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          entitlement_id: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          entitlement_id?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_post_uses_entitlement_id_fkey"
+            columns: ["entitlement_id"]
+            isOneToOne: false
+            referencedRelation: "job_post_entitlements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_post_uses_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -227,6 +357,63 @@ export type Database = {
           },
         ]
       }
+      post_sharing_evidence: {
+        Row: {
+          admin_note: string
+          content_hashes: string[]
+          created_at: string
+          expires_at: string
+          id: string
+          paths: string[]
+          post_id: string
+          purpose: string
+          reviewed_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string
+          content_hashes?: string[]
+          created_at?: string
+          expires_at?: string
+          id?: string
+          paths: string[]
+          post_id: string
+          purpose: string
+          reviewed_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string
+          content_hashes?: string[]
+          created_at?: string
+          expires_at?: string
+          id?: string
+          paths?: string[]
+          post_id?: string
+          purpose?: string
+          reviewed_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_sharing_evidence_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_sharing_evidence_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       posts: {
         Row: {
           area_scope: string
@@ -239,6 +426,7 @@ export type Database = {
           from_place: string | null
           goods_type: string | null
           id: string
+          job_expires_at: string | null
           kind: string
           location: string | null
           module: string
@@ -255,6 +443,8 @@ export type Database = {
           trip_date: string | null
           user_id: string
           vehicle_type: string | null
+          visibility_notified_at: string | null
+          visible_after: string | null
         }
         Insert: {
           area_scope?: string
@@ -267,6 +457,7 @@ export type Database = {
           from_place?: string | null
           goods_type?: string | null
           id?: string
+          job_expires_at?: string | null
           kind: string
           location?: string | null
           module: string
@@ -283,6 +474,8 @@ export type Database = {
           trip_date?: string | null
           user_id: string
           vehicle_type?: string | null
+          visibility_notified_at?: string | null
+          visible_after?: string | null
         }
         Update: {
           area_scope?: string
@@ -295,6 +488,7 @@ export type Database = {
           from_place?: string | null
           goods_type?: string | null
           id?: string
+          job_expires_at?: string | null
           kind?: string
           location?: string | null
           module?: string
@@ -311,6 +505,8 @@ export type Database = {
           trip_date?: string | null
           user_id?: string
           vehicle_type?: string | null
+          visibility_notified_at?: string | null
+          visible_after?: string | null
         }
         Relationships: []
       }
@@ -690,7 +886,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      account_allowed: { Args: { _uid: string }; Returns: boolean }
+      admin_evidence_sender: { Args: { _id: string }; Returns: string }
       apply_referral: { Args: { _code: string }; Returns: boolean }
+      block_confirmed_content: {
+        Args: { _reason: string; _user: string }
+        Returns: undefined
+      }
       can_notify: { Args: { _uid: string }; Returns: boolean }
       claim_push_deliveries: {
         Args: never
@@ -712,6 +914,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      dispatch_visible_post_matches: { Args: never; Returns: number }
       grant_free_membership_month: {
         Args: { _source: string; _user: string }
         Returns: string
@@ -726,6 +929,7 @@ export type Database = {
       my_notification_quota: { Args: never; Returns: Json }
       my_referral_stats: { Args: never; Returns: Json }
       notify_matches: { Args: { _post_id: string }; Returns: number }
+      post_alert_eligible: { Args: { _user: string }; Returns: boolean }
       posts_match_area: {
         Args: {
           a: Database["public"]["Tables"]["posts"]["Row"]
@@ -734,6 +938,10 @@ export type Database = {
         Returns: boolean
       }
       public_stats: { Args: never; Returns: Json }
+      record_evidence_hashes: {
+        Args: { _claim: string; _hashes: string[] }
+        Returns: undefined
+      }
       record_service_view: {
         Args: { _id: string; _visitor: string }
         Returns: undefined
@@ -742,6 +950,14 @@ export type Database = {
       referral_target: { Args: { _d: string }; Returns: number }
       review_membership: {
         Args: { _approve: boolean; _id: string; _note?: string }
+        Returns: undefined
+      }
+      review_post_evidence: {
+        Args: { _approve: boolean; _id: string }
+        Returns: undefined
+      }
+      review_post_evidence_with_reason: {
+        Args: { _approve: boolean; _id: string; _note: string }
         Returns: undefined
       }
       review_sharing_claim: {
@@ -761,6 +977,20 @@ export type Database = {
       }
       send_referral_reminders: { Args: never; Returns: number }
       service_profile_data: { Args: { _id: string }; Returns: Json }
+      submit_post_evidence: {
+        Args: { _paths: string[]; _post: string; _purpose: string }
+        Returns: string
+      }
+      submit_verified_post_evidence: {
+        Args: {
+          _hashes: string[]
+          _paths: string[]
+          _post: string
+          _purpose: string
+          _user: string
+        }
+        Returns: string
+      }
       support_admin_id: { Args: never; Returns: string }
     }
     Enums: {

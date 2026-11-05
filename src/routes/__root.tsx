@@ -18,6 +18,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { setupOfflineSupport } from "@/lib/offline";
 import { PushSoundSync } from '@/components/PushSoundSync';
+import {AccountBlockGate} from '@/components/AccountBlockGate';
 
 function NotFoundComponent() {
   return (
@@ -143,10 +144,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
-      <PhoneGate />
-      <PushSoundSync />
-      <Referral />
+      <AccountBlockGate><Outlet /><PhoneGate /><PushSoundSync /><Referral /></AccountBlockGate>
       <Toaster position="top-center" richColors />
     </QueryClientProvider>
   );

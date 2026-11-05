@@ -155,6 +155,62 @@
       "when": 1793863418893,
       "tag": "0021_monthly_membership_prices",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1793864412766,
+      "tag": "0022_paid_job_monthly_entitlements",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1793864530655,
+      "tag": "0023_post_delay_and_reviewed_alerts",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1793864583051,
+      "tag": "0024_evidence_decision_reasons_and_privacy",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1793864628928,
+      "tag": "0025_atomic_verified_evidence_submission",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1793864745758,
+      "tag": "0026_confirmed_violation_account_blocks",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1793864830097,
+      "tag": "0027_blocked_actor_and_post_visibility_guards",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1793864970894,
+      "tag": "0028_post_specific_alert_eligibility",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1793865073009,
+      "tag": "0029_delayed_post_match_dispatch",
+      "breakpoints": true
     }
   ]
 }
