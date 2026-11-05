@@ -14,6 +14,32 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_blocks: {
+        Row: {
+          blocked_at: string
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          blocked_at?: string
+          reason: string
+          user_id: string
+        }
+        Update: {
+          blocked_at?: string
+          reason?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_blocks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       app_settings: {
         Row: {
           key: string
@@ -857,7 +883,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      account_allowed: { Args: { _uid: string }; Returns: boolean }
       apply_referral: { Args: { _code: string }; Returns: boolean }
+      block_confirmed_content: {
+        Args: { _reason: string; _user: string }
+        Returns: undefined
+      }
       can_notify: { Args: { _uid: string }; Returns: boolean }
       claim_push_deliveries: {
         Args: never

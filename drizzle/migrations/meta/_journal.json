@@ -183,6 +183,13 @@
       "when": 1793864628928,
       "tag": "0025_atomic_verified_evidence_submission",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1793864745758,
+      "tag": "0026_confirmed_violation_account_blocks",
+      "breakpoints": true
     }
   ]
 }
