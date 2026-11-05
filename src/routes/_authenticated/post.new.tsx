@@ -22,7 +22,10 @@ import { capacityInput } from "@/lib/vehicle-experience";
 import { VEHICLE_TYPES, isCar } from '@/lib/vehicle-types';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { JobSuggestionInput } from '@/components/JobSuggestionInput';
-import { generalWorkValue, hasProhibitedJobWords, jobPostIdentity, VILLAGE_SUGGESTIONS, WORK_SUGGESTIONS } from '@/lib/job-entry';
+import { generalWorkValue, hasProhibitedJobWords, jobPostIdentity, WORK_SUGGESTIONS } from '@/lib/job-entry';
+import { IndiaPlaceInput } from '@/components/IndiaPlaceInput';
+import { RoutePointPicker } from '@/components/RoutePointPicker';
+import type { Coordinates } from '@/lib/india-places';
 
 function AiJobAd({ kind, onDraft, work }: { kind: "seeker" | "employer"; onDraft: (d: JobAdDraft) => void; work: string }) {
   const run = useServerFn(draftJobAd);
@@ -125,6 +128,8 @@ function NewPost() {
   const [busy, setBusy] = useState(false);
   const [generalWork, setGeneralWork] = useState(false);
   const [contentError, setContentError] = useState('');
+  const [fromPoint, setFromPoint] = useState<Coordinates | null>(null);
+  const [toPoint, setToPoint] = useState<Coordinates | null>(null);
   const checkText = useServerFn(checkPostText);
   useEffect(() => {
     const profile = me?.profile;
@@ -181,10 +186,15 @@ function NewPost() {
     const identity = kind === 'seeker' || kind === 'employer'
       ? jobPostIdentity(kind, v['skill'] ?? '')
       : { module: opt.module, kind, title: kind === 'owner' ? `${v['vehicle_type']} ఖాళీగా వస్తోంది` : `${v['goods_type']} కోసం వాహనం కావాలి` };
+    const capturedPoints = { from: fromPoint, to: toPoint };
     setBusy(true);
     const mod = await checkText({ data: { text: Object.values(v).join(" \n ") } }).catch(() => ({ ok: false }));
     if (!mod.ok) { setBusy(false); await qc.invalidateQueries({queryKey:['me']}); setContentError('తనిఖీ పూర్తికాలేదు లేదా అనుమతించని విషయం ఉంది; ప్రకటన పంపలేదు. · Check unavailable or prohibited content; not submitted.'); return; }
-    const { data: savedPost, error } = await supabase.from("posts").insert({ ...v, ...(!isJob ? { capacity_tons: capacity?.success ? capacity.data : null, vehicle_type: f["vehicle_type"]?.trim().slice(0, 60) || null } : {}), show_contact: show_contact === "1", user_id: me.id, ...identity }).select('visible_after').single();
+    const { data: savedPost, error } = await supabase.from("posts").insert({ ...v, ...(!isJob ? { capacity_tons: capacity?.success ? capacity.data : null, vehicle_type: f["vehicle_type"]?.trim().slice(0, 60) || null } : {}), show_contact: show_contact === "1", user_id: me.id, ...identity }).select('id,visible_after').single();
+    if (!error && savedPost && !isJob && capturedPoints.from && capturedPoints.to) {
+      const registered = await supabase.rpc('save_vehicle_post_points', { _post: savedPost.id, _from_lat: capturedPoints.from.latitude, _from_lng: capturedPoints.from.longitude, _to_lat: capturedPoints.to.latitude, _to_lng: capturedPoints.to.longitude });
+      if (registered.error) toast.error('ప్రకటన భద్రపడింది; పరిధి స్థానాలు భద్రపడలేదు · Post saved; radius coordinates not saved');
+    }
     setBusy(false);
     if (error) { toast.error(error.message.includes('THREE_MONTHLY_JOBS_USED') ? 'ఈ సభ్యత్వ నెలలో మూడు ఉద్యోగ ప్రకటనలు ఉపయోగించారు · Three monthly job posts used' : error.message.includes("MOBILE_REQUIRED") ? "ప్రకటనకు ముందు మొబైల్ నంబరు ఇవ్వండి · Mobile number required" : error.message.includes("BAD_CONTENT") ? "🚫 బూతులు, చెడు మాటలు, దేశ వ్యతిరేక విషయాలు పోస్ట్ చేయకూడదు · Abusive or anti-national content is not allowed" : error.message); return; }
     toast.success(savedPost?.visible_after&&Date.parse(savedPost.visible_after)>Date.now()?"మీ సమాచారం మాకు సమర్పించారు; మరో ఐదు గంటల్లో చూడవచ్చు · Submitted; visible after five hours":"మీ సమాచారం మాకు సమర్పించారు; మీ ప్రకటన ఇప్పుడు చూడవచ్చు · Submitted; now visible");
@@ -213,7 +223,7 @@ function NewPost() {
             <TabsList className="grid h-auto w-full grid-cols-2 gap-1"><TabsTrigger disabled={busy} value="seeker" className="min-h-16 whitespace-normal text-base">నాకు ఉద్యోగం కావాలి · I need a job</TabsTrigger><TabsTrigger disabled={busy} value="employer" className="min-h-16 whitespace-normal text-base">నేను ఉద్యోగం ఇస్తాను · I offer a job</TabsTrigger></TabsList>
           </Tabs>
           <AiJobAd work={generalWork ? (f["general_work"] ?? "") : (f["skill"] ?? "")} kind={kind as "seeker" | "employer"} onDraft={(d) => setF((prev) => ({ ...prev, ...Object.fromEntries(Object.entries(d).filter(([, v]) => v)) }))} />
-          <JobSuggestionInput id="job-location" label="ఊరు / ప్రాంతం · Location" value={f['location'] ?? ''} options={VILLAGE_SUGGESTIONS} maxLength={80} onChange={value => setF(prev => ({ ...prev, location: value }))} />
+          <div><Label htmlFor="job-location">ఊరు / ప్రాంతం · Location</Label><IndiaPlaceInput id="job-location" value={f['location'] ?? ''} maxLength={80} onChange={value => setF(prev => ({ ...prev, location: value }))} disabled={busy} /></div>
           {!generalWork && <JobSuggestionInput id="job-work" label="పని పేరు · Work" value={f['skill'] ?? ''} options={WORK_SUGGESTIONS} maxLength={100} onChange={value => setF(prev => ({ ...prev, skill: value }))} />}
           <label className="flex items-center gap-2"><input type="checkbox" checked={generalWork} onChange={event => setGeneralWork(event.target.checked)} />జాబితాలో లేని పని · Other work</label>
           {generalWork && <div className="space-y-1"><Label htmlFor="general-work">ఇతర పని పేరు · General work</Label><Input id="general-work" className="h-12 text-lg" value={f['general_work'] ?? ''} required maxLength={100} onChange={set('general_work')} /></div>}
@@ -230,8 +240,10 @@ function NewPost() {
         </>
       ) : (
         <>
-          {field("from_place", "ఎక్కడి నుండి", "From", { placeholder: "e.g. Hyderabad" })}
-          {field("to_place", "ఎక్కడికి", "To", { placeholder: "e.g. Warangal" })}
+          <div><Label htmlFor="post-from">నుండి · From</Label><IndiaPlaceInput id="post-from" value={f['from_place'] ?? ''} disabled={busy} maxLength={80} onChange={value => { setF(prev => ({ ...prev, from_place: value })); setFromPoint(null); }} onSelect={setFromPoint} /></div>
+          <div><Label htmlFor="post-to">వరకు · To</Label><IndiaPlaceInput id="post-to" value={f['to_place'] ?? ''} disabled={busy} maxLength={80} onChange={value => { setF(prev => ({ ...prev, to_place: value })); setToPoint(null); }} onSelect={setToPoint} /></div>
+          <RoutePointPicker from={fromPoint} to={toPoint} onFrom={setFromPoint} onTo={setToPoint} disabled={busy} />
+          {(!fromPoint || !toPoint) && <p className="text-sm text-muted-foreground">రెండు స్థానాలు ఎంచుకోకపోతే పరిధి సూచనలు రావు; పేరుతో ఉన్న సరిపోలిక కొనసాగుతుంది · Without selected endpoints, approximate radius alerts are unavailable; name matching remains.</p>}
           {field("trip_date", "తేదీ", "Date", { type: "date" })}
           <div className="space-y-1"><Label className="text-base">వాహనం రకం · Vehicle type</Label><select aria-label="వాహనం రకం · Vehicle type" value={f["vehicle_type"] ?? ""} onChange={event => setF({ ...f, vehicle_type: event.target.value, capacity_tons: '' })} className="h-12 w-full rounded-md border bg-card px-3 text-lg" required><option value="">ఎంచుకోండి · Choose</option>{VEHICLE_TYPES.map(type => <option key={type.value} value={type.value}>{type.te} · {type.en}</option>)}</select></div>
           {!isCar(f['vehicle_type']) && field("capacity_tons", "బరువు సామర్థ్యం (టన్నులు)", "Capacity (tons)", { type: "number", min: "0.1", max: "100", step: "0.1", required: true })}

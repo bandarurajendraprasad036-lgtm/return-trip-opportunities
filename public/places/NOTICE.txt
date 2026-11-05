@@ -1,0 +1,1 @@
+India populated places and administrative areas: GeoNames https://www.geonames.org/ and https://download.geonames.org/export/dump/IN.zip accessed 2026-11-05. CC BY 4.0 https://creativecommons.org/licenses/by/4.0/ . Derived prefix shards; coverage is not every street. Names/coordinates can be incomplete or outdated. No user data.

@@ -1,6 +1,9 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
+@import "leaflet/dist/leaflet.css";
+
+.route-point-marker { color: var(--primary); font-size: 24px; }
 
 @custom-variant dark (&:is(.dark *));
 

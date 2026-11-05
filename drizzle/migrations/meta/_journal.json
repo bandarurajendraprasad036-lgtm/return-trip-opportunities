@@ -218,6 +218,13 @@
       "when": 1793876057763,
       "tag": "0030_private_vehicle_route_preferences",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1793877064707,
+      "tag": "0031_approximate_private_route_alerts",
+      "breakpoints": true
     }
   ]
 }
