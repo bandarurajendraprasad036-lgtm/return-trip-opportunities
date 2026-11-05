@@ -884,6 +884,7 @@ export type Database = {
     }
     Functions: {
       account_allowed: { Args: { _uid: string }; Returns: boolean }
+      admin_evidence_sender: { Args: { _id: string }; Returns: string }
       apply_referral: { Args: { _code: string }; Returns: boolean }
       block_confirmed_content: {
         Args: { _reason: string; _user: string }
