@@ -443,6 +443,7 @@ export type Database = {
           trip_date: string | null
           user_id: string
           vehicle_type: string | null
+          visibility_notified_at: string | null
           visible_after: string | null
         }
         Insert: {
@@ -473,6 +474,7 @@ export type Database = {
           trip_date?: string | null
           user_id: string
           vehicle_type?: string | null
+          visibility_notified_at?: string | null
           visible_after?: string | null
         }
         Update: {
@@ -503,6 +505,7 @@ export type Database = {
           trip_date?: string | null
           user_id?: string
           vehicle_type?: string | null
+          visibility_notified_at?: string | null
           visible_after?: string | null
         }
         Relationships: []
@@ -911,6 +914,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      dispatch_visible_post_matches: { Args: never; Returns: number }
       grant_free_membership_month: {
         Args: { _source: string; _user: string }
         Returns: string
