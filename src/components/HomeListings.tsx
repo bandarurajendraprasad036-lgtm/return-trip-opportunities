@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { MapPin, Search, X, LocateFixed } from 'lucide-react';
@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useMe } from '@/lib/session';
 import { homeVehicles, homeJobs, type VehicleSection } from '@/lib/home-listings';
 import { VILLAGE_SUGGESTIONS } from '@/lib/job-entry';
+import { useCurrentArea } from '@/lib/use-current-area';
 
 const sections: { key: VehicleSection; te: string; en: string }[] = [
   { key: 'local', te: 'స్థానిక వాహనాలు', en: 'Local' },
@@ -22,17 +23,16 @@ export function HomeListings({ today }: { today: string }) {
   const [route, setRoute] = useState({ from: '', to: '' });
   const [location, setLocation] = useState('');
   const [jobLocation, setJobLocation] = useState('');
-  const [position, setPosition] = useState('');
-  const [locating, setLocating] = useState(false);
-  const locate = () => {
-    if (!navigator.geolocation) { setPosition('ఈ పరికరంలో స్థానం అందుబాటులో లేదు · Location unavailable'); return; }
-    setLocating(true);
-    navigator.geolocation.getCurrentPosition(result => {
-      setPosition(`${result.coords.latitude.toFixed(5)}, ${result.coords.longitude.toFixed(5)} · ఊరి పేరు పైన నమోదు చేయండి · Enter place above`);
-      setLocating(false);
-    }, () => { setPosition('స్థానం రాలేదు. ఊరి పేరు నమోదు చేయండి · Location unavailable, enter place'); setLocating(false); }, { timeout: 10000, maximumAge: 0 });
-  };
   const { data: me } = useMe();
+  const { area, message: position, locating, locate } = useCurrentArea(me?.id);
+  const manualFrom = useRef(false);
+  const manualJob = useRef(false);
+  useEffect(() => {
+    const place = area?.area || area?.address;
+    if (!place) return;
+    if (!manualFrom.current) setFrom(place);
+    if (!manualJob.current) setLocation(place);
+  }, [area]);
   const { data: posts = [], isLoading, isError } = useQuery({
     queryKey: ['posts'],
     enabled: Boolean(route.from || route.to || jobLocation),
@@ -53,8 +53,9 @@ export function HomeListings({ today }: { today: string }) {
     <section className="home-market-section" aria-labelledby="vehicle-location-heading">
       <h2 id="vehicle-location-heading" className="home-section-title"><MapPin />వాహనాల ప్రాంతం · Vehicle location</h2>
       <form className="home-location-form" onSubmit={event => { event.preventDefault(); setRoute({ from: from.trim(), to: to.trim() }); }}>
-        <div><label htmlFor="home-from">ఎక్కడి నుండి · FROM LOCATION – Current Location</label><Input id="home-from" list="home-places" value={from} onChange={e => setFrom(e.target.value)} maxLength={80} placeholder="ఊరు / జిల్లా · Place" /></div>
-        <Button type="button" onClick={locate} disabled={locating} className="whitespace-normal"><LocateFixed />{locating ? 'స్థానం చూస్తున్నాం · Locating…' : 'నా ప్రస్తుత స్థానం చూపించు · Current Location'}</Button>
+        <div><label htmlFor="home-from">ఎక్కడి నుండి · FROM LOCATION – Current Location</label><Input id="home-from" list="home-places" value={from} onChange={e => { manualFrom.current = true; setFrom(e.target.value); }} maxLength={80} placeholder="ఊరు / జిల్లా · Place" /></div>
+        <Button type="button" onClick={() => { manualFrom.current = false; manualJob.current = false; locate(); }} disabled={locating} className="whitespace-normal"><LocateFixed />{locating ? 'స్థానం చూస్తున్నాం · Locating…' : 'నా ప్రస్తుత స్థానం చూపించు · Current Location'}</Button>
+        {area && <div role="status" className="break-words text-base font-semibold"><p>ప్రస్తుత ప్రాంతం · Current area: {area.area || area.address}</p>{area.area && area.address && <p className="text-sm">{area.address}</p>}<p className="text-xs">గూగుల్ మ్యాప్స్ · Google Maps</p></div>}
         {position && <p role="status" className="break-words text-sm">{position}</p>}
         <div><label htmlFor="home-to">ఎక్కడికి · TO LOCATION – Velle Location</label><Input id="home-to" list="home-places" value={to} onChange={e => setTo(e.target.value)} maxLength={80} placeholder="ఊరు / జిల్లా · Place" /></div>
         <Button type="submit" aria-label="వాహనాలు వెతకండి · Search vehicles"><Search />వెతకండి · SEARCH</Button>
@@ -74,7 +75,7 @@ export function HomeListings({ today }: { today: string }) {
     <section className="home-market-section" aria-labelledby="job-location-heading">
       <h2 id="job-location-heading" className="home-section-title"><MapPin />ఉద్యోగాల ప్రాంతం · Job location</h2>
       <form className="flex items-end gap-2 py-3" onSubmit={event => { event.preventDefault(); setJobLocation(location.trim()); }}>
-        <div className="min-w-0 flex-1"><label htmlFor="home-job-location">పని ప్రాంతం · Work location</label><Input id="home-job-location" list="home-places" value={location} onChange={e => setLocation(e.target.value)} maxLength={80} placeholder="ఊరు / జిల్లా · Place" /></div>
+        <div className="min-w-0 flex-1"><label htmlFor="home-job-location">పని ప్రాంతం · Work location</label><Input id="home-job-location" list="home-places" value={location} onChange={e => { manualJob.current = true; setLocation(e.target.value); }} maxLength={80} placeholder="ఊరు / జిల్లా · Place" /></div>
         <Button type="submit" size="icon" variant="outline" aria-label="ఉద్యోగాలు వెతకండి · Search jobs"><Search /></Button>
         {jobLocation && <Button type="button" size="icon" variant="ghost" aria-label="ఉద్యోగ ప్రాంతం తీసేయండి · Clear job location" onClick={() => { setLocation(''); setJobLocation(''); }}><X /></Button>}
       </form>
