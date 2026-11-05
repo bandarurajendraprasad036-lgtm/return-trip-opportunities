@@ -11,6 +11,7 @@ import { homeVehicles, homeJobs, type VehicleSection } from '@/lib/home-listings
 import { VILLAGE_SUGGESTIONS } from '@/lib/job-entry';
 import { SearchExample } from '@/components/SearchExample';
 import { vehicleExample, jobExample } from '@/lib/search-examples';
+import { AreaMap } from '@/components/ChittoorMap';
 
 const sections: { key: VehicleSection; te: string; en: string }[] = [
   { key: 'local', te: 'స్థానిక వాహనాలు', en: 'Local' },
@@ -53,6 +54,7 @@ export function HomeListings({ today }: { today: string }) {
       </form>
       <datalist id="home-places">{VILLAGE_SUGGESTIONS.map(place => <option value={place} key={place} />)}</datalist>
       {(route.from || route.to) && <div className="flex items-center justify-between gap-2 py-2 text-sm"><span>{route.from || '…'} → {route.to || '…'}</span><Button variant="ghost" size="icon" aria-label="వాహన ప్రాంతం తీసేయండి · Clear vehicle location" onClick={() => { setRoute({ from: '', to: '' }); setFrom(''); setTo(''); }}><X /></Button></div>}
+      <AreaMap id="vehicle-map-heading" from={route.from} to={route.to} />
       <div className="home-vehicle-columns">
         {sections.map(section => {
           const rows = homeVehicles(posts, route.from, route.to, today, section.key);
@@ -70,6 +72,7 @@ export function HomeListings({ today }: { today: string }) {
         <Button type="submit" size="icon" variant="outline" aria-label="ఉద్యోగాలు వెతకండి · Search jobs"><Search /></Button>
         {jobLocation && <Button type="button" size="icon" variant="ghost" aria-label="ఉద్యోగ ప్రాంతం తీసేయండి · Clear job location" onClick={() => { setLocation(''); setJobLocation(''); }}><X /></Button>}
       </form>
+      {jobLocation && <AreaMap id="job-map-heading" from={jobLocation} />}
       <div className="home-job-columns">
         {([{ kind: 'seeker', te: 'నేను పని వెతుకుతున్నాను', en: 'Job Apply', display: 'పని కావాల్సినవారు', displayEn: 'Wanted Display' }, { kind: 'employer', te: 'నా దగ్గర పని ఉంది', en: 'I Have Job', display: 'ఉద్యోగ ఖాళీలు', displayEn: 'Jobs Display' }] as const).map(section => {
           const rows = homeJobs(posts, jobLocation, section.kind);
