@@ -11,7 +11,7 @@ export const JOB_CATEGORIES = [
 export const CITIES = ["Hyderabad", "Mancherial", "Bombay", "Warangal", "Karimnagar", "Vijayawada", "Guntur", "Visakhapatnam", "Bangalore", "Chennai"];
 export const ANYWHERE = "anywhere";
 export const FREE_DAILY_ALERTS = 3;
-export const PRIME_PRICE = 499;
+export { MEMBERSHIP_AMOUNT as PRIME_PRICE } from '@/lib/membership';
 export const DEFAULT_CITY = "Hyderabad";
 
 /** Matches a post location against a city/district/state query; "anywhere" matches all. */
