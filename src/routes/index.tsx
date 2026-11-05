@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Bell, MessageCircle, User } from "lucide-react";
+import { Bell, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import mata from "@/assets/gayatri-bell-daily.jpg";
@@ -60,12 +60,12 @@ function Index() {
   return (
     <div className="mx-auto min-h-screen max-w-[480px] overflow-x-hidden bg-royal">
       <section className="home-devotional bg-royal px-4 pb-6 pt-4 text-on-royal">
-        <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2">
-          <Link to="/chats" className="gold-ring" aria-label="చాట్ · Chat"><MessageCircle className="size-6" /></Link>
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <h1 className="truncate text-center text-lg font-extrabold text-gold">GAYATRI ONE</h1>
           <div className="flex gap-2">
-            <Link to="/my-posts" className="gold-ring" aria-label="ప్రొఫైల్ · Profile"><User className="size-6" /></Link>
+            <AdminChatButton compact />
             <Link to="/notifications" className="gold-ring bg-gold text-royal" aria-label="అలర్ట్స్ · Alerts"><Bell className="size-6" /></Link>
+            <Link to="/dashboard" className="gold-ring" aria-label="ప్రొఫైల్ · Profile"><User className="size-6" /></Link>
           </div>
         </div>
         <BellJoin>

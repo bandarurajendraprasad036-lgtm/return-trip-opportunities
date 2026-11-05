@@ -94,11 +94,11 @@ export function NotificationPermission({ userId }: { userId: string }) {
   );
 }
 
-/** Opens in-app chat with the admin if their account exists, otherwise WhatsApp. */
-export function useAdminChatTarget(phone: string) {
+/** Resolves support by UUID, without exposing an admin phone. */
+export function useAdminChatTarget() {
   const [id, setId] = useState<string | null>(null);
   useEffect(() => {
     supabase.rpc("support_admin_id").then(({ data }) => setId(data ?? null));
-  }, [phone]);
+  }, []);
   return id;
 }
