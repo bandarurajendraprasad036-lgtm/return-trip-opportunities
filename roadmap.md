@@ -1,4 +1,6 @@
 # Roadmap
+- [ ] November 5 05:38: show the existing responsibility disclaimer prominently at the vehicle booking/contact action; audit existing flow first, do not invent a booking system.
+- [ ] November 5 04:28: connect available Google Maps, implement authenticated automatic current-area detection and movement refresh with actual-address fallback; no database changes or live Maps sandbox checks.
 - [ ] November 5 00:02: refresh the merchant's area name automatically while moving; if no area name exists, show actual local address details. Blocked: address-name connection was declined; never show invented names.
 - [ ] November 4 23:59: on first homepage opening, request location permission and show the actual current area name (not coordinates) in the From field; preserve manual entry and errors, no invented places. Requires authorized geocoding connection.
 - [x] November 4 23:11–23:12: existing sound-only mute shared with settings; permission status and enable help added, explicit no closed-app delivery. 8 new tests passed; signed-in reload/synchronized controls verified with original preference restored. Firebase declined; no schema/server changes.
