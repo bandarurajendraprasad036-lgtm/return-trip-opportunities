@@ -35,3 +35,5 @@
 - Homepage listings reuse the active-post query and existing PostCard bell action; local vehicles require identical named endpoints until real geographic data is authorized, so proximity is never inferred.
 - The large devotional bell is the sole home bell trigger; date-based bundled engraved variants preserve gold artwork without a separate portrait overlay.
 - Firebase messaging uses a separate non-caching worker scope, owner-scoped device registration and a service-only durable delivery queue dispatched by a managed authenticated schedule; pushes contain no private job/message data and provider acceptance is never a delivery receipt.
+- Merchant area lookup uses authenticated Google gateway geocoding, bounded movement-triggered requests and in-memory session cache; stop on hidden/unmounted pages and never persist or publish precise device coordinates.
+- Vehicle contact surfaces reuse the shared responsibility notice; compact bells show it before interest submission without implying a confirmed booking.

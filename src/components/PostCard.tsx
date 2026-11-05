@@ -6,6 +6,9 @@ import { Briefcase, Calendar, MapPin, MessageCircle, Phone, Truck, IndianRupee, 
 import { Button } from "@/components/ui/button";
 import { KIND_LABEL, type Kind } from "@/lib/match";
 import type { Database } from "@/integrations/supabase/types";
+import { useState } from 'react';
+import { ResponsibilityNotice } from '@/components/ResponsibilityNotice';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 export type Post = Database["public"]["Tables"]["posts"]["Row"];
 
@@ -28,6 +31,17 @@ export function PostCard({
   const isJob = post.module === "job";
   const nav = useNavigate();
   const showPhone = !isJob || post.show_contact;
+  const [noticeOpen, setNoticeOpen] = useState(false);
+  const vehicleNotice = !isJob && <Dialog open={noticeOpen} onOpenChange={setNoticeOpen}>
+    <DialogContent className="max-h-[85svh] overflow-y-auto">
+      <DialogTitle>వాహనం సంప్రదించే ముందు · Before contacting the vehicle</DialogTitle>
+      <DialogDescription>{post.vehicle_type || post.title} · {post.from_place} → {post.to_place}</DialogDescription>
+      <ResponsibilityNotice prominent />
+      <Button onClick={() => { setNoticeOpen(false); void ring(); }}><Bell />గంట కొట్టి చాట్ చేయండి · Ring and chat</Button>
+      {post.contact_phone && <Button asChild variant="outline"><a href={`tel:${post.contact_phone}`}><Phone />కాల్ · Call</a></Button>}
+    </DialogContent>
+  </Dialog>;
+  const contact = () => { if (!isJob && post.user_id !== meId) setNoticeOpen(true); else void ring(); };
   const ring = async () => {
     if (!meId) { nav({ to: "/auth" }); return; }
     if (post.user_id === meId) {
@@ -44,7 +58,8 @@ export function PostCard({
     {!isJob && <p>{post.capacity_tons != null ? `${post.capacity_tons} టన్నులు · tons` : 'సామర్థ్యం ఇవ్వలేదు · Capacity not listed'}</p>}
     {isJob && <p>{post.location}</p>}
     {!isJob && !hideDate && post.trip_date && <p>{new Date(`${post.trip_date}T00:00:00`).toLocaleDateString('en-IN')}</p>}
-    <Button type="button" variant="outline" size="icon" onClick={ring} aria-label="గంట కొట్టి చాట్ చేయండి · Ring and chat"><Bell /></Button>
+    <Button type="button" variant="outline" size="icon" onClick={contact} aria-label="గంట కొట్టి చాట్ చేయండి · Ring and chat"><Bell /></Button>
+    {vehicleNotice}
   </article>;
   return (
     <article
@@ -63,7 +78,7 @@ export function PostCard({
         <div className="flex items-start gap-2">
           <h3 className="flex-1 text-xl font-bold leading-tight">{post.title}</h3>
           {post.status === "active" && (
-            <Button type="button" variant="secondary" size="icon" onClick={ring} aria-label="గంట కొట్టి చాట్ చేయండి · Ring and chat"><Bell className="size-5" /></Button>
+            <Button type="button" variant="secondary" size="icon" onClick={contact} aria-label="గంట కొట్టి చాట్ చేయండి · Ring and chat"><Bell className="size-5" /></Button>
           )}
         </div>
         {isJob ? (
@@ -90,6 +105,7 @@ export function PostCard({
           </div>
         )}
         {post.description && <p className="text-sm text-muted-foreground">{post.description}</p>}
+        {!isJob && meId !== post.user_id && <ResponsibilityNotice prominent />}
         <div className="flex gap-2 pt-1">
           {actions ??
             (meId !== post.user_id && (
@@ -108,6 +124,7 @@ export function PostCard({
             ))}
         </div>
       </div>
+      {vehicleNotice}
     </article>
   );
 }
