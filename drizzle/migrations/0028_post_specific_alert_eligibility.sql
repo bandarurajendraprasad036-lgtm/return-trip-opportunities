@@ -1,0 +1,9 @@
+CREATE OR REPLACE FUNCTION public.post_alert_eligible(_user uuid) RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT EXISTS(SELECT 1 FROM public.profiles WHERE id=_user AND is_prime AND prime_until>(now() AT TIME ZONE 'Asia/Kolkata')::date) OR EXISTS(SELECT 1 FROM public.post_sharing_evidence WHERE user_id=_user AND purpose='notifications' AND status='approved') $$;
+CREATE OR REPLACE FUNCTION public.guard_new_match_notifications() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ DECLARE paid boolean; BEGIN
+IF NEW.post_id IS NULL THEN RETURN NEW; END IF;
+SELECT is_prime AND prime_until>(now() AT TIME ZONE 'Asia/Kolkata')::date INTO paid FROM public.profiles WHERE id=NEW.user_id;
+IF NOT coalesce(paid,false) AND NOT EXISTS(SELECT 1 FROM public.post_sharing_evidence WHERE user_id=NEW.user_id AND post_id=NEW.post_id AND purpose='notifications' AND status='approved') THEN RETURN NULL; END IF;
+IF EXISTS(SELECT 1 FROM public.posts WHERE id IN(NEW.post_id,NEW.matched_post_id) AND (visible_after>now() OR job_expires_at<=now() OR NOT public.account_allowed(user_id))) THEN RETURN NULL; END IF; RETURN NEW; END $$;
+CREATE FUNCTION public.guard_registered_evidence_mobile() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ BEGIN IF NEW.phone IS DISTINCT FROM OLD.phone AND EXISTS(SELECT 1 FROM public.post_sharing_evidence WHERE user_id=OLD.id AND status='pending') THEN RAISE EXCEPTION 'MOBILE_LOCKED_DURING_REVIEW'; END IF; RETURN NEW; END $$;
+CREATE TRIGGER guard_registered_evidence_mobile BEFORE UPDATE ON public.profiles FOR EACH ROW EXECUTE FUNCTION public.guard_registered_evidence_mobile();
+REVOKE ALL ON FUNCTION public.guard_registered_evidence_mobile() FROM PUBLIC,anon,authenticated;

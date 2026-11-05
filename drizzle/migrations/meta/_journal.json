@@ -197,6 +197,13 @@
       "when": 1793864830097,
       "tag": "0027_blocked_actor_and_post_visibility_guards",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1793864970894,
+      "tag": "0028_post_specific_alert_eligibility",
+      "breakpoints": true
     }
   ]
 }
