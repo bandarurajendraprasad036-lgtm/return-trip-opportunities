@@ -17,7 +17,6 @@ import { ProfileNotice } from "@/components/ProfileNotice";
 import { ResponsibilityNotice } from "@/components/ResponsibilityNotice";
 import { AdminChatButton } from "@/components/AdminChatButton";
 import { HomeListings } from "@/components/HomeListings";
-import { ChittoorMap } from "@/components/ChittoorMap";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -79,7 +78,6 @@ function Index() {
       <ProfileNotice />
       <section className="space-y-3 px-5 pb-8 pt-4">
         <HomeListings today={day} />
-        <ChittoorMap />
         {ytId && (
           <div className="overflow-hidden rounded-xl border bg-card shadow-card">
             <p className="p-3 font-bold">🎬 మా గురించి · About us</p>
