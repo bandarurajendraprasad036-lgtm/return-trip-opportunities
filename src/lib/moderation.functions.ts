@@ -5,7 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 export const checkPostText = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { text: string }) => ({ text: String(input?.text ?? "").slice(0, 3000) }))
-  .handler(async ({ data }) => {
+  .handler(async ({ data,context }) => {
     if (data.text.trim().length < 2) return { ok: true };
     const { generateResponse } = await import("@lovable.dev/ai-gateway");
     try {
@@ -18,9 +18,11 @@ export const checkPostText = createServerFn({ method: "POST" })
       });
       let out = "";
       for (const item of res.output ?? []) if (item.type === "message") for (const c of item.content) if (c.type === "output_text") out += c.text;
-      return { ok: !(JSON.parse(out || "{}") as { blocked?: boolean }).blocked };
+      const blocked=JSON.parse(out || '{}') as {blocked?:boolean};
+      if(blocked.blocked){const {supabaseAdmin}=await import('@/integrations/supabase/client.server');const result=await supabaseAdmin.rpc('block_confirmed_content',{_user:context.userId,_reason:'నిషేధిత దూషణ లేదా హింస ప్రోత్సాహక విషయం · Prohibited abusive or violent content'});if(result.error)throw result.error;}
+      return {ok:!blocked.blocked};
     } catch (e) {
       console.error("moderation failed", e);
-      return { ok: true }; // word-list trigger in the database still applies
+      return { ok: false }; // Do not publish content if the moderation service is unavailable.
     }
   });
