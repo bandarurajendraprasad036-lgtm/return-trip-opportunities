@@ -22,7 +22,7 @@ import { capacityInput } from "@/lib/vehicle-experience";
 import { VEHICLE_TYPES, isCar } from '@/lib/vehicle-types';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { JobSuggestionInput } from '@/components/JobSuggestionInput';
-import { generalWorkValue, hasProhibitedJobWords, jobPostIdentity, VILLAGE_SUGGESTIONS, WORK_SUGGESTIONS } from '@/lib/job-entry';
+import { generalWorkValue, hasProhibitedJobWords, jobPostIdentity, WORK_SUGGESTIONS } from '@/lib/job-entry';
 import { IndiaPlaceInput } from '@/components/IndiaPlaceInput';
 import { RoutePointPicker } from '@/components/RoutePointPicker';
 import type { Coordinates } from '@/lib/india-places';
@@ -186,10 +186,10 @@ function NewPost() {
     const identity = kind === 'seeker' || kind === 'employer'
       ? jobPostIdentity(kind, v['skill'] ?? '')
       : { module: opt.module, kind, title: kind === 'owner' ? `${v['vehicle_type']} ఖాళీగా వస్తోంది` : `${v['goods_type']} కోసం వాహనం కావాలి` };
+    const capturedPoints = { from: fromPoint, to: toPoint };
     setBusy(true);
     const mod = await checkText({ data: { text: Object.values(v).join(" \n ") } }).catch(() => ({ ok: false }));
     if (!mod.ok) { setBusy(false); await qc.invalidateQueries({queryKey:['me']}); setContentError('తనిఖీ పూర్తికాలేదు లేదా అనుమతించని విషయం ఉంది; ప్రకటన పంపలేదు. · Check unavailable or prohibited content; not submitted.'); return; }
-    const capturedPoints = { from: fromPoint, to: toPoint };
     const { data: savedPost, error } = await supabase.from("posts").insert({ ...v, ...(!isJob ? { capacity_tons: capacity?.success ? capacity.data : null, vehicle_type: f["vehicle_type"]?.trim().slice(0, 60) || null } : {}), show_contact: show_contact === "1", user_id: me.id, ...identity }).select('id,visible_after').single();
     if (!error && savedPost && !isJob && capturedPoints.from && capturedPoints.to) {
       const registered = await supabase.rpc('save_vehicle_post_points', { _post: savedPost.id, _from_lat: capturedPoints.from.latitude, _from_lng: capturedPoints.from.longitude, _to_lat: capturedPoints.to.latitude, _to_lng: capturedPoints.to.longitude });

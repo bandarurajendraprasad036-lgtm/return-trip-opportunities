@@ -3,12 +3,10 @@ import { Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { MapPin, Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { PostCard, type Post } from '@/components/PostCard';
 import { supabase } from '@/integrations/supabase/client';
 import { useMe } from '@/lib/session';
 import { homeVehicleResults, homeJobs, type HomeVehicleSection } from '@/lib/home-listings';
-import { VILLAGE_SUGGESTIONS } from '@/lib/job-entry';
 import { SearchExample } from '@/components/SearchExample';
 import { vehicleExample, jobExample } from '@/lib/search-examples';
 import { IndiaMap } from '@/components/IndiaMap';
@@ -60,7 +58,6 @@ export function HomeListings({ today }: { today: string }) {
         </div>
         <Button type="submit" aria-label="వాహనాలు వెతకండి · Search vehicles"><Search />వెతకండి · SEARCH</Button>
       </form>
-      <datalist id="home-places">{VILLAGE_SUGGESTIONS.map(place => <option value={place} key={place} />)}</datalist>
       {(route.from || route.to) && <div className="flex items-center justify-between gap-2 py-2 text-sm"><span>{route.from || '…'} → {route.to || '…'}</span><Button variant="ghost" size="icon" aria-label="వాహన ప్రాంతం తీసేయండి · Clear vehicle location" onClick={() => { setRoute({ from: '', to: '' }); setFrom(''); setTo(''); setMapSelection({}); }}><X /></Button></div>}
       <IndiaMap selection={mapSelection} />
       <form className="space-y-2 py-3" onSubmit={event => { event.preventDefault(); searchLocal(); }}>

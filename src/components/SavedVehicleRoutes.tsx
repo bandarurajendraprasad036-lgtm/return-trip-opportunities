@@ -5,7 +5,6 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useMe } from '@/lib/session';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { IndiaPlaceInput } from '@/components/IndiaPlaceInput';
 import { RoutePointPicker } from '@/components/RoutePointPicker';
 import type { Coordinates } from '@/lib/india-places';
