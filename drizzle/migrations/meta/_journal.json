@@ -148,6 +148,13 @@
       "when": 1793848522134,
       "tag": "0020_firebase_private_push_delivery",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1793863418893,
+      "tag": "0021_monthly_membership_prices",
+      "breakpoints": true
     }
   ]
 }
