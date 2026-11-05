@@ -26,3 +26,11 @@ export function homeJobs(posts: Post[], location: string, kind: 'seeker' | 'empl
   return posts.filter(post => jobIsVisible(post) && post.module === 'job'
     && post.kind === kind && normalized(post.location).includes(place));
 }
+
+// Named-area search only: an endpoint match is not proof of proximity or a local trip.
+export function homeLocalVehicles(posts: Post[], area: string) {
+  const terms = normalized(area).split(/[\s,]+/).filter(Boolean);
+  if (!terms.length) return [];
+  return posts.filter(post => post.status === 'active' && post.module === 'vehicle' && terms.every(term =>
+    normalized([post.from_place, post.to_place, post.location, post.district, post.state].filter(Boolean).join(' ')).includes(term)));
+}

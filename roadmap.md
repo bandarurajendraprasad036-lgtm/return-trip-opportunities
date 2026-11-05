@@ -1,4 +1,5 @@
 # Roadmap
+- [x] November 5 08:44: separate national local-area vehicle search matches actual endpoint/location/district/state terms including streets/colonies; national map and route search preserved, no proximity inferred. Unit and public search UI checks; real local vehicle readback needs an existing matching record, not published.
 - [x] November 5 08:41: fixed India map/search link, nationwide service text and anywhere From/To form; no user records changed or confirmed bookings added. Live map verification requires deployed origin; not published.
 - [x] November 5 08:35 correction: Chittoor is only an example; keyless map follows submitted India-wide vehicle endpoints or job area, accepts either endpoint alone and defaults to India. Existing listing/contact flows preserved; no confirmed booking or live tracking added. Live Maps remains user verification on deployed origin; not published.
 - [x] November 5 08:33 keyless Chittoor Google Maps iframe, city address and external directions button; removed homepage automatic geocoding dependency. No connector secrets or backend settings changed; live Maps verification requires deployed origin, not published.
