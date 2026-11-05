@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { setupOfflineSupport } from "@/lib/offline";
+import { PushSoundSync } from '@/components/PushSoundSync';
 
 function NotFoundComponent() {
   return (
@@ -144,6 +145,7 @@ function RootComponent() {
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
       <PhoneGate />
+      <PushSoundSync />
       <Referral />
       <Toaster position="top-center" richColors />
     </QueryClientProvider>

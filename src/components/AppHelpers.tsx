@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { toast } from 'sonner';
 import { permissionThanks } from '@/lib/friendly-notifications';
 import { enableBellAudio,playBell } from '@/lib/bell';
-import { permissionHelp, requestBrowserPermission } from '@/lib/browser-notifications';
+import { permissionHelp } from '@/lib/browser-notifications';
 import { enablePush, pushDeviceId, deviceSound } from '@/lib/firebase-push';
 import { registerPushDevice } from '@/lib/push.functions';
 import { useServerFn } from '@tanstack/react-start';
