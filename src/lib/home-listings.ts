@@ -1,7 +1,9 @@
 import type { Post } from '@/components/PostCard';
 import { jobIsVisible } from '@/lib/post-publication';
+import { isCar } from '@/lib/vehicle-types';
 
 export type VehicleSection = 'local' | 'return' | 'advance';
+export type HomeVehicleSection = 'local' | 'return' | 'cars';
 const normalized = (value: string | null | undefined) => value?.trim().toLocaleLowerCase() ?? '';
 
 // Without map data, only identical named endpoints establish a local trip.
@@ -33,4 +35,15 @@ export function homeLocalVehicles(posts: Post[], area: string) {
   if (!terms.length) return [];
   return posts.filter(post => post.status === 'active' && post.module === 'vehicle' && terms.every(term =>
     normalized([post.from_place, post.to_place, post.location, post.district, post.state].filter(Boolean).join(' ')).includes(term)));
+}
+
+// Categories use the same submitted route or named area; never infer distance/booking.
+export function homeVehicleResults(posts: Post[], selection: { from: string; to: string; area: string }, today: string, section: HomeVehicleSection) {
+  const start = normalized(selection.from), end = normalized(selection.to);
+  const rows = selection.area.trim() ? homeLocalVehicles(posts, selection.area) : posts.filter(post =>
+    jobIsVisible(post) && post.module === 'vehicle' && Boolean(start || end)
+    && (!start || normalized(post.from_place).includes(start))
+    && (!end || normalized(post.to_place).includes(end)));
+  return rows.filter(post => jobIsVisible(post) && (section === 'cars' ? isCar(post.vehicle_type)
+    : !isCar(post.vehicle_type) && (section === 'local' || vehicleSection(post, today) === 'return')));
 }

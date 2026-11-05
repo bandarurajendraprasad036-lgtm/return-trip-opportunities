@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { ResponsibilityNotice } from '@/components/ResponsibilityNotice';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { jobIsVisible } from '@/lib/post-publication';
+import { isCar, vehicleTypeLabel } from '@/lib/vehicle-types';
 
 export type Post = Database["public"]["Tables"]["posts"]["Row"];
 
@@ -55,8 +56,9 @@ export function PostCard({
     if (data) nav({ to: "/chat/$userId", params: { userId: data }, search: { post: post.id } });
   };
   if (compact) return <article className="home-post-row">
-    <h4>{isJob ? post.title : post.vehicle_type || post.title}</h4>
-    {!isJob && <p>{post.capacity_tons != null ? `${post.capacity_tons} టన్నులు · tons` : 'సామర్థ్యం ఇవ్వలేదు · Capacity not listed'}</p>}
+    <h4>{isJob ? post.title : vehicleTypeLabel(post.vehicle_type) || post.title}</h4>
+    {!isJob && <p className="break-words">{post.from_place} → {post.to_place}</p>}
+    {!isJob && !isCar(post.vehicle_type) && <p>{post.capacity_tons != null ? `${post.capacity_tons} టన్నులు · tons` : 'సామర్థ్యం ఇవ్వలేదు · Capacity not listed'}</p>}
     {isJob && <p>{post.location}</p>}
     {!isJob && !hideDate && post.trip_date && <p>{new Date(`${post.trip_date}T00:00:00`).toLocaleDateString('en-IN')}</p>}
     <Button type="button" variant="outline" size="icon" onClick={contact} aria-label="గంట కొట్టి చాట్ చేయండి · Ring and chat"><Bell /></Button>
@@ -99,7 +101,7 @@ export function PostCard({
               {post.trip_date && (
                 <span className="flex items-center gap-1"><Calendar className="size-4" />{new Date(post.trip_date).toLocaleDateString("en-IN")}</span>
               )}
-              {post.vehicle_type && <span>🚚 {post.vehicle_type}</span>}
+              {post.vehicle_type && <span>{isCar(post.vehicle_type) ? '🚗' : '🚚'} {vehicleTypeLabel(post.vehicle_type)}</span>}
               {post.capacity_tons != null && <span>{post.capacity_tons} టన్నులు · tons</span>}
               {post.goods_type && <span>📦 {post.goods_type}</span>}
             </div>

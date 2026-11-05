@@ -7,17 +7,17 @@ import { Input } from '@/components/ui/input';
 import { PostCard, type Post } from '@/components/PostCard';
 import { supabase } from '@/integrations/supabase/client';
 import { useMe } from '@/lib/session';
-import { homeVehicles, homeJobs, homeLocalVehicles, type VehicleSection } from '@/lib/home-listings';
+import { homeVehicleResults, homeJobs, type HomeVehicleSection } from '@/lib/home-listings';
 import { VILLAGE_SUGGESTIONS } from '@/lib/job-entry';
 import { SearchExample } from '@/components/SearchExample';
 import { vehicleExample, jobExample } from '@/lib/search-examples';
 import { IndiaMap } from '@/components/IndiaMap';
 import type { MapSelection } from '@/lib/area-map';
 
-const sections: { key: VehicleSection; te: string; en: string }[] = [
-  { key: 'local', te: 'స్థానిక వాహనాలు', en: 'Local' },
+const sections: { key: HomeVehicleSection; te: string; en: string }[] = [
+  { key: 'local', te: 'స్థానిక సరకు వాహనాలు', en: 'Local Goods' },
   { key: 'return', te: 'తిరిగి వచ్చే వాహనాలు', en: 'Return Goods' },
-  { key: 'advance', te: 'ముందస్తు తిరిగి వచ్చే వాహనాలు', en: 'Advance' },
+  { key: 'cars', te: 'లోకల్ కార్స్', en: 'Local Cars' },
 ];
 
 export function HomeListings({ today }: { today: string }) {
@@ -29,6 +29,8 @@ export function HomeListings({ today }: { today: string }) {
   const [localInput, setLocalInput] = useState('');
   const [localArea, setLocalArea] = useState('');
   const [mapSelection, setMapSelection] = useState<MapSelection>({});
+  const [vehicleSection, setVehicleSection] = useState<HomeVehicleSection>('return');
+  const vehicleSelection = { ...route, area: localArea };
   const searchLocal = () => { const area = localInput.trim(); setLocalArea(area); setMapSelection({ area }); };
   const { data: me } = useMe();
   const { data: posts = [], isLoading, isError } = useQuery({
@@ -40,6 +42,7 @@ export function HomeListings({ today }: { today: string }) {
       return data as Post[];
     },
   });
+  const vehicleRows = homeVehicleResults(posts, vehicleSelection, today, vehicleSection);
   const message = (searched: boolean, empty: boolean) => {
     if (!searched) return <p className="home-empty">ప్రాంతం ఎంచుకోండి<br /><span>Choose location</span></p>;
     if (isLoading) return <p role="status" className="home-empty">వస్తున్నాయి · Loading…</p>;
@@ -48,13 +51,11 @@ export function HomeListings({ today }: { today: string }) {
     return null;
   };
   return <>
-    <p className="py-3 text-center text-base font-semibold text-gold">భారతదేశమంతా సేవలు — భారతదేశంలో ఎక్కడి నుంచైనా ఎక్కడికైనా<span className="mt-1 block">Serving All Over India - From Anywhere to Anywhere in India</span></p>
-    <section className="home-market-section" aria-labelledby="vehicle-location-heading">
-      <h2 id="vehicle-location-heading" className="home-section-title"><MapPin />వాహన ప్రయాణ వివరాలు · Booking form</h2>
-      <form className="home-location-form" onSubmit={event => { event.preventDefault(); const next = { from: from.trim(), to: to.trim() }; setRoute(next); setMapSelection(next); }}>
+    <section className="home-market-section" aria-label="వాహనాల వెతుకులాట · Vehicle search">
+      <form className="home-location-form" onSubmit={event => { event.preventDefault(); const next = { from: from.trim(), to: to.trim() }; setRoute(next); setLocalArea(''); setLocalInput(''); setMapSelection(next); }}>
         <div className="grid grid-cols-2 gap-2">
-        <div className="min-w-0"><label htmlFor="home-from">నుండి · From Location<span className="block text-sm">భారత్‌లో ఎక్కడైనా · Anywhere in India</span></label><Input id="home-from" list="home-places" value={from} onChange={e => setFrom(e.target.value)} maxLength={80} placeholder="భారత్‌లో ఎక్కడైనా" /></div>
-        <div className="min-w-0"><label htmlFor="home-to">వరకు · To Location<span className="block text-sm">భారత్‌లో ఎక్కడైనా · Anywhere in India</span></label><Input id="home-to" list="home-places" value={to} onChange={e => setTo(e.target.value)} maxLength={80} placeholder="భారత్‌లో ఎక్కడైనా" /></div>
+        <div className="min-w-0"><label htmlFor="home-from">నుండి · From Location</label><Input id="home-from" list="home-places" value={from} onChange={e => setFrom(e.target.value)} maxLength={80} placeholder="ఊరు / ప్రాంతం" /></div>
+        <div className="min-w-0"><label htmlFor="home-to">వరకు · To Location</label><Input id="home-to" list="home-places" value={to} onChange={e => setTo(e.target.value)} maxLength={80} placeholder="ఊరు / ప్రాంతం" /></div>
         </div>
         <Button type="submit" aria-label="వాహనాలు వెతకండి · Search vehicles"><Search />వెతకండి · SEARCH</Button>
       </form>
@@ -64,18 +65,16 @@ export function HomeListings({ today }: { today: string }) {
       <form className="space-y-2 py-3" onSubmit={event => { event.preventDefault(); searchLocal(); }}>
         <label htmlFor="home-local-area" className="block font-semibold">స్థానిక సరకు వాహనాల ప్రాంతం · Local goods vehicle area</label>
         <Input id="home-local-area" value={localInput} onChange={event => setLocalInput(event.target.value)} maxLength={120} placeholder="ఊరు, కాలనీ లేదా గల్లీ · City, colony or street" />
-        <div className="flex gap-2"><Button type="button" onClick={searchLocal} className="flex-1 whitespace-normal"><Search />స్థానిక వాహనాలు వెతకండి · Search local vehicles</Button>{localArea && <Button type="button" variant="ghost" size="icon" aria-label="స్థానిక ప్రాంతం తీసేయండి · Clear local area" onClick={() => { setLocalInput(''); setLocalArea(''); setMapSelection({}); }}><X /></Button>}</div>
+        <div className="flex gap-2"><Button type="submit" className="flex-1 whitespace-normal"><Search />స్థానిక వాహనాలు వెతకండి · Search local vehicles</Button>{localArea && <Button type="button" variant="ghost" size="icon" aria-label="స్థానిక ప్రాంతం తీసేయండి · Clear local area" onClick={() => { setLocalInput(''); setLocalArea(''); setMapSelection(route); }}><X /></Button>}</div>
       </form>
-      <div className="home-vehicle-columns">
-        {sections.map(section => {
-          const rows = section.key === 'local' && localArea ? homeLocalVehicles(posts, localArea) : homeVehicles(posts, route.from, route.to, today, section.key);
-          return <section key={section.key} aria-label={section.en} className="home-display-column">
-            <h3>{section.te}<span>{section.en}</span></h3>
-            {section.key === 'local' && localArea && <p className="break-words text-sm">నమోదైన ప్రాంతం · Listed area: {localArea}</p>}
-            <div className="home-display-list">{message(Boolean(section.key === 'local' ? localArea || route.from || route.to : route.from || route.to), rows.length === 0)}{rows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact hideDate={section.key === 'local'} />)}{!isLoading && !isError && rows.length === 0 && section.key === 'return' && vehicleExample(route.from, route.to) && <SearchExample example={{ type: 'vehicle', from: route.from, to: route.to }} />}</div>
-          </section>;
-        })}
+      <div className="grid grid-cols-3 gap-2" role="group" aria-label="వాహన ఎంపికలు · Vehicle options">
+        {sections.map(section => <Button key={section.key} type="button" variant={vehicleSection === section.key ? 'default' : 'outline'} aria-pressed={vehicleSection === section.key} aria-controls="home-vehicle-results" className="h-auto min-h-20 whitespace-normal px-1 py-2 text-sm" onClick={() => { setVehicleSection(section.key); setMapSelection(localArea ? { area: localArea } : route); }}><span>{section.te}<span className="block text-xs">{section.en}</span></span></Button>)}
       </div>
+      <section id="home-vehicle-results" className="home-display-column mt-3" aria-live="polite" aria-label="వాహన ఫలితాలు · Vehicle results">
+        <h3>{sections.find(section => section.key === vehicleSection)?.te}</h3>
+        {localArea && <p className="break-words text-sm">నమోదైన ప్రాంతం · Listed area: {localArea}</p>}
+        <div className="home-display-list">{message(Boolean(localArea || route.from || route.to), vehicleRows.length === 0)}{vehicleRows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact hideDate={vehicleSection === 'local'} />)}{!isLoading && !isError && !localArea && vehicleRows.length === 0 && vehicleSection === 'return' && vehicleExample(route.from, route.to) && <SearchExample example={{ type: 'vehicle', from: route.from, to: route.to }} />}</div>
+      </section>
     </section>
     <section className="home-market-section" aria-labelledby="job-location-heading">
       <h2 id="job-location-heading" className="home-section-title"><MapPin />ఉద్యోగాల ప్రాంతం · Job location</h2>
