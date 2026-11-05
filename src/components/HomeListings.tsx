@@ -61,7 +61,7 @@ export function HomeListings({ today }: { today: string }) {
       <form className="space-y-2 py-3" onSubmit={event => { event.preventDefault(); setLocalArea(localInput.trim()); }}>
         <label htmlFor="home-local-area" className="block font-semibold">స్థానిక సరకు వాహనాల ప్రాంతం · Local goods vehicle area</label>
         <Input id="home-local-area" value={localInput} onChange={event => setLocalInput(event.target.value)} maxLength={120} placeholder="ఊరు, కాలనీ లేదా గల్లీ · City, colony or street" />
-        <div className="flex gap-2"><Button type="submit" className="flex-1 whitespace-normal"><Search />స్థానిక వాహనాలు వెతకండి · Search local vehicles</Button>{localArea && <Button type="button" variant="ghost" size="icon" aria-label="స్థానిక ప్రాంతం తీసేయండి · Clear local area" onClick={() => { setLocalInput(''); setLocalArea(''); }}><X /></Button>}</div>
+        <div className="flex gap-2"><Button type="submit" onClick={() => setLocalArea(localInput.trim())} className="flex-1 whitespace-normal"><Search />స్థానిక వాహనాలు వెతకండి · Search local vehicles</Button>{localArea && <Button type="button" variant="ghost" size="icon" aria-label="స్థానిక ప్రాంతం తీసేయండి · Clear local area" onClick={() => { setLocalInput(''); setLocalArea(''); }}><X /></Button>}</div>
       </form>
       <div className="home-vehicle-columns">
         {sections.map(section => {
