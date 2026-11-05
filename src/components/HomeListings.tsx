@@ -34,7 +34,6 @@ export function HomeListings({ today }: { today: string }) {
   const { data: me } = useMe();
   const { data: posts = [], isLoading, isError } = useQuery({
     queryKey: ['posts'],
-    enabled: Boolean(route.from || route.to || jobLocation || localArea),
     queryFn: async () => {
       const { data, error } = await supabase.from('posts').select('*').eq('status', 'active').order('created_at', { ascending: false }).limit(200);
       if (error) throw error;
@@ -71,7 +70,7 @@ export function HomeListings({ today }: { today: string }) {
       <section id="home-vehicle-results" className="home-display-column mt-3" aria-live="polite" aria-label="వాహన ఫలితాలు · Vehicle results">
         <h3>{sections.find(section => section.key === vehicleSection)?.te}</h3>
         {localArea && <p className="break-words text-sm">నమోదైన ప్రాంతం · Listed area: {localArea}</p>}
-        <div className="home-display-list">{message(Boolean(localArea || route.from || route.to), vehicleRows.length === 0)}{vehicleRows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact hideDate={vehicleSection === 'local'} />)}{!isLoading && !isError && !localArea && vehicleRows.length === 0 && vehicleSection === 'return' && vehicleExample(route.from, route.to) && <SearchExample example={{ type: 'vehicle', from: route.from, to: route.to }} />}</div>
+        <div className="home-display-list">{message(true, vehicleRows.length === 0)}{vehicleRows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact hideDate={vehicleSection === 'local'} />)}{!isLoading && !isError && !localArea && vehicleRows.length === 0 && vehicleSection === 'return' && vehicleExample(route.from, route.to) && <SearchExample example={{ type: 'vehicle', from: route.from, to: route.to }} />}</div>
       </section>
     </section>
     <section className="home-market-section" aria-labelledby="job-location-heading">
