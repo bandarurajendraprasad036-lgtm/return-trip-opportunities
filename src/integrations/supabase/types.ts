@@ -881,6 +881,44 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicle_route_preferences: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          from_place: string
+          id: string
+          radius_percent: number
+          to_place: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          from_place: string
+          id?: string
+          radius_percent?: number
+          to_place: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          from_place?: string
+          id?: string
+          radius_percent?: number
+          to_place?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_route_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -974,6 +1012,10 @@ export type Database = {
           _service: string
         }
         Returns: undefined
+      }
+      save_vehicle_route: {
+        Args: { _from: string; _to: string }
+        Returns: string
       }
       send_referral_reminders: { Args: never; Returns: number }
       service_profile_data: { Args: { _id: string }; Returns: Json }

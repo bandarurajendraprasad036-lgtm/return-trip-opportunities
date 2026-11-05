@@ -8,10 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { BrowserNotificationSettings } from '@/components/BrowserNotificationSettings';
 import { RouteRadiusSetting } from '@/components/RouteRadiusSetting';
+import { SavedVehicleRoutes } from '@/components/SavedVehicleRoutes';
 export function NotificationSettings() {
  const {data:me}=useMe();
  if(!me)return null;
- return <><BrowserNotificationSettings /><RouteRadiusSetting /><AccountNotificationSettings /></>;
+ return <><BrowserNotificationSettings /><RouteRadiusSetting /><SavedVehicleRoutes /><AccountNotificationSettings /></>;
 }
 function AccountNotificationSettings() {
  const {data:me}=useMe();const qc=useQueryClient();const [enabled,setEnabled]=useState(true);const [limit,setLimit]=useState('3');const [zone,setZone]=useState('Asia/Kolkata');const [start,setStart]=useState('');const [end,setEnd]=useState('');const [busy,setBusy]=useState(false);
