@@ -141,6 +141,13 @@
       "when": 1793789529704,
       "tag": "0019_account_notification_preferences",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1793848522134,
+      "tag": "0020_firebase_private_push_delivery",
+      "breakpoints": true
     }
   ]
 }
