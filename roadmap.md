@@ -1,5 +1,9 @@
 # Roadmap
-- [ ] November 5 11:23: PAUSED by user; note only bell-click notification/mobile-number request. Recipient and number capture versus delivery unresolved; no implementation or live test sends until renewed permission.
+- [ ] November 5 11:28 point 1 first: extend actual approximate 20% endpoint targeting to eligible businesses and vehicle owners; audit existing dispatcher/consent/evidence and verify safe durable delivery.
+- [ ] November 5 11:28 points 2/3: genuine advance availability notices and previous route request/travel audiences; no booking or completed travel inferred from bell/chat.
+- [ ] November 5 11:28 point 4: cars-only selector/listings, no bicycles; do not delete historical posts.
+- [ ] November 5 11:28 point 5: Mata bell opens own mobile capture + explicit own-device notice flow after Google sign-in, truthful status, quotas/preferences preserved.
+- [x] November 5 11:23 pause superseded by 11:28 explicit implementation authorization; bell recipient clarified as user's own phone.
 - [x] November 5 11:07: attributed GeoNames India populated/admin place prefix shards, one-letter top list/two-letter wider list, eight suggestions with state and available Telugu names; home/local/job/new-post/saved-route inputs reuse it. Not every street or Telugu name is covered; manual entry/map selection remain. Mobile two-letter list checked.
 - [x] November 5 11:01: selected private endpoint coordinates, straight-line approximation ×20%, SQL candidate queue and existing scheduled dispatcher integration. 26 focused tests passed. Signed-in route save/reload/delete and Leaflet map clicks with six real loaded tiles, no runtime errors/mobile overflow verified. Test route removed. No paid distance/geocoding API; normal operating costs not guaranteed zero.
 - [ ] Approximate geographic delivery verification: no new real matching vehicle/evidence and no receiving-device receipt tested; must publish updated existing dispatcher and test with consenting real participants. No live test notice sent. Coordinates are selected claims, not verified physical location/road geometry.
