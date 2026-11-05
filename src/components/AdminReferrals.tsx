@@ -36,7 +36,7 @@ export function AdminReferrals() {
             <div key={i} className="rounded-lg border p-3 text-sm">
               <p><b>{r.referrer || "?"}</b> ({r.referrer_phone}) → <b>{r.new_user || "?"}</b> ({r.new_phone})</p>
               <p className="text-muted-foreground">{new Date(r.joined).toLocaleDateString("en-IN")}</p>
-              <p>కొత్త యూజర్ ₹499: {r.new_paid ? "✅ చెల్లించారు" : "❌ లేదు"} · ఉచిత నెలలు: <b>{r.referrer_free_months}</b></p>
+              <p>సభ్యత్వ చెల్లింపు: {r.new_paid ? "✅ చెల్లించారు" : "❌ లేదు"} · ఉచిత నెలలు: <b>{r.referrer_free_months}</b></p>
             </div>
           ))}
         </div>

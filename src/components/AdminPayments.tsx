@@ -8,7 +8,7 @@ export function AdminPayments() {
   const qc = useQueryClient();
   const [busy, setBusy] = useState(false);
   const payments = useQuery({ queryKey: ["admin-payments"], refetchInterval: 15000, queryFn: async () => {
-    const { data, error } = await supabase.from("membership_payments").select("id,transaction_id,amount,status,user_id,created_at").eq("status", "pending").order("created_at");
+    const { data, error } = await supabase.from("membership_payments").select("id,transaction_id,amount,status,user_id,created_at,membership_type,referral_numbers").eq("status", "pending").order("created_at");
     if (error) throw error;
     return data ?? [];
   }});
@@ -26,6 +26,6 @@ export function AdminPayments() {
   return <section className="space-y-3 border-y py-4"><h3 className="text-xl font-bold">చెల్లింపుల పరిశీలన · Payment review</h3>
     {payments.isError && <Button onClick={() => payments.refetch()}>మళ్లీ చూడండి · Retry</Button>}
     {payments.data?.length === 0 && <p>పరిశీలనకు చెల్లింపులు లేవు · No pending payments</p>}
-    {payments.data?.map(payment => <article key={payment.id} className="space-y-2 border-b py-3"><p className="break-all">₹{payment.amount} · {payment.transaction_id}</p><p className="break-all text-xs">{payment.id}</p><div className="flex gap-2"><Button disabled={busy} onClick={() => review(payment.id, true)}>ఆమోదించు · Approve</Button><Button variant="outline" disabled={busy} onClick={() => review(payment.id, false)}>తిరస్కరించు · Reject</Button></div></article>)}
+    {payments.data?.map(payment => <article key={payment.id} className="space-y-2 border-b py-3"><p className="break-all">₹{payment.amount} · {payment.transaction_id}</p><p>{payment.membership_type === 'group' ? 'నలుగురికి ఒక నెల · Four people, one month' : 'ఒక్కరికి ఒక నెల · Individual, one month'}</p>{payment.membership_type === 'group' && <p className="break-words">{payment.referral_numbers.join(', ')}</p>}<p className="break-all text-xs">{payment.id}</p><div className="flex gap-2"><Button disabled={busy} onClick={() => review(payment.id, true)}>ఆమోదించు · Approve</Button><Button variant="outline" disabled={busy} onClick={() => review(payment.id, false)}>తిరస్కరించు · Reject</Button></div></article>)}
   </section>;
 }

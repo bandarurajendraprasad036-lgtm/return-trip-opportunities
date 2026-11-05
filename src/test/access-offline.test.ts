@@ -26,8 +26,8 @@ describe("Offline registration safety", () => {
   });
 });
 describe("Existing membership payment", () => {
-  it("keeps the confirmed 499 amount and validates transaction numbers", () => {
-    expect(MEMBERSHIP_AMOUNT).toBe(499);
+  it("uses the confirmed 699 amount and validates transaction numbers", () => {
+    expect(MEMBERSHIP_AMOUNT).toBe(699);
     expect(paymentInput.safeParse({ transaction_id: "123", membership_type: "individual", referral_numbers: [] }).success).toBe(false);
     expect(paymentInput.safeParse({ transaction_id: "123456789012", membership_type: "individual", referral_numbers: [] }).success).toBe(true);
   });

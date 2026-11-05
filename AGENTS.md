@@ -38,3 +38,4 @@
 - Merchant area lookup uses authenticated Google gateway geocoding, bounded movement-triggered requests and in-memory session cache; stop on hidden/unmounted pages and never persist or publish precise device coordinates.
 - Vehicle contact surfaces reuse the shared responsibility notice; compact bells show it before interest submission without implying a confirmed booking.
 - Search examples are separate presentation-only objects without post or user IDs; their bells never call interest or booking APIs.
+- Membership prices share one frontend source; SQL validates new plans while retaining historical amounts, and locked admin review grants group time atomically to four distinct registered accounts.

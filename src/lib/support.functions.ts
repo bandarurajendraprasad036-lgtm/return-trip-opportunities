@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { MEMBERSHIP_AMOUNT, GROUP_MEMBERSHIP_AMOUNT } from '@/lib/membership';
 
 const HELP = `Gayatri One (గాయత్రి వన్) help facts:
 - Free app for jobs (seeker/employer), return-trip vehicles (owner/business) and local services.
@@ -7,8 +8,8 @@ const HELP = `Gayatri One (గాయత్రి వన్) help facts:
 - Post: tap "Post" (పోస్ట్), choose type, fill details. Abusive or anti-national words are blocked.
 - Job match = same location/area. Vehicle match = same From, To and date. Both sides get an alert.
 - Area options per post: local, district, state, all India.
-- Free users get up to 3 match alerts per day. Prime (₹499/month) shows your photo/phone publicly and unlimited alerts.
-- Pay ₹499 by scanning the bank QR on the membership page, then submit the UTR/transaction number; admin approves.
+- Free users get up to 3 match alerts per day. Prime is ₹${MEMBERSHIP_AMOUNT}/month for one person or ₹${GROUP_MEMBERSHIP_AMOUNT}/month for four registered people. Contact visibility requires separate consent.
+- Scan the membership bank QR for the selected plan, submit the UTR; admin verifies bank receipt. Group includes payer and three distinct registered mobiles; approval adds one month to each. Old payment records retain their original amounts.
 - Paid members get a referral code: refer 3 people per day; reaching the month's target gives next month free.
 - My posts page: close or delete your posts. Notifications page shows matches.
 - Install the app from the home page "Install" button.`;

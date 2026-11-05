@@ -48,5 +48,5 @@ import { locationMatches, FREE_DAILY_ALERTS, PRIME_PRICE } from "@/lib/jobs";
 describe("job search & plan rules", () => {
   it("anywhere in India matches every city", () => expect(locationMatches("Mancherial", "anywhere")).toBe(true));
   it("city filter excludes other cities", () => expect(locationMatches("Bombay", "Hyderabad")).toBe(false));
-  it("free users get 3 alerts a day, Prime costs 499", () => { expect(FREE_DAILY_ALERTS).toBe(3); expect(PRIME_PRICE).toBe(499); });
+  it("free users get 3 alerts a day, Prime costs 699", () => { expect(FREE_DAILY_ALERTS).toBe(3); expect(PRIME_PRICE).toBe(699); });
 });

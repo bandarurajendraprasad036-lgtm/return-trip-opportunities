@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PostCard, type Post } from "@/components/PostCard";
 import { useMe } from "@/lib/session";
 import { FREE_DAILY_ALERTS, PRIME_PRICE } from "@/lib/jobs";
+import { GROUP_MEMBERSHIP_AMOUNT } from '@/lib/membership';
 
 export const Route = createFileRoute("/_authenticated/notifications")({
   head: () => ({
@@ -66,6 +67,7 @@ function Notifications() {
           <p className="font-bold">⚠️ ఈ రోజు {FREE_DAILY_ALERTS} ఉచిత అలర్ట్స్ పూర్తయ్యాయి</p>
           <p className="text-sm">ఉచిత వినియోగదారులకు రోజుకు {FREE_DAILY_ALERTS} అలర్ట్స్ మాత్రమే. అపరిమిత అలర్ట్స్ కోసం నెలకు ₹{PRIME_PRICE} Prime తీసుకోండి.</p>
           <p className="text-xs text-muted-foreground">Free users get up to {FREE_DAILY_ALERTS} alerts a day. Upgrade to the ₹{PRIME_PRICE}/month plan for unlimited alerts.</p>
+          <p className="text-sm">నలుగురికి నెలకు ₹{GROUP_MEMBERSHIP_AMOUNT} · Four people ₹{GROUP_MEMBERSHIP_AMOUNT}/month</p>
           <Link to="/dashboard" className="mt-2 inline-block rounded-lg bg-secondary px-4 py-2 font-bold text-secondary-foreground">⭐ Prime · ₹{PRIME_PRICE}/నెల</Link>
         </div>
       )}
