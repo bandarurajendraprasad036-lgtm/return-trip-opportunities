@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Post } from '@/components/PostCard';
 import { indianDay } from '@/lib/daily-devotional';
 
-export function VehicleAlertActions({ post, meId }: { post: Post; meId?: string }) {
+export function VehicleAlertActions({ post, meId }: { post: Post; meId?: string | undefined }) {
   const [busy, setBusy] = useState(false);
   if (post.module !== 'vehicle' || !meId) return null;
   const own = meId === post.user_id;
