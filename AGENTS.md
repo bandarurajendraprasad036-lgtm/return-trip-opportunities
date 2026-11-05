@@ -34,7 +34,8 @@
 - Vehicle position display formats only the actual timestamp through a pure timezone-aware helper; never synthesize location data or a current-time substitute.
 - Homepage listings reuse active posts and PostCard bells; local-trip classification requires identical endpoints, while separate local-area search matches named endpoint/address terms only and never implies proximity or confirmed local travel.
 - Home categories share submitted route/area filters and car catalog; advance feed stays. Saved routes are owner-only preferences, not bookings/travel.
-- Route-radius settings present the shared fixed percentage as inactive until verified road distance and recipient geography exist; no editable or saved delivery claim is made without server support.
+- Approximate radius alerts use owner-private user-selected endpoint coordinates and a bounded durable SQL queue; label straight-line estimates, recheck eligibility/visibility/quotas at dispatch, and never infer bookings or road geometry.
+- India autocomplete uses attributed static GeoNames prefix shards, not paid geocoding or public Nominatim; Leaflet imports only after opening the endpoint picker to preserve SSR safety.
 - The large devotional bell is the sole home bell trigger; date-based bundled engraved variants preserve gold artwork without a separate portrait overlay.
 - Firebase messaging uses a separate non-caching worker scope, owner-scoped device registration and a service-only durable delivery queue dispatched by a managed authenticated schedule; pushes contain no private job/message data and provider acceptance is never a delivery receipt.
 - Homepage keyless Google Maps iframe and external search follow the latest submitted vehicle endpoints, local area or job area, defaulting to India when cleared; listing filters remain independent and map output never establishes booking or verified route geometry.

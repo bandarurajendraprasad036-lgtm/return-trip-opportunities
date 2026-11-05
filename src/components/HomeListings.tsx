@@ -13,6 +13,7 @@ import { SearchExample } from '@/components/SearchExample';
 import { vehicleExample, jobExample } from '@/lib/search-examples';
 import { IndiaMap } from '@/components/IndiaMap';
 import type { MapSelection } from '@/lib/area-map';
+import { IndiaPlaceInput } from '@/components/IndiaPlaceInput';
 
 const sections: { key: HomeVehicleSection; te: string; en: string }[] = [
   { key: 'local', te: 'స్థానిక సరకు వాహనాలు', en: 'Local Goods' },
@@ -54,8 +55,8 @@ export function HomeListings({ today }: { today: string }) {
     <section className="home-market-section" aria-label="వాహనాల వెతుకులాట · Vehicle search">
       <form className="home-location-form" onSubmit={event => { event.preventDefault(); const next = { from: from.trim(), to: to.trim() }; setRoute(next); setLocalArea(''); setLocalInput(''); setMapSelection(next); }}>
         <div className="grid grid-cols-2 gap-2">
-        <div className="min-w-0"><label htmlFor="home-from">నుండి · From Location</label><Input id="home-from" list="home-places" value={from} onChange={e => setFrom(e.target.value)} maxLength={80} placeholder="ఊరు / ప్రాంతం" /></div>
-        <div className="min-w-0"><label htmlFor="home-to">వరకు · To Location</label><Input id="home-to" list="home-places" value={to} onChange={e => setTo(e.target.value)} maxLength={80} placeholder="ఊరు / ప్రాంతం" /></div>
+        <div className="min-w-0"><label htmlFor="home-from">నుండి · From Location</label><IndiaPlaceInput id="home-from" value={from} onChange={setFrom} maxLength={80} /></div>
+        <div className="min-w-0"><label htmlFor="home-to">వరకు · To Location</label><IndiaPlaceInput id="home-to" value={to} onChange={setTo} maxLength={80} /></div>
         </div>
         <Button type="submit" aria-label="వాహనాలు వెతకండి · Search vehicles"><Search />వెతకండి · SEARCH</Button>
       </form>
@@ -64,7 +65,7 @@ export function HomeListings({ today }: { today: string }) {
       <IndiaMap selection={mapSelection} />
       <form className="space-y-2 py-3" onSubmit={event => { event.preventDefault(); searchLocal(); }}>
         <label htmlFor="home-local-area" className="block font-semibold">స్థానిక సరకు వాహనాల ప్రాంతం · Local goods vehicle area</label>
-        <Input id="home-local-area" value={localInput} onChange={event => setLocalInput(event.target.value)} maxLength={120} placeholder="ఊరు, కాలనీ లేదా గల్లీ · City, colony or street" />
+        <IndiaPlaceInput id="home-local-area" value={localInput} onChange={setLocalInput} maxLength={120} />
         <div className="flex gap-2"><Button type="submit" className="flex-1 whitespace-normal"><Search />స్థానిక వాహనాలు వెతకండి · Search local vehicles</Button>{localArea && <Button type="button" variant="ghost" size="icon" aria-label="స్థానిక ప్రాంతం తీసేయండి · Clear local area" onClick={() => { setLocalInput(''); setLocalArea(''); setMapSelection(route); }}><X /></Button>}</div>
       </form>
       <div className="grid grid-cols-3 gap-2" role="group" aria-label="వాహన ఎంపికలు · Vehicle options">
@@ -79,7 +80,7 @@ export function HomeListings({ today }: { today: string }) {
     <section className="home-market-section" aria-labelledby="job-location-heading">
       <h2 id="job-location-heading" className="home-section-title"><MapPin />ఉద్యోగాల ప్రాంతం · Job location</h2>
       <form className="flex items-end gap-2 py-3" onSubmit={event => { event.preventDefault(); const area = location.trim(); setJobLocation(area); setMapSelection({ area }); }}>
-        <div className="min-w-0 flex-1"><label htmlFor="home-job-location">పని ప్రాంతం · Work location</label><Input id="home-job-location" list="home-places" value={location} onChange={e => setLocation(e.target.value)} maxLength={80} placeholder="ఊరు / జిల్లా · Place" /></div>
+        <div className="min-w-0 flex-1"><label htmlFor="home-job-location">పని ప్రాంతం · Work location</label><IndiaPlaceInput id="home-job-location" value={location} onChange={setLocation} maxLength={80} /></div>
         <Button type="submit" size="icon" variant="outline" aria-label="ఉద్యోగాలు వెతకండి · Search jobs"><Search /></Button>
         {jobLocation && <Button type="button" size="icon" variant="ghost" aria-label="ఉద్యోగ ప్రాంతం తీసేయండి · Clear job location" onClick={() => { setLocation(''); setJobLocation(''); setMapSelection({}); }}><X /></Button>}
       </form>

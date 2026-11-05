@@ -8,6 +8,8 @@ export async function dispatchPush() {
   const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
   const released=await db.rpc('dispatch_visible_post_matches');
   if(released.error)throw released.error;
+  const approximate = await db.rpc('dispatch_approximate_route_alerts');
+  if (approximate.error) throw approximate.error;
   const claimed = await db.rpc('claim_push_deliveries');
   if (claimed.error) throw claimed.error;
   const rows = claimed.data ?? [];
