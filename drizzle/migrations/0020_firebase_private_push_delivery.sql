@@ -1,0 +1,17 @@
+CREATE TABLE public.push_devices (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE, token text NOT NULL UNIQUE CHECK(length(token) BETWEEN 20 AND 4096), sound_enabled boolean NOT NULL DEFAULT true, updated_at timestamptz NOT NULL DEFAULT now());
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.push_devices TO authenticated;
+GRANT ALL ON public.push_devices TO service_role;
+ALTER TABLE public.push_devices ENABLE ROW LEVEL SECURITY;
+CREATE POLICY own_push_devices ON public.push_devices FOR ALL TO authenticated USING(user_id=auth.uid()) WITH CHECK(user_id=auth.uid());
+CREATE TABLE public.push_deliveries (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), notification_id uuid NOT NULL REFERENCES public.notifications(id) ON DELETE CASCADE, device_id uuid NOT NULL REFERENCES public.push_devices(id) ON DELETE CASCADE, user_id uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE, status text NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','processing','accepted','failed','skipped')), attempts integer NOT NULL DEFAULT 0, available_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now(), provider_status integer, UNIQUE(notification_id,device_id));
+GRANT SELECT ON public.push_deliveries TO authenticated;
+GRANT ALL ON public.push_deliveries TO service_role;
+ALTER TABLE public.push_deliveries ENABLE ROW LEVEL SECURITY;
+CREATE POLICY own_push_delivery_status ON public.push_deliveries FOR SELECT TO authenticated USING(user_id=auth.uid());
+CREATE INDEX push_delivery_pending ON public.push_deliveries(available_at) WHERE status IN ('pending','processing');
+CREATE FUNCTION public.enqueue_notification_push() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ BEGIN INSERT INTO public.push_deliveries(notification_id,device_id,user_id) SELECT NEW.id,d.id,NEW.user_id FROM public.push_devices d WHERE d.user_id=NEW.user_id; RETURN NEW; END $$;
+REVOKE ALL ON FUNCTION public.enqueue_notification_push() FROM PUBLIC,anon,authenticated;
+CREATE TRIGGER enqueue_notification_push AFTER INSERT ON public.notifications FOR EACH ROW EXECUTE FUNCTION public.enqueue_notification_push();
+CREATE FUNCTION public.claim_push_deliveries() RETURNS SETOF public.push_deliveries LANGUAGE sql SECURITY DEFINER SET search_path=public AS $$ UPDATE public.push_deliveries SET status='processing', attempts=attempts+1, updated_at=now(),available_at=now()+interval '5 minutes' WHERE id IN (SELECT id FROM public.push_deliveries WHERE status IN ('pending','processing') AND available_at<=now() AND attempts<5 ORDER BY available_at FOR UPDATE SKIP LOCKED LIMIT 20) RETURNING *; $$;
+REVOKE ALL ON FUNCTION public.claim_push_deliveries() FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION public.claim_push_deliveries() TO service_role;

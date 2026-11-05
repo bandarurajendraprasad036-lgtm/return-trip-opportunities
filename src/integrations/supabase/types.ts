@@ -365,6 +365,96 @@ export type Database = {
         }
         Relationships: []
       }
+      push_deliveries: {
+        Row: {
+          attempts: number
+          available_at: string
+          device_id: string
+          id: string
+          notification_id: string
+          provider_status: number | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          available_at?: string
+          device_id: string
+          id?: string
+          notification_id: string
+          provider_status?: number | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          available_at?: string
+          device_id?: string
+          id?: string
+          notification_id?: string
+          provider_status?: number | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_deliveries_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "push_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "push_deliveries_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "push_deliveries_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      push_devices: {
+        Row: {
+          id: string
+          sound_enabled: boolean
+          token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          sound_enabled?: boolean
+          token: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          sound_enabled?: boolean
+          token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_devices_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reward_wallets: {
         Row: {
           points: number
@@ -602,6 +692,26 @@ export type Database = {
     Functions: {
       apply_referral: { Args: { _code: string }; Returns: boolean }
       can_notify: { Args: { _uid: string }; Returns: boolean }
+      claim_push_deliveries: {
+        Args: never
+        Returns: {
+          attempts: number
+          available_at: string
+          device_id: string
+          id: string
+          notification_id: string
+          provider_status: number | null
+          status: string
+          updated_at: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "push_deliveries"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       grant_free_membership_month: {
         Args: { _source: string; _user: string }
         Returns: string
