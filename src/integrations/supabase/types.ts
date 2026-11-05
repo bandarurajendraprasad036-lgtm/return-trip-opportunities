@@ -305,6 +305,54 @@ export type Database = {
           },
         ]
       }
+      post_sharing_evidence: {
+        Row: {
+          created_at: string
+          id: string
+          paths: string[]
+          post_id: string
+          purpose: string
+          reviewed_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          paths: string[]
+          post_id: string
+          purpose: string
+          reviewed_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          paths?: string[]
+          post_id?: string
+          purpose?: string
+          reviewed_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_sharing_evidence_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_sharing_evidence_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       posts: {
         Row: {
           area_scope: string
@@ -334,6 +382,7 @@ export type Database = {
           trip_date: string | null
           user_id: string
           vehicle_type: string | null
+          visible_after: string | null
         }
         Insert: {
           area_scope?: string
@@ -363,6 +412,7 @@ export type Database = {
           trip_date?: string | null
           user_id: string
           vehicle_type?: string | null
+          visible_after?: string | null
         }
         Update: {
           area_scope?: string
@@ -392,6 +442,7 @@ export type Database = {
           trip_date?: string | null
           user_id?: string
           vehicle_type?: string | null
+          visible_after?: string | null
         }
         Relationships: []
       }
@@ -807,6 +858,7 @@ export type Database = {
       my_notification_quota: { Args: never; Returns: Json }
       my_referral_stats: { Args: never; Returns: Json }
       notify_matches: { Args: { _post_id: string }; Returns: number }
+      post_alert_eligible: { Args: { _user: string }; Returns: boolean }
       posts_match_area: {
         Args: {
           a: Database["public"]["Tables"]["posts"]["Row"]
@@ -823,6 +875,10 @@ export type Database = {
       referral_target: { Args: { _d: string }; Returns: number }
       review_membership: {
         Args: { _approve: boolean; _id: string; _note?: string }
+        Returns: undefined
+      }
+      review_post_evidence: {
+        Args: { _approve: boolean; _id: string }
         Returns: undefined
       }
       review_sharing_claim: {
@@ -842,6 +898,10 @@ export type Database = {
       }
       send_referral_reminders: { Args: never; Returns: number }
       service_profile_data: { Args: { _id: string }; Returns: Json }
+      submit_post_evidence: {
+        Args: { _paths: string[]; _post: string; _purpose: string }
+        Returns: string
+      }
       support_admin_id: { Args: never; Returns: string }
     }
     Enums: {
