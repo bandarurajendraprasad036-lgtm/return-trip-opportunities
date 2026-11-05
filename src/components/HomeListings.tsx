@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { PostCard, type Post } from '@/components/PostCard';
 import { supabase } from '@/integrations/supabase/client';
 import { useMe } from '@/lib/session';
-import { homeVehicles, homeJobs, type VehicleSection } from '@/lib/home-listings';
+import { homeVehicles, homeJobs, homeLocalVehicles, type VehicleSection } from '@/lib/home-listings';
 import { VILLAGE_SUGGESTIONS } from '@/lib/job-entry';
 import { SearchExample } from '@/components/SearchExample';
 import { vehicleExample, jobExample } from '@/lib/search-examples';
@@ -25,10 +25,12 @@ export function HomeListings({ today }: { today: string }) {
   const [route, setRoute] = useState({ from: '', to: '' });
   const [location, setLocation] = useState('');
   const [jobLocation, setJobLocation] = useState('');
+  const [localInput, setLocalInput] = useState('');
+  const [localArea, setLocalArea] = useState('');
   const { data: me } = useMe();
   const { data: posts = [], isLoading, isError } = useQuery({
     queryKey: ['posts'],
-    enabled: Boolean(route.from || route.to || jobLocation),
+    enabled: Boolean(route.from || route.to || jobLocation || localArea),
     queryFn: async () => {
       const { data, error } = await supabase.from('posts').select('*').eq('status', 'active').order('created_at', { ascending: false }).limit(200);
       if (error) throw error;
@@ -56,12 +58,18 @@ export function HomeListings({ today }: { today: string }) {
       <datalist id="home-places">{VILLAGE_SUGGESTIONS.map(place => <option value={place} key={place} />)}</datalist>
       {(route.from || route.to) && <div className="flex items-center justify-between gap-2 py-2 text-sm"><span>{route.from || '…'} → {route.to || '…'}</span><Button variant="ghost" size="icon" aria-label="వాహన ప్రాంతం తీసేయండి · Clear vehicle location" onClick={() => { setRoute({ from: '', to: '' }); setFrom(''); setTo(''); }}><X /></Button></div>}
       <IndiaMap />
+      <form className="space-y-2 py-3" onSubmit={event => { event.preventDefault(); setLocalArea(localInput.trim()); }}>
+        <label htmlFor="home-local-area" className="block font-semibold">స్థానిక సరకు వాహనాల ప్రాంతం · Local goods vehicle area</label>
+        <Input id="home-local-area" value={localInput} onChange={event => setLocalInput(event.target.value)} maxLength={120} placeholder="ఊరు, కాలనీ లేదా గల్లీ · City, colony or street" />
+        <div className="flex gap-2"><Button type="submit" className="flex-1 whitespace-normal"><Search />స్థానిక వాహనాలు వెతకండి · Search local vehicles</Button>{localArea && <Button type="button" variant="ghost" size="icon" aria-label="స్థానిక ప్రాంతం తీసేయండి · Clear local area" onClick={() => { setLocalInput(''); setLocalArea(''); }}><X /></Button>}</div>
+      </form>
       <div className="home-vehicle-columns">
         {sections.map(section => {
-          const rows = homeVehicles(posts, route.from, route.to, today, section.key);
+          const rows = section.key === 'local' && localArea ? homeLocalVehicles(posts, localArea) : homeVehicles(posts, route.from, route.to, today, section.key);
           return <section key={section.key} aria-label={section.en} className="home-display-column">
             <h3>{section.te}<span>{section.en}</span></h3>
-            <div className="home-display-list">{message(Boolean(route.from || route.to), rows.length === 0)}{rows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact hideDate={section.key === 'local'} />)}{!isLoading && !isError && rows.length === 0 && section.key === 'return' && vehicleExample(route.from, route.to) && <SearchExample example={{ type: 'vehicle', from: route.from, to: route.to }} />}</div>
+            {section.key === 'local' && localArea && <p className="break-words text-sm">నమోదైన ప్రాంతం · Listed area: {localArea}</p>}
+            <div className="home-display-list">{message(Boolean(section.key === 'local' ? localArea || route.from || route.to : route.from || route.to), rows.length === 0)}{rows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact hideDate={section.key === 'local'} />)}{!isLoading && !isError && rows.length === 0 && section.key === 'return' && vehicleExample(route.from, route.to) && <SearchExample example={{ type: 'vehicle', from: route.from, to: route.to }} />}</div>
           </section>;
         })}
       </div>

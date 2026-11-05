@@ -1,9 +1,21 @@
 import { describe, expect, it } from 'vitest';
-import { homeJobs, homeVehicles, vehicleSection } from '@/lib/home-listings';
+import { homeJobs, homeVehicles, homeLocalVehicles, vehicleSection } from '@/lib/home-listings';
 import type { Post } from '@/components/PostCard';
 
 const post = (values: Partial<Post>): Post => ({ id: '1', module: 'vehicle', kind: 'owner', status: 'active', from_place: 'Guntur', to_place: 'Hyderabad', trip_date: '2026-11-04', ...values } as Post);
 describe('Homepage listing partitions', () => {
+  it('searches named streets/colonies nationally without requiring identical endpoints', () => {
+    const rows = [post({ id: 'local', from_place: 'Ramnagar', to_place: 'ACC', district: 'Mancherial' }), post({ id: 'other', from_place: 'Ramnagar', to_place: 'Delhi', district: 'Delhi' })];
+    expect(homeLocalVehicles(rows, 'Mancherial Ramnagar').map(p => p.id)).toEqual(['local']);
+    expect(homeLocalVehicles(rows, 'ACC').map(p => p.id)).toEqual(['local']);
+    expect(homeLocalVehicles(rows, 'Delhi Ramnagar').map(p => p.id)).toEqual(['other']);
+  });
+  it('does not invent nearby listings or show local rows before search', () => {
+    const rows = [post({ from_place: 'ACC', status: 'closed' }), post({ from_place: 'Ramnagar' })];
+    expect(homeLocalVehicles(rows, 'ACC')).toEqual([]);
+    expect(homeLocalVehicles(rows, 'Mumbai')).toEqual([]);
+    expect(homeLocalVehicles(rows, '')).toEqual([]);
+  });
   it('shows local only for the same named endpoints, without inferring distance', () => {
     expect(vehicleSection(post({ to_place: ' guntur ' }), '2026-11-04')).toBe('local');
     expect(vehicleSection(post({ to_place: 'Vijayawada' }), '2026-11-04')).toBe('return');

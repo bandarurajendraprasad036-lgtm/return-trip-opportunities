@@ -32,7 +32,7 @@
 - Notification preferences are account-owned records; delivery eligibility and quota reset use their validated IANA timezone, while bell sound-only mute never removes the inbox subscription.
 - Bell controls share one device preference and synchronization event; browser permission status never implies background delivery, preventing conflicting controls and false delivery claims.
 - Vehicle position display formats only the actual timestamp through a pure timezone-aware helper; never synthesize location data or a current-time substitute.
-- Homepage listings reuse the active-post query and existing PostCard bell action; local vehicles require identical named endpoints until real geographic data is authorized, so proximity is never inferred.
+- Homepage listings reuse active posts and PostCard bells; local-trip classification requires identical endpoints, while separate local-area search matches named endpoint/address terms only and never implies proximity or confirmed local travel.
 - The large devotional bell is the sole home bell trigger; date-based bundled engraved variants preserve gold artwork without a separate portrait overlay.
 - Firebase messaging uses a separate non-caching worker scope, owner-scoped device registration and a service-only durable delivery queue dispatched by a managed authenticated schedule; pushes contain no private job/message data and provider acceptance is never a delivery receipt.
 - Homepage uses a fixed keyless national Google Maps iframe and national search link; From/To filter actual listings independently, and map/form output never establishes booking confirmation.
