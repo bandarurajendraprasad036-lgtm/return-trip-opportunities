@@ -1,6 +1,6 @@
 import type { Post } from '@/components/PostCard';
 export function samplePosts(): Post[] {
-  const areas = [['Hyderabad','Hyderabad','Telangana'],['Mancherial','Mancherial','Telangana'],['Guntur','Guntur','Andhra Pradesh'],['Warangal','Warangal','Telangana'],['Vijayawada','NTR','Andhra Pradesh']];
+  const areas = [['Hyderabad','Hyderabad','Telangana'],['Delhi','Delhi','Delhi'],['Guntur','Guntur','Andhra Pradesh'],['Warangal','Warangal','Telangana'],['Vijayawada','NTR','Andhra Pradesh']];
   return areas.flatMap(([location, district, state], i) => ['job','vehicle','service'].map((type, j) => ({
     id: `sample-${i}-${j}`, user_id: 'sample', module: type === 'vehicle' ? 'vehicle' : 'job', kind: type === 'vehicle' ? 'owner' : 'employer',
     title: type === 'vehicle' ? 'ఖాళీ గూడ్స్ వాహనం · Goods vehicle' : type === 'service' ? 'ప్లంబర్ కావాలి · Plumber needed' : 'షాప్ సహాయకుడు కావాలి · Shop helper',
