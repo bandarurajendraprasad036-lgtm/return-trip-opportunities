@@ -29,6 +29,7 @@ export function HomeListings({ today }: { today: string }) {
   const [localInput, setLocalInput] = useState('');
   const [localArea, setLocalArea] = useState('');
   const [mapSelection, setMapSelection] = useState<MapSelection>({});
+  const searchLocal = () => { const area = localInput.trim(); setLocalArea(area); setMapSelection({ area }); };
   const { data: me } = useMe();
   const { data: posts = [], isLoading, isError } = useQuery({
     queryKey: ['posts'],
@@ -60,10 +61,10 @@ export function HomeListings({ today }: { today: string }) {
       <datalist id="home-places">{VILLAGE_SUGGESTIONS.map(place => <option value={place} key={place} />)}</datalist>
       {(route.from || route.to) && <div className="flex items-center justify-between gap-2 py-2 text-sm"><span>{route.from || '…'} → {route.to || '…'}</span><Button variant="ghost" size="icon" aria-label="వాహన ప్రాంతం తీసేయండి · Clear vehicle location" onClick={() => { setRoute({ from: '', to: '' }); setFrom(''); setTo(''); setMapSelection({}); }}><X /></Button></div>}
       <IndiaMap selection={mapSelection} />
-      <form className="space-y-2 py-3" onSubmit={event => { event.preventDefault(); const area = localInput.trim(); setLocalArea(area); setMapSelection({ area }); }}>
+      <form className="space-y-2 py-3" onSubmit={event => { event.preventDefault(); searchLocal(); }}>
         <label htmlFor="home-local-area" className="block font-semibold">స్థానిక సరకు వాహనాల ప్రాంతం · Local goods vehicle area</label>
         <Input id="home-local-area" value={localInput} onChange={event => setLocalInput(event.target.value)} maxLength={120} placeholder="ఊరు, కాలనీ లేదా గల్లీ · City, colony or street" />
-        <div className="flex gap-2"><Button type="submit" className="flex-1 whitespace-normal"><Search />స్థానిక వాహనాలు వెతకండి · Search local vehicles</Button>{localArea && <Button type="button" variant="ghost" size="icon" aria-label="స్థానిక ప్రాంతం తీసేయండి · Clear local area" onClick={() => { setLocalInput(''); setLocalArea(''); setMapSelection({}); }}><X /></Button>}</div>
+        <div className="flex gap-2"><Button type="button" onClick={searchLocal} className="flex-1 whitespace-normal"><Search />స్థానిక వాహనాలు వెతకండి · Search local vehicles</Button>{localArea && <Button type="button" variant="ghost" size="icon" aria-label="స్థానిక ప్రాంతం తీసేయండి · Clear local area" onClick={() => { setLocalInput(''); setLocalArea(''); setMapSelection({}); }}><X /></Button>}</div>
       </form>
       <div className="home-vehicle-columns">
         {sections.map(section => {
