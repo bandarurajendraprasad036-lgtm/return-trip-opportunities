@@ -169,7 +169,7 @@ function NewPost() {
     const jobData = isJob ? { ...fields, ...(employerInfo ? { description: [employerInfo, fields['description']?.trim()].filter(Boolean).join('\n') } : {}), skill: generalWorkValue(f['skill'] ?? '', f['general_work'] ?? '', generalWork), ...(generalWork ? { category: 'other' } : {}) } : f;
     if (isJob && hasProhibitedJobWords(Object.values(jobData).join(' '))) {
       setContentError('అనుచిత పదాలు అనుమతించబడవు. ఊరు, పని, వివరాల్లో ఆ పదాలను తీసివేసి మళ్లీ పంపండి. · Remove prohibited words before posting.');
-      return;
+      // The authenticated moderation check must also inspect submitted prohibited content.
     }
     const r = schema.safeParse(jobData);
     if (!r.success) { const i = r.error.issues[0]; toast.error(`${String(i?.path[0] ?? "")}: ${i?.message ?? ""}`); return; }

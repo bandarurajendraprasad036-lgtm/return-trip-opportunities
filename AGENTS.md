@@ -40,3 +40,4 @@
 - Search examples are separate presentation-only objects without post or user IDs; their bells never call interest or booking APIs.
 - Membership prices share one frontend source; SQL validates new plans while retaining historical amounts, and locked admin review grants group time atomically to four distinct registered accounts.
 - Paid individual job allowances use an append-only payment-linked ledger and profile-row locking; deletion never refunds usage, and expiry is derived from stored timestamps without polling.
+- Sharing evidence uses owner-checked server hashing with atomic digest registration, admin-only short-lived signing and existing managed dispatch cleanup; review decisions notify the owner transactionally.
