@@ -10,6 +10,8 @@ import { useMe } from '@/lib/session';
 import { homeVehicles, homeJobs, type VehicleSection } from '@/lib/home-listings';
 import { VILLAGE_SUGGESTIONS } from '@/lib/job-entry';
 import { useCurrentArea } from '@/lib/use-current-area';
+import { SearchExample } from '@/components/SearchExample';
+import { vehicleExample, jobExample } from '@/lib/search-examples';
 
 const sections: { key: VehicleSection; te: string; en: string }[] = [
   { key: 'local', te: 'స్థానిక వాహనాలు', en: 'Local' },
@@ -53,12 +55,14 @@ export function HomeListings({ today }: { today: string }) {
     <section className="home-market-section" aria-labelledby="vehicle-location-heading">
       <h2 id="vehicle-location-heading" className="home-section-title"><MapPin />వాహనాల ప్రాంతం · Vehicle location</h2>
       <form className="home-location-form" onSubmit={event => { event.preventDefault(); setRoute({ from: from.trim(), to: to.trim() }); }}>
-        <div><label htmlFor="home-from">ఎక్కడి నుండి · FROM LOCATION – Current Location</label><Input id="home-from" list="home-places" value={from} onChange={e => { manualFrom.current = true; setFrom(e.target.value); }} maxLength={80} placeholder="ఊరు / జిల్లా · Place" /></div>
+        <div className="grid grid-cols-2 gap-2">
+        <div className="min-w-0"><label htmlFor="home-from">నుండి · FROM</label><Input id="home-from" list="home-places" value={from} onChange={e => { manualFrom.current = true; setFrom(e.target.value); }} maxLength={80} placeholder="ఊరు · Place" /></div>
+        <div className="min-w-0"><label htmlFor="home-to">వరకు · TO</label><Input id="home-to" list="home-places" value={to} onChange={e => setTo(e.target.value)} maxLength={80} placeholder="ఊరు · Place" /></div>
+        </div>
+        <Button type="submit" aria-label="వాహనాలు వెతకండి · Search vehicles"><Search />వెతకండి · SEARCH</Button>
         <Button type="button" onClick={() => { manualFrom.current = false; manualJob.current = false; locate(); }} disabled={locating} className="whitespace-normal"><LocateFixed />{locating ? 'స్థానం చూస్తున్నాం · Locating…' : 'నా ప్రస్తుత స్థానం చూపించు · Current Location'}</Button>
         {area && <div role="status" className="break-words text-base font-semibold"><p>ప్రస్తుత ప్రాంతం · Current area: {area.area || area.address}</p>{area.area && area.address && <p className="text-sm">{area.address}</p>}<p className="text-xs">గూగుల్ మ్యాప్స్ · Google Maps</p></div>}
         {position && <p role="status" className="break-words text-sm">{position}</p>}
-        <div><label htmlFor="home-to">ఎక్కడికి · TO LOCATION – Velle Location</label><Input id="home-to" list="home-places" value={to} onChange={e => setTo(e.target.value)} maxLength={80} placeholder="ఊరు / జిల్లా · Place" /></div>
-        <Button type="submit" aria-label="వాహనాలు వెతకండి · Search vehicles"><Search />వెతకండి · SEARCH</Button>
       </form>
       <datalist id="home-places">{VILLAGE_SUGGESTIONS.map(place => <option value={place} key={place} />)}</datalist>
       {(route.from || route.to) && <div className="flex items-center justify-between gap-2 py-2 text-sm"><span>{route.from || '…'} → {route.to || '…'}</span><Button variant="ghost" size="icon" aria-label="వాహన ప్రాంతం తీసేయండి · Clear vehicle location" onClick={() => { setRoute({ from: '', to: '' }); setFrom(''); setTo(''); }}><X /></Button></div>}
@@ -67,7 +71,7 @@ export function HomeListings({ today }: { today: string }) {
           const rows = homeVehicles(posts, route.from, route.to, today, section.key);
           return <section key={section.key} aria-label={section.en} className="home-display-column">
             <h3>{section.te}<span>{section.en}</span></h3>
-            <div className="home-display-list">{message(Boolean(route.from || route.to), rows.length === 0)}{rows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact hideDate={section.key === 'local'} />)}</div>
+            <div className="home-display-list">{message(Boolean(route.from || route.to), rows.length === 0)}{rows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact hideDate={section.key === 'local'} />)}{!isLoading && !isError && rows.length === 0 && section.key === 'return' && vehicleExample(route.from, route.to) && <SearchExample example={{ type: 'vehicle', from: route.from, to: route.to }} />}</div>
           </section>;
         })}
       </div>
@@ -85,7 +89,7 @@ export function HomeListings({ today }: { today: string }) {
           return <section className="home-display-column" key={section.kind} aria-label={section.displayEn}>
             <Button asChild variant="outline" className="home-apply"><Link to="/post/new" search={{ kind: section.kind, loc: jobLocation || undefined }}><span>{section.te}<span className="block text-sm">{section.en}</span></span></Link></Button>
             <h3>{section.display}<span>{section.displayEn}</span></h3>
-            <div className="home-display-list">{message(Boolean(jobLocation), rows.length === 0)}{rows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact />)}</div>
+            <div className="home-display-list">{message(Boolean(jobLocation), rows.length === 0)}{rows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact />)}{!isLoading && !isError && rows.length === 0 && section.kind === 'employer' && jobExample(jobLocation) && <SearchExample example={{ type: 'job', location: jobLocation, salary: '₹15,000 / నెల · month' }} />}</div>
           </section>;
         })}
       </div>

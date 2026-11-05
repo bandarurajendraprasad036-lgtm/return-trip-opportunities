@@ -10,6 +10,7 @@ import { DesignFooter } from "@/components/DesignFooter";
 import { IncomingNotice } from "@/components/IncomingNotice";
 import { ResponsibilityNotice } from "@/components/ResponsibilityNotice";
 import { MembershipReminder } from '@/components/MembershipReminder';
+import { AdminChatButton } from '@/components/AdminChatButton';
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { data: me } = useMe();
@@ -64,12 +65,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Shield className="size-6" />
             </Link>
           )}
-          <Link to="/chats" className="rounded-full p-2" aria-label="Chats">
-            <MessageCircle className="size-6" />
-          </Link>
-          <Link to="/dashboard" className="rounded-full p-2" aria-label="Dashboard">
-            <User className="size-6" />
-          </Link>
+          <AdminChatButton compact />
           <Link to="/notifications" className="relative rounded-full p-2" aria-label="Notifications">
             <Bell className="size-6" />
             {unread > 0 && (
@@ -77,6 +73,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                 {unread}
               </span>
             )}
+          </Link>
+          <Link to="/dashboard" className="gold-ring" aria-label="ప్రొఫైల్ · Profile">
+            <User className="size-6" />
           </Link>
         </div>
         )}</ClientOnly>

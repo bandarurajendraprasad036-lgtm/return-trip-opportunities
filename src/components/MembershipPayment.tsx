@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { MessageCircle, Bell, Phone, BadgeCheck } from "lucide-react";
+import { Bell, Phone, BadgeCheck } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/session";
-import { ADMIN_PHONE } from "@/lib/jobs";
+import { AdminChatButton } from '@/components/AdminChatButton';
 import { MEMBERSHIP_AMOUNT, paymentInput } from "@/lib/membership";
 import qr from "@/assets/gayatri-bank-qr.png.asset.json";
 import { Button } from "@/components/ui/button";
@@ -58,8 +58,7 @@ export function MembershipPayment() {
       <p className="font-bold" role="status">{payment.status === "pending" ? "కార్యాలయ పరిశీలనలో ఉంది · Under review" : payment.status === "approved" ? "చెల్లింపు ఆమోదించబడింది · Approved" : "చెల్లింపు ఆమోదించలేదు · Rejected"}</p>
       <p className="break-all text-sm">₹{payment.amount} · {payment.transaction_id}</p>
       {payment.admin_note && <p className="text-sm">{payment.admin_note}</p>}
-      <Button asChild variant="outline" className="h-auto min-h-12 w-full whitespace-normal py-3"><a target="_blank" rel="noopener noreferrer" href={`https://wa.me/91${ADMIN_PHONE}?text=${encodeURIComponent(`గాయత్రి వన్ సభ్యత్వ చెల్లింపు వివరాలు పరిశీలించండి.\nమొత్తం: ₹${payment.amount}\nలావాదేవీ: ${payment.transaction_id}\nవిన్నపం: ${payment.id}\nఈ వివరాలు చెల్లింపు అందినట్లు నిర్ధారణ కాదు.`)}`}><MessageCircle className="size-5 shrink-0" />వాట్సాప్ ద్వారా సమాచారం పంపండి · Send on WhatsApp</a></Button>
-      <p className="text-xs text-muted-foreground">కార్యాలయ నంబరు: {ADMIN_PHONE}. వాట్సాప్‌లో పంపే మీట నొక్కిన తరువాతే సందేశం వెళ్తుంది. · Send from WhatsApp to notify the office.</p>
+      <AdminChatButton />
     </article>)}
   </section>;
 }

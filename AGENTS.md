@@ -37,3 +37,4 @@
 - Firebase messaging uses a separate non-caching worker scope, owner-scoped device registration and a service-only durable delivery queue dispatched by a managed authenticated schedule; pushes contain no private job/message data and provider acceptance is never a delivery receipt.
 - Merchant area lookup uses authenticated Google gateway geocoding, bounded movement-triggered requests and in-memory session cache; stop on hidden/unmounted pages and never persist or publish precise device coordinates.
 - Vehicle contact surfaces reuse the shared responsibility notice; compact bells show it before interest submission without implying a confirmed booking.
+- Search examples are separate presentation-only objects without post or user IDs; their bells never call interest or booking APIs.
