@@ -1176,6 +1176,7 @@ export type Database = {
       dispatch_approximate_route_alerts: { Args: never; Returns: number }
       dispatch_vehicle_availability: { Args: never; Returns: number }
       dispatch_visible_post_matches: { Args: never; Returns: number }
+      follow_vehicle_route: { Args: { _post: string }; Returns: string }
       grant_free_membership_month: {
         Args: { _source: string; _user: string }
         Returns: string
