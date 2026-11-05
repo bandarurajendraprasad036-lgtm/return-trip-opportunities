@@ -155,6 +155,13 @@
       "when": 1793863418893,
       "tag": "0021_monthly_membership_prices",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1793864412766,
+      "tag": "0022_paid_job_monthly_entitlements",
+      "breakpoints": true
     }
   ]
 }

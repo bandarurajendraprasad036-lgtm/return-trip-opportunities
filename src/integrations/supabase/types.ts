@@ -67,6 +67,84 @@ export type Database = {
           },
         ]
       }
+      job_post_entitlements: {
+        Row: {
+          ends_at: string
+          id: string
+          payment_id: string
+          starts_at: string
+          user_id: string
+        }
+        Insert: {
+          ends_at: string
+          id?: string
+          payment_id: string
+          starts_at: string
+          user_id: string
+        }
+        Update: {
+          ends_at?: string
+          id?: string
+          payment_id?: string
+          starts_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_post_entitlements_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "membership_payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_post_entitlements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_post_uses: {
+        Row: {
+          created_at: string
+          entitlement_id: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          entitlement_id: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          entitlement_id?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_post_uses_entitlement_id_fkey"
+            columns: ["entitlement_id"]
+            isOneToOne: false
+            referencedRelation: "job_post_entitlements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_post_uses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       membership_payments: {
         Row: {
           admin_note: string
@@ -239,6 +317,7 @@ export type Database = {
           from_place: string | null
           goods_type: string | null
           id: string
+          job_expires_at: string | null
           kind: string
           location: string | null
           module: string
@@ -267,6 +346,7 @@ export type Database = {
           from_place?: string | null
           goods_type?: string | null
           id?: string
+          job_expires_at?: string | null
           kind: string
           location?: string | null
           module: string
@@ -295,6 +375,7 @@ export type Database = {
           from_place?: string | null
           goods_type?: string | null
           id?: string
+          job_expires_at?: string | null
           kind?: string
           location?: string | null
           module?: string
