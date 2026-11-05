@@ -7,6 +7,9 @@ import { toast } from 'sonner';
 import { permissionThanks } from '@/lib/friendly-notifications';
 import { enableBellAudio,playBell } from '@/lib/bell';
 import { permissionHelp, requestBrowserPermission } from '@/lib/browser-notifications';
+import { enablePush, pushDeviceId, deviceSound } from '@/lib/firebase-push';
+import { registerPushDevice } from '@/lib/push.functions';
+import { useServerFn } from '@tanstack/react-start';
 
 type InstallEvent = Event & { prompt: () => Promise<void> };
 
@@ -48,6 +51,7 @@ export function InstallButton() {
 /** Asks for notification permission 5 seconds after sign-in, then shows phone alerts for new matches while the app is open. */
 export function NotificationPermission({ userId }: { userId: string }) {
   const [ask, setAsk] = useState(false);
+  const register = useServerFn(registerPushDevice);
   useEffect(() => {
     if (typeof Notification === "undefined" || Notification.permission !== "default") return;
     const t = setTimeout(() => setAsk(true), 5000);
@@ -58,7 +62,7 @@ export function NotificationPermission({ userId }: { userId: string }) {
     const ch = supabase
       .channel(`push-${userId}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` }, (p) => {
-        if (Notification.permission === "granted") new Notification("గాయత్రి వన్ · Gayatri One", { body: String((p.new as { message?: string }).message ?? ""), icon: "/favicon.svg",silent:true });
+        // Matched alerts now use Firebase push; avoid duplicate phone banners.
       })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.${userId}` }, async (p) => {
         const m = p.new as { body?: string; needs_admin?: boolean; is_auto?: boolean };
@@ -76,7 +80,14 @@ export function NotificationPermission({ userId }: { userId: string }) {
       <p className="font-bold">🔔 మ్యాచ్ వస్తే ఫోన్‌కు అలర్ట్ కావాలా?</p>
       <p className="text-sm text-muted-foreground">Get alerts on your phone when a match comes?</p>
       <div className="mt-3 flex gap-2">
-        <Button className="flex-1" onClick={async () => { enableBellAudio(); const permission=await requestBrowserPermission(); setAsk(false); const message=permissionThanks(permission==='granted'); if(message){toast.success(message,{duration:10000});playBell();}else toast.info(permissionHelp[permission]); }}>అవును · Allow</Button>
+        <Button className="flex-1" onClick={async () => {
+          enableBellAudio(); setAsk(false);
+          try {
+            const result = await enablePush();
+            if (result.status === 'registered' && result.token) { await register({ data: { id: pushDeviceId(), token: result.token, sound: deviceSound() } }); const message=permissionThanks(true); if(message) toast.success(message,{duration:10000}); playBell(); }
+            else toast.info(result.status === 'not-configured' ? 'వెబ్ సూచనల వివరాలు చేర్చాలి · Configure web push' : result.status === 'open-in-new-tab' ? permissionHelp['open-in-new-tab'] : result.status === 'denied' ? permissionHelp.denied : 'ఫోన్ సూచనలు ప్రారంభం కాలేదు · Phone registration unavailable');
+          } catch { toast.error('ఫోన్ నమోదు కాలేదు · Device registration failed'); }
+        }}>అవును · Allow</Button>
         <Button variant="outline" className="flex-1" onClick={() => setAsk(false)}>తర్వాత · Later</Button>
       </div>
     </div>
