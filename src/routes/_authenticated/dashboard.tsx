@@ -9,6 +9,12 @@ import { InstallButton } from "@/components/AppHelpers";
 import { MembershipPayment } from "@/components/MembershipPayment";
 import { RewardMembership } from '@/components/RewardMembership';
 import { NotificationSettings } from '@/components/NotificationSettings';
+import { dailyDevotionalIndex } from '@/lib/daily-devotional';
+import mataGold from '@/assets/gayatri-mata.jpg';
+import mataGreen from '@/assets/gayatri-mata-green.jpg';
+import mataIvory from '@/assets/gayatri-mata-ivory.jpg';
+
+const MATA_IMAGES = [mataGold, mataGreen, mataIvory];
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -43,8 +49,13 @@ function Dashboard() {
   const prime = !!me?.profile?.is_prime;
   const tile = "flex flex-col items-center gap-1 rounded-xl border bg-card p-4 text-center font-semibold shadow-card";
 
+  const mataImage = MATA_IMAGES[dailyDevotionalIndex(new Date(), MATA_IMAGES.length)];
+
   return (
     <div className="space-y-4 p-4">
+      <div className="overflow-hidden rounded-xl border-2 border-primary shadow-card">
+        <img src={mataImage} alt="గాయత్రీ అమ్మవారు · Gayatri Mata" className="h-40 w-full object-cover object-top" />
+      </div>
       <div className="flex items-center gap-3 rounded-xl bg-card p-4 shadow-card">
         <span className="grid size-14 place-items-center rounded-full bg-accent text-2xl font-bold text-accent-foreground">{(me?.profile?.full_name || "?").charAt(0).toUpperCase()}</span>
         <div className="flex-1">
