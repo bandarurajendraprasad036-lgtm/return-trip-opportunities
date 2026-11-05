@@ -11,4 +11,10 @@ describe('Requested route radius', () => {
     expect(routeRadiusKm(-150)).toBeNull();
     expect(routeRadiusKm(NaN)).toBeNull();
   });
+  it('scales the same India-wide percentage with each route distance', () => {
+    expect(routeRadiusKm(100)).toBe(20);
+    expect(routeRadiusKm(250)).toBe(50);
+    expect(routeRadiusKm(500)).toBe(100);
+    expect(routeRadiusKm(1400)).toBe(280);
+  });
 });
