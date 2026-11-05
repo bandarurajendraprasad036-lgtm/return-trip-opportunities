@@ -6,7 +6,7 @@ export function jobPostIdentity(kind: 'seeker' | 'employer', skill: string) {
 }
 
 // Point 8: these are local suggestions, not geocoding or verified job listings.
-const TELUGU_CITIES = ['హైదరాబాద్', 'మంచిర్యాల', 'ముంబై', 'వరంగల్', 'కరీంనగర్', 'విజయవాడ', 'గుంటూరు', 'విశాఖపట్నం', 'బెంగళూరు', 'చెన్నై'];
+const TELUGU_CITIES = ['హైదరాబాద్', 'ఢిల్లీ', 'ముంబై', 'వరంగల్', 'కరీంనగర్', 'విజయవాడ', 'గుంటూరు', 'విశాఖపట్నం', 'బెంగళూరు', 'చెన్నై'];
 export const VILLAGE_SUGGESTIONS = [...CITIES, ...TELUGU_CITIES];
 export const WORK_SUGGESTIONS = JOB_CATEGORIES.filter(c => c.id !== 'other').flatMap(c => [c.te, c.en]);
 export function jobSuggestions(input: string, options: readonly string[]): string[] {

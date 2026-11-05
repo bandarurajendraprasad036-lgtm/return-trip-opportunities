@@ -8,7 +8,7 @@ export const JOB_CATEGORIES = [
   { id: "other", te: "ఇతర", en: "Other" },
 ] as const;
 
-export const CITIES = ["Hyderabad", "Mancherial", "Bombay", "Warangal", "Karimnagar", "Vijayawada", "Guntur", "Visakhapatnam", "Bangalore", "Chennai"];
+export const CITIES = ["Hyderabad", "Delhi", "Bombay", "Warangal", "Karimnagar", "Vijayawada", "Guntur", "Visakhapatnam", "Bangalore", "Chennai"];
 export const ANYWHERE = "anywhere";
 export const FREE_DAILY_ALERTS = 3;
 export { MEMBERSHIP_AMOUNT as PRIME_PRICE } from '@/lib/membership';
