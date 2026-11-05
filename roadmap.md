@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] November 5 11:07: one/two typed letters show India place suggestions with real coordinates, without paid lookup; user corrected 'liters' to letters. Investigate reusable national place dataset and state/near-duplicate disambiguation; do not claim every street is covered.
 - [ ] November 5 11:01: replace paid route-distance requirement with clearly labeled straight-line approximation ×20%, based on actual chosen endpoint/recipient coordinates and existing consent/quotas. No paid map lookup. Missing: endpoint coordinate capture decision; place names alone cannot establish distance. Existing Cloud/notification operating costs not guaranteed zero.
 - [x] November 5 10:51: clarify India-wide radius means 20% of every actual route's road kilometers, not a fixed 30 km radius or a Mancherial-only rule.
 - [x] November 5 10:47: profile notification settings lacked radius; added truthful fixed 20% information and explicitly inactive delivery status. Signed-in profile check passed; no storage change.
