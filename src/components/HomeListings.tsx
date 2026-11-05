@@ -7,17 +7,17 @@ import { Input } from '@/components/ui/input';
 import { PostCard, type Post } from '@/components/PostCard';
 import { supabase } from '@/integrations/supabase/client';
 import { useMe } from '@/lib/session';
-import { homeVehicles, homeJobs, homeLocalVehicles, type VehicleSection } from '@/lib/home-listings';
+import { homeVehicleResults, homeJobs, type HomeVehicleSection } from '@/lib/home-listings';
 import { VILLAGE_SUGGESTIONS } from '@/lib/job-entry';
 import { SearchExample } from '@/components/SearchExample';
 import { vehicleExample, jobExample } from '@/lib/search-examples';
 import { IndiaMap } from '@/components/IndiaMap';
 import type { MapSelection } from '@/lib/area-map';
 
-const sections: { key: VehicleSection; te: string; en: string }[] = [
-  { key: 'local', te: 'స్థానిక వాహనాలు', en: 'Local' },
+const sections: { key: HomeVehicleSection; te: string; en: string }[] = [
+  { key: 'local', te: 'స్థానిక సరకు వాహనాలు', en: 'Local Goods' },
   { key: 'return', te: 'తిరిగి వచ్చే వాహనాలు', en: 'Return Goods' },
-  { key: 'advance', te: 'ముందస్తు తిరిగి వచ్చే వాహనాలు', en: 'Advance' },
+  { key: 'cars', te: 'లోకల్ కార్స్', en: 'Local Cars' },
 ];
 
 export function HomeListings({ today }: { today: string }) {
@@ -29,6 +29,9 @@ export function HomeListings({ today }: { today: string }) {
   const [localInput, setLocalInput] = useState('');
   const [localArea, setLocalArea] = useState('');
   const [mapSelection, setMapSelection] = useState<MapSelection>({});
+  const [vehicleSection, setVehicleSection] = useState<HomeVehicleSection>('return');
+  const vehicleSelection = { ...route, area: localArea };
+  const vehicleRows = homeVehicleResults(postsPlaceholder(), vehicleSelection, today, vehicleSection);
   const searchLocal = () => { const area = localInput.trim(); setLocalArea(area); setMapSelection({ area }); };
   const { data: me } = useMe();
   const { data: posts = [], isLoading, isError } = useQuery({
