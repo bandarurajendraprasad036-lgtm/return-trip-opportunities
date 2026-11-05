@@ -1,6 +1,7 @@
 # Roadmap
 - [x] November 5 05:38: reuse the existing responsibility disclaimer in large text at vehicle contact actions, compact bell opens notice before interest; no confirmed booking system exists.
-- [x] November 5 04:28: Google Maps linked; authenticated automatic area detection, movement refresh and actual-address fallback implemented without database changes. Rule/lifecycle verification below.
+- [x] November 5 04:28: Google Maps linked; authenticated automatic area detection, movement refresh and actual-address fallback implemented without database changes. 13 area/lifecycle/home-listing tests pass; signed-in 390×844 permission-denied/manual-entry flow has no overflow or runtime errors; build OK.
+- [ ] Verify vehicle disclaimer on an actual available vehicle listing: no vehicle rows rendered in checked feed; source checked, no fake post created.
 - [x] November 5 00:02: movement-triggered area refresh with bounded requests/session cache and actual-address fallback implemented; no invented names.
 - [x] November 4 23:59: signed-in homepage requests device permission and fills actual area into From/work location; manual entries protected from overwrite.
 - [ ] Verify actual area/movement on an authorized published origin with user's phone permission; Maps-dependent live checks are unsupported in sandbox. Publication not performed.
