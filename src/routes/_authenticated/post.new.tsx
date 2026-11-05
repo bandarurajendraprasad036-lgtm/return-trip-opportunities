@@ -183,10 +183,10 @@ function NewPost() {
     setBusy(true);
     const mod = await checkText({ data: { text: Object.values(v).join(" \n ") } }).catch(() => ({ ok: true }));
     if (!mod.ok) { setBusy(false); setContentError('అనుచిత పదాలు లేదా హింసను ప్రోత్సహించే విషయాలు అనుమతించబడవు. వివరాలు సరిచేసి మళ్లీ పంపండి. · Prohibited content: correct your details.'); return; }
-    const { error } = await supabase.from("posts").insert({ ...v, ...(!isJob ? { capacity_tons: capacity?.success ? capacity.data : null, vehicle_type: f["vehicle_type"]?.trim().slice(0, 60) || null } : {}), show_contact: show_contact === "1", user_id: me.id, ...identity });
+    const { data: savedPost, error } = await supabase.from("posts").insert({ ...v, ...(!isJob ? { capacity_tons: capacity?.success ? capacity.data : null, vehicle_type: f["vehicle_type"]?.trim().slice(0, 60) || null } : {}), show_contact: show_contact === "1", user_id: me.id, ...identity }).select('visible_after').single();
     setBusy(false);
     if (error) { toast.error(error.message.includes('THREE_MONTHLY_JOBS_USED') ? 'ఈ సభ్యత్వ నెలలో మూడు ఉద్యోగ ప్రకటనలు ఉపయోగించారు · Three monthly job posts used' : error.message.includes("MOBILE_REQUIRED") ? "ప్రకటనకు ముందు మొబైల్ నంబరు ఇవ్వండి · Mobile number required" : error.message.includes("BAD_CONTENT") ? "🚫 బూతులు, చెడు మాటలు, దేశ వ్యతిరేక విషయాలు పోస్ట్ చేయకూడదు · Abusive or anti-national content is not allowed" : error.message); return; }
-    toast.success("మీ సమాచారం మాకు సమర్పించారు; మీ ప్రకటన ఇప్పుడు చూడవచ్చు · Submitted; your post is now visible");
+    toast.success(savedPost?.visible_after&&Date.parse(savedPost.visible_after)>Date.now()?"మీ సమాచారం మాకు సమర్పించారు; మరో ఐదు గంటల్లో చూడవచ్చు · Submitted; visible after five hours":"మీ సమాచారం మాకు సమర్పించారు; మీ ప్రకటన ఇప్పుడు చూడవచ్చు · Submitted; now visible");
     qc.invalidateQueries();
     nav({ to: "/my-posts" });
   };
