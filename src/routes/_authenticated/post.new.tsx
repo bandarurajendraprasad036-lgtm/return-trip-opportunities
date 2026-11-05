@@ -19,6 +19,7 @@ import { draftJobAd, type JobAdDraft } from "@/lib/ai-job-ad.functions";
 import { buildJobAdInput } from "@/lib/job-ad-input";
 import { hasValidMobile } from "@/lib/phone";
 import { capacityInput } from "@/lib/vehicle-experience";
+import { VEHICLE_TYPES, isCar } from '@/lib/vehicle-types';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { JobSuggestionInput } from '@/components/JobSuggestionInput';
 import { generalWorkValue, hasProhibitedJobWords, jobPostIdentity, VILLAGE_SUGGESTIONS, WORK_SUGGESTIONS } from '@/lib/job-entry';
@@ -232,8 +233,8 @@ function NewPost() {
           {field("from_place", "ఎక్కడి నుండి", "From", { placeholder: "e.g. Hyderabad" })}
           {field("to_place", "ఎక్కడికి", "To", { placeholder: "e.g. Warangal" })}
           {field("trip_date", "తేదీ", "Date", { type: "date" })}
-          <div className="space-y-1"><Label className="text-base">వాహనం రకం · Vehicle type</Label><select aria-label="వాహనం రకం · Vehicle type" value={f["vehicle_type"] ?? ""} onChange={event => setF({ ...f, vehicle_type: event.target.value })} className="h-12 w-full rounded-md border bg-card px-3 text-lg" required><option value="">ఎంచుకోండి · Choose</option><option value="Lorry">లారీ · Lorry</option><option value="407">407</option><option value="Trolley">ట్రాలీ · Trolley</option><option value="Tata Ace">చిన్న సరుకు వాహనం · Tata Ace</option><option value="Other">ఇతర · Other</option></select></div>
-          {field("capacity_tons", "బరువు సామర్థ్యం (టన్నులు)", "Capacity (tons)", { type: "number", min: "0.1", max: "100", step: "0.1", required: true })}
+          <div className="space-y-1"><Label className="text-base">వాహనం రకం · Vehicle type</Label><select aria-label="వాహనం రకం · Vehicle type" value={f["vehicle_type"] ?? ""} onChange={event => setF({ ...f, vehicle_type: event.target.value, capacity_tons: '' })} className="h-12 w-full rounded-md border bg-card px-3 text-lg" required><option value="">ఎంచుకోండి · Choose</option>{VEHICLE_TYPES.map(type => <option key={type.value} value={type.value}>{type.te} · {type.en}</option>)}</select></div>
+          {!isCar(f['vehicle_type']) && field("capacity_tons", "బరువు సామర్థ్యం (టన్నులు)", "Capacity (tons)", { type: "number", min: "0.1", max: "100", step: "0.1", required: true })}
           {kind === "business" && field("goods_type", "సరుకు రకం", "Goods type", { placeholder: "e.g. Rice bags, Cement" })}
         </>
       )}

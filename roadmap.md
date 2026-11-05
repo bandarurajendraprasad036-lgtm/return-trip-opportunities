@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] November 5 10:47: audit profile notification settings for 20% route radius; add truthful radius information if missing without claiming geographic delivery or changing storage without permission.
 - [ ] November 5 10:45 points 1/2/6/7: submitted route/area synchronized selectable home vehicle results, local cars in place of home advance slot, cars selector, compact From/To; preserve advance records elsewhere and verify tests/mobile.
 - [ ] November 5 10:45 points 3/4/5: real-distance 20% recipient targeting, actual advance booking availability and historical route alerts. Blocked on explicit approval for private route/booking/area storage changes and authorized real geographic/availability data; no fabricated bookings or travel.
 - [x] November 5 10:28 map-area fix: latest submitted vehicle endpoints/local colony/job area update keyless iframe and external search; clear defaults to India. 11 focused tests pass; mobile input/button URL transitions verified with Google requests blocked. Live map rendering requires user check after publication; not published.
