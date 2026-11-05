@@ -945,6 +945,16 @@ export type Database = {
         Args: { _paths: string[]; _post: string; _purpose: string }
         Returns: string
       }
+      submit_verified_post_evidence: {
+        Args: {
+          _hashes: string[]
+          _paths: string[]
+          _post: string
+          _purpose: string
+          _user: string
+        }
+        Returns: string
+      }
       support_admin_id: { Args: never; Returns: string }
     }
     Enums: {
