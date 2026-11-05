@@ -169,6 +169,13 @@
       "when": 1793864530655,
       "tag": "0023_post_delay_and_reviewed_alerts",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1793864583051,
+      "tag": "0024_evidence_decision_reasons_and_privacy",
+      "breakpoints": true
     }
   ]
 }

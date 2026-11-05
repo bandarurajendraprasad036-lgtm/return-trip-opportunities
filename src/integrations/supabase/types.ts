@@ -32,6 +32,32 @@ export type Database = {
         }
         Relationships: []
       }
+      evidence_content_registry: {
+        Row: {
+          created_at: string
+          hash: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          hash: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          hash?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evidence_content_registry_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       free_membership_months: {
         Row: {
           created_at: string
@@ -307,7 +333,10 @@ export type Database = {
       }
       post_sharing_evidence: {
         Row: {
+          admin_note: string
+          content_hashes: string[]
           created_at: string
+          expires_at: string
           id: string
           paths: string[]
           post_id: string
@@ -317,7 +346,10 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          admin_note?: string
+          content_hashes?: string[]
           created_at?: string
+          expires_at?: string
           id?: string
           paths: string[]
           post_id: string
@@ -327,7 +359,10 @@ export type Database = {
           user_id: string
         }
         Update: {
+          admin_note?: string
+          content_hashes?: string[]
           created_at?: string
+          expires_at?: string
           id?: string
           paths?: string[]
           post_id?: string
@@ -867,6 +902,10 @@ export type Database = {
         Returns: boolean
       }
       public_stats: { Args: never; Returns: Json }
+      record_evidence_hashes: {
+        Args: { _claim: string; _hashes: string[] }
+        Returns: undefined
+      }
       record_service_view: {
         Args: { _id: string; _visitor: string }
         Returns: undefined
@@ -879,6 +918,10 @@ export type Database = {
       }
       review_post_evidence: {
         Args: { _approve: boolean; _id: string }
+        Returns: undefined
+      }
+      review_post_evidence_with_reason: {
+        Args: { _approve: boolean; _id: string; _note: string }
         Returns: undefined
       }
       review_sharing_claim: {
