@@ -12,7 +12,6 @@ export const CITIES = ["Hyderabad", "Mancherial", "Bombay", "Warangal", "Karimna
 export const ANYWHERE = "anywhere";
 export const FREE_DAILY_ALERTS = 3;
 export const PRIME_PRICE = 499;
-export const ADMIN_PHONE = "9030952010";
 export const DEFAULT_CITY = "Hyderabad";
 
 /** Matches a post location against a city/district/state query; "anywhere" matches all. */
