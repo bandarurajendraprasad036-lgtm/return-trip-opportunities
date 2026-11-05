@@ -16,7 +16,7 @@ export function vehicleSection(post: Post, today: string): VehicleSection {
 export function homeVehicles(posts: Post[], from: string, to: string, today: string, section: VehicleSection) {
   const start = normalized(from), end = normalized(to);
   if (!start && !end) return [];
-  return posts.filter(post => post.status === 'active' && post.module === 'vehicle'
+  return posts.filter(post => post.status === 'active' && post.module === 'vehicle' && isCar(post.vehicle_type)
     && (!start || normalized(post.from_place).includes(start))
     && (!end || normalized(post.to_place).includes(end))
     && vehicleSection(post, today) === section);
@@ -33,7 +33,7 @@ export function homeJobs(posts: Post[], location: string, kind: 'seeker' | 'empl
 export function homeLocalVehicles(posts: Post[], area: string) {
   const terms = normalized(area).split(/[\s,]+/).filter(Boolean);
   if (!terms.length) return [];
-  return posts.filter(post => post.status === 'active' && post.module === 'vehicle' && terms.every(term =>
+  return posts.filter(post => post.status === 'active' && post.module === 'vehicle' && isCar(post.vehicle_type) && terms.every(term =>
     normalized([post.from_place, post.to_place, post.location, post.district, post.state].filter(Boolean).join(' ')).includes(term)));
 }
 
@@ -41,9 +41,8 @@ export function homeLocalVehicles(posts: Post[], area: string) {
 export function homeVehicleResults(posts: Post[], selection: { from: string; to: string; area: string }, today: string, section: HomeVehicleSection) {
   const start = normalized(selection.from), end = normalized(selection.to);
   const rows = selection.area.trim() ? homeLocalVehicles(posts, selection.area) : posts.filter(post =>
-    jobIsVisible(post) && post.module === 'vehicle' && Boolean(start || end)
+    jobIsVisible(post) && post.module === 'vehicle' && isCar(post.vehicle_type) && Boolean(start || end)
     && (!start || normalized(post.from_place).includes(start))
     && (!end || normalized(post.to_place).includes(end)));
-  return rows.filter(post => jobIsVisible(post) && (section === 'cars' ? isCar(post.vehicle_type)
-    : !isCar(post.vehicle_type) && (section === 'local' || vehicleSection(post, today) === 'return')));
+  return rows.filter(post => jobIsVisible(post) && (section === 'cars' || section === 'local' || vehicleSection(post, today) === 'return'));
 }

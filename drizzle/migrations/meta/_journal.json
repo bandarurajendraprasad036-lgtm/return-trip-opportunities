@@ -225,6 +225,20 @@
       "when": 1793877064707,
       "tag": "0031_approximate_private_route_alerts",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1793878340279,
+      "tag": "0032_vehicle_audiences_and_availability",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1793878365479,
+      "tag": "0033_consented_previous_route_requests",
+      "breakpoints": true
     }
   ]
 }

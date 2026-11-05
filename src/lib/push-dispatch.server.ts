@@ -10,6 +10,8 @@ export async function dispatchPush() {
   if(released.error)throw released.error;
   const approximate = await db.rpc('dispatch_approximate_route_alerts');
   if (approximate.error) throw approximate.error;
+  const availability = await db.rpc('dispatch_vehicle_availability');
+  if (availability.error) throw availability.error;
   const claimed = await db.rpc('claim_push_deliveries');
   if (claimed.error) throw claimed.error;
   const rows = claimed.data ?? [];
