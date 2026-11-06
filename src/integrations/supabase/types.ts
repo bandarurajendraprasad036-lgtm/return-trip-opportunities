@@ -298,8 +298,10 @@ export type Database = {
       messages: {
         Row: {
           body: string
+          chat_phone: string
           created_at: string
           id: string
+          image_path: string
           is_auto: boolean
           needs_admin: boolean
           post_id: string | null
@@ -308,8 +310,10 @@ export type Database = {
         }
         Insert: {
           body: string
+          chat_phone?: string
           created_at?: string
           id?: string
+          image_path?: string
           is_auto?: boolean
           needs_admin?: boolean
           post_id?: string | null
@@ -318,8 +322,10 @@ export type Database = {
         }
         Update: {
           body?: string
+          chat_phone?: string
           created_at?: string
           id?: string
+          image_path?: string
           is_auto?: boolean
           needs_admin?: boolean
           post_id?: string | null
@@ -409,6 +415,49 @@ export type Database = {
           },
           {
             foreignKeyName: "notifications_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_chat_pairs: {
+        Row: {
+          created_at: string
+          member_id: string
+          owner_id: string
+          post_id: string
+        }
+        Insert: {
+          created_at?: string
+          member_id: string
+          owner_id: string
+          post_id: string
+        }
+        Update: {
+          created_at?: string
+          member_id?: string
+          owner_id?: string
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_chat_pairs_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_chat_pairs_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_chat_pairs_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "posts"
@@ -1153,6 +1202,10 @@ export type Database = {
         Returns: undefined
       }
       can_notify: { Args: { _uid: string }; Returns: boolean }
+      can_post_chat: {
+        Args: { _other: string; _post: string }
+        Returns: boolean
+      }
       claim_push_deliveries: {
         Args: never
         Returns: {
