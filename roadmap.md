@@ -1,4 +1,5 @@
 # Roadmap
+- [x] November 6: static explanation beneath mobile action removed; existing installation control moved beside homepage header bell. Five tests pass; signed-in number dialog, installation fallback and 320/390/1280 widths checked, no runtime errors. No records changed or notices sent. Private save/readback and browser permission preserved; no coercive payment changes. Not published.
 - [x] November 5 13:32: long bell explanation reduced to one private account-mobile storage line; actual status appears after action. Mobile dialog visually checked.
 - [x] November 5 13:49: bell note now starts with "మీ" and states posts publish only after number check, with private storage and confirmed-fraud suspension. Not published.
 - [x] November 5 13:30: separate mobile-save button and consent checkbox removed; single explicit notification action saves account mobile with readback. Authenticated existing-number save and reload readback verified with denied device permission, no live notice sent; five tests passed, build OK. Future number-targeted messaging not configured; browser permission/opt-out retained; not published.

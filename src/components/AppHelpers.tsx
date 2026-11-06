@@ -14,7 +14,7 @@ import { useServerFn } from '@tanstack/react-start';
 type InstallEvent = Event & { prompt: () => Promise<void> };
 
 /** "Add to Home screen" button — appears only when the browser allows installing. */
-export function InstallButton() {
+export function InstallButton({ compact = false }: { compact?: boolean }) {
   const [evt, setEvt] = useState<InstallEvent | null>(null);
   const [installed, setInstalled] = useState(false);
   const [help, setHelp] = useState(false);
@@ -31,11 +31,11 @@ export function InstallButton() {
   if (installed) return null;
   return (
     <>
-      <Button variant="outline" className="h-auto min-h-14 w-full whitespace-normal border-2 border-secondary px-3 py-3" onClick={async () => {
+      <Button variant="outline" aria-label="దిగుమతి · Install app" title="దిగుమతి · Install app" className={compact ? "gold-ring shrink-0 p-0" : "h-auto min-h-14 w-full whitespace-normal border-2 border-secondary px-3 py-3"} onClick={async () => {
         if (!evt) { setHelp(true); return; }
         try { await evt.prompt(); } catch { setHelp(true); } finally { setEvt(null); }
       }}>
-        <Download className="size-5 shrink-0" /><span className="min-w-0"><span className="block">ఫోన్ తెరపై జోడించు</span><span className="block text-sm">Add to Home screen</span></span>
+        <Download className="size-5 shrink-0" />{!compact && <span className="min-w-0"><span className="block">ఫోన్ తెరపై జోడించు</span><span className="block text-sm">Add to Home screen</span></span>}
       </Button>
       <Dialog open={help} onOpenChange={setHelp}>
         <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-sm">

@@ -65,6 +65,7 @@ function Index() {
           <div className="flex gap-2">
             <AdminChatButton compact />
             <Link to="/notifications" className="gold-ring bg-gold text-royal" aria-label="అలర్ట్స్ · Alerts"><Bell className="size-6" /></Link>
+            <InstallButton compact />
             <Link to="/dashboard" className="gold-ring" aria-label="ప్రొఫైల్ · Profile"><User className="size-6" /></Link>
           </div>
         </div>
@@ -84,7 +85,6 @@ function Index() {
             <iframe className="aspect-video w-full" src={`https://www.youtube.com/embed/${ytId}`} title="About Gayatri One" allowFullScreen />
           </div>
         )}
-        <InstallButton />
         <AdminChatButton />
         <SharingImage />
         <Button asChild variant="secondary" size="xl" className="w-full">

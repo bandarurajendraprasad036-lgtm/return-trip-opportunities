@@ -45,6 +45,5 @@ export function BellPhoneRequest() {
       finally { setBusy(false); }
     }}>గంట సూచనలు అనుమతించండి · Enable bell notifications</Button>
     {status && <p role="status" className="break-words text-sm">{status}</p>}
-    <p className="text-xs text-muted-foreground">మీ నంబరును మేము తనిఖీ చేసిన తరువాతే మీ పోస్ట్లు ప్రచురించబడతాయి; నంబరును భద్రంగా ఉంచుతాం, మోసం నిర్ధారణైతే ఖాతాను నిలిపివేస్తాం. · Your posts publish only after we check your number; it is kept private, and confirmed fraud leads to account suspension.</p>
   </section>;
 }
