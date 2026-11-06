@@ -47,4 +47,4 @@
 - Paid individual job allowances use an append-only payment-linked ledger and profile-row locking; deletion never refunds usage, and expiry is derived from stored timestamps without polling.
 - Sharing evidence uses owner-checked server hashing with atomic digest registration, admin-only short-lived signing and existing managed dispatch cleanup; review decisions notify the owner transactionally.
 - Chat attachments use authenticated server validation, private storage and participant-checked short-lived signing; post conversations require bell-created pair rows, backfilled only for historical owner/member conversations to preserve privacy.
-- Listing cards and their details dialogs use only job/vehicle, salary and area fields; never render identity/contact/photo fields, so opening details cannot bypass anonymity.
+- Listing cards stay anonymous; safe-column grants prevent direct sensitive reads, while get_post_details checks payment-linked current goods membership before returning explicitly shared goods details. Jobs/car details never return identity fields.
