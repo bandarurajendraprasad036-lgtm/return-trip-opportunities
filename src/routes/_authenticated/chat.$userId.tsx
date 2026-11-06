@@ -107,7 +107,7 @@ function Chat() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-8.5rem)] flex-col">
+    <div className="flex h-[calc(100svh-12rem)] min-h-80 flex-col">
       <div className="flex items-center gap-3 border-b bg-card px-3 py-2">
         <Link to="/chats" aria-label="Back"><ArrowLeft /></Link>
         <div className="flex-1">
@@ -115,7 +115,7 @@ function Chat() {
         </div>
       </div>
       {contextPost && <section className="space-y-1 border-b bg-muted px-3 py-3 text-sm" aria-label="ప్రయాణ వివరాలు · Route details"><p className="font-bold">{contextPost.title}</p>{contextPost.module === "vehicle" ? <><p>{contextPost.from_place} → {contextPost.to_place}</p><p>{contextPost.vehicle_type} {contextPost.capacity_tons != null && `· ${contextPost.capacity_tons} టన్నులు · tons`} · {contextPost.trip_date}</p></> : <p>{contextPost.location}</p>}</section>}
-      <div className="flex-1 space-y-2 overflow-y-auto p-3">
+      <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-3">
         {postId && <PostEvidence postId={postId} admin={!!me?.isAdmin}/>}
         {msgs.length === 0 && <p className="pt-10 text-center text-muted-foreground">నమస్కారం చెప్పండి 🙏 Say hello</p>}
         {msgs.map((m) => {
