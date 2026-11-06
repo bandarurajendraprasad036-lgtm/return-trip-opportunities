@@ -1230,10 +1230,12 @@ export type Database = {
       dispatch_vehicle_availability: { Args: never; Returns: number }
       dispatch_visible_post_matches: { Args: never; Returns: number }
       follow_vehicle_route: { Args: { _post: string }; Returns: string }
+      get_post_details: { Args: { _post: string }; Returns: Json }
       grant_free_membership_month: {
         Args: { _source: string; _user: string }
         Returns: string
       }
+      has_goods_membership: { Args: { _user?: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1241,6 +1243,11 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_goods_post: {
+        Args: { _post: Database["public"]["Tables"]["posts"]["Row"] }
+        Returns: boolean
+      }
+      my_goods_membership: { Args: never; Returns: boolean }
       my_notification_quota: { Args: never; Returns: Json }
       my_referral_stats: { Args: never; Returns: Json }
       notify_matches: { Args: { _post_id: string }; Returns: number }
