@@ -1,3 +1,4 @@
+import { POST_LIST_COLUMNS } from '@/lib/post-access';
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
@@ -36,7 +37,7 @@ function Admin() {
     enabled: !!me?.isAdmin,
     queryFn: async () => {
       const [{ data: posts }, { count: users }, { data: people }, { data: yt }] = await Promise.all([
-        supabase.from("posts").select("*").order("created_at", { ascending: false }).limit(300),
+        supabase.from("posts").select(POST_LIST_COLUMNS).order("created_at", { ascending: false }).limit(300),
         supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase.from("profiles").select("id, full_name, phone, is_prime").order("created_at", { ascending: false }).limit(200),
         supabase.from("app_settings").select("value").eq("key", "youtube_url").maybeSingle(),

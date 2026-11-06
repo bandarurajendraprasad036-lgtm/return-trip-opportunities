@@ -14,7 +14,7 @@ export const findAiMatches = createServerFn({ method: "POST" })
     const { generateResponse, GatewayError } = await import("@lovable.dev/ai-gateway");
     const { data: posts, error } = await context.supabase
       .from("posts")
-      .select("id,module,kind,title,location,skill,salary,from_place,to_place,trip_date,vehicle_type,goods_type,description")
+      .select("id,module,kind,title,location,skill,salary,from_place,to_place,trip_date,vehicle_type,goods_type")
       .eq("status", "active")
       .neq("user_id", context.userId)
       .order("created_at", { ascending: false })

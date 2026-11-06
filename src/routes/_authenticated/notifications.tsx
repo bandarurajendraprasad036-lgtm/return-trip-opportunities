@@ -1,3 +1,4 @@
+import { POST_LIST_COLUMNS } from '@/lib/post-access';
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
@@ -41,7 +42,7 @@ function Notifications() {
         .limit(50);
       if (error) throw error;
       const ids = [...new Set(data.map((n) => n.matched_post_id || n.post_id).filter(Boolean))] as string[];
-      const { data: posts } = ids.length ? await supabase.from("posts").select("*").in("id", ids) : { data: [] as Post[] };
+      const { data: posts } = ids.length ? await supabase.from("posts").select(POST_LIST_COLUMNS).in("id", ids) : { data: [] as Post[] };
       return data.map((n) => ({ ...n, post: (posts ?? []).find((p) => p.id === (n.matched_post_id || n.post_id)) as Post | undefined }));
     },
   });

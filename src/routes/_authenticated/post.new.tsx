@@ -190,7 +190,7 @@ function NewPost() {
     setBusy(true);
     const mod = await checkText({ data: { text: Object.values(v).join(" \n ") } }).catch(() => ({ ok: false }));
     if (!mod.ok) { setBusy(false); await qc.invalidateQueries({queryKey:['me']}); setContentError('తనిఖీ పూర్తికాలేదు లేదా అనుమతించని విషయం ఉంది; ప్రకటన పంపలేదు. · Check unavailable or prohibited content; not submitted.'); return; }
-    const { data: savedPost, error } = await supabase.from("posts").insert({ ...v, ...(!isJob ? { capacity_tons: capacity?.success ? capacity.data : null, vehicle_type: f["vehicle_type"]?.trim().slice(0, 60) || null } : {}), show_contact: show_contact === "1", user_id: me.id, ...identity }).select('id,visible_after').single();
+    const { data: savedPost, error } = await supabase.from("posts").insert({ ...v, ...(!isJob ? { capacity_tons: capacity?.success ? capacity.data : null, vehicle_type: f["vehicle_type"]?.trim().slice(0, 60) || null } : {}), show_contact: false, user_id: me.id, ...identity }).select('id,visible_after').single();
     if (!error && savedPost && !isJob && capturedPoints.from && capturedPoints.to) {
       const registered = await supabase.rpc('save_vehicle_post_points', { _post: savedPost.id, _from_lat: capturedPoints.from.latitude, _from_lng: capturedPoints.from.longitude, _to_lat: capturedPoints.to.latitude, _to_lng: capturedPoints.to.longitude });
       if (registered.error) toast.error('ప్రకటన భద్రపడింది; పరిధి స్థానాలు భద్రపడలేదు · Post saved; radius coordinates not saved');
@@ -250,13 +250,6 @@ function NewPost() {
           {kind === "business" && field("goods_type", "సరుకు రకం", "Goods type", { placeholder: "e.g. Rice bags, Cement" })}
         </>
       )}
-      {isJob && (
-        <label className="flex items-start gap-2 rounded-lg bg-muted p-3 text-sm">
-          <input type="checkbox" className="mt-1 size-5" disabled={!me?.profile?.is_prime} checked={f["show_contact"] === "1"} onChange={(e) => setF({ ...f, show_contact: e.target.checked ? "1" : "" })} />
-          <span>⭐ ఫోన్ నంబర్ చూపించు (Prime మాత్రమే) · Show my phone (Prime only).<br /><span className="text-muted-foreground">ఉచిత పోస్ట్‌లో పేరు, ఫోన్ దాచబడతాయి · Free posts hide name & phone.</span></span>
-        </label>
-      )}
-      {(!isJob || f["show_contact"] === "1") && field("contact_phone", "ఫోన్", "Contact phone", { inputMode: "numeric", maxLength: 15 })}
       <div className="space-y-1">
         <Label className="text-base">వివరాలు · Details (optional)</Label>
         <Textarea value={f["description"] ?? ""} onChange={set("description")} maxLength={500} className="text-base" />

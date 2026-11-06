@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, Phone, BadgeCheck } from "lucide-react";
+import { Bell, BadgeCheck } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/session";
@@ -32,12 +32,12 @@ export function MembershipPayment() {
     <div className="space-y-3 bg-royal px-4 py-5 text-on-royal">
       <div className="flex items-center gap-2 text-gold"><BadgeCheck className="size-6" /><h3 className="text-xl font-bold">మీ అవకాశాలకు ప్రాధాన్యం · Prime membership</h3></div>
       <p className="text-2xl font-bold text-gold">ఒక్కరికి ₹{MEMBERSHIP_AMOUNT} / నెల · Individual</p>
-      <p className="text-xl font-bold text-gold">నలుగురికి ₹{GROUP_MEMBERSHIP_AMOUNT} / నెల · Four people</p>
-      <p className="text-base">₹699 చెల్లింపు ఆమోదం తర్వాత సభ్యత్వ నెలలో మూడు ఉద్యోగ ప్రకటనలు; ఒక్కో ప్రకటన నెలపాటు ఉంటుంది. · Approved ₹699 plan: three jobs per membership month, each visible for one month.</p>
-      <ul className="space-y-3 text-sm"><li className="flex gap-2"><Bell className="size-5 shrink-0 text-gold" />రోజువారీ ఉచిత పరిమితికి మించి సరిపోయే సమాచారం · Matching alerts beyond the free daily limit</li><li className="flex gap-2"><Phone className="size-5 shrink-0 text-gold" />మీ అనుమతితో ఉద్యోగ ప్రకటనలో నేరుగా సంప్రదించే నంబరు · Opt-in direct contact on job posts</li><li className="flex gap-2"><BadgeCheck className="size-5 shrink-0 text-gold" />కార్యాలయం చెల్లింపు నిర్ధారించిన తరువాత సభ్యత్వం · Activated after payment approval</li></ul>
+      
+      <p className="text-base">సరకు వాహన వివరాలు, గంట, సంభాషణకు మాత్రమే నెలకు ₹699. ఉద్యోగాలు, కార్ల సంభాషణ, అన్ని వాహన ప్రకటనలు ఉచితం. · ₹699 monthly for goods details, bells and chat only; jobs, car chat and all vehicle posts are free.</p>
+      <ul className="space-y-3 text-sm"><li className="flex gap-2"><Bell className="size-5 shrink-0 text-gold" />సరకు వాహన వివరాలు, గంట, వ్యక్తిగత సంభాషణ · Goods details, bells and private chat</li><li className="flex gap-2"><BadgeCheck className="size-5 shrink-0 text-gold" />చెల్లింపు ఆమోదించిన తరువాతే · After payment approval</li></ul>
       <p className="text-xs text-on-royal/80">ఉద్యోగం లేదా వాహనం దొరుకుతుందని హామీ కాదు · No job or vehicle booking guarantee.</p>
     </div>
-    {!me?.profile?.is_prime && !pending && <form className="space-y-3" onSubmit={async event => {
+    {!pending && <form className="space-y-3" onSubmit={async event => {
       event.preventDefault();
       if (!me) return;
       const selectedPlan = plan;
@@ -53,9 +53,7 @@ export function MembershipPayment() {
       } catch { toast.error("వివరాలు నమోదు కాలేదు; ఈ లావాదేవీ ఇప్పటికే నమోదు అయిందేమో చూసి మళ్లీ ప్రయత్నించండి · Could not submit"); }
       finally { setBusy(false); }
     }}>
-      <Tabs value={plan} onValueChange={value => { if (!busy && (value === 'individual' || value === 'group')) setPlan(value); }}><TabsList className="h-auto w-full"><TabsTrigger disabled={busy} value="individual" className="min-h-12 flex-1 whitespace-normal">ఒక్కరికి · Individual</TabsTrigger><TabsTrigger disabled={busy} value="group" className="min-h-12 flex-1 whitespace-normal">నలుగురికి · Four people</TabsTrigger></TabsList></Tabs>
-      <p className="text-lg font-bold">₹{amount} / నెల · month</p>
-      {plan === 'group' && <fieldset className="space-y-3" disabled={busy}><legend className="text-sm">మీతో కలిపి నలుగురు; మరో ముగ్గురి నమోదైన నంబర్లు · You plus three registered members</legend>{members.map((number, index) => <div key={index}><Label htmlFor={`membership-member-${index}`}>సభ్యుడు {index + 2} · Member {index + 2}</Label><Input id={`membership-member-${index}`} inputMode="numeric" maxLength={10} value={number} onChange={event => setMembers(old => old.map((entry, i) => i === index ? event.target.value.replace(/\D/g, '') : entry))} required /></div>)}</fieldset>}
+      <p className="text-lg font-bold">₹{MEMBERSHIP_AMOUNT} / నెల · month</p>
       <img src={qr.url} alt="సభ్యత్వ చెల్లింపు బ్యాంకు గుర్తు · Bank payment QR" width={300} height={300} className="mx-auto w-full max-w-64 object-contain" />
       <Label htmlFor="payment-transaction">లావాదేవీ సంఖ్య · Transaction ID</Label>
       <Input id="payment-transaction" value={transaction} onChange={event => setTransaction(event.target.value)} maxLength={64} required className="h-12 text-lg" />
