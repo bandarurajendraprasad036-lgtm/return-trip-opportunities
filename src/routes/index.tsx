@@ -77,7 +77,7 @@ function Index() {
         <DailyWelcome />
       </section>
       <ProfileNotice />
-      <section className="space-y-3 px-5 pb-8 pt-4">
+      <section className="space-y-3 px-5 pb-8 pt-1">
         <HomeListings today={day} />
         {ytId && (
           <div className="overflow-hidden rounded-xl border bg-card shadow-card">

@@ -1,4 +1,5 @@
 # Roadmap
+- [x] November 6 03:03: homepage information notice reduced to one 28px line without borders; 320/390/1280 widths verified without overflow or runtime errors, build OK. Devotional artwork/search unchanged; not published.
 - [x] November 6: static explanation beneath mobile action removed; existing installation control moved beside homepage header bell. Five tests pass; signed-in number dialog, installation fallback and 320/390/1280 widths checked, no runtime errors. No records changed or notices sent. Private save/readback and browser permission preserved; no coercive payment changes. Not published.
 - [x] November 5 13:32: long bell explanation reduced to one private account-mobile storage line; actual status appears after action. Mobile dialog visually checked.
 - [x] November 5 13:49: bell note now starts with "మీ" and states posts publish only after number check, with private storage and confirmed-fraud suspension. Not published.
