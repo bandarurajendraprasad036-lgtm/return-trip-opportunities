@@ -11,7 +11,7 @@ export const sendChatEntry = createServerFn({ method:'POST' }).middleware([requi
     if (image && (!(image instanceof File) || image.size>CHAT_IMAGE_LIMIT)) throw new Error('చిత్రం పరిమాణం ఎక్కువ · Image too large');
     return { ...entry, image:image instanceof File && image.size>0 ? image : null };
   }).handler(async ({data,context}) => {
-    const allowed = await context.supabase.rpc('can_post_chat',{_post:data.post as string,_other:data.receiver});
+    const allowed = await context.supabase.rpc('can_post_chat',{...(data.post ? {_post:data.post} : {}),_other:data.receiver});
     if (allowed.error || !allowed.data) throw new Error('ముందుగా ప్రకటన గంట నొక్కండి · Ring the post bell first');
     if (!data.body && !data.phone && !data.image) throw new Error('వివరాలు నమోదు చేయండి · Enter details');
     let path = '';

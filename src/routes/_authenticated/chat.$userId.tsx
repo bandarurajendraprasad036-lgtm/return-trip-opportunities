@@ -45,7 +45,7 @@ function Chat() {
   const sendEntry = useServerFn(sendChatEntry);
   const showImage = useServerFn(viewChatImage);
   const {data:chatAllowed} = useQuery({queryKey:['chat-allowed',me?.id,userId,postId],enabled:!!me,queryFn:async()=>{
-    const result=await supabase.rpc('can_post_chat',{_post:postId ?? (null as unknown as string),_other:userId});
+    const result=await supabase.rpc('can_post_chat',{...(postId ? {_post:postId} : {}),_other:userId});
     if(result.error)throw result.error;return result.data;
   }});
   const { data: contextPost } = useQuery({ queryKey: ["chat-post", postId], enabled: !!postId, queryFn: async () => {
