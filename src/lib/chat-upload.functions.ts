@@ -41,3 +41,15 @@ export const viewChatImage = createServerFn({method:'POST'}).middleware([require
     if(signed.error || !signed.data?.signedUrl) throw new Error('చిత్రం తెరవలేకపోయాం · Image unavailable');
     return {url:signed.data.signedUrl};
   });
+
+export const deleteChatEntry = createServerFn({method:'POST'}).middleware([requireSupabaseAuth])
+  .inputValidator((input:unknown) => z.object({message:z.string().uuid()}).parse(input))
+  .handler(async ({data,context})=>{
+    const row=await context.supabase.from('messages').select('id,image_path').eq('id',data.message).eq('sender_id',context.userId).maybeSingle();
+    if(row.error || !row.data)throw new Error('మీ సందేశమే తొలగించండి · Own message required');
+    const {supabaseAdmin}=await import('@/integrations/supabase/client.server');
+    if(row.data.image_path){const removed=await supabaseAdmin.storage.from('chat-images').remove([row.data.image_path]);if(removed.error)throw new Error('చిత్రం తొలగించలేకపోయాం · Could not remove image');}
+    const removed=await supabaseAdmin.from('messages').delete().eq('id',data.message).eq('sender_id',context.userId);
+    if(removed.error)throw new Error('సందేశం తొలగించలేకపోయాం · Could not delete');
+    return {ok:true};
+  });

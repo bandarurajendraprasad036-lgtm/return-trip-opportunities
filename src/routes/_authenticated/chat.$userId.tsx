@@ -10,7 +10,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { sendSupportMessage } from "@/lib/support.functions";
 import { z } from "zod";
 import { PostEvidence } from '@/components/PostEvidence';
-import { sendChatEntry, viewChatImage } from '@/lib/chat-upload.functions';
+import { sendChatEntry, viewChatImage, deleteChatEntry } from '@/lib/chat-upload.functions';
 import { CHAT_IMAGE_LIMIT, chatEntrySchema } from '@/lib/chat-rules';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 
@@ -44,6 +44,7 @@ function Chat() {
   const fileInput = useRef<HTMLInputElement>(null);
   const sendEntry = useServerFn(sendChatEntry);
   const showImage = useServerFn(viewChatImage);
+  const removeEntry = useServerFn(deleteChatEntry);
   const {data:chatAllowed} = useQuery({queryKey:['chat-allowed',me?.id,userId,postId],enabled:!!me,queryFn:async()=>{
     const result=await supabase.rpc('can_post_chat',{...(postId ? {_post:postId} : {}),_other:userId});
     if(result.error)throw result.error;return result.data;
@@ -126,6 +127,7 @@ function Chat() {
                 <p className="whitespace-pre-wrap">{m.body.replace(/\/chat\/[0-9a-f-]{36}/g,'ప్రకటన గంట నొక్కండి · Ring listing bell')}</p>
                 {m.chat_phone && <p className="flex items-center gap-1"><Phone className="size-4" />{m.chat_phone}</p>}
                 {m.image_path && <Button variant="outline" onClick={async()=>{try{const result=await showImage({data:{message:m.id}});setImageUrl(result.url);}catch{setSendError('చిత్రం తెరవలేకపోయాం · Image unavailable');}}}><ImagePlus />ఫోటో చూడండి · View image</Button>}
+                {mine && (m.image_path || m.chat_phone) && <Button variant="ghost" size="icon" aria-label="నా పంపిన వివరాలు తొలగించండి · Delete my attachment" onClick={async()=>{try{await removeEntry({data:{message:m.id}});await qc.invalidateQueries({queryKey:key});}catch{setSendError('తొలగించలేకపోయాం · Could not delete');}}}><X /></Button>}
               </div>
             </div>
           );
