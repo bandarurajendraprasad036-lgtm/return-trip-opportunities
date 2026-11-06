@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] November 6 03:16: add explicit details action; reveal only opted-in post photo/brand/contact on click, never private profile or chat screenshots.
 - [ ] November 6 03:15 priority: first simplify PostCard displays to job/vehicle, salary, area and bell only, hide name/photo/phone and direct chat/call actions; then finish authorized bell-only notification and private chat uploads.
 - [ ] November 6 03:08: audit complete. Sender bell triggers route notices; public displays hide photo/phone/name and show job/salary/area with bell; each responding member gets participant-private contextual chat. Explain new private chat attachment storage and notification gating first; implementation waits for user authorization. No app/schema changes made; 274km/70% remain examples, not verified facts.
 - [x] November 6 03:03: homepage information notice reduced to one 28px line without borders; 320/390/1280 widths verified without overflow or runtime errors, build OK. Devotional artwork/search unchanged; not published.
