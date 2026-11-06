@@ -69,7 +69,7 @@ describe('goods-only approved 699 monthly access', () => {
     await actor(owner);
     for(const post of [car,job]){
       const result=await db.query<{details:Record<string,unknown>}>(`SELECT get_post_details('${post}') AS details`);
-      expect(result.rows[0]?.details.description).toBe(post===car?'Car description':'Job description');
+      expect(result.rows[0]?.details['description']).toBe(post===car?'Car description':'Job description');
       expect(result.rows[0]?.details).not.toHaveProperty('public_photo');
       expect(result.rows[0]?.details).not.toHaveProperty('contact_phone');
       expect(result.rows[0]?.details).not.toHaveProperty('public_brand');
