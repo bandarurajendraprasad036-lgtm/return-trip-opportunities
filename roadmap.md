@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] November 6 04:18: latest addition: job apply/details and local car posting/chat free; car identity/number hidden. Paid goods users may view explicitly shared goods photos/full details; supersedes goods-photo hiding, not car privacy. Implement within current goods-only gate.
 - [ ] November 6 04:13: latest request recorded: all jobs/local cars/all vehicle posting free; only goods details/bells/owner contextual chat require approved ₹699 monthly membership. Replace old paid-job gates without deleting history; database-rule permission needed before enforcement. Identity remains hidden even in details (implemented/tested).
 - [x] November 6 04:10: new request supersedes contact disclosure; card/details now hide name, photo and phone even for opted-in posts.
 - [ ] November 6 04:10 corrected: goods-vehicle-only membership gate for bells/contact; local cars and all other users free, all vehicle posting free. Reciprocal/private first-message flow pending; obtain database-change permission and first-message clarification before implementing.
