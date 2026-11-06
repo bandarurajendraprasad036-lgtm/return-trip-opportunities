@@ -135,7 +135,7 @@ function Chat() {
         <div ref={bottom} />
       </div>
       {sendError && <p role="alert" className="px-3 py-2 text-sm text-destructive">{sendError}</p>}
-      {chatAllowed===false && <p role="alert" className="px-3 py-2">ముందుగా ప్రకటన గంట నొక్కండి · Ring the post bell first</p>}
+      {chatAllowed===false && <p role="alert" className="px-3 py-2">{contextPost?.module==='vehicle' && contextPost.vehicle_type && !['car','cars','కారు','కార్లు','కార్'].includes(contextPost.vehicle_type.trim().toLowerCase()) ? <><span>సరకు వాహన సంభాషణకు ఆమోదించిన ₹699 నెల సభ్యత్వం, గంట పరిచయం అవసరం. · Approved ₹699 membership and bell connection required.</span><Link to="/dashboard" className="block underline">సభ్యత్వం · Membership</Link></> : 'ముందుగా ప్రకటన గంట నొక్కండి · Ring the post bell first'}</p>}
       <form onSubmit={send} className="space-y-2 border-t bg-card p-2">
         <Input type="tel" inputMode="numeric" aria-label="ఫోన్ నంబరు · Phone number" value={phone} onChange={e=>setPhone(e.target.value.replace(/\D/g,''))} maxLength={10} placeholder="ఫోన్ నంబరు · Phone number" disabled={busy || !chatAllowed} />
         <input ref={fileInput} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>{const file=e.target.files?.[0];if(file && (file.size>CHAT_IMAGE_LIMIT || !['image/jpeg','image/png','image/webp'].includes(file.type))){setSendError('ఐదు మెగాబైట్ల లోపు చిత్రం ఎంచుకోండి · Choose an image under 5MB');e.target.value='';return;}setImage(file || null);setSendError('');}} />

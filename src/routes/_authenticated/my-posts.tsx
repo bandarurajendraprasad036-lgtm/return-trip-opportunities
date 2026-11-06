@@ -1,3 +1,4 @@
+import { POST_LIST_COLUMNS } from '@/lib/post-access';
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -31,7 +32,7 @@ function MyPosts() {
     enabled: !!me,
     queryFn: async () => {
       if (!me) return [];
-      const { data, error } = await supabase.from("posts").select("*").eq("user_id", me.id).order("created_at", { ascending: false });
+      const { data, error } = await supabase.from("posts").select(POST_LIST_COLUMNS).eq("user_id", me.id).order("created_at", { ascending: false });
       if (error) throw error;
       return data as Post[];
     },

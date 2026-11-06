@@ -8,7 +8,7 @@ const HELP = `Gayatri One (గాయత్రి వన్) help facts:
 - Post: tap "Post" (పోస్ట్), choose type, fill details. Abusive or anti-national words are blocked.
 - Job match = same location/area. Vehicle match = same From, To and date. Both sides get an alert.
 - Area options per post: local, district, state, all India.
-- Free new match alerts require status plus nine groups sharing evidence and admin approval. Individual ₹${MEMBERSHIP_AMOUNT} approved payment allows three jobs per membership month; each lasts a month. Notifications are free with consent, not guaranteed delivery. Four registered people membership is ₹${GROUP_MEMBERSHIP_AMOUNT}/month. Contact visibility requires separate consent.
+- Jobs (apply, employer posts, details and chat), local car chat and all vehicle posting are free with no Prime requirement. Only goods vehicle details, bells and contextual chat require approved ₹${MEMBERSHIP_AMOUNT} individual monthly membership. Identity is hidden on cards; only explicitly shared goods details/photos may be viewed by paid users. No automatic booking or guaranteed delivery.
 - Scan the membership bank QR for the selected plan, submit the UTR; admin verifies bank receipt. Group includes payer and three distinct registered mobiles; approval adds one month to each. Old payment records retain their original amounts.
 - Paid members get a referral code: refer 3 people per day; reaching the month's target gives next month free.
 - My posts page: close or delete your posts. Notifications page shows matches.

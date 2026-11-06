@@ -253,6 +253,13 @@
       "when": 1793935163046,
       "tag": "0035_optional_chat_context",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1793938821513,
+      "tag": "0036_goods_only_paid_access_free_jobs",
+      "breakpoints": true
     }
   ]
 }

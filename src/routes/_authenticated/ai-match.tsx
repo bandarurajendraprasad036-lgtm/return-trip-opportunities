@@ -1,3 +1,4 @@
+import { POST_LIST_COLUMNS } from '@/lib/post-access';
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -39,7 +40,7 @@ function AiMatchPage() {
   const { data: posts = [] } = useQuery({
     queryKey: ["ai-posts", ids],
     enabled: ids.length > 0,
-    queryFn: async () => (await supabase.from("posts").select("*").in("id", ids)).data as Post[],
+    queryFn: async () => (await supabase.from("posts").select(POST_LIST_COLUMNS).in("id", ids)).data as Post[],
   });
 
   return (

@@ -1,3 +1,4 @@
+import { POST_LIST_COLUMNS } from '@/lib/post-access';
 import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
@@ -35,7 +36,7 @@ export function HomeListings({ today }: { today: string }) {
   const { data: posts = [], isLoading, isError } = useQuery({
     queryKey: ['posts'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('posts').select('*').eq('status', 'active').order('created_at', { ascending: false }).limit(200);
+      const { data, error } = await supabase.from('posts').select(POST_LIST_COLUMNS).eq('status', 'active').order('created_at', { ascending: false }).limit(200);
       if (error) throw error;
       return data as Post[];
     },

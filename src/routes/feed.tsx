@@ -1,3 +1,4 @@
+import { POST_LIST_COLUMNS } from '@/lib/post-access';
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -59,7 +60,7 @@ function Feed() {
   const { data: posts = [], isLoading } = useQuery({
     queryKey: ["posts"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("posts").select("*").eq("status", "active").order("created_at", { ascending: false }).limit(200);
+      const { data, error } = await supabase.from("posts").select(POST_LIST_COLUMNS).eq("status", "active").order("created_at", { ascending: false }).limit(200);
       if (error) throw error;
       return (data as Post[]).filter(post => jobIsVisible(post));
     },
