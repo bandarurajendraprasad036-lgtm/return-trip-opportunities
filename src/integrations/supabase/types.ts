@@ -1203,7 +1203,7 @@ export type Database = {
       }
       can_notify: { Args: { _uid: string }; Returns: boolean }
       can_post_chat: {
-        Args: { _other: string; _post: string }
+        Args: { _other?: string; _post?: string }
         Returns: boolean
       }
       claim_push_deliveries: {
