@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] November 6 03:08: audit existing chat phone/image uploads, vehicle card and all vehicle notification paths; clarify bell sender/recipient, private vs public screenshot consent and authorization before storage/schema changes. Use supplied route/distance/discount only, never infer 274km or 70% as verified facts.
 - [x] November 6 03:03: homepage information notice reduced to one 28px line without borders; 320/390/1280 widths verified without overflow or runtime errors, build OK. Devotional artwork/search unchanged; not published.
 - [x] November 6: static explanation beneath mobile action removed; existing installation control moved beside homepage header bell. Five tests pass; signed-in number dialog, installation fallback and 320/390/1280 widths checked, no runtime errors. No records changed or notices sent. Private save/readback and browser permission preserved; no coercive payment changes. Not published.
 - [x] November 5 13:32: long bell explanation reduced to one private account-mobile storage line; actual status appears after action. Mobile dialog visually checked.
