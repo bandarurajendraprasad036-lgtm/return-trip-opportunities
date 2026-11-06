@@ -10,7 +10,7 @@
 <!-- LOVABLE:END -->
 
 - Phone login uses a synthetic email derived from the 10-digit phone (`phoneToEmail` in src/lib/match.ts) with password auth and auto-confirm — avoids SMS provider setup.
-- Matching runs in the `match_post` DB trigger (inserts notifications for both sides); `isMatch` in src/lib/match.ts mirrors it for UI badges — change both together.
+- `isMatch` mirrors database area/route matching; post-linked notifications pass a central bell-only guard, with owner-authorized exact matching and recipient interest as the only dispatch paths, preventing automatic post triggers from sending.
 - First user to sign up becomes admin (handle_new_user trigger); roles live in user_roles.
 - Use the shared Brand component for the bilingual wordmark so headers stay consistent.
 - Keep the synthetic phone-email domain unchanged during rebrands because existing account credentials depend on it.
@@ -46,3 +46,5 @@
 - Membership prices share one frontend source; SQL validates new plans while retaining historical amounts, and locked admin review grants group time atomically to four distinct registered accounts.
 - Paid individual job allowances use an append-only payment-linked ledger and profile-row locking; deletion never refunds usage, and expiry is derived from stored timestamps without polling.
 - Sharing evidence uses owner-checked server hashing with atomic digest registration, admin-only short-lived signing and existing managed dispatch cleanup; review decisions notify the owner transactionally.
+- Chat attachments use authenticated server validation, private storage and participant-checked short-lived signing; post conversations require bell-created pair rows, backfilled only for historical owner/member conversations to preserve privacy.
+- Listings are anonymous by default; details reveal only explicitly shared post fields on click, never private profiles or chat attachments.

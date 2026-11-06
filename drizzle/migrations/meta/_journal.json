@@ -239,6 +239,20 @@
       "when": 1793878365479,
       "tag": "0033_consented_previous_route_requests",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1793935048005,
+      "tag": "0034_bell_only_notices_private_chat",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1793935163046,
+      "tag": "0035_optional_chat_context",
+      "breakpoints": true
     }
   ]
 }
