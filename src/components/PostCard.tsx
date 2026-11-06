@@ -2,7 +2,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Bell } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, IndianRupee, Info, Phone } from "lucide-react";
+import { MapPin, IndianRupee, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Database } from "@/integrations/supabase/types";
 import { useState } from 'react';
@@ -62,7 +62,7 @@ export function PostCard({
       {jobIsVisible(post) && <Button type="button" variant="outline" size="icon" className="shrink-0" onClick={contact} aria-label="గంట కొట్టి చాట్ చేయండి · Ring and chat"><Bell /></Button>}
     </div>
     <Button variant="ghost" size="sm" onClick={() => setDetailsOpen(true)}><Info />వివరాలు · Details</Button>
-    <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}><DialogContent className="max-h-[85svh] overflow-y-auto"><DialogTitle>ప్రకటన వివరాలు · Post details</DialogTitle><DialogDescription>{isJob ? post.skill || 'ఉద్యోగం · Job' : vehicleTypeLabel(post.vehicle_type)}</DialogDescription>{post.show_contact ? <>{post.public_brand && <p>{post.public_brand}</p>}{post.public_photo && /^https:\/\//.test(post.public_photo) && <img src={post.public_photo} alt="పంచుకున్న చిత్రం · Shared photo" className="max-h-64 w-full object-contain" />}{post.contact_phone && <p>{post.contact_phone}</p>}{post.contact_phone && <Button asChild variant="outline"><a href={`tel:${post.contact_phone}`}><Phone />కాల్ · Call</a></Button>}{!post.public_brand && !post.public_photo && !post.contact_phone && <p>పంచుకున్న వివరాలు లేవు · No shared details</p>}</> : <p>వ్యక్తిగత వివరాలు పంచుకోలేదు · Contact details not shared</p>}</DialogContent></Dialog>
+    <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}><DialogContent className="max-h-[85svh] overflow-y-auto"><DialogTitle>ప్రకటన వివరాలు · Post details</DialogTitle><DialogDescription>{isJob ? post.skill || 'ఉద్యోగం · Job' : vehicleTypeLabel(post.vehicle_type)}</DialogDescription><p>{isJob ? post.location : `${post.from_place || '…'} → ${post.to_place || '…'}`}</p>{post.salary && <p>{post.salary}</p>}</DialogContent></Dialog>
     {actions && meId === post.user_id && <div className="flex flex-wrap gap-2">{actions}</div>}
     {vehicleNotice}
   </article>;
