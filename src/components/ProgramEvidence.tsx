@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { SHARE_IMAGES } from '@/lib/account-program';
 import { artworkFileError } from '@/lib/upload-rules';
 
-export function ProgramEvidence({ postId }: { postId?: string }) {
+export function ProgramEvidence({ postId }: { postId?: string | undefined }) {
   const { data: me } = useMe(); const qc = useQueryClient(); const send = useServerFn(submitProgramEvidence);
   const [files, setFiles] = useState<File[]>([]), [busy, setBusy] = useState(false), [status, setStatus] = useState('');
   const id = `program-evidence-${postId || 'account'}`;

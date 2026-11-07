@@ -16,7 +16,7 @@ export function BellPhoneRequest() {
   if (!me?.profile) return null;
   return <section className="space-y-3 border-b pb-4" aria-label="నా ఫోన్‌కు సూచన · My phone alert">
     <Button disabled={busy} className="w-full whitespace-normal" onClick={async () => {
-      // Start permission directly on the click, before asynchronous profile saving.
+      // Permission comes only from the explicit device notification action.
       const registration = enablePush();
       setBusy(true); setStatus('');
       try {
