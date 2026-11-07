@@ -72,6 +72,22 @@ describe('Final program database rules', () => {
   await db.exec(`UPDATE account_programs SET completed_at=now()-interval '14 days' WHERE user_id='${owner}'`);
   expect((await db.query<{n:number}>('SELECT dispatch_program_requests() n')).rows[0]?.n).toBe(0);
  });
+ it('dispatches at most five same-category route users and repeat bells preserve private connection',async()=>{
+  await db.exec(`UPDATE account_programs SET completed_at=now(),sharing_active=true WHERE user_id='${owner}';
+  SELECT set_config('test.user','${owner}',false);
+  INSERT INTO posts(id,user_id,module,kind,status,vehicle_type,category,from_place,to_place,trip_date) VALUES('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','${owner}','vehicle','owner','active','Lorry','Lorry','Hyderabad','Bombay',current_date);`);
+  for(let i=0;i<7;i++){
+   const id=`00000000-0000-4000-8000-00000000000${i}`;
+   await db.exec(`INSERT INTO profiles(id) VALUES('${id}'); INSERT INTO account_programs(user_id,occupation,category,member_kind) VALUES('${id}','Transport','Lorry','business'); INSERT INTO posts(id,user_id,module,kind,status,vehicle_type,category,from_place,to_place,trip_date) VALUES(gen_random_uuid(),'${id}','vehicle','business','active','${i===6?'Car':'Lorry'}','Lorry','Hyderabad','Bombay',current_date);`);
+  }
+  expect((await db.query<{n:number}>(`SELECT notify_matches('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa') n`)).rows[0]?.n).toBe(5);
+  expect((await db.query<{n:number}>(`SELECT count(*)::int n FROM notifications WHERE matched_post_id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'`)).rows[0]?.n).toBe(5);
+  await db.exec(`SELECT set_config('test.user','00000000-0000-4000-8000-000000000000',false)`);
+  const first=await db.query<{owner:string}>(`SELECT ring_post('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa') owner`);
+  const repeat=await db.query<{owner:string}>(`SELECT ring_post('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa') owner`);
+  expect(repeat.rows[0]?.owner).toBe(first.rows[0]?.owner);
+  expect((await db.query<{n:number}>(`SELECT count(*)::int n FROM post_chat_pairs WHERE member_id='00000000-0000-4000-8000-000000000000' AND post_id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'`)).rows[0]?.n).toBe(1);
+ });
  it('requires 100 real confirmed joins after day ten and grants only once three months',async()=>{
   await db.exec(`UPDATE account_programs SET completed_at=now()-interval '20 days' WHERE user_id='${owner}';
   INSERT INTO profiles(id,referred_by,referred_at,created_at) SELECT gen_random_uuid(),'${owner}',now(),now() FROM generate_series(1,99);
