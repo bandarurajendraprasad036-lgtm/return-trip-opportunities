@@ -8,6 +8,8 @@ import { AdminChatButton } from "@/components/AdminChatButton";
 import { InstallButton } from "@/components/AppHelpers";
 import { MembershipPayment } from "@/components/MembershipPayment";
 import { RewardMembership } from '@/components/RewardMembership';
+import { AccountProfile } from '@/components/AccountProfile';
+import { SharingImage } from '@/components/SharingImage';
 import { NotificationSettings } from '@/components/NotificationSettings';
 import { dailyDevotionalIndex } from '@/lib/daily-devotional';
 import mataGold from '@/assets/gayatri-mata.jpg';
@@ -73,6 +75,8 @@ function Dashboard() {
         <Link to="/service-profile" className={tile}><Image className="size-7 text-primary" />నా ఫోటోలు · My photos</Link>
       </div>
       <AdminChatButton />
+      <AccountProfile />
+      <SharingImage />
       <MembershipPayment />
       <RewardMembership />
       <NotificationSettings />

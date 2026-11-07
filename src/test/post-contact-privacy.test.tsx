@@ -4,6 +4,8 @@ import { PostCard, type Post } from '@/components/PostCard';
 vi.mock('@tanstack/react-router',()=>({useNavigate:()=>vi.fn()}));
 vi.mock('@/integrations/supabase/client',()=>({supabase:{rpc:vi.fn(async()=>({data:{description:'Work details'},error:null}))}}));
 vi.mock('@/components/ResponsibilityNotice',()=>({ResponsibilityNotice:()=>null}));
+vi.mock('@/lib/use-account-program',()=>({useAccountProgram:()=>({data:{completed_at:'2026-11-07'}})}));
+vi.mock('@/components/ProfileRequest',()=>({ProfileRequest:()=>null}));
 afterEach(cleanup);
 describe('post contact disclosure',()=>{
   const post={id:'post',user_id:'owner',module:'job',status:'active',skill:'Driver',title:'Private name',location:'Hyderabad',salary:'15000',show_contact:true,public_brand:'Consented name',public_photo:'https://example.com/private-photo.jpg',contact_phone:'9876543210'} as Post;

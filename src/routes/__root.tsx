@@ -1,5 +1,4 @@
 import { Referral } from "@/components/Referral";
-import { PhoneGate } from "@/components/PhoneGate";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -96,7 +95,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+      { rel: "icon", href: "/favicon.png", type: "image/png" },
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -144,7 +143,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <AccountBlockGate><Outlet /><PhoneGate /><PushSoundSync /><Referral /></AccountBlockGate>
+      <AccountBlockGate><Outlet /><PushSoundSync /><Referral /></AccountBlockGate>
       <Toaster position="top-center" richColors />
     </QueryClientProvider>
   );

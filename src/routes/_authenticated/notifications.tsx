@@ -49,7 +49,7 @@ function Notifications() {
 
   const today = new Date().toDateString();
   const todayCount = data.filter((n) => new Date(n.created_at).toDateString() === today).length;
-  const capped = !me?.profile?.is_prime && todayCount >= FREE_DAILY_ALERTS;
+  const capped = todayCount >= FREE_DAILY_ALERTS;
   const hasUnread = data.some((n) => !n.is_read);
   useEffect(() => {
     if (!hasUnread || !me?.id) return;
@@ -66,10 +66,7 @@ function Notifications() {
       {capped && (
         <div className="rounded-xl border-2 border-secondary bg-secondary/20 p-4">
           <p className="font-bold">⚠️ ఈ రోజు {FREE_DAILY_ALERTS} ఉచిత అలర్ట్స్ పూర్తయ్యాయి</p>
-          <p className="text-sm">ఉచిత వినియోగదారులకు రోజుకు {FREE_DAILY_ALERTS} అలర్ట్స్ మాత్రమే. అపరిమిత అలర్ట్స్ కోసం నెలకు ₹{PRIME_PRICE} Prime తీసుకోండి.</p>
-          <p className="text-xs text-muted-foreground">Free users get up to {FREE_DAILY_ALERTS} alerts a day. Upgrade to the ₹{PRIME_PRICE}/month plan for unlimited alerts.</p>
-          <p className="text-sm">నలుగురికి నెలకు ₹{GROUP_MEMBERSHIP_AMOUNT} · Four people ₹{GROUP_MEMBERSHIP_AMOUNT}/month</p>
-          <Link to="/dashboard" className="mt-2 inline-block rounded-lg bg-secondary px-4 py-2 font-bold text-secondary-foreground">⭐ Prime · ₹{PRIME_PRICE}/నెల</Link>
+          <p className="text-sm">రోజుకు గరిష్టం ఐదు; మీ సమాచార ఎంపికలు, నిశ్శబ్ద సమయం వర్తిస్తాయి. · Maximum five daily, preferences and quiet hours apply.</p>
         </div>
       )}
       {(isLoading || !me) && !isError && <p className="text-muted-foreground">లోడ్ అవుతోంది... Loading</p>}

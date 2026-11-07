@@ -21,23 +21,22 @@ function setup(savedPhone = '9876543210') {
   mocks.enable.mockResolvedValue({ status: 'unsupported' });
   render(<BellPhoneRequest />);
 }
-describe('single explicit bell notification request', () => {
-  it('saves the mobile against the account without a separate consent step even when device push is unavailable', async () => {
+describe('phone-free explicit bell notification request', () => {
+  it('does not change the mobile or register a device when push is unavailable', async () => {
     setup();
     fireEvent.click(screen.getByRole('button'));
-    await waitFor(() => expect(screen.getByRole('status').textContent).toContain('Mobile saved'));
-    expect(mocks.update).toHaveBeenCalledWith({ phone: '9876543210' });
-    expect(mocks.eq).toHaveBeenCalledWith('id', 'owner');
-    expect(mocks.single).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(mocks.enable).toHaveBeenCalledTimes(1));
+    expect(mocks.update).not.toHaveBeenCalled();
     expect(mocks.enable).toHaveBeenCalledTimes(1);
     expect(mocks.rpc).not.toHaveBeenCalled();
   });
-  it('does not register or request a notice when the saved mobile does not read back', async () => {
+  it('registers by device token without profile-mobile writes', async () => {
     setup('9876543211');
     mocks.enable.mockResolvedValue({ status: 'registered', token: 'test-token' });
     fireEvent.click(screen.getByRole('button'));
-    await waitFor(() => expect(screen.getByRole('status').textContent).toContain('Mobile not saved'));
-    expect(mocks.register).not.toHaveBeenCalled();
-    expect(mocks.rpc).not.toHaveBeenCalled();
+    mocks.register.mockResolvedValue({}); mocks.rpc.mockResolvedValue({data:'notice',error:null});
+    await waitFor(() => expect(mocks.register).toHaveBeenCalledWith({data:{id:'device',token:'test-token',sound:true}}));
+    expect(mocks.update).not.toHaveBeenCalled();
+    await waitFor(() => expect(mocks.rpc).toHaveBeenCalledWith('request_own_bell_notice',{_device:'device'}));
   });
 });

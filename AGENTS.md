@@ -36,7 +36,7 @@
 - Home categories share submitted route/area filters and car catalog; advance feed stays. Saved routes are owner-only preferences, not bookings/travel.
 - Approximate radius alerts use owner-private user-selected endpoint coordinates and a bounded durable SQL queue; label straight-line estimates, recheck eligibility/visibility/quotas at dispatch, and never infer bookings or road geometry.
 - Availability subscriptions are private explicit requests, not bookings; only owner-declared availability dispatches them, while follow-route reuses consented private saved routes and never fabricates travel history.
-- The devotional bell saves account mobile independently of push permission and confirms row readback; device registration requires explicit consent, respects quotas and targets only the selected device, never implying mobile verification or SMS delivery.
+- The devotional bell uses explicit owner-device token registration without changing account phone; incomplete profiles receive a private completion request, never a mobile-verification or delivery claim.
 - India autocomplete uses attributed static GeoNames prefix shards, not paid geocoding or public Nominatim; Leaflet imports only after opening the endpoint picker to preserve SSR safety.
 - The large devotional bell is the sole home bell trigger; date-based bundled engraved variants preserve gold artwork without a separate portrait overlay.
 - Firebase messaging uses a separate non-caching worker scope, owner-scoped device registration and a service-only durable delivery queue dispatched by a managed authenticated schedule; pushes contain no private job/message data and provider acceptance is never a delivery receipt.
@@ -48,3 +48,5 @@
 - Sharing evidence uses owner-checked server hashing with atomic digest registration, admin-only short-lived signing and existing managed dispatch cleanup; review decisions notify the owner transactionally.
 - Chat attachments use authenticated server validation, private storage and participant-checked short-lived signing; post conversations require bell-created pair rows, backfilled only for historical owner/member conversations to preserve privacy.
 - Listing cards stay anonymous; safe-column grants prevent direct sensitive reads, while get_post_details checks payment-linked current goods membership before returning explicitly shared goods details. Jobs/car details never return identity fields.
+- Account promotional benefits use locked owner RPCs and service-only evidence hashing/safety inspection; screenshot receipt grants the configured benefit without claiming verified external sharing, while profile start and referral rewards remain immutable and once-only.
+- Personalized sharing artwork renders existing owner referral identity and same-origin product links through canvas; private profile photos never enter it, and published photos require explicit owner consent after the configured trial.

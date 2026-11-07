@@ -17,7 +17,8 @@ import { checkPostText } from "@/lib/moderation.functions";
 import { Sparkles } from "lucide-react";
 import { draftJobAd, type JobAdDraft } from "@/lib/ai-job-ad.functions";
 import { buildJobAdInput } from "@/lib/job-ad-input";
-import { hasValidMobile } from "@/lib/phone";
+import { useAccountProgram } from "@/lib/use-account-program";
+import { AccountProfile } from "@/components/AccountProfile";
 import { capacityInput } from "@/lib/vehicle-experience";
 import { VEHICLE_TYPES, isCar } from '@/lib/vehicle-types';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -110,8 +111,8 @@ export const Route = createFileRoute("/_authenticated/post/new")({
 });
 
 const OPTIONS: { kind: Kind; module: "job" | "vehicle"; te: string; en: string; icon: typeof Briefcase; tone: string }[] = [
-  { kind: "seeker", module: "job", te: "నాకు ఉద్యోగం కావాలి", en: "I need a job", icon: UserSearch, tone: "bg-job" },
-  { kind: "employer", module: "job", te: "నేను ఉద్యోగం ఇస్తాను", en: "I offer a job", icon: Users, tone: "bg-job" },
+  { kind: "seeker", module: "job", te: "పని కావాలా?", en: "Need work?", icon: UserSearch, tone: "bg-job" },
+  { kind: "employer", module: "job", te: "మనిషి కావాలా?", en: "Need a worker?", icon: Users, tone: "bg-job" },
   { kind: "owner", module: "vehicle", te: "ఖాళీ రిటర్న్ ట్రిప్ ఉంది", en: "Empty return trip", icon: Truck, tone: "bg-vehicle" },
   { kind: "business", module: "vehicle", te: "రిటర్న్ వాహనం కావాలి", en: "Need return vehicle", icon: Package, tone: "bg-vehicle" },
 ];
@@ -121,6 +122,7 @@ const txt = (max: number) => z.string().trim().min(1, "అవసరం / Require
 function NewPost() {
   const search = Route.useSearch();
   const { data: me } = useMe();
+  const { data: program, isLoading: programLoading } = useAccountProgram(me?.id);
   const nav = useNavigate();
   const qc = useQueryClient();
   const [kind, setKind] = useState<Kind | null>(search.kind ?? null);
@@ -142,6 +144,8 @@ function NewPost() {
   }, [me, kind]);
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setF({ ...f, [k]: e.target.value });
 
+  if (programLoading) return <p className="p-4">వస్తున్నాయి · Loading…</p>;
+  if (me && !program) return <div className="p-4"><AccountProfile /></div>;
   if (!kind) {
     return (
       <div className="space-y-3 p-4">
@@ -165,7 +169,7 @@ function NewPost() {
     e.preventDefault();
     if (busy) return;
     if (!me) return;
-    if (!hasValidMobile(me.profile?.phone)) { toast.error("ప్రకటనకు ముందు మొబైల్ నంబరు ఇవ్వండి · Mobile number required"); return; }
+    if (!program) { toast.error("ముందుగా వివరాలు నింపండి · Complete profile first"); return; }
     const schema = isJob
       ? z.object({ location: txt(80), skill: txt(100), salary: z.string().trim().max(40).optional(), description: z.string().trim().max(500).optional(), contact_phone: z.string().trim().max(15).optional(), category: z.string().max(30).optional(), show_contact: z.string().optional() })
       : z.object({ from_place: txt(80), to_place: txt(80), trip_date: txt(10), ...(kind === "owner" ? { vehicle_type: txt(60) } : { goods_type: txt(80) }), description: z.string().trim().max(500).optional(), contact_phone: z.string().trim().max(15).optional() });
@@ -211,6 +215,7 @@ function NewPost() {
 
   return (
     <form onSubmit={submit} className="space-y-4 p-4">
+      <p className="text-sm">పంచుకున్న ఆధారాలు పంపితే ఇప్పుడే; లేకపోతే ఐదు గంటల తర్వాత. పని కోరే ప్రకటన వెంటనే. · Sharing evidence: now; otherwise five hours. Job seekers: now.</p>
       <div className={`flex items-center gap-3 rounded-xl border p-3 text-foreground ${opt.tone}`}>
         <opt.icon className="size-7" />
         <div><p className="text-lg font-bold">{opt.te}</p><p className="text-sm opacity-90">{opt.en}</p></div>
@@ -220,7 +225,7 @@ function NewPost() {
         <>
           {/* Point 8: separately selectable job seeker/employer tabs. */}
           <Tabs value={kind} onValueChange={value => { if (!busy && (value === 'seeker' || value === 'employer')) { setKind(value); setContentError(''); } }}>
-            <TabsList className="grid h-auto w-full grid-cols-2 gap-1"><TabsTrigger disabled={busy} value="seeker" className="min-h-16 whitespace-normal text-base">నాకు ఉద్యోగం కావాలి · I need a job</TabsTrigger><TabsTrigger disabled={busy} value="employer" className="min-h-16 whitespace-normal text-base">నేను ఉద్యోగం ఇస్తాను · I offer a job</TabsTrigger></TabsList>
+            <TabsList className="grid h-auto w-full grid-cols-2 gap-1"><TabsTrigger disabled={busy} value="seeker" className="min-h-16 whitespace-normal text-base">పని కావాలా? · Need work?</TabsTrigger><TabsTrigger disabled={busy} value="employer" className="min-h-16 whitespace-normal text-base">మనిషి కావాలా? · Need a worker?</TabsTrigger></TabsList>
           </Tabs>
           <AiJobAd work={generalWork ? (f["general_work"] ?? "") : (f["skill"] ?? "")} kind={kind as "seeker" | "employer"} onDraft={(d) => setF((prev) => ({ ...prev, ...Object.fromEntries(Object.entries(d).filter(([, v]) => v)) }))} />
           <div><Label htmlFor="job-location">ఊరు / ప్రాంతం · Location</Label><IndiaPlaceInput id="job-location" value={f['location'] ?? ''} maxLength={80} onChange={value => setF(prev => ({ ...prev, location: value }))} disabled={busy} /></div>

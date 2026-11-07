@@ -267,6 +267,20 @@
       "when": 1794036973369,
       "tag": "0037_account_trial_sharing_referral_program",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1794037418319,
+      "tag": "0038_lock_program_writes_and_private_evidence",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1794037685328,
+      "tag": "0039_program_atomic_security_and_referral_identity",
+      "breakpoints": true
     }
   ]
 }

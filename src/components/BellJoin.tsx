@@ -7,11 +7,15 @@ import { useMe } from "@/lib/session";
 import { GoogleSignIn } from "@/components/GoogleSignIn";
 import { enableBellAudio, playBell } from '@/lib/bell';
 import { BellPhoneRequest } from '@/components/BellPhoneRequest';
+import { useAccountProgram } from '@/lib/use-account-program';
+import { ProfileRequest } from '@/components/ProfileRequest';
 
 export function BellJoin({ children }: { children?: React.ReactNode }) {
   const { data: me } = useMe();
   const [open, setOpen] = useState(false);
   const [touched, setTouched] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const { data: program } = useAccountProgram(me?.id);
   const choices = (
     <div className="grid gap-2">
       <Button asChild size="xl" className="w-full"><Link to="/feed" search={{ module: "job" }}><Briefcase />ఉద్యోగం · Jobs</Link></Button>
@@ -21,7 +25,8 @@ export function BellJoin({ children }: { children?: React.ReactNode }) {
   );
 
   return <>
-    <Button type="button" variant="ghost" data-touched={touched} onClick={() => { enableBellAudio(); playBell(); setTouched(true); setOpen(true); }} aria-label="గంట కొట్టండి · Ring the bell" className={children ? "home-temple-trigger" : "home-bell relative z-10 mx-auto -mt-2 grid size-20 place-items-center rounded-none border-0 bg-transparent p-2 text-gold shadow-none ring-0 hover:bg-transparent active:scale-95"}>{children || <Bell className="size-16!" fill="currentColor" strokeWidth={1.5} />}</Button>
+    <Button type="button" variant="ghost" data-touched={touched} onClick={() => { enableBellAudio(); playBell(); setTouched(true); if (me && !program) setProfileOpen(true); else setOpen(true); }} aria-label="గంట కొట్టండి · Ring the bell" className={children ? "home-temple-trigger" : "home-bell relative z-10 mx-auto -mt-2 grid size-20 place-items-center rounded-none border-0 bg-transparent p-2 text-gold shadow-none ring-0 hover:bg-transparent active:scale-95"}>{children || <Bell className="size-16!" fill="currentColor" strokeWidth={1.5} />}</Button>
+    <ProfileRequest open={profileOpen} onOpenChange={setProfileOpen} />
     <p className="mt-1 text-center text-lg font-bold">ఏది కావాలన్నా గంట కొట్టు</p>
     <Dialog open={open} onOpenChange={setOpen}><DialogContent className="max-h-[85svh] max-w-sm overflow-y-auto"><DialogHeader><DialogTitle>గాయత్రి వన్</DialogTitle><DialogDescription>ఏం కావాలి? · What do you need?</DialogDescription></DialogHeader>{me ? <><BellPhoneRequest />{choices}</> : <><GoogleSignIn /><Button asChild variant="outline"><Link to="/feed">ప్రకటనలు చూడండి · Browse</Link></Button></>}</DialogContent></Dialog>
   </>;

@@ -1,0 +1,8 @@
+REVOKE INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER ON public.reward_wallets,public.free_membership_months,public.evidence_content_registry FROM anon,authenticated;
+REVOKE ALL ON FUNCTION public.grant_free_membership_month(uuid,text),public.process_program_referral(uuid),public.dispatch_program_requests(),public.activate_program_sharing(uuid,text[],text[],uuid) FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION public.grant_free_membership_month(uuid,text),public.process_program_referral(uuid),public.dispatch_program_requests(),public.activate_program_sharing(uuid,text[],text[],uuid) TO service_role;
+CREATE FUNCTION public.ensure_my_referral_code() RETURNS text LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ DECLARE code text; BEGIN IF auth.uid() IS NULL OR NOT public.account_allowed(auth.uid()) THEN RAISE EXCEPTION 'SIGN_IN_REQUIRED'; END IF; SELECT referral_code INTO code FROM public.profiles WHERE id=auth.uid() FOR UPDATE; IF code IS NULL OR trim(code)='' THEN code:='G1'||upper(replace(auth.uid()::text,'-','')); PERFORM set_config('app.trusted','1',true); UPDATE public.profiles SET referral_code=code WHERE id=auth.uid(); PERFORM set_config('app.trusted','',true); END IF; RETURN code; END $$;
+REVOKE ALL ON FUNCTION public.ensure_my_referral_code() FROM PUBLIC,anon; GRANT EXECUTE ON FUNCTION public.ensure_my_referral_code() TO authenticated;
+CREATE INDEX program_evidence_expiry ON public.program_evidence(expires_at);
+CREATE INDEX program_referral_join ON public.profiles(referred_by,created_at,referred_at);
+COMMENT ON FUNCTION public.ensure_my_referral_code() IS 'Preserves existing referral identifiers, creates a unique owner code only when absent; no legacy external brand codes.';
