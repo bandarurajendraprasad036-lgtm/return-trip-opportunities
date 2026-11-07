@@ -83,6 +83,6 @@ describe('Final program database rules', () => {
   expect((await db.query<{months:boolean}>(`SELECT referral_free_until=referral_rewarded_at+interval '3 months' months FROM account_programs WHERE user_id='${owner}'`)).rows[0]?.months).toBe(true);
   const first=(await db.query<{until:string}>(`SELECT referral_free_until until FROM account_programs WHERE user_id='${owner}'`)).rows[0]?.until;
   await db.query(`SELECT process_program_referral('${owner}')`);
-  expect((await db.query<{until:string}>(`SELECT referral_free_until until FROM account_programs WHERE user_id='${owner}'`)).rows[0]?.until).toBe(first);
+  expect((await db.query<{until:string}>(`SELECT referral_free_until until FROM account_programs WHERE user_id='${owner}'`)).rows[0]?.until).toEqual(first);
  });
 });
