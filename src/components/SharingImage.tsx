@@ -39,7 +39,7 @@ export function SharingImage() {
         const url = referralLink(code);
         ctx.font = '20px sans-serif'; ctx.fillText(url, 36, footerY + 50, target.width - 240);
         const qr = document.createElement('canvas');
-        const color = (token: string) => { const sample = document.createElement('canvas').getContext('2d'); if (!sample) return ''; sample.fillStyle = theme.getPropertyValue(token).trim(); return String(sample.fillStyle); };
+        const color = (token: string) => { const sample = document.createElement('canvas').getContext('2d'); if (!sample) return ''; sample.fillStyle = theme.getPropertyValue(token).trim(); sample.fillRect(0, 0, 1, 1); return '#' + Array.from(sample.getImageData(0, 0, 1, 1).data).slice(0, 3).map(value => value.toString(16).padStart(2, '0')).join(''); };
         await QRCode.toCanvas(qr, url, { width: 140, margin: 2, color: { dark: color('--royal'), light: color('--gold') } });
         ctx.drawImage(qr, target.width - 188, footerY - 38, 140, 140);
         if (canPhoto && photoConsent && me) {
