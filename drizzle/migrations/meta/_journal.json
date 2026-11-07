@@ -260,6 +260,13 @@
       "when": 1793938821513,
       "tag": "0036_goods_only_paid_access_free_jobs",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1794036973369,
+      "tag": "0037_account_trial_sharing_referral_program",
+      "breakpoints": true
     }
   ]
 }
