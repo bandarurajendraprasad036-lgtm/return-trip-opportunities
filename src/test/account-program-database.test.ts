@@ -78,7 +78,7 @@ describe('Final program database rules', () => {
   INSERT INTO posts(id,user_id,module,kind,status,vehicle_type,category,from_place,to_place,trip_date) VALUES('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','${owner}','vehicle','owner','active','Lorry','Lorry','Hyderabad','Bombay',current_date);`);
   for(let i=0;i<7;i++){
    const id=`00000000-0000-4000-8000-00000000000${i}`;
-   await db.exec(`INSERT INTO profiles(id) VALUES('${id}'); INSERT INTO account_programs(user_id,occupation,category,member_kind) VALUES('${id}','Transport','Lorry','business'); INSERT INTO posts(id,user_id,module,kind,status,vehicle_type,category,from_place,to_place,trip_date) VALUES(gen_random_uuid(),'${id}','vehicle','business','active','${i===6?'Car':'Lorry'}','Lorry','Hyderabad','Bombay',current_date);`);
+   await db.exec(`INSERT INTO profiles(id) VALUES('${id}'); INSERT INTO account_programs(user_id,occupation,category,member_kind,sharing_active) VALUES('${id}','Transport','Lorry','business',true); INSERT INTO posts(id,user_id,module,kind,status,vehicle_type,category,from_place,to_place,trip_date) VALUES(gen_random_uuid(),'${id}','vehicle','business','active','${i===6?'Car':'Lorry'}','Lorry','Hyderabad','Bombay',current_date);`);
   }
   expect((await db.query<{n:number}>(`SELECT notify_matches('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa') n`)).rows[0]?.n).toBe(5);
   expect((await db.query<{n:number}>(`SELECT count(*)::int n FROM notifications WHERE matched_post_id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'`)).rows[0]?.n).toBe(5);
