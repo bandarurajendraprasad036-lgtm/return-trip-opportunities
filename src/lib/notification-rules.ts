@@ -4,4 +4,4 @@ export function inQuietHours(date:Date,timezone:string,start:string|null,end:str
   const time=`${parts.find(p=>p.type==='hour')?.value}:${parts.find(p=>p.type==='minute')?.value}`;
   return start<end ? time>=start&&time<end : time>=start||time<end;
 }
-export function effectiveDailyLimit(prime:boolean,limit:number|null) { return prime?limit:Math.min(limit??3,3); }
+export function effectiveDailyLimit(prime:boolean,limit:number|null) { return Math.min(limit??5,5); }

@@ -10,7 +10,7 @@ export const JOB_CATEGORIES = [
 
 export const CITIES = ["Hyderabad", "Delhi", "Bombay", "Warangal", "Karimnagar", "Vijayawada", "Guntur", "Visakhapatnam", "Bangalore", "Chennai"];
 export const ANYWHERE = "anywhere";
-export const FREE_DAILY_ALERTS = 3;
+export const FREE_DAILY_ALERTS = 5;
 export { MEMBERSHIP_AMOUNT as PRIME_PRICE } from '@/lib/membership';
 export const DEFAULT_CITY = "Hyderabad";
 
