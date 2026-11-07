@@ -10,6 +10,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { sendSupportMessage } from "@/lib/support.functions";
 import { z } from "zod";
 import { PostEvidence } from '@/components/PostEvidence';
+import { ProgramEvidence } from '@/components/ProgramEvidence';
 import { sendChatEntry, viewChatImage, deleteChatEntry } from '@/lib/chat-upload.functions';
 import { CHAT_IMAGE_LIMIT, chatEntrySchema } from '@/lib/chat-rules';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
@@ -45,6 +46,7 @@ function Chat() {
   const sendEntry = useServerFn(sendChatEntry);
   const showImage = useServerFn(viewChatImage);
   const removeEntry = useServerFn(deleteChatEntry);
+  const { data: adminId } = useQuery({ queryKey: ['support-admin-id'], queryFn: async () => { const result = await supabase.rpc('support_admin_id'); if (result.error) throw result.error; return result.data; } });
   const {data:chatAllowed} = useQuery({queryKey:['chat-allowed',me?.id,userId,postId],enabled:!!me,queryFn:async()=>{
     const result=await supabase.rpc('can_post_chat',{...(postId ? {_post:postId} : {}),_other:userId});
     if(result.error)throw result.error;return result.data;
@@ -117,6 +119,7 @@ function Chat() {
       </div>
       {contextPost && <section className="space-y-1 border-b bg-muted px-3 py-3 text-sm" aria-label="ప్రయాణ వివరాలు · Route details"><p className="font-bold">{contextPost.title}</p>{contextPost.module === "vehicle" ? <><p>{contextPost.from_place} → {contextPost.to_place}</p><p>{contextPost.vehicle_type} {contextPost.capacity_tons != null && `· ${contextPost.capacity_tons} టన్నులు · tons`} · {contextPost.trip_date}</p></> : <p>{contextPost.location}</p>}</section>}
       <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-3">
+        {!postId && userId === adminId && <ProgramEvidence />}
         {postId && <PostEvidence postId={postId} admin={!!me?.isAdmin}/>}
         {msgs.length === 0 && <p className="pt-10 text-center text-muted-foreground">నమస్కారం చెప్పండి 🙏 Say hello</p>}
         {msgs.map((m) => {

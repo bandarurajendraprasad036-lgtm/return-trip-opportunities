@@ -11,10 +11,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAccountProgram } from '@/lib/use-account-program';
+import { trialActive } from '@/lib/account-program';
 
 export function MembershipPayment() {
   const { data: me } = useMe();
   const qc = useQueryClient();
+  const { data: program } = useAccountProgram(me?.id);
+  const free = !program || trialActive(program.completed_at) || program.sharing_active || Boolean(program.referral_free_until && Date.parse(program.referral_free_until)>Date.now());
   const [transaction, setTransaction] = useState("");
   const [busy, setBusy] = useState(false);
   const [plan, setPlan] = useState<'individual' | 'group'>('individual');
@@ -37,7 +41,8 @@ export function MembershipPayment() {
       <ul className="space-y-3 text-sm"><li className="flex gap-2"><Bell className="size-5 shrink-0 text-gold" />సరకు వాహన వివరాలు, గంట, వ్యక్తిగత సంభాషణ · Goods details, bells and private chat</li><li className="flex gap-2"><BadgeCheck className="size-5 shrink-0 text-gold" />చెల్లింపు ఆమోదించిన తరువాతే · After payment approval</li></ul>
       <p className="text-xs text-on-royal/80">ఉద్యోగం లేదా వాహనం దొరుకుతుందని హామీ కాదు · No job or vehicle booking guarantee.</p>
     </div>
-    {!pending && <form className="space-y-3" onSubmit={async event => {
+    {free && <p role="status">పది రోజుల ఉచిత కాలంలో చెల్లింపు అవసరం లేదు; ఆధారాలు పంపిన వారికి ఉచిత సభ్యత్వం కొనసాగుతుంది. · No payment during trial; sharing membership remains free.</p>}
+    {!pending && !free && <form className="space-y-3" onSubmit={async event => {
       event.preventDefault();
       if (!me) return;
       const selectedPlan = plan;
