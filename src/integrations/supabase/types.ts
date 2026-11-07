@@ -40,6 +40,56 @@ export type Database = {
           },
         ]
       }
+      account_programs: {
+        Row: {
+          category: string
+          completed_at: string
+          member_kind: string
+          occupation: string
+          points_awarded: boolean
+          referral_free_until: string | null
+          referral_rewarded_at: string | null
+          reminder_consent: boolean
+          sharing_active: boolean
+          sharing_started_at: string | null
+          user_id: string
+        }
+        Insert: {
+          category: string
+          completed_at?: string
+          member_kind: string
+          occupation: string
+          points_awarded?: boolean
+          referral_free_until?: string | null
+          referral_rewarded_at?: string | null
+          reminder_consent?: boolean
+          sharing_active?: boolean
+          sharing_started_at?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string
+          completed_at?: string
+          member_kind?: string
+          occupation?: string
+          points_awarded?: boolean
+          referral_free_until?: string | null
+          referral_rewarded_at?: string | null
+          reminder_consent?: boolean
+          sharing_active?: boolean
+          sharing_started_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_programs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       app_settings: {
         Row: {
           key: string
@@ -669,6 +719,77 @@ export type Database = {
         }
         Relationships: []
       }
+      program_evidence: {
+        Row: {
+          created_at: string
+          expires_at: string
+          hashes: string[]
+          id: string
+          paths: string[]
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          hashes: string[]
+          id?: string
+          paths: string[]
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          hashes?: string[]
+          id?: string
+          paths?: string[]
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_evidence_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      program_reminders: {
+        Row: {
+          day: string
+          notification_id: string | null
+          user_id: string
+        }
+        Insert: {
+          day: string
+          notification_id?: string | null
+          user_id: string
+        }
+        Update: {
+          day?: string
+          notification_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_reminders_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "program_reminders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       push_deliveries: {
         Row: {
           attempts: number
@@ -1195,6 +1316,15 @@ export type Database = {
     }
     Functions: {
       account_allowed: { Args: { _uid: string }; Returns: boolean }
+      activate_program_sharing: {
+        Args: {
+          _hashes: string[]
+          _paths: string[]
+          _post?: string
+          _user: string
+        }
+        Returns: string
+      }
       admin_evidence_sender: { Args: { _id: string }; Returns: string }
       apply_referral: { Args: { _code: string }; Returns: boolean }
       block_confirmed_content: {
@@ -1226,7 +1356,18 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      complete_account_profile: {
+        Args: {
+          _category: string
+          _kind: string
+          _location: string
+          _name: string
+          _occupation: string
+        }
+        Returns: string
+      }
       dispatch_approximate_route_alerts: { Args: never; Returns: number }
+      dispatch_program_requests: { Args: never; Returns: number }
       dispatch_vehicle_availability: { Args: never; Returns: number }
       dispatch_visible_post_matches: { Args: never; Returns: number }
       follow_vehicle_route: { Args: { _post: string }; Returns: string }
@@ -1249,6 +1390,7 @@ export type Database = {
       }
       my_goods_membership: { Args: never; Returns: boolean }
       my_notification_quota: { Args: never; Returns: Json }
+      my_program_referrals: { Args: never; Returns: Json }
       my_referral_stats: { Args: never; Returns: Json }
       notify_matches: { Args: { _post_id: string }; Returns: number }
       post_alert_eligible: { Args: { _user: string }; Returns: boolean }
@@ -1259,6 +1401,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      process_program_referral: { Args: { _user: string }; Returns: number }
       public_stats: { Args: never; Returns: Json }
       record_evidence_hashes: {
         Args: { _claim: string; _hashes: string[] }
@@ -1326,6 +1469,7 @@ export type Database = {
       }
       send_referral_reminders: { Args: never; Returns: number }
       service_profile_data: { Args: { _id: string }; Returns: Json }
+      set_program_reminders: { Args: { _enabled: boolean }; Returns: undefined }
       set_vehicle_available: { Args: { _post: string }; Returns: undefined }
       straight_line_km: {
         Args: { a_lat: number; a_lng: number; b_lat: number; b_lng: number }
