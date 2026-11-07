@@ -1370,6 +1370,7 @@ export type Database = {
       dispatch_program_requests: { Args: never; Returns: number }
       dispatch_vehicle_availability: { Args: never; Returns: number }
       dispatch_visible_post_matches: { Args: never; Returns: number }
+      ensure_my_referral_code: { Args: never; Returns: string }
       follow_vehicle_route: { Args: { _post: string }; Returns: string }
       get_post_details: { Args: { _post: string }; Returns: Json }
       grant_free_membership_month: {
