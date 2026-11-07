@@ -2,6 +2,8 @@ import sharingImage from '@/assets/gayatri-one-sharing-final.jpg';
 import { Download, Share2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useServerFn } from '@tanstack/react-start';
+import { useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import QRCode from 'qrcode';
 import { Button } from '@/components/ui/button';
@@ -15,8 +17,13 @@ export function SharingImage() {
   const [preview, setPreview] = useState(''), [busy, setBusy] = useState(false), [photoConsent, setPhotoConsent] = useState(false);
   const canvas = useRef<HTMLCanvasElement | null>(null);
   const getProfile = useServerFn(getServiceProfile);
+  const qc = useQueryClient();
   const code = me?.profile?.referral_code || '';
   const canPhoto = Boolean(program && !trialActive(program.completed_at));
+  useEffect(() => {
+    if (!me || code) return;
+    void supabase.rpc('ensure_my_referral_code').then(result => { if (!result.error) void qc.invalidateQueries({ queryKey: ['me'] }); });
+  }, [me?.id, code, qc]);
   useEffect(() => {
     let cancelled = false;
     const draw = async () => {
@@ -32,7 +39,8 @@ export function SharingImage() {
         const url = referralLink(code);
         ctx.font = '20px sans-serif'; ctx.fillText(url, 36, footerY + 50, target.width - 240);
         const qr = document.createElement('canvas');
-        await QRCode.toCanvas(qr, url, { width: 140, margin: 2, color: { dark: theme.getPropertyValue('--royal').trim(), light: theme.getPropertyValue('--gold').trim() } });
+        const color = (token: string) => { const sample = document.createElement('canvas').getContext('2d'); if (!sample) return ''; sample.fillStyle = theme.getPropertyValue(token).trim(); return String(sample.fillStyle); };
+        await QRCode.toCanvas(qr, url, { width: 140, margin: 2, color: { dark: color('--royal'), light: color('--gold') } });
         ctx.drawImage(qr, target.width - 188, footerY - 38, 140, 140);
         if (canPhoto && photoConsent && me) {
           const profile = await getProfile({ data: { id: me.id } });

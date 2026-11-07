@@ -11,7 +11,7 @@ export function Referral() {
   const { data: me } = useMe();
   useEffect(() => {
     const code = new URLSearchParams(window.location.search).get('ref');
-    if (code && /^[A-Za-z0-9]{4,16}$/.test(code)) localStorage.setItem(REF_KEY, code.toUpperCase());
+    if (code && /^[A-Za-z0-9]{4,40}$/.test(code)) localStorage.setItem(REF_KEY, code.toUpperCase());
   }, []);
   useEffect(() => {
     if (!me?.id) return;

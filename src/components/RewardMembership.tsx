@@ -26,7 +26,7 @@ export function RewardMembership() {
     <p>మీ పరిచయ కోడ్ · Your code: <b>{me.profile?.referral_code}</b></p>
     <p className="text-sm">ప్రారంభమైన పది రోజుల తర్వాత మీ కోడ్ ద్వారా 100 నిజమైన చేరికలకు ఒక్కసారి మూడు నెలలు ఉచితం. · 100 qualifying joins after day ten: three months free once.</p>
     <p>అర్హమైన చేరికలు · Qualifying joins: {data?.referrals || 0} / 100</p>
-    {!me.profile?.referred_by && <div className="space-y-2"><Label htmlFor="referral-code">పరిచయం చేసిన వారి కోడ్ · Referral code</Label><Input id="referral-code" value={code} onChange={e => setCode(e.target.value)} maxLength={16} /><Button disabled={busy || !/^[a-z0-9]{4,16}$/i.test(code)} onClick={() => run(async () => { const result = await supabase.rpc('apply_referral', { _code: code }); if (result.error) throw result.error; toast[result.data ? 'success' : 'error'](result.data ? 'కోడ్ నమోదైంది · Applied' : 'కోడ్ లేదా గడువు సరిపోలలేదు · Invalid or expired'); })}>కోడ్ నమోదు · Apply</Button></div>}
+    {!me.profile?.referred_by && <div className="space-y-2"><Label htmlFor="referral-code">పరిచయం చేసిన వారి కోడ్ · Referral code</Label><Input id="referral-code" value={code} onChange={e => setCode(e.target.value)} maxLength={40} /><Button disabled={busy || !/^[a-z0-9]{4,40}$/i.test(code)} onClick={() => run(async () => { const result = await supabase.rpc('apply_referral', { _code: code }); if (result.error) throw result.error; toast[result.data ? 'success' : 'error'](result.data ? 'కోడ్ నమోదైంది · Applied' : 'కోడ్ లేదా గడువు సరిపోలలేదు · Invalid or expired'); })}>కోడ్ నమోదు · Apply</Button></div>}
     <ProgramEvidence />
   </section>;
 }
