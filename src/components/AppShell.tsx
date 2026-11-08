@@ -2,7 +2,7 @@ import { Brand } from "@/components/Brand";
 import { useEffect, type ReactNode } from "react";
 import { ClientOnly, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, Home, MessageCircle, PlusCircle, User, Shield } from "lucide-react";
+import { Inbox, Home, MessageCircle, PlusCircle, User, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/session";
 import { NotificationPermission } from "@/components/AppHelpers";
@@ -67,7 +67,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           )}
           <AdminChatButton labeled />
           <Link to="/notifications" className="relative rounded-full p-2" aria-label="Notifications">
-            <Bell className="size-6" />
+            <Inbox className="size-6" />
             {unread > 0 && (
               <span className="absolute -right-0.5 -top-0.5 grid min-w-5 place-items-center rounded-full bg-secondary px-1 text-xs font-bold text-secondary-foreground">
                 {unread}
@@ -105,7 +105,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           నా పేజీ
         </Link>
         <Link to="/notifications" className={tab} activeProps={active}>
-          <Bell className="size-6" />
+          <Inbox className="size-6" />
           అలర్ట్స్
         </Link>
       </nav>
