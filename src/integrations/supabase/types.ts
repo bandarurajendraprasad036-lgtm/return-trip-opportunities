@@ -958,28 +958,34 @@ export type Database = {
       service_profiles: {
         Row: {
           bio: string
+          category: string
           display_name: string
           photo_path: string
           published: boolean
           service: string
+          town: string
           updated_at: string
           user_id: string
         }
         Insert: {
           bio?: string
+          category?: string
           display_name?: string
           photo_path?: string
           published?: boolean
           service?: string
+          town?: string
           updated_at?: string
           user_id: string
         }
         Update: {
           bio?: string
+          category?: string
           display_name?: string
           photo_path?: string
           published?: boolean
           service?: string
+          town?: string
           updated_at?: string
           user_id?: string
         }
@@ -1403,6 +1409,7 @@ export type Database = {
         Returns: boolean
       }
       process_program_referral: { Args: { _user: string }; Returns: number }
+      public_service_directory: { Args: never; Returns: Json }
       public_stats: { Args: never; Returns: Json }
       record_evidence_hashes: {
         Args: { _claim: string; _hashes: string[] }
@@ -1433,6 +1440,16 @@ export type Database = {
         Returns: undefined
       }
       ring_post: { Args: { _post_id: string }; Returns: string }
+      save_service_listing: {
+        Args: {
+          _category: string
+          _name: string
+          _published: boolean
+          _service: string
+          _town: string
+        }
+        Returns: undefined
+      }
       save_service_profile: {
         Args: {
           _bio: string
