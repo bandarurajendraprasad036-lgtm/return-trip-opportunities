@@ -5,15 +5,25 @@ import type { Post } from '@/components/PostCard';
 
 const post = (values: Partial<Post>): Post => ({ id: '1', module: 'vehicle', kind: 'owner', vehicle_type: 'Car', status: 'active', from_place: 'Guntur', to_place: 'Hyderabad', trip_date: '2026-11-04', ...values } as Post);
 describe('Homepage listing partitions', () => {
+  it('returns no vehicles until the user explicitly selects one category', () => {
+    expect(homeVehicleResults([post({})], { from: 'Guntur', to: '', area: '' }, '2026-11-05', null)).toEqual([]);
+  });
+  it('keeps local goods, return vehicles and local cars disjoint', () => {
+    const rows = [post({ id: 'local', vehicle_type: 'Lorry', to_place: 'Guntur' }), post({ id: 'return', vehicle_type: 'Lorry' }), post({ id: 'car', vehicle_type: 'Car' })];
+    const selection = { from: 'Guntur', to: '', area: '' };
+    expect(homeVehicleResults(rows, selection, '2026-11-05', 'local').map(row => row.id)).toEqual(['local']);
+    expect(homeVehicleResults(rows, selection, '2026-11-05', 'return').map(row => row.id)).toEqual(['return']);
+    expect(homeVehicleResults(rows, selection, '2026-11-05', 'cars').map(row => row.id)).toEqual(['car']);
+  });
   it('switches the same submitted route between return goods, local goods and cars', () => {
     const rows = [post({ id: 'goods', vehicle_type: 'Lorry' }), post({ id: 'car', vehicle_type: 'Car' }), post({ id: 'future', vehicle_type: 'Lorry', trip_date: '2026-11-06' }), post({ id: 'elsewhere', vehicle_type: 'Car', to_place: 'Mumbai' })];
     const route = { from: 'Guntur', to: 'Hyderabad', area: '' };
     expect(homeVehicleResults(rows, route, '2026-11-05', 'return').map(p => p.id)).toEqual(['goods']);
-    expect(homeVehicleResults(rows, route, '2026-11-05', 'local').map(p => p.id)).toEqual(['goods','future']);
+    expect(homeVehicleResults(rows, route, '2026-11-05', 'local').map(p => p.id)).toEqual([]);
     expect(homeVehicleResults(rows, route, '2026-11-05', 'cars').map(p => p.id)).toEqual(['car']);
   });
   it('applies the submitted street area to all categories without inventing proximity', () => {
-    const rows = [post({ id: 'goods', vehicle_type: '407', from_place: 'Ramnagar', to_place: 'ACC' }), post({ id: 'car', vehicle_type: 'Car', from_place: 'Ramnagar', to_place: 'ACC' })];
+    const rows = [post({ id: 'goods', vehicle_type: '407', from_place: 'ACC', to_place: 'ACC' }), post({ id: 'car', vehicle_type: 'Car', from_place: 'Ramnagar', to_place: 'ACC' })];
     const area = { from: '', to: '', area: 'ACC' };
     expect(homeVehicleResults(rows, area, '2026-11-05', 'local').map(p => p.id)).toEqual(['goods']);
     expect(homeVehicleResults(rows, area, '2026-11-05', 'cars').map(p => p.id)).toEqual(['car']);

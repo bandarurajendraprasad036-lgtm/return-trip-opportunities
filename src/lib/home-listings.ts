@@ -38,11 +38,12 @@ export function homeLocalVehicles(posts: Post[], area: string) {
 }
 
 // Categories use the same submitted route or named area; never infer distance/booking.
-export function homeVehicleResults(posts: Post[], selection: { from: string; to: string; area: string }, today: string, section: HomeVehicleSection) {
+export function homeVehicleResults(posts: Post[], selection: { from: string; to: string; area: string }, today: string, section: HomeVehicleSection | null) {
+  if (section === null) return [];
   const start = normalized(selection.from), end = normalized(selection.to);
   const rows = selection.area.trim() ? homeLocalVehicles(posts, selection.area) : posts.filter(post =>
     jobIsVisible(post) && post.module === 'vehicle' && Boolean(start || end)
     && (!start || normalized(post.from_place).includes(start))
     && (!end || normalized(post.to_place).includes(end)));
-  return rows.filter(post => jobIsVisible(post) && (section === 'cars' ? isCar(post.vehicle_type) : !isCar(post.vehicle_type) && (section === 'local' || vehicleSection(post, today) === 'return')));
+  return rows.filter(post => jobIsVisible(post) && (section === 'cars' ? isCar(post.vehicle_type) : !isCar(post.vehicle_type) && vehicleSection(post, today) === section));
 }
