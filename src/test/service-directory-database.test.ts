@@ -6,6 +6,7 @@ const owner = '11111111-1111-4111-8111-111111111111';
 beforeAll(async () => {
   db = new PGlite();
   await db.exec(`CREATE SCHEMA auth; CREATE ROLE anon; CREATE ROLE authenticated;
+    GRANT USAGE ON SCHEMA auth TO anon,authenticated;
     CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$SELECT nullif(current_setting('test.user',true),'')::uuid$$;
     CREATE TABLE service_profiles(user_id uuid PRIMARY KEY,display_name text DEFAULT '',service text DEFAULT '',bio text DEFAULT '',photo_path text DEFAULT '',published boolean DEFAULT false,updated_at timestamptz DEFAULT now());
     GRANT SELECT,INSERT,UPDATE ON service_profiles TO authenticated; GRANT SELECT ON service_profiles TO anon;
