@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Bell, BellOff } from 'lucide-react';
+import { Volume2, VolumeX } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { useBellSound } from '@/lib/use-bell-sound';
@@ -58,7 +58,7 @@ export function BrowserNotificationSettings() {
         } catch { setPush('failed'); toast.error('మళ్లీ ప్రయత్నించండి · Please retry'); }
         finally { setBusy(false); }
       }}>
-        {muted ? <BellOff /> : <Bell />}{muted ? 'ఆఫ్ · Off' : 'ఆన్ · On'}
+        {muted ? <VolumeX /> : <Volume2 />}{muted ? 'ఆఫ్ · Off' : 'ఆన్ · On'}
       </Button>
     </div>
     <p className="text-sm">{muted ? 'ఆఫ్: గంట శబ్దం రాదు; సమాచారం తెరపై మాత్రమే కనిపిస్తుంది. · Off: silent, on-screen notice only.' : 'ఆన్: అన్ని సూచనలు గంట శబ్దంతో వస్తాయి. · On: all alerts with bell sound.'}</p>
