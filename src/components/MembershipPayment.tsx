@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, BadgeCheck } from "lucide-react";
+import { Inbox, BadgeCheck } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/session";
@@ -38,7 +38,7 @@ export function MembershipPayment() {
       <p className="text-2xl font-bold text-gold">ఒక్కరికి ₹{MEMBERSHIP_AMOUNT} / నెల · Individual</p>
       
       <p className="text-base">సరకు వాహన వివరాలు, గంట, సంభాషణకు మాత్రమే నెలకు ₹699. ఉద్యోగాలు, కార్ల సంభాషణ, అన్ని వాహన ప్రకటనలు ఉచితం. · ₹699 monthly for goods details, bells and chat only; jobs, car chat and all vehicle posts are free.</p>
-      <ul className="space-y-3 text-sm"><li className="flex gap-2"><Bell className="size-5 shrink-0 text-gold" />సరకు వాహన వివరాలు, గంట, వ్యక్తిగత సంభాషణ · Goods details, bells and private chat</li><li className="flex gap-2"><BadgeCheck className="size-5 shrink-0 text-gold" />చెల్లింపు ఆమోదించిన తరువాతే · After payment approval</li></ul>
+      <ul className="space-y-3 text-sm"><li className="flex gap-2"><Inbox className="size-5 shrink-0 text-gold" />సరకు వాహన వివరాలు, గంట, వ్యక్తిగత సంభాషణ · Goods details, bells and private chat</li><li className="flex gap-2"><BadgeCheck className="size-5 shrink-0 text-gold" />చెల్లింపు ఆమోదించిన తరువాతే · After payment approval</li></ul>
       <p className="text-xs text-on-royal/80">ఉద్యోగం లేదా వాహనం దొరుకుతుందని హామీ కాదు · No job or vehicle booking guarantee.</p>
     </div>
     {free && <p role="status">పది రోజుల ఉచిత కాలంలో చెల్లింపు అవసరం లేదు; ఆధారాలు పంపిన వారికి ఉచిత సభ్యత్వం కొనసాగుతుంది. · No payment during trial; sharing membership remains free.</p>}

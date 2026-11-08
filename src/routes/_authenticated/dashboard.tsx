@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bell, Briefcase, Image, LogOut, PlusCircle, Sparkles } from "lucide-react";
+import { Inbox, Briefcase, Image, LogOut, PlusCircle, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useMe } from "@/lib/session";
@@ -69,7 +69,7 @@ function Dashboard() {
       </div>
       <div className="grid grid-cols-2 gap-3">
         <Link to="/my-posts" className={tile}><Briefcase className="size-7 text-primary" /><span className="text-2xl">{data?.posts ?? 0}</span>నా పోస్ట్‌లు · My posts</Link>
-        <Link to="/notifications" className={tile}><Bell className="size-7 text-primary" /><span className="text-2xl">{data?.unread ?? 0}</span>కొత్త అలర్ట్స్ · New alerts</Link>
+        <Link to="/notifications" className={tile}><Inbox className="size-7 text-primary" /><span className="text-2xl">{data?.unread ?? 0}</span>కొత్త అలర్ట్స్ · New alerts</Link>
         <Link to="/post/new" className={tile}><PlusCircle className="size-7 text-primary" />కొత్త పోస్ట్ · New post</Link>
         <Link to="/ai-match" className={tile}><Sparkles className="size-7 text-primary" />AI మ్యాచ్ · AI Match</Link>
         <Link to="/service-profile" className={tile}><Image className="size-7 text-primary" />నా ఫోటోలు · My photos</Link>

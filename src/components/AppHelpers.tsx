@@ -77,7 +77,7 @@ export function NotificationPermission({ userId }: { userId: string }) {
   if (!ask) return null;
   return (
     <div className="fixed inset-x-3 bottom-24 z-30 mx-auto max-w-md rounded-xl border bg-card p-4 shadow-card">
-      <p className="font-bold">🔔 మ్యాచ్ వస్తే ఫోన్‌కు అలర్ట్ కావాలా?</p>
+      <p className="font-bold">మ్యాచ్ వస్తే ఫోన్‌కు అలర్ట్ కావాలా?</p>
       <p className="text-sm text-muted-foreground">Get alerts on your phone when a match comes?</p>
       <div className="mt-3 flex gap-2">
         <Button className="flex-1" onClick={async () => {
