@@ -34,6 +34,7 @@
 - Vehicle position display formats only the actual timestamp through a pure timezone-aware helper; never synthesize location data or a current-time substitute.
 - Homepage listings reuse active posts and PostCard bells; local-trip classification requires identical endpoints, while separate local-area search matches named endpoint/address terms only and never implies proximity or confirmed local travel.
 - Home categories share submitted route/area filters and car catalog; advance feed stays. Saved routes are owner-only preferences, not bookings/travel.
+- Each submitted home search clears the vehicle selection; only an explicit category choice renders vehicles, with disjoint local-goods/return-goods/car partitions to avoid mixed results.
 - Approximate radius alerts use owner-private user-selected endpoint coordinates and a bounded durable SQL queue; label straight-line estimates, recheck eligibility/visibility/quotas at dispatch, and never infer bookings or road geometry.
 - Availability subscriptions are private explicit requests, not bookings; only owner-declared availability dispatches them, while follow-route reuses consented private saved routes and never fabricates travel history.
 - The devotional bell uses explicit owner-device token registration without changing account phone; incomplete profiles receive a private completion request, never a mobile-verification or delivery claim.
