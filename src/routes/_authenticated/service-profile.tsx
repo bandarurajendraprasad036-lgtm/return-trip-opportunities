@@ -31,11 +31,18 @@ function Editor() {
   const [bio, setBio] = useState(data.profile?.bio ?? "");
   const [photo, setPhoto] = useState(data.profile?.photo_path ?? "");
   const [published, setPublished] = useState(data.profile?.published ?? false);
+  const [town, setTown] = useState(data.profile?.town ?? '');
+  const [category, setCategory] = useState(data.profile?.category ?? data.profile?.service ?? '');
   const [consent, setConsent] = useState(false);
   const [photos, setPhotos] = useState(data.photos);
   const [busy, setBusy] = useState(false);
   const save = useServerFn(saveServiceProfile);
-  const store = async () => { await save({ data: { name, service, bio, photo, published } }); await queryClient.invalidateQueries({ queryKey: ["service-editor"] }); };
+  const store = async () => {
+    await save({ data: { name, service, bio, photo, published } });
+    const listing = await supabase.rpc('save_service_listing', { _name: name, _service: service, _town: town, _category: category, _published: published });
+    if (listing.error) throw listing.error;
+    await Promise.all([queryClient.invalidateQueries({ queryKey: ["service-editor"] }), queryClient.invalidateQueries({ queryKey: ['service-directory'] })]);
+  };
   const upload = async (file: File | undefined, avatar: boolean) => {
     if (!file) return;
     if (!consent) { toast.error("ఫోటో అనుమతి ఎంచుకోండి · Confirm photo permission"); return; }
@@ -54,6 +61,8 @@ function Editor() {
     <h1 className="text-2xl font-bold">నా సేవల పరిచయం · My services</h1>
     <div><Label htmlFor="profile-name">పేరు · Name</Label><Input id="profile-name" value={name} onChange={(e) => setName(e.target.value)} maxLength={80} required /></div>
     <div><Label htmlFor="profile-service">సేవలు · Services</Label><Input id="profile-service" value={service} onChange={(e) => setService(e.target.value)} maxLength={100} required /></div>
+    <div><Label htmlFor="profile-town">సేవ అందించే ఊరు · Service town</Label><Input id="profile-town" value={town} onChange={event => setTown(event.target.value)} maxLength={80} required /></div>
+    <div><Label htmlFor="profile-category">సేవ వర్గం · Service category</Label><Input id="profile-category" value={category} onChange={event => setCategory(event.target.value)} maxLength={100} required /></div>
     <div><Label htmlFor="profile-bio">చేసిన పనుల వివరాలు · Work history</Label><Textarea id="profile-bio" value={bio} onChange={(e) => setBio(e.target.value)} maxLength={1000} /></div>
     <label className="flex gap-2 text-sm"><input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />ఫోటోలు పెట్టడానికి నాకు అనుమతి ఉంది · I have permission to publish these photos</label>
     <label className="flex gap-2 text-sm"><input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} />ఈ పరిచయాన్ని అందరికీ చూపించండి · Make this service profile public</label>
