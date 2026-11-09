@@ -11,12 +11,13 @@ describe('admin post visibility', () => {
   beforeAll(async () => {
     db = new PGlite();
     await db.exec(`CREATE SCHEMA auth;
+      CREATE TYPE public.app_role AS ENUM('admin','user');
       CREATE ROLE anon; CREATE ROLE authenticated;
       CREATE TABLE public.posts(id uuid primary key,user_id uuid,status text);
       CREATE TABLE public.account_blocks(user_id uuid primary key);
       CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$SELECT nullif(current_setting('test.user',true),'')::uuid$$;
       CREATE FUNCTION public.account_allowed(_uid uuid) RETURNS boolean LANGUAGE sql AS $$SELECT NOT EXISTS(SELECT 1 FROM public.account_blocks WHERE user_id=_uid)$$;
-      CREATE FUNCTION public.has_role(_uid uuid,_role text) RETURNS boolean LANGUAGE sql AS $$SELECT _uid=auth.uid() AND current_setting('test.role',true)=_role$$;
+      CREATE FUNCTION public.has_role(_uid uuid,_role public.app_role) RETURNS boolean LANGUAGE sql AS $$SELECT _uid=auth.uid() AND current_setting('test.role',true)=_role::text$$;
       GRANT SELECT ON public.posts TO anon,authenticated;
       GRANT SELECT ON public.account_blocks TO anon,authenticated;
       CREATE POLICY posts_readable ON public.posts FOR SELECT TO anon,authenticated USING(true);
