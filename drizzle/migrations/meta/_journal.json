@@ -288,6 +288,13 @@
       "when": 1794116963321,
       "tag": "0040_consented_service_directory",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1794193099927,
+      "tag": "0041_admin_read_all_posts_including_blocked_owners",
+      "breakpoints": true
     }
   ]
 }
