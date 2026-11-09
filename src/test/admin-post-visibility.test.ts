@@ -18,6 +18,7 @@ describe('admin post visibility', () => {
       CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$SELECT nullif(current_setting('test.user',true),'')::uuid$$;
       CREATE FUNCTION public.account_allowed(_uid uuid) RETURNS boolean LANGUAGE sql AS $$SELECT NOT EXISTS(SELECT 1 FROM public.account_blocks WHERE user_id=_uid)$$;
       CREATE FUNCTION public.has_role(_uid uuid,_role public.app_role) RETURNS boolean LANGUAGE sql AS $$SELECT _uid=auth.uid() AND current_setting('test.role',true)=_role::text$$;
+      GRANT USAGE ON SCHEMA auth TO anon,authenticated;
       GRANT SELECT ON public.posts TO anon,authenticated;
       GRANT SELECT ON public.account_blocks TO anon,authenticated;
       CREATE POLICY posts_readable ON public.posts FOR SELECT TO anon,authenticated USING(true);
