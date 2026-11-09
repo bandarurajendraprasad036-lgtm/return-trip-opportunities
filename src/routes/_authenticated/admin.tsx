@@ -32,17 +32,26 @@ export const Route = createFileRoute("/_authenticated/admin")({
 function Admin() {
   const { data: me, isLoading } = useMe();
   const qc = useQueryClient();
-  const { data } = useQuery({
+  const { data, isError: postsError, refetch } = useQuery({
     queryKey: ["admin"],
     enabled: !!me?.isAdmin,
     queryFn: async () => {
-      const [{ data: posts }, { count: users }, { data: people }, { data: yt }] = await Promise.all([
-        supabase.from("posts").select(POST_LIST_COLUMNS).order("created_at", { ascending: false }).limit(300),
+      const posts: Post[] = [];
+      for (let from = 0; ; from += 500) {
+        const { data: page, error } = await supabase.from("posts").select(POST_LIST_COLUMNS).order("created_at", { ascending: false }).range(from, from + 499);
+        if (error) throw error;
+        posts.push(...((page ?? []) as Post[]));
+        if (!page || page.length < 500) break;
+      }
+      const [{ count: users, error: usersError }, { data: people, error: peopleError }, { data: yt, error: settingsError }] = await Promise.all([
         supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase.from("profiles").select("id, full_name, phone, is_prime").order("created_at", { ascending: false }).limit(200),
         supabase.from("app_settings").select("value").eq("key", "youtube_url").maybeSingle(),
       ]);
-      return { posts: (posts ?? []) as Post[], users: users ?? 0, people: people ?? [], yt: yt?.value ?? "" };
+      if (usersError) throw usersError;
+      if (peopleError) throw peopleError;
+      if (settingsError) throw settingsError;
+      return { posts, users: users ?? 0, people: people ?? [], yt: yt?.value ?? "" };
     },
   });
 
@@ -110,6 +119,8 @@ function Admin() {
         ))}
       </div>
       <h3 className="text-xl font-bold">అన్ని పోస్ట్‌లు · All posts</h3>
+      {postsError && <div role="alert" className="space-y-2 rounded-xl border p-3"><p>పోస్టులు రాలేదు. మళ్లీ ప్రయత్నించండి. · Could not load posts.</p><Button variant="outline" onClick={() => void refetch()}>మళ్లీ ప్రయత్నించండి · Retry</Button></div>}
+      {!postsError && posts.length === 0 && <p className="text-muted-foreground">ఇంకా పోస్టులు లేవు · No posts yet</p>}
       {posts.map((p) => (
         <PostCard
           key={p.id}
