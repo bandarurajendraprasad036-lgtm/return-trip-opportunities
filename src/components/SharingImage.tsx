@@ -79,7 +79,7 @@ export function SharingImage() {
         if (!target) { download(); return; }
         const blob = await new Promise<Blob | null>(resolve => target.toBlob(resolve, 'image/jpeg', .92)); if (!blob) throw new Error();
         const file = new File([blob], 'gayatri-one-sharing.jpg', { type: 'image/jpeg' });
-        const text = `గాయత్రి వన్ — స్థితి + 5 సమూహాల్లో పంచుకోండి. ${code ? referralLink(code) : 'https://gayatrione.com'}`;
+        const text = `నేను గాయత్రి వన్ లో చేరాను.. మీరు చేరండి\nలింక్: ${code ? referralLink(code) : 'https://gayatrione.com'}\nరిఫరల్ కోడ్: ${code}`;
         if (navigator.canShare?.({ files: [file] })) await navigator.share({ files: [file], text, title: 'Gayatri One' });
         else { download(); window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer'); }
       } catch (error) { if (!(error instanceof Error && error.name === 'AbortError')) toast.error('పంచుకోలేకపోయాం · Could not share'); }

@@ -41,7 +41,6 @@ export function MembershipPayment() {
       <ul className="space-y-3 text-sm"><li className="flex gap-2"><Inbox className="size-5 shrink-0 text-gold" />సరకు వాహన వివరాలు, గంట, వ్యక్తిగత సంభాషణ · Goods details, bells and private chat</li><li className="flex gap-2"><BadgeCheck className="size-5 shrink-0 text-gold" />చెల్లింపు ఆమోదించిన తరువాతే · After payment approval</li></ul>
       <p className="text-xs text-on-royal/80">ఉద్యోగం లేదా వాహనం దొరుకుతుందని హామీ కాదు · No job or vehicle booking guarantee.</p>
     </div>
-    {free && <p role="status">పది రోజుల ఉచిత కాలంలో చెల్లింపు అవసరం లేదు; ఆధారాలు పంపిన వారికి ఉచిత సభ్యత్వం కొనసాగుతుంది. · No payment during trial; sharing membership remains free.</p>}
     {!pending && !free && <form className="space-y-3" onSubmit={async event => {
       event.preventDefault();
       if (!me) return;
