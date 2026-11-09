@@ -187,3 +187,22 @@ body { color-scheme: dark; letter-spacing: 0; }
 .home-post-row p { font-size:.8125rem; margin:.5rem 0; }
 .home-post-row button { background:var(--gold); color:var(--royal); border:2px solid var(--gold); }
 @media (prefers-reduced-motion: no-preference) { .home-temple-trigger:active { animation:bell-ring .5s ease-in-out; } }
+
+:root, .dark {
+  --profile-ink: oklch(0.96 0.025 95);
+  --profile-accent: oklch(0.82 0.12 225);
+  --profile-route-accent: oklch(0.86 0.14 155);
+}
+.profile-panel { color: var(--profile-ink); background: color-mix(in oklab, var(--profile-accent) 4%, var(--royal)); }
+.profile-copy { color: var(--profile-ink); }
+.profile-panel label { color: var(--profile-accent); }
+.profile-panel input, .profile-panel select, .profile-route-panel input { color: var(--profile-ink); }
+.profile-panel input::placeholder, .profile-route-panel input::placeholder { color: color-mix(in oklab, var(--profile-ink) 65%, transparent); }
+.profile-section { background: color-mix(in oklab, var(--profile-accent) 8%, var(--royal)); border: 1px solid color-mix(in oklab, var(--profile-accent) 55%, transparent); }
+.profile-section-secondary { background: color-mix(in oklab, var(--profile-ink) 5%, var(--royal)); border: 1px solid color-mix(in oklab, var(--profile-ink) 40%, transparent); }
+.profile-vehicle-panel { background: color-mix(in oklab, var(--profile-route-accent) 7%, var(--royal)); border: 1px solid color-mix(in oklab, var(--profile-route-accent) 55%, transparent); }
+.profile-vehicle-panel label, .profile-route-panel label, .profile-route-panel h2 { color: var(--profile-route-accent); }
+.profile-route-panel { background: color-mix(in oklab, var(--profile-route-accent) 4%, var(--royal)); }
+.support-action { color: var(--profile-accent); background: color-mix(in oklab, var(--profile-accent) 7%, var(--royal)); border-color: var(--profile-accent); }
+.support-action:hover, .support-action:active { color: var(--royal); background: var(--profile-accent); }
+.design-footer { color: var(--profile-ink); }
