@@ -37,7 +37,9 @@ export function PhoneNumberChange({ currentPhone }: { currentPhone: string }) {
     try {
       const { error: verifyError } = await supabase.auth.verifyOtp({ phone: fullPhone, token: code, type: 'phone_change' });
       if (verifyError) throw verifyError;
-      const { error: profileError } = await supabase.from('profiles').update({ phone }).eq('id', (await supabase.auth.getUser()).data.user?.id);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Sign-in required');
+      const { error: profileError } = await supabase.from('profiles').update({ phone }).eq('id', user.id);
       if (profileError) throw profileError;
       await queryClient.invalidateQueries();
       clear();
