@@ -1,5 +1,5 @@
 import { POST_LIST_COLUMNS } from '@/lib/post-access';
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,8 +14,14 @@ import { AdminPayments } from "@/components/AdminPayments";
 import { AdminDevotional } from "@/components/AdminDevotional";
 import { AdminSharingClaims } from '@/components/AdminSharingClaims';
 import { PostEvidence } from '@/components/PostEvidence';
+import { AdminMessages } from '@/components/AdminMessages';
 
 export const Route = createFileRoute("/_authenticated/admin")({
+  beforeLoad: async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    const { data: admin } = user ? await supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' }) : { data: false };
+    if (!user || !admin) throw redirect({ to: '/admin-login', replace: true });
+  },
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
@@ -87,7 +93,9 @@ function Admin() {
 
   return (
     <div className="space-y-4 p-4">
-      <h2 className="text-2xl font-bold">అడ్మిన్ డాష్‌బోర్డ్ <span className="text-base font-normal text-muted-foreground">Admin</span></h2>
+      <div className="flex items-center justify-between gap-3"><h2 className="text-2xl font-bold">అడ్మిన్ డాష్‌బోర్డ్ <span className="text-base font-normal text-muted-foreground">Admin</span></h2><Button asChild variant="outline"><Link to="/admin-settings">సెట్టింగులు · Settings</Link></Button></div>
+      <AdminMessages />
+      <section className="rounded-xl border bg-card p-3"><h3 className="text-xl font-bold">బుకింగులు · Bookings</h3><p>ఇంకా నిర్ధారించిన బుకింగ్ నమోదులు లేవు. అందుబాటు అభ్యర్థనలు లేదా గంట సంభాషణలు బుకింగులు కావు. · No confirmed booking records; requests and bell chats are not bookings.</p></section>
       <AdminReferrals />
       <AdminDevotional />
       <AdminPayments />

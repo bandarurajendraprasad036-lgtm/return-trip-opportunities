@@ -5,7 +5,7 @@ import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { googleAuthHelp } from "@/lib/google-auth-errors";
 
-export function GoogleSignIn() {
+export function GoogleSignIn({ destination = '/feed', redirectPath = '/' }: { destination?: '/feed' | '/admin-login'; redirectPath?: '/' | '/admin-login' }) {
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -19,10 +19,10 @@ export function GoogleSignIn() {
     setError("");
     setBusy(true);
     try {
-      const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+      const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}${redirectPath}` });
       if (result.error) { setError(googleAuthHelp(result.error.message)); return; }
       if (result.redirected) return;
-      await navigate({ to: "/feed" });
+      await navigate({ to: destination });
     } catch (reason) { setError(googleAuthHelp(reason instanceof Error ? reason.message : "")); }
     finally { setBusy(false); }
   }}><LogIn className="size-5 shrink-0" /><span className="min-w-0"><span className="block">{busy ? "తెరుస్తున్నాము…" : error ? "మళ్లీ గూగుల్‌తో ప్రయత్నించండి" : "గూగుల్‌తో కొనసాగండి"}</span><span className="block text-sm">Continue with Google</span></span></Button>{error && <p role="alert" className="break-words text-base text-destructive">{error}</p>}</div>;
