@@ -36,8 +36,12 @@ export const viewChatImage = createServerFn({method:'POST'}).middleware([require
   .inputValidator((input:unknown) => z.object({message:z.string().uuid()}).parse(input))
   .handler(async ({data,context}) => {
     const row=await context.supabase.from('messages').select('image_path,sender_id,receiver_id').eq('id',data.message).maybeSingle();
-    if (row.error || !row.data?.image_path || ![row.data.sender_id,row.data.receiver_id].includes(context.userId)) throw new Error('చిత్రం అందుబాటులో లేదు · Image unavailable');
-    const signed=await context.supabase.storage.from('chat-images').createSignedUrl(row.data.image_path,60);
+    if (row.error || !row.data?.image_path) throw new Error('చిత్రం అందుబాటులో లేదు · Image unavailable');
+    const participant = [row.data.sender_id,row.data.receiver_id].includes(context.userId);
+    const role = participant ? { data: false } : await context.supabase.rpc('has_role',{_user_id:context.userId,_role:'admin'});
+    if (!participant && !role.data) throw new Error('చిత్రం అందుబాటులో లేదు · Image unavailable');
+    const signer = participant ? context.supabase : (await import('@/integrations/supabase/client.server')).supabaseAdmin;
+    const signed=await signer.storage.from('chat-images').createSignedUrl(row.data.image_path,60);
     if(signed.error || !signed.data?.signedUrl) throw new Error('చిత్రం తెరవలేకపోయాం · Image unavailable');
     return {url:signed.data.signedUrl};
   });

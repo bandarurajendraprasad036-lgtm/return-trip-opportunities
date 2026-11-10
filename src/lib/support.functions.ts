@@ -4,7 +4,7 @@ import { MEMBERSHIP_AMOUNT, GROUP_MEMBERSHIP_AMOUNT } from '@/lib/membership';
 
 const HELP = `Gayatri One (గాయత్రి వన్) help facts:
 - Free app for jobs (seeker/employer), return-trip vehicles (owner/business) and local services.
-- Login: Continue with Google, then mandatory mobile number; an entered phone is not OTP verified.
+- Login: use a phone code or Continue with Google. Phone-number changes request a verification code; older manually entered numbers may not be verified.
 - Post: tap "Post" (పోస్ట్), choose type, fill details. Abusive or anti-national words are blocked.
 - Job match = same location/area. Vehicle match = same From, To and date. Both sides get an alert.
 - Area options per post: local, district, state, all India.

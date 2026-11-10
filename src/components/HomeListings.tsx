@@ -12,25 +12,31 @@ import { SearchExample } from '@/components/SearchExample';
 import { areaExamples } from '@/lib/search-examples';
 import { IndiaPlaceInput } from '@/components/IndiaPlaceInput';
 import { useCurrentArea } from '@/lib/use-current-area';
+import { HomeAdminChat } from '@/components/HomeAdminChat';
+import type { HomeSettings } from '@/lib/home-settings';
 
-const sections: { key: HomeVehicleSection; te: string; en: string }[] = [
-  { key: 'local', te: 'స్థానిక సరకు వాహనాలు', en: 'Local Goods' },
-  { key: 'return', te: 'తిరిగి వచ్చే వాహనాలు', en: 'Return Vehicles' },
-  { key: 'cars', te: 'లోకల్ కార్స్', en: 'Local Cars' },
+const sections: { key: HomeVehicleSection; te: string; en: string; className: string }[] = [
+  { key: 'local', te: 'స్థానిక సరకు వాహనాలు', en: 'Local Goods', className: 'vehicle-choice-local' },
+  { key: 'return', te: 'తిరిగి & ముందస్తు రిటర్న్ సరకు వాహనాలు', en: 'Return & Advance Return Goods', className: 'vehicle-choice-return' },
+  { key: 'cars', te: 'కార్లు', en: 'Cars', className: 'vehicle-choice-car' },
 ];
 
-export function HomeListings({ today }: { today: string }) {
-  const [from, setFrom] = useState('');
-  const [to, setTo] = useState('');
+export function HomeListings({ today, settings }: { today: string; settings: HomeSettings }) {
+  const [from, setFrom] = useState(settings.fromLocation);
+  const [to, setTo] = useState(settings.toLocation);
   const [fromEdited, setFromEdited] = useState(false);
+  const [toEdited, setToEdited] = useState(false);
   const [route, setRoute] = useState({ from: '', to: '' });
   const [vehicleSection, setVehicleSection] = useState<HomeVehicleSection | null>(null);
   const { data: me } = useMe();
   const { area, message: areaMessage, locating } = useCurrentArea(me?.id);
   const actualArea = area?.area || area?.address || '';
   useEffect(() => {
-    if (actualArea && !fromEdited) setFrom(actualArea);
-  }, [actualArea, fromEdited]);
+    if (!fromEdited) setFrom(actualArea || settings.fromLocation);
+  }, [actualArea, fromEdited, settings.fromLocation]);
+  useEffect(() => {
+    if (!toEdited) setTo(settings.toLocation);
+  }, [settings.toLocation, toEdited]);
   const jobLocation = route.to || route.from;
   const searched = Boolean(route.from || route.to);
   const { data: posts = [], isLoading, isError } = useQuery({
@@ -51,32 +57,31 @@ export function HomeListings({ today }: { today: string }) {
   const examples = (category: HomeVehicleSection | 'seeker' | 'employer', realCount: number) => searched && !isLoading && realCount === 0
     ? areaExamples(route.from, route.to, category).map((example, index) => <SearchExample key={`${category}-${index}`} example={example} />)
     : null;
+  const focusFrom = () => { setFromEdited(true); document.getElementById('home-from')?.focus(); };
   return <>
     <section className="home-market-section border-t-0! pt-0!" aria-label="ఒకే వెతుకులాట · Shared search">
-      <div className="flex items-start justify-between gap-2 py-2">
-        <p className="min-w-0 break-words text-sm"><MapPin className="mr-1 inline size-4" />మీరు ఇప్పుడు ఇక్కడ ఉన్నారు · Current location: {actualArea || (locating ? 'చూస్తున్నాం · Locating…' : 'స్థానం తెలియదు · Not available')}</p>
-        <Button type="button" variant="ghost" size="sm" className="shrink-0" onClick={() => { setFromEdited(true); document.getElementById('home-from')?.focus(); }}>మార్చండి · Change</Button>
-      </div>
-      {!actualArea && areaMessage && <p className="pb-2 text-xs text-muted-foreground">{areaMessage}</p>}
+      {(settings.showAdminChat || settings.showLocation) && <div className="home-quick-grid">
+        {settings.showAdminChat && <HomeAdminChat />}
+        {settings.showLocation && <div className="home-quick-box home-location-box"><Button type="button" variant="ghost" className="h-auto min-h-12 w-full whitespace-normal px-1" onClick={focusFrom}><MapPin /><span>స్థానం మార్చండి<span className="block text-xs">Change location</span></span></Button><p className="w-full break-words px-1 text-center text-xs">{actualArea || (locating ? 'చూస్తున్నాం…' : 'ఊరి పేరు ఎంచుకోండి')}</p></div>}
+      </div>}
+      {!actualArea && areaMessage && <p className="pb-1 text-xs text-muted-foreground">{areaMessage}</p>}
       <form className="home-location-form" onSubmit={event => { event.preventDefault(); setRoute({ from: from.trim(), to: to.trim() }); setVehicleSection(null); }}>
-        <div className="grid grid-cols-1 gap-2">
-          <div className="min-w-0"><label htmlFor="home-from">నుండి · From</label><IndiaPlaceInput id="home-from" value={from} onChange={value => { setFromEdited(true); setFrom(value); }} maxLength={80} placeholder="మీ ఊరి పేరు రాయండి" /></div>
-          <div className="min-w-0"><label htmlFor="home-to">వరకు · To</label><IndiaPlaceInput id="home-to" value={to} onChange={setTo} maxLength={80} placeholder="మీకు ఎక్కడ కావాలో ఆ ఊరి పేరు రాయండి" /></div>
+        <div className="home-route-fields">
+          <div className="home-route-row"><label htmlFor="home-from">నుండి<span>FROM</span></label><IndiaPlaceInput id="home-from" value={from} onChange={value => { setFromEdited(true); setFrom(value); }} maxLength={80} placeholder="ఊరి పేరు" /></div>
+          <div className="home-route-row"><label htmlFor="home-to">వరకు<span>TO</span></label><IndiaPlaceInput id="home-to" value={to} onChange={value => { setToEdited(true); setTo(value); }} maxLength={80} placeholder="ఊరి పేరు" /></div>
         </div>
         <Button type="submit" aria-label="వెతకండి · Search"><Search />వెతకండి · SEARCH</Button>
       </form>
-      {searched && <div className="flex items-center justify-between gap-2 py-2 text-sm"><span className="min-w-0 break-words">{[route.from, route.to].filter(Boolean).join(' → ')}</span><Button variant="ghost" size="icon" aria-label="వెతుకులాట తీసేయండి · Clear search" onClick={() => { setRoute({ from: '', to: '' }); setFrom(''); setTo(''); setFromEdited(true); }}><X /></Button></div>}
-      {searched && <div className="grid grid-cols-3 gap-2" role="group" aria-label="వాహన ఎంపికలు · Vehicle options">
-        {sections.map(section => <Button key={section.key} type="button" variant={vehicleSection === section.key ? 'default' : 'outline'} aria-pressed={vehicleSection === section.key} aria-controls="home-vehicle-results" className="h-auto min-h-20 whitespace-normal px-1 py-2 text-sm" onClick={() => setVehicleSection(section.key)}><span>{section.te}<span className="block text-xs">{section.en}</span></span></Button>)}
+      {searched && <div className="flex items-center justify-between gap-2 py-1 text-sm"><span className="min-w-0 break-words">{[route.from, route.to].filter(Boolean).join(' → ')}</span><Button variant="ghost" size="icon" aria-label="వెతుకులాట తీసేయండి · Clear search" onClick={() => { setRoute({ from: '', to: '' }); setFrom(''); setTo(''); setFromEdited(true); setToEdited(true); setVehicleSection(null); }}><X /></Button></div>}
+      {settings.showVehicles && searched && <div className="grid grid-cols-3 gap-2" role="group" aria-label="వాహన ఎంపికలు · Vehicle options">
+        {sections.map(section => <Button key={section.key} type="button" variant="outline" aria-pressed={vehicleSection === section.key} aria-controls="home-vehicle-results" className={`h-auto min-h-20 whitespace-normal px-1 py-2 text-sm ${section.className}`} onClick={() => setVehicleSection(section.key)}><span>{section.te}<span className="block text-xs">{section.en}</span></span></Button>)}
       </div>}
-      <section id="home-vehicle-results" className="home-display-column mt-3" aria-live="polite" aria-label="వాహన ఫలితాలు · Vehicle results">
-        {vehicleSection === null ? <p className="home-empty">దయచేసి పైన ఒకదాన్ని ఎంచుకోండి</p> : <>
-          <h3>{sections.find(section => section.key === vehicleSection)?.te}</h3>
-          <div className="home-display-list">{status()}{vehicleRows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact hideDate={vehicleSection === 'local'} />)}{examples(vehicleSection, vehicleRows.length)}</div>
-        </>}
-      </section>
+      {settings.showVehicles && vehicleSection !== null && <section id="home-vehicle-results" className="home-display-column mt-2" aria-live="polite" aria-label="వాహన ఫలితాలు · Vehicle results">
+        <h3>{sections.find(section => section.key === vehicleSection)?.te}</h3>
+        <div className="home-display-list">{status()}{vehicleRows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact hideDate={vehicleSection === 'local'} />)}{examples(vehicleSection, vehicleRows.length)}</div>
+      </section>}
     </section>
-    <section className="home-market-section" aria-labelledby="job-location-heading">
+    {settings.showJobs && <section className="home-market-section" aria-labelledby="job-location-heading">
       <h2 id="job-location-heading" className="home-section-title"><MapPin />పనులు · Jobs{jobLocation && <span className="break-words text-sm"> — {jobLocation}</span>}</h2>
       <div className="home-job-columns">
         {([{ kind: 'seeker', te: 'పని కావాలా?', en: 'Need work?', display: 'పని కావాల్సినవారు', displayEn: 'Job seekers' }, { kind: 'employer', te: 'మనిషి కావాలా?', en: 'Need a worker?', display: 'ఉద్యోగ ఖాళీలు', displayEn: 'Jobs' }] as const).map(section => {
@@ -88,6 +93,6 @@ export function HomeListings({ today }: { today: string }) {
           </section>;
         })}
       </div>
-    </section>
+    </section>}
   </>;
 }

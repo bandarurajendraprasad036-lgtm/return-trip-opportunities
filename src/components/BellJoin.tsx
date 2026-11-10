@@ -7,9 +7,14 @@ import { GoogleSignIn } from "@/components/GoogleSignIn";
 import { enableBellAudio, playBell } from '@/lib/bell';
 import { BellPhoneRequest } from '@/components/BellPhoneRequest';
 import { ProfileRequest } from '@/components/ProfileRequest';
+import { useAccountProgram } from '@/lib/use-account-program';
+import { markAccountBellActivated, shouldShowProfileRequest } from '@/lib/bell-activation';
+import { useQueryClient } from '@tanstack/react-query';
 
 export function BellJoin({ children }: { children?: React.ReactNode }) {
   const { data: me } = useMe();
+  const { data: program } = useAccountProgram(me?.id);
+  const queryClient = useQueryClient();
   const [touched, setTouched] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const choices = (
@@ -21,7 +26,14 @@ export function BellJoin({ children }: { children?: React.ReactNode }) {
   );
 
   return <>
-    <Button type="button" variant="ghost" data-touched={touched} onClick={() => { enableBellAudio(); playBell(); setTouched(true); setProfileOpen(true); }} aria-label="గంట కొట్టండి · Ring the bell" className={children ? "home-temple-trigger" : "home-bell relative z-10 mx-auto -mt-2 grid size-20 place-items-center rounded-none border-0 bg-transparent p-2 text-gold shadow-none ring-0 hover:bg-transparent active:scale-95"}>{children || <Bell className="size-16!" fill="currentColor" strokeWidth={1.5} />}</Button>
+    <Button type="button" variant="ghost" data-touched={touched} onClick={() => {
+      enableBellAudio(); playBell(); setTouched(true);
+      const showRequest = shouldShowProfileRequest(!!program, me?.profile?.bell_activated_at);
+      if (me && !me.profile?.bell_activated_at) {
+        void markAccountBellActivated(me.id).then(() => queryClient.invalidateQueries({ queryKey: ['me'] }));
+      }
+      setProfileOpen(!me || showRequest);
+    }} aria-label="గంట కొట్టండి · Ring the bell" className={children ? "home-temple-trigger" : "home-bell relative z-10 mx-auto -mt-2 grid size-20 place-items-center rounded-none border-0 bg-transparent p-2 text-gold shadow-none ring-0 hover:bg-transparent active:scale-95"}>{children || <Bell className="size-16!" fill="currentColor" strokeWidth={1.5} />}</Button>
     <ProfileRequest home open={profileOpen} onOpenChange={setProfileOpen}>{me ? <><BellPhoneRequest />{choices}</> : <><GoogleSignIn /><Button asChild variant="outline"><Link to="/feed">ప్రకటనలు చూడండి · Browse</Link></Button></>}</ProfileRequest>
     <p className="mt-1 text-center text-lg font-bold">ఏది కావాలన్నా గంట కొట్టు</p>
   </>;

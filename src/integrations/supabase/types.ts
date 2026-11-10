@@ -670,6 +670,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          bell_activated_at: string | null
           created_at: string
           free_months: number
           full_name: string
@@ -686,6 +687,7 @@ export type Database = {
           show_public: boolean
         }
         Insert: {
+          bell_activated_at?: string | null
           created_at?: string
           free_months?: number
           full_name?: string
@@ -702,6 +704,7 @@ export type Database = {
           show_public?: boolean
         }
         Update: {
+          bell_activated_at?: string | null
           created_at?: string
           free_months?: number
           full_name?: string

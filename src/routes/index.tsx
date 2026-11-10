@@ -14,11 +14,10 @@ import { SharingImage } from "@/components/SharingImage";
 import { InstallButton } from "@/components/AppHelpers";
 import { BellJoin } from "@/components/BellJoin";
 import { DailyWelcome } from "@/components/DailyWelcome";
-import { ProfileNotice } from "@/components/ProfileNotice";
 import { ResponsibilityNotice } from "@/components/ResponsibilityNotice";
-import { AdminChatButton } from "@/components/AdminChatButton";
 import { HomeListings } from "@/components/HomeListings";
 import { ServiceDirectory } from "@/components/ServiceDirectory";
+import { DEFAULT_HOME_SETTINGS, useHomeSettings } from "@/lib/home-settings";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -38,6 +37,7 @@ export const Route = createFileRoute("/")({
 
 
 function Index() {
+  const { data: homeSettings = DEFAULT_HOME_SETTINGS } = useHomeSettings();
   const [devotional, setDevotional] = useState(0);
   const [day, setDay] = useState("");
   useEffect(() => {
@@ -65,7 +65,6 @@ function Index() {
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h1 className="flex min-w-0 items-center gap-1 text-sm font-extrabold text-gold"><img src={emblem} alt="" width={28} height={28} className="size-7 shrink-0 object-contain" /><span>గాయత్రి వన్<span className="block text-xs">Gayatri One</span></span></h1>
           <div className="flex gap-2">
-            <AdminChatButton compact />
             <Link to="/notifications" className="gold-ring bg-gold text-royal" aria-label="అలర్ట్స్ · Alerts"><Bell className="size-6" /></Link>
             <InstallButton compact />
             <Link to="/dashboard" className="gold-ring" aria-label="ప్రొఫైల్ · Profile"><User className="size-6" /></Link>
@@ -78,18 +77,16 @@ function Index() {
         <p className="text-center text-base opacity-90">మన ఊరు · మన బండి · మన పని</p>
         <DailyWelcome />
       </section>
-      <ProfileNotice />
-      <section className="space-y-3 px-5 pb-8 pt-1">
-        <HomeListings today={day} />
-        <ServiceDirectory />
+      <section className="space-y-2 px-4 pb-6 pt-0">
+        <HomeListings today={day} settings={homeSettings} />
+        {homeSettings.showServices && <ServiceDirectory />}
         {ytId && (
           <div className="overflow-hidden rounded-xl border bg-card shadow-card">
             <p className="p-3 font-bold">🎬 మా గురించి · About us</p>
             <iframe className="aspect-video w-full" src={`https://www.youtube.com/embed/${ytId}`} title="About Gayatri One" allowFullScreen />
           </div>
         )}
-        <AdminChatButton />
-        <SharingImage />
+        {homeSettings.showSharing && <SharingImage />}
         <Button asChild variant="secondary" size="xl" className="w-full">
           <Link to="/auth">ప్రారంభించండి · Get Started</Link>
         </Button>
