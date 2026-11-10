@@ -19,8 +19,8 @@ describe('two phone accounts and admin chat access', () => {
       CREATE TABLE public.messages(id uuid primary key,sender_id uuid not null,receiver_id uuid not null,body text not null default '');
       CREATE TABLE public.account_blocks(user_id uuid primary key);
       CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$SELECT nullif(current_setting('test.user',true),'')::uuid$$;
-      CREATE FUNCTION public.account_allowed(_uid uuid) RETURNS boolean LANGUAGE sql AS $$SELECT NOT EXISTS(SELECT 1 FROM public.account_blocks WHERE user_id=_uid)$$;
-      CREATE FUNCTION public.has_role(_uid uuid,_role public.app_role) RETURNS boolean LANGUAGE sql AS $$SELECT EXISTS(SELECT 1 FROM public.user_roles WHERE user_id=_uid AND role=_role)$$;
+      CREATE FUNCTION public.account_allowed(_uid uuid) RETURNS boolean LANGUAGE sql SECURITY DEFINER SET search_path=public AS $$SELECT NOT EXISTS(SELECT 1 FROM public.account_blocks WHERE user_id=_uid)$$;
+      CREATE FUNCTION public.has_role(_uid uuid,_role public.app_role) RETURNS boolean LANGUAGE sql SECURITY DEFINER SET search_path=public AS $$SELECT EXISTS(SELECT 1 FROM public.user_roles WHERE user_id=_uid AND role=_role)$$;
       GRANT USAGE ON SCHEMA auth TO anon,authenticated;
       GRANT SELECT ON public.messages,public.profiles TO authenticated;
       CREATE POLICY participants_read ON public.messages FOR SELECT TO authenticated USING(auth.uid()=sender_id OR auth.uid()=receiver_id);
