@@ -13,6 +13,9 @@ import { vehicleTypeLabel } from '@/lib/vehicle-types';
 import { isGoodsPost, type PostDetails } from '@/lib/post-access';
 import { useAccountProgram } from '@/lib/use-account-program';
 import { ProfileRequest } from '@/components/ProfileRequest';
+import { useMe } from '@/lib/session';
+import { markAccountBellActivated, shouldShowProfileRequest } from '@/lib/bell-activation';
+import { useQueryClient } from '@tanstack/react-query';
 
 export type Post = Database["public"]["Tables"]["posts"]["Row"];
 
@@ -40,6 +43,8 @@ export function PostCard({
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const goods = isGoodsPost(post);
   const { data: program } = useAccountProgram(meId);
+  const { data: me } = useMe();
+  const queryClient = useQueryClient();
   const [profileOpen, setProfileOpen] = useState(false);
   const checkAccess = async () => {
     if (!goods) return true;
@@ -70,7 +75,14 @@ export function PostCard({
   const contact = () => { if (!isJob && post.user_id !== meId) setNoticeOpen(true); else void ring(); };
   const ring = async () => {
     if (!meId) { nav({ to: "/auth" }); return; }
-    if (!program) { setProfileOpen(true); return; }
+    if (!me?.profile?.bell_activated_at) {
+      void markAccountBellActivated(meId).then(() => queryClient.invalidateQueries({ queryKey: ['me'] }));
+    }
+    if (!program) {
+      if (shouldShowProfileRequest(false, me?.profile?.bell_activated_at)) setProfileOpen(true);
+      else nav({ to: '/dashboard' });
+      return;
+    }
     if (!await checkAccess()) return;
     if (post.user_id === meId) {
       const { data, error } = await supabase.rpc("notify_matches", { _post_id: post.id });

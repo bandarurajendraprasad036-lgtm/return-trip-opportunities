@@ -12,13 +12,13 @@ import { SavedVehicleRoutes } from '@/components/SavedVehicleRoutes';
 import { hasValidMobile } from '@/lib/phone';
 import { isCar, VEHICLE_TYPES } from '@/lib/vehicle-types';
 import { parseVehicleCategory, vehicleCategory } from '@/lib/profile-vehicle';
+import { PhoneNumberChange } from '@/components/PhoneNumberChange';
 
 export function AccountProfile() {
   const { data: me } = useMe();
   const { data: program, isLoading, isError } = useAccountProgram(me?.id);
   const qc = useQueryClient();
   const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
   const [location, setLocation] = useState('');
   const [occupation, setOccupation] = useState('');
   const [category, setCategory] = useState('');
@@ -30,9 +30,8 @@ export function AccountProfile() {
 
   useEffect(() => {
     setName(me?.profile?.full_name || '');
-    setPhone(me?.profile?.phone || '');
     setLocation(me?.profile?.location || '');
-  }, [me?.profile?.full_name, me?.profile?.phone, me?.profile?.location]);
+  }, [me?.profile?.full_name, me?.profile?.location]);
 
   useEffect(() => {
     if (!program) return;
@@ -55,16 +54,12 @@ export function AccountProfile() {
       <form className="space-y-4" onSubmit={async event => {
         event.preventDefault();
         if (busy || !me) return;
-        const mobile = phone.replace(/\D/g, '');
-        if (!hasValidMobile(mobile)) { toast.error('సరైన 10 అంకెల మొబైల్ నంబరు ఇవ్వండి · Enter a valid mobile'); return; }
+        const mobile = me.profile?.phone ?? '';
+        if (!hasValidMobile(mobile)) { toast.error('ముందుగా మొబైల్ నంబరు కోడ్‌తో ధృవీకరించండి · Verify your mobile first'); return; }
         const savedCategory = vehicleProfile ? vehicleCategory(vehicleType, tons) : category.trim();
         if (!savedCategory) { toast.error(vehicleProfile ? 'వాహనం, సరైన టన్నులు ఇవ్వండి · Check vehicle and tons' : 'వర్గం ఇవ్వండి · Enter category'); return; }
         setBusy(true);
-        let phoneSaved = false;
         try {
-          const mobileSave = await supabase.from('profiles').update({ phone: mobile }).eq('id', me.id);
-          if (mobileSave.error) throw mobileSave.error;
-          phoneSaved = true;
           const saved = await supabase.rpc('complete_account_profile', {
             _name: name.trim(),
             _location: location.trim(),
@@ -84,7 +79,7 @@ export function AccountProfile() {
           await qc.invalidateQueries();
           toast.success('మీ వివరాలు భద్రపడ్డాయి · Profile saved');
         } catch {
-          toast.error(phoneSaved ? 'నంబరు భద్రపడింది; మిగిలిన వివరాలు భద్రపడలేదు · Mobile saved; other details not saved' : 'మీ వివరాలు భద్రపడలేదు · Profile not saved');
+          toast.error('మీ వివరాలు భద్రపడలేదు · Profile not saved');
         } finally { setBusy(false); }
       }}>
         <div className="profile-section space-y-3 rounded-xl p-3">
@@ -92,10 +87,7 @@ export function AccountProfile() {
             <Label htmlFor="account-name">మీ పేరు · Your name</Label>
             <Input id="account-name" value={name} onChange={event => setName(event.target.value)} required maxLength={80} />
           </div>
-          <div className="space-y-1">
-            <Label htmlFor="account-phone">మొబైల్ నంబరు (తప్పనిసరి) · Mobile required</Label>
-            <Input id="account-phone" type="tel" inputMode="numeric" autoComplete="tel" value={phone} onChange={event => setPhone(event.target.value.replace(/\D/g, '').slice(0, 10))} required pattern="[6-9][0-9]{9}" maxLength={10} placeholder="9876543210" />
-          </div>
+          <PhoneNumberChange currentPhone={me?.profile?.phone ?? ''} />
           <div className="space-y-1">
             <Label htmlFor="account-area">మీ ఊరు · Your place</Label>
             <IndiaPlaceInput id="account-area" value={location} onChange={setLocation} maxLength={80} placeholder="మీ ఊరి పేరు రాయండి" />
