@@ -192,6 +192,9 @@ body { color-scheme: dark; letter-spacing: 0; }
   --profile-ink: oklch(0.96 0.025 95);
   --profile-accent: oklch(0.82 0.12 225);
   --profile-route-accent: oklch(0.86 0.14 155);
+  --choice-local: oklch(0.82 0.12 225);
+  --choice-return: oklch(0.86 0.14 155);
+  --choice-car: oklch(0.86 0.12 35);
 }
 .profile-panel { color: var(--profile-ink); background: color-mix(in oklab, var(--profile-accent) 4%, var(--royal)); }
 .profile-copy { color: var(--profile-ink); }
@@ -206,3 +209,23 @@ body { color-scheme: dark; letter-spacing: 0; }
 .support-action { color: var(--profile-accent); background: color-mix(in oklab, var(--profile-accent) 7%, var(--royal)); border-color: var(--profile-accent); }
 .support-action:hover, .support-action:active { color: var(--royal); background: var(--profile-accent); }
 .design-footer { color: var(--profile-ink); }
+
+.home-quick-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.5rem; margin:0 0 .5rem; }
+.home-quick-box { display:flex; min-width:0; flex-wrap:wrap; align-items:center; justify-content:center; gap:.25rem; border:1px solid var(--profile-accent); border-radius:1rem; padding:.25rem; color:var(--profile-ink); background:color-mix(in oklab,var(--profile-accent) 6%,var(--royal)); }
+.home-location-box { border-color:var(--profile-route-accent); color:var(--profile-route-accent); }
+.home-route-fields { display:grid; gap:.5rem; }
+.home-route-row { display:grid; grid-template-columns:minmax(4.5rem,25%) minmax(0,75%); align-items:center; gap:.5rem; }
+.home-route-row label { display:flex; min-width:0; flex-direction:column; align-items:center; justify-content:center; margin:0; color:var(--profile-ink); font-size:1rem; }
+.home-route-row label span { color:var(--profile-accent); font-size:.75rem; }
+.home-route-row input { height:3.25rem; border-width:2px; border-radius:1rem; text-align:left; font-size:1rem; }
+.vehicle-choice-local { border-color:var(--choice-local); color:var(--choice-local); }
+.vehicle-choice-return { border-color:var(--choice-return); color:var(--choice-return); }
+.vehicle-choice-car { border-color:var(--choice-car); color:var(--choice-car); }
+.vehicle-choice-local[aria-pressed="true"] { background:var(--choice-local); color:var(--royal); }
+.vehicle-choice-return[aria-pressed="true"] { background:var(--choice-return); color:var(--royal); }
+.vehicle-choice-car[aria-pressed="true"] { background:var(--choice-car); color:var(--royal); }
+.home-market-section { padding:.5rem 0; }
+.home-location-form { gap:.5rem; padding:.25rem 0; }
+.home-display-column h3 { min-height:3.5rem; }
+.home-apply { min-height:5rem; }
+@media (max-width:340px) { .home-route-row { grid-template-columns:4rem minmax(0,1fr); gap:.25rem; } .home-quick-box { padding:.125rem; } }
