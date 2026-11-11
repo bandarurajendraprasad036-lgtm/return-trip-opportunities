@@ -302,6 +302,13 @@
       "when": 1794284880651,
       "tag": "0042_admin_messages_phone_accounts_and_bell_activation",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1794373779379,
+      "tag": "0043_direct_referral_vip_cash",
+      "breakpoints": true
     }
   ]
 }
