@@ -41,6 +41,7 @@ function AdminSettings() {
   const queryClient = useQueryClient();
   const [form, setForm] = useState<HomeSettings | null>(null);
   const [busy, setBusy] = useState(false);
+  const [eventLabel, setEventLabel] = useState('డిసెంబర్ 31');
   useEffect(() => { if (data) setForm(data); }, [data]);
   const save = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -64,5 +65,6 @@ function AdminSettings() {
       <section className="space-y-2 rounded-xl border bg-card p-4"><h3 className="text-xl font-bold">ఏ పెట్టెలు చూపించాలి · Visible boxes</h3>{toggles.map(toggle => <label key={toggle.key} className="flex min-h-12 items-center gap-3 border-b py-2 last:border-0"><input type="checkbox" className="size-6 shrink-0" checked={form[toggle.key]} onChange={event => setForm({ ...form, [toggle.key]: event.target.checked })} /><span>{toggle.label}</span></label>)}</section>
       <Button type="submit" className="w-full" disabled={busy}>{busy ? 'భద్రపరుస్తున్నాం…' : 'సెట్టింగులు భద్రపరచండి · Save settings'}</Button>
     </form>}
+    <section className="space-y-3 border-y py-4"><Label htmlFor="event-label">వేడుక తేదీ / సందర్భం · Event date</Label><Input id="event-label" value={eventLabel} maxLength={80} onChange={e => setEventLabel(e.target.value)} /><Button disabled={busy || !eventLabel.trim()} onClick={async () => { setBusy(true); const result = await supabase.from('referral_vip_campaign').update({ event_label: eventLabel.trim() }).eq('id', true).select('id'); setBusy(false); if (result.error || !result.data?.length) toast.error('ముందుగా కొత్త పరిచయం లేదా చెల్లింపు నమోదు కావాలి; తేదీ భద్రపడలేదు.'); else toast.success('వేడుక తేదీ భద్రపడింది.'); }}>వేడుక తేదీ భద్రపరచండి · Save event date</Button><p>పూర్తి వివరాలు మరో పదిహేను రోజుల్లో తెలియజేస్తాం.</p></section>
   </div>;
 }
