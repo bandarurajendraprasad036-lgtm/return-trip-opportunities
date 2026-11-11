@@ -21,6 +21,7 @@ import { DEFAULT_HOME_SETTINGS, useHomeSettings } from "@/lib/home-settings";
 import { ReferralBoard } from '@/components/ReferralBoard';
 import { useMe } from '@/lib/session';
 import { useAccountProgram } from '@/lib/use-account-program';
+import { homeActionPending } from '@/lib/prime99';
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -73,13 +74,13 @@ function Index() {
             <Link to="/notifications" className="gold-ring bg-gold text-royal" aria-label="అలర్ట్స్ · Alerts"><Inbox className="size-6" /></Link>
           </div>
         </div>
+        <p className="mt-2 text-center font-serif text-4xl font-extrabold text-gold">GAYATRI ONE</p>
         <BellJoin>
           <img key={day} src={[mata, mataGreen, mataIvory][devotional]} alt="గాయత్రి మాత చెక్కిన బంగారు గుడి గంట · Gayatri Mata engraved gold temple bell" className="home-engraved-bell" width={768} height={768} onError={event => { const el = event.currentTarget; const tried = (el.dataset["tried"] ?? "").split("|").filter(Boolean); const next = devotionalFallback(el.src, [mata, mataGreen, mataIvory], devotional, tried); if (next) { el.dataset["tried"] = [...tried, el.src].join("|"); el.src = next; } else el.style.visibility = "hidden"; }} />
         </BellJoin>
-        <p className="mt-2 text-center font-serif text-4xl font-extrabold text-gold">GAYATRI ONE</p>
         <div className="mt-2 flex items-center justify-center gap-3">
           <InstallButton compact remind />
-          <Button asChild variant="outline" className={`gold-ring p-0 ${program?.completed_at ? '' : 'unfinished-action'}`}><Link to="/dashboard" aria-label="ప్రొఫైల్ · Profile"><User className="size-6" /></Link></Button>
+          <Button asChild variant="outline" className={`gold-ring p-0 ${homeActionPending('profile', Boolean(program?.completed_at)) ? 'unfinished-action' : ''}`}><Link to="/dashboard" aria-label="ప్రొఫైల్ · Profile"><User className="size-6" /></Link></Button>
         </div>
         <p className="text-center text-base opacity-90">మన ఊరు · మన బండి · మన పని</p>
         <DailyWelcome />

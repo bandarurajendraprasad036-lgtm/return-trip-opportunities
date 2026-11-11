@@ -31,6 +31,7 @@ describe('Prime 99 approved rules in PostgreSQL', () => {
       INSERT INTO referral_board_consent VALUES('${inviter}','Consent','TG',true),('${joined}','Private','AP',false),('${unpaid}','Unpaid','TG',false);
       INSERT INTO service_profiles VALUES('${inviter}',true,'${inviter}/photo.jpg');`);
     await db.exec(readFileSync('drizzle/migrations/0047_prime99_paid_alerts_monthly_posts_and_daily_board.sql', 'utf8'));
+    await db.exec(readFileSync('drizzle/migrations/0048_prime99_renewal_quota_and_daily_fairness.sql', 'utf8'));
     await db.exec(`SELECT set_config('test.user','${admin}',false)`);
   }, 30000);
   afterAll(async () => { await db.close(); });
@@ -79,6 +80,10 @@ describe('Prime 99 approved rules in PostgreSQL', () => {
   it('expired paid eligibility disables notices at the boundary', async () => {
     await db.exec(`UPDATE prime99_payments SET ends_at=now() WHERE user_id='${inviter}'`);
     expect((await db.query<{ok:boolean}>(`SELECT has_prime99('${inviter}') ok`)).rows[0]?.ok).toBe(false);
+  });
+  it('renewing within an active post month cannot reset the three-post quota', async () => {
+    await db.exec(`INSERT INTO posts(user_id) VALUES('${joined}'),('${joined}'),('${joined}'); INSERT INTO prime99_payments(user_id,reference) VALUES('${joined}','RENEWAL-99'); SELECT review_prime99((SELECT id FROM prime99_payments WHERE reference='RENEWAL-99'),true,'received')`);
+    await expect(db.exec(`INSERT INTO posts(user_id) VALUES('${joined}')`)).rejects.toThrow('MONTHLY_THREE_POST_LIMIT');
   });
   it('daily competition notice is at most one per eligible user and day', async () => {
     await db.exec(`SELECT dispatch_daily_referral_board(); SELECT dispatch_daily_referral_board()`);

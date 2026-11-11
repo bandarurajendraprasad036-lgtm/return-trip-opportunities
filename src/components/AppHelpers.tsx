@@ -10,6 +10,7 @@ import { permissionHelp } from '@/lib/browser-notifications';
 import { enablePush, pushDeviceId, deviceSound } from '@/lib/firebase-push';
 import { registerPushDevice } from '@/lib/push.functions';
 import { useServerFn } from '@tanstack/react-start';
+import { homeActionPending } from '@/lib/prime99';
 
 type InstallEvent = Event & { prompt: () => Promise<void> };
 
@@ -20,17 +21,17 @@ export function InstallButton({ compact = false, remind = false }: { compact?: b
   const [help, setHelp] = useState(false);
   const [ios, setIos] = useState(false);
   useEffect(() => {
-    setInstalled(window.matchMedia("(display-mode: standalone)").matches || ("standalone" in navigator && navigator.standalone === true));
+    setInstalled(window.localStorage.getItem('gayatri-installed-confirmed') === '1' || window.matchMedia("(display-mode: standalone)").matches || ("standalone" in navigator && navigator.standalone === true));
     setIos(/iPad|iPhone|iPod/.test(navigator.userAgent));
     const h = (e: Event) => { e.preventDefault(); setEvt(e as InstallEvent); };
-    const done = () => { setInstalled(true); setEvt(null); };
+    const done = () => { window.localStorage.setItem('gayatri-installed-confirmed', '1'); setInstalled(true); setEvt(null); };
     window.addEventListener("beforeinstallprompt", h);
     window.addEventListener("appinstalled", done);
     return () => { window.removeEventListener("beforeinstallprompt", h); window.removeEventListener("appinstalled", done); };
   }, []);
   return (
     <>
-      <Button variant="outline" aria-label={installed ? 'ఫోన్ తెరపై ఉంది · Installed' : 'దిగుమతి · Install app'} title={installed ? 'ఫోన్ తెరపై ఉంది · Installed' : 'దిగుమతి · Install app'} className={`${compact ? 'gold-ring shrink-0 p-0' : 'h-auto min-h-14 w-full whitespace-normal border-2 border-secondary px-3 py-3'} ${remind && !installed ? 'unfinished-action' : ''}`} onClick={async () => {
+      <Button variant="outline" aria-label={installed ? 'ఫోన్ తెరపై ఉంది · Installed' : 'దిగుమతి · Install app'} title={installed ? 'ఫోన్ తెరపై ఉంది · Installed' : 'దిగుమతి · Install app'} className={`${compact ? 'gold-ring shrink-0 p-0' : 'h-auto min-h-14 w-full whitespace-normal border-2 border-secondary px-3 py-3'} ${remind && homeActionPending('install', installed) ? 'unfinished-action' : ''}`} onClick={async () => {
         if (installed) { toast.info('ఈ ఫోన్‌లో ఇప్పటికే జోడించబడింది'); return; }
         if (!evt) { setHelp(true); return; }
         try { await evt.prompt(); } catch { setHelp(true); } finally { setEvt(null); }
