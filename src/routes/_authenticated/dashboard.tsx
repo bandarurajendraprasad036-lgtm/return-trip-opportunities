@@ -6,8 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useMe } from "@/lib/session";
 import { AdminChatButton } from "@/components/AdminChatButton";
 import { InstallButton } from "@/components/AppHelpers";
-import { MembershipPayment } from "@/components/MembershipPayment";
-import { RewardMembership } from '@/components/RewardMembership';
+import { ReferralVip } from '@/components/ReferralVip';
 import { AccountProfile } from '@/components/AccountProfile';
 import { SharingImage } from '@/components/SharingImage';
 import { NotificationSettings } from '@/components/NotificationSettings';
@@ -51,7 +50,6 @@ function Dashboard() {
       return { posts: postResult.count ?? 0, unread: notificationResult.count ?? 0 };
     },
   });
-  const prime = !!me?.profile?.is_prime;
   const tile = "flex flex-col items-center gap-1 rounded-xl border bg-card p-4 text-center font-semibold shadow-card";
 
   const mataImage = MATA_IMAGES[dailyDevotionalIndex(new Date(), MATA_IMAGES.length)];
@@ -66,7 +64,6 @@ function Dashboard() {
         <div className="flex-1">
           <p className="text-xl font-bold">{me?.profile?.full_name || "—"}</p>
           <p className="text-sm text-muted-foreground">📞 {me?.profile?.phone} · 📍 {me?.profile?.location || "—"}</p>
-          <p className="text-sm font-semibold">{prime ? "⭐ Prime సభ్యుడు · Prime member" : "ఉచిత ప్లాన్ · Free plan"}</p>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-2">
@@ -84,8 +81,7 @@ function Dashboard() {
       <AdminChatButton />
       <AccountProfile />
       <SharingImage />
-      <MembershipPayment />
-      <RewardMembership />
+      <ReferralVip />
       <NotificationSettings />
       <InstallButton />
     </div>

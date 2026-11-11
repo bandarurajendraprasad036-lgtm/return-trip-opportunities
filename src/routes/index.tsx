@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Bell, User } from "lucide-react";
+import { Inbox, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import emblem from "@/assets/gayatri-one-emblem.jpg";
@@ -65,7 +65,7 @@ function Index() {
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h1 className="flex min-w-0 items-center gap-1 text-sm font-extrabold text-gold"><img src={emblem} alt="" width={28} height={28} className="size-7 shrink-0 object-contain" /><span>గాయత్రి వన్<span className="block text-xs">Gayatri One</span></span></h1>
           <div className="flex gap-2">
-            <Link to="/notifications" className="gold-ring bg-gold text-royal" aria-label="అలర్ట్స్ · Alerts"><Bell className="size-6" /></Link>
+            <Link to="/notifications" className="gold-ring bg-gold text-royal" aria-label="అలర్ట్స్ · Alerts"><Inbox className="size-6" /></Link>
             <InstallButton compact />
             <Link to="/dashboard" className="gold-ring" aria-label="ప్రొఫైల్ · Profile"><User className="size-6" /></Link>
           </div>

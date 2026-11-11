@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Bell } from 'lucide-react';
+import { Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import type { SearchExample as Example } from '@/lib/search-examples';
@@ -14,7 +14,7 @@ export function SearchExample({ example }: { example: Example }) {
         <p className="break-words text-sm">{example.type === 'vehicle' ? [example.from, example.to].filter(Boolean).join(' → ') : example.location}</p>
         {example.type === 'job' && <p className="text-sm font-semibold">{example.salary}</p>}
       </div>
-      <Button type="button" variant="outline" size="icon" className="shrink-0" aria-label="నమూనా వివరాలు · Example details" onClick={() => setOpen(true)}><Bell /></Button>
+      <Button type="button" variant="outline" size="icon" className="shrink-0" aria-label="నమూనా వివరాలు · Example details" onClick={() => setOpen(true)}><Info /></Button>
     </div>
     <Dialog open={open} onOpenChange={setOpen}><DialogContent><DialogTitle>{example.type === 'vehicle' ? 'నిజమైన వాహన నమోదు కాదు · Not a real vehicle listing' : 'నిజమైన ఉద్యోగ ఖాళీ కాదు · Not a real vacancy'}</DialogTitle><DialogDescription>ఇది నమూనా మాత్రమే. బుకింగ్ లేదా ఉద్యోగ ఖాళీ అందుబాటులో లేదు; ఎవరికీ సమాచారం పంపలేదు. · Example only. No booking or vacancy is available and no alert was sent.</DialogDescription><Button onClick={() => setOpen(false)}>మూసివేయండి · Close</Button></DialogContent></Dialog>
   </article>;

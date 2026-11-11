@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { Bell } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MapPin, IndianRupee, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -50,7 +50,7 @@ export function PostCard({
     if (!goods) return true;
     if (!meId) { nav({ to: '/auth' }); return false; }
     const { data, error } = await supabase.rpc('my_goods_membership');
-    if (error) { toast.error('సభ్యత్వం తనిఖీ కాలేదు · Could not check membership'); return false; }
+    if (error) { toast.error('ప్రవేశం తనిఖీ కాలేదు · Could not check access'); return false; }
     if (!data) { setUpgradeOpen(true); return false; }
     return true;
   };
@@ -69,7 +69,7 @@ export function PostCard({
       <DialogTitle>వాహనం సంప్రదించే ముందు · Before contacting the vehicle</DialogTitle>
       <DialogDescription>{vehicleTypeLabel(post.vehicle_type)} · {post.from_place} → {post.to_place}</DialogDescription>
       <ResponsibilityNotice prominent />
-      <Button onClick={() => { setNoticeOpen(false); void ring(); }}><Bell />గంట కొట్టి చాట్ చేయండి · Ring and chat</Button>
+      <Button onClick={() => { setNoticeOpen(false); void ring(); }}><MessageCircle />సంప్రదించండి · Contact</Button>
     </DialogContent>
   </Dialog>;
   const contact = () => { if (!isJob && post.user_id !== meId) setNoticeOpen(true); else void ring(); };
@@ -101,11 +101,11 @@ export function PostCard({
         <p className="flex items-center gap-1 break-words text-sm"><MapPin className="size-4 shrink-0" />{isJob ? post.location : `${post.from_place || '…'} → ${post.to_place || '…'}`}</p>
         {post.salary && <p className="flex items-center gap-1 text-sm font-semibold"><IndianRupee className="size-4 shrink-0" />{post.salary}</p>}
       </div>
-      {jobIsVisible(post) && <Button type="button" variant="outline" size="icon" className="shrink-0" onClick={contact} aria-label="గంట కొట్టి చాట్ చేయండి · Ring and chat"><Bell /></Button>}
+      {jobIsVisible(post) && <Button type="button" variant="outline" size="icon" className="shrink-0" onClick={contact} aria-label="సంప్రదించండి · Contact"><MessageCircle /></Button>}
     </div>
     {!compact && <Button variant="ghost" size="sm" disabled={detailsBusy} onClick={() => void openDetails()}><Info />వివరాలు · Details</Button>}
     <Dialog open={detailsOpen} onOpenChange={open => { setDetailsOpen(open); if (!open) setDetails(null); }}><DialogContent className="max-h-[85svh] overflow-y-auto"><DialogTitle>ప్రకటన వివరాలు · Post details</DialogTitle><DialogDescription>{isJob ? post.skill || 'ఉద్యోగం · Job' : vehicleTypeLabel(post.vehicle_type)}</DialogDescription><p>{isJob ? post.location : `${post.from_place || '…'} → ${post.to_place || '…'}`}</p>{post.salary && <p>{post.salary}</p>}{details?.description && <p className="whitespace-pre-wrap break-words">{details.description}</p>}{details?.trip_date && <p>{details.trip_date}</p>}{details?.capacity_tons != null && <p>{details.capacity_tons} టన్నులు · tons</p>}</DialogContent></Dialog>
-    <Dialog open={upgradeOpen} onOpenChange={setUpgradeOpen}><DialogContent><DialogTitle>సరకు వాహన సభ్యత్వం · Goods membership</DialogTitle><DialogDescription>సరకు వాహన వివరాలు, గంట, సంభాషణకు ఆమోదించిన ₹699 నెల సభ్యత్వం అవసరం. · Approved ₹699 monthly membership required.</DialogDescription><Button onClick={() => nav({ to: '/dashboard' })}>సభ్యత్వం · Membership</Button></DialogContent></Dialog>
+    <Dialog open={upgradeOpen} onOpenChange={setUpgradeOpen}><DialogContent><DialogTitle>సరకు వాహన వివరాలు · Goods details</DialogTitle><DialogDescription>ఈ ప్రకటన వివరాలు ప్రస్తుతం అందుబాటులో లేవు. నిర్వాహకుడిని సంప్రదించండి. · Details currently unavailable; contact admin.</DialogDescription><Button onClick={() => nav({ to: '/dashboard' })}>నా వివరాలు · My profile</Button></DialogContent></Dialog>
     {actions && meId === post.user_id && <div className="flex flex-wrap gap-2">{actions}</div>}
     {vehicleNotice}
     <ProfileRequest open={profileOpen} onOpenChange={setProfileOpen} />
