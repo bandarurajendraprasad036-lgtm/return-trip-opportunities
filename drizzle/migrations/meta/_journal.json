@@ -351,6 +351,13 @@
       "when": 1794389977363,
       "tag": "0049_vehicle_details_ok_joins_weekly_winners_nearby_km",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1794390009735,
+      "tag": "0050_nearby_vehicle_notice_bell_mode",
+      "breakpoints": true
     }
   ]
 }
