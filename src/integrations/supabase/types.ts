@@ -666,6 +666,7 @@ export type Database = {
           created_at: string
           description: string | null
           district: string
+          driver_name: string
           from_place: string | null
           goods_type: string | null
           id: string
@@ -685,6 +686,8 @@ export type Database = {
           to_place: string | null
           trip_date: string | null
           user_id: string
+          vehicle_name: string
+          vehicle_number: string
           vehicle_type: string | null
           visibility_notified_at: string | null
           visible_after: string | null
@@ -697,6 +700,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           district?: string
+          driver_name?: string
           from_place?: string | null
           goods_type?: string | null
           id?: string
@@ -716,6 +720,8 @@ export type Database = {
           to_place?: string | null
           trip_date?: string | null
           user_id: string
+          vehicle_name?: string
+          vehicle_number?: string
           vehicle_type?: string | null
           visibility_notified_at?: string | null
           visible_after?: string | null
@@ -728,6 +734,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           district?: string
+          driver_name?: string
           from_place?: string | null
           goods_type?: string | null
           id?: string
@@ -747,6 +754,8 @@ export type Database = {
           to_place?: string | null
           trip_date?: string | null
           user_id?: string
+          vehicle_name?: string
+          vehicle_number?: string
           vehicle_type?: string | null
           visibility_notified_at?: string | null
           visible_after?: string | null
@@ -1703,6 +1712,50 @@ export type Database = {
           },
         ]
       }
+      weekly_winners: {
+        Row: {
+          created_at: string
+          display_name: string
+          joins: number
+          paid: number
+          percent: number
+          photo_path: string
+          region: string
+          user_id: string
+          week_start: string
+        }
+        Insert: {
+          created_at?: string
+          display_name: string
+          joins: number
+          paid: number
+          percent: number
+          photo_path: string
+          region: string
+          user_id: string
+          week_start: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          joins?: number
+          paid?: number
+          percent?: number
+          photo_path?: string
+          region?: string
+          user_id?: string
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weekly_winners_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -1720,6 +1773,7 @@ export type Database = {
       }
       admin_broadcast: { Args: { _message: string }; Returns: number }
       admin_evidence_sender: { Args: { _id: string }; Returns: string }
+      admin_referral_eligibility: { Args: never; Returns: Json }
       apply_referral: { Args: { _code: string }; Returns: boolean }
       block_confirmed_content: {
         Args: { _reason: string; _user: string }
@@ -1765,6 +1819,10 @@ export type Database = {
         Args: { _amount_paise: number; _reference: string; _user: string }
         Returns: string
       }
+      confirm_referral_join: {
+        Args: { _code: string; _phone: string }
+        Returns: boolean
+      }
       dispatch_approximate_route_alerts: { Args: never; Returns: number }
       dispatch_daily_referral_board: { Args: never; Returns: number }
       dispatch_program_requests: { Args: never; Returns: number }
@@ -1798,6 +1856,7 @@ export type Database = {
       my_referral_stats: { Args: never; Returns: Json }
       my_referral_vip: { Args: never; Returns: Json }
       notify_matches: { Args: { _post_id: string }; Returns: number }
+      notify_nearby_vehicles: { Args: { _post: string }; Returns: number }
       post_alert_eligible: { Args: { _user: string }; Returns: boolean }
       posts_match_area: {
         Args: {
@@ -1823,6 +1882,16 @@ export type Database = {
         Returns: undefined
       }
       redeem_reward_points: { Args: never; Returns: string }
+      referral_payment_stats: {
+        Args: { _from?: string; _to?: string }
+        Returns: {
+          eligible: boolean
+          joins: number
+          paid: number
+          percent: number
+          user_id: string
+        }[]
+      }
       referral_target: { Args: { _d: string }; Returns: number }
       referral_vip_ranks: {
         Args: never
@@ -1902,6 +1971,7 @@ export type Database = {
         }
         Returns: string
       }
+      select_weekly_winners: { Args: never; Returns: number }
       send_referral_reminders: { Args: never; Returns: number }
       service_profile_data: { Args: { _id: string }; Returns: Json }
       set_program_reminders: { Args: { _enabled: boolean }; Returns: undefined }
@@ -1929,7 +1999,9 @@ export type Database = {
         Args: { _target: string; _user: string }
         Returns: string
       }
+      vehicle_public_details: { Args: { _post: string }; Returns: Json }
       vip_daily_reconcile: { Args: never; Returns: number }
+      weekly_winner_photo_ok: { Args: { _path: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user"

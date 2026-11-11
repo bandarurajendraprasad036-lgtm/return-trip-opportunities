@@ -344,6 +344,13 @@
       "when": 1794383284501,
       "tag": "0048_prime99_renewal_quota_and_daily_fairness",
       "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "7",
+      "when": 1794389977363,
+      "tag": "0049_vehicle_details_ok_joins_weekly_winners_nearby_km",
+      "breakpoints": true
     }
   ]
 }
