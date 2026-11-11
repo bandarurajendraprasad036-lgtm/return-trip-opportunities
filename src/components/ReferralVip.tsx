@@ -1,0 +1,35 @@
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useMe } from '@/lib/session';
+import { referralLink } from '@/lib/account-program';
+import type { ReferralVip as Vip } from '@/lib/referral-vip';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
+
+export function ReferralVip() {
+  const { data: me } = useMe();
+  const qc = useQueryClient();
+  const [code, setCode] = useState('');
+  const [busy, setBusy] = useState(false);
+  const { data, isError, refetch } = useQuery({ queryKey: ['referral-vip', me?.id], enabled: !!me, queryFn: async () => {
+    const result = await supabase.rpc('my_referral_vip');
+    if (result.error) throw result.error;
+    return result.data as unknown as Vip;
+  }});
+  if (!me) return null;
+  return <section className="space-y-3 border-y py-4"><h2 className="text-xl font-bold">మీ పరిచయాలు · Your referrals</h2>
+    {isError && <Button variant="outline" onClick={() => void refetch()}>మళ్లీ చూడండి · Retry</Button>}
+    {data && <><p>మీ సంకేతం · Your code: <b>{data.code}</b></p><p className="break-all">{referralLink(data.code)}</p>
+      <p>మీ ద్వారా చేరినవారు · Your joins: <b>{data.count}</b></p>
+      <p>మీ స్థానం · Your rank: <b>{data.rank ?? '—'}</b></p>
+      <p>20% నగదు బహుమతి · Cash prize: <b>₹{(data.reward_paise / 100).toFixed(2)}</b></p>
+      <p className="text-sm text-muted-foreground">నిర్ధారించిన చెల్లింపుల బహుమతి లెక్క మాత్రమే; నగదు పంపినట్లు కాదు. · Confirmed reward balance, not a payout receipt.</p>
+      <p>{data.vip ? 'మొదటి వంద స్థానాల్లో ఉన్నారు; ప్రత్యేక ప్రవేశ అర్హత పొందారు. · Top 100 VIP eligibility earned.' : `మొదటి వంద స్థానాలకు ఇంకా ${data.needed} మందిని చేర్పించండి. · ${data.needed} more joins to enter Top 100.`}</p>
+      <p className="text-sm">ఇతరుల చేరికలతో స్థానాలు మారవచ్చు. వేడుక పూర్తి వివరాలు మరో పదిహేను రోజుల్లో తెలియజేస్తాం. · Rankings can change; event details will be announced in fifteen days.</p>
+      {!data.invited_by && <div className="space-y-2"><Label htmlFor="vip-referral-code">మిమ్మల్ని పరిచయం చేసిన వారి సంకేతం · Inviter code</Label><Input id="vip-referral-code" value={code} onChange={e => setCode(e.target.value)} maxLength={40} /><Button disabled={busy || !/^[a-z0-9]{4,40}$/i.test(code)} onClick={async () => { setBusy(true); try { const result = await supabase.rpc('apply_referral', { _code: code }); if (result.error) throw result.error; if (!result.data) { toast.error('సంకేతం సరిపోలలేదు లేదా ఇప్పటికే నమోదు అయింది · Invalid or already linked'); return; } await qc.invalidateQueries({ queryKey: ['referral-vip'] }); await qc.invalidateQueries({ queryKey: ['me'] }); toast.success('పరిచయం నమోదైంది · Referral recorded'); } catch { toast.error('నమోదు కాలేదు · Could not save'); } finally { setBusy(false); } }}>నమోదు చేయండి · Apply</Button></div>}
+    </>}
+  </section>;
+}
