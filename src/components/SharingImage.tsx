@@ -19,7 +19,7 @@ export function SharingImage() {
   const getProfile = useServerFn(getServiceProfile);
   const qc = useQueryClient();
   const [resolvedCode, setResolvedCode] = useState<{ userId: string; code: string } | null>(null);
-  const code = me?.profile?.referral_code || (resolvedCode?.userId === me?.id ? resolvedCode?.code : '') || '';
+  const code = !me?.profile?.bell_activated_at ? '' : me?.profile?.referral_code || (resolvedCode?.userId === me?.id ? resolvedCode?.code : '') || '';
   const canPhoto = Boolean(program && !trialActive(program.completed_at));
   useEffect(() => {
     if (!me || code) return;
