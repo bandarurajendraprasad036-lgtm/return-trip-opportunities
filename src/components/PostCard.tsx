@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Bell } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MapPin, IndianRupee, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -93,7 +93,7 @@ export function PostCard({
     }
     const { data, error } = await supabase.rpc("ring_post", { _post_id: post.id });
     if (error) { if (error.message.includes('GOODS_MEMBERSHIP_REQUIRED')) setUpgradeOpen(true); else toast.error(error.message.includes("DAILY_ALERT_LIMIT") ? "అవతలి వ్యక్తి రోజువారీ సమాచార పరిమితి పూర్తయింది · Recipient's daily alert limit reached" : "సమాచారం పంపలేకపోయాం · Could not send interest"); return; }
-    if (!isJob) void supabase.rpc('notify_nearby_vehicles', { _post: post.id });
+    if (!isJob) { toast.info(VEHICLE_WAIT_MESSAGE, { duration: 8000 }); void supabase.rpc('notify_nearby_vehicles', { _post: post.id }); }
     if (data) nav({ to: "/chat/$userId", params: { userId: data }, search: { post: post.id } });
   };
   return <article className={compact ? "home-post-row" : "space-y-2 rounded-lg border bg-card p-3"}>
@@ -103,7 +103,8 @@ export function PostCard({
         <p className="flex items-center gap-1 break-words text-sm"><MapPin className="size-4 shrink-0" />{isJob ? post.location : `${post.from_place || '…'} → ${post.to_place || '…'}`}</p>
         {post.salary && <p className="flex items-center gap-1 text-sm font-semibold"><IndianRupee className="size-4 shrink-0" />{post.salary}</p>}
       </div>
-      {jobIsVisible(post) && <Button type="button" variant="outline" size="icon" className="shrink-0" onClick={contact} aria-label="సంప్రదించండి · Contact"><MessageCircle /></Button>}
+      {jobIsVisible(post) && <Button type="button" variant="outline" size="icon" className="shrink-0" onClick={contact} aria-label={isJob ? "సంప్రదించండి · Contact" : "గంట · Bell"}>{isJob ? <MessageCircle /> : <Bell />}</Button>}
+    {!isJob && post.kind === 'owner' && !compact && <VehiclePublicDetails postId={post.id} />}
     </div>
     {!compact && <Button variant="ghost" size="sm" disabled={detailsBusy} onClick={() => void openDetails()}><Info />వివరాలు · Details</Button>}
     <Dialog open={detailsOpen} onOpenChange={open => { setDetailsOpen(open); if (!open) setDetails(null); }}><DialogContent className="max-h-[85svh] overflow-y-auto"><DialogTitle>ప్రకటన వివరాలు · Post details</DialogTitle><DialogDescription>{isJob ? post.skill || 'ఉద్యోగం · Job' : vehicleTypeLabel(post.vehicle_type)}</DialogDescription><p>{isJob ? post.location : `${post.from_place || '…'} → ${post.to_place || '…'}`}</p>{post.salary && <p>{post.salary}</p>}{details?.description && <p className="whitespace-pre-wrap break-words">{details.description}</p>}{details?.trip_date && <p>{details.trip_date}</p>}{details?.capacity_tons != null && <p>{details.capacity_tons} టన్నులు · tons</p>}{!isJob && post.kind === 'owner' && <VehiclePublicDetails postId={post.id} />}</DialogContent></Dialog>
@@ -120,3 +121,5 @@ function VehiclePublicDetails({ postId }: { postId: string }) {
   const row = (te: string, v: string) => <p><span className="text-muted-foreground">{te}: </span><b>{v || '—'}</b></p>;
   return <div className="space-y-1 rounded-lg border p-3">{row('వాహనం పేరు · Vehicle', data.vehicle_name)}{row('వాహనం నంబర్ · Number', data.vehicle_number)}{row('డ్రైవర్ · Driver', data.driver_name)}{data.mobile ? <p><span className="text-muted-foreground">మొబైల్ · Mobile: </span><a className="font-bold text-primary underline" href={`tel:${data.mobile}`}>{data.mobile}</a></p> : row('మొబైల్ · Mobile', '')}</div>;
 }
+
+export const VEHICLE_WAIT_MESSAGE = 'వెహికల్ ఉంది కానీ డ్రైవర్ రెస్పాన్స్ ఇవ్వలేదు.. డ్రైవర్ నుండి రెస్పాన్స్ రాగానే మీకు మా నుండి సమాచారం అందుతుంది';
