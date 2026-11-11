@@ -10,11 +10,16 @@ export function IncomingNotice({ userId }: { userId: string }) {
   const [notice, setNotice] = useState<{ body: string; sender?: string | undefined; post?: string | undefined; payment?: boolean } | null>(null);
   const { muted, change } = useBellSound();
   useEffect(() => {
+    let active = true;
+    const receive = async (next: NonNullable<typeof notice>) => {
+      const eligibility = await supabase.rpc('my_prime99');
+      if (active && !eligibility.error && (eligibility.data as { active?: boolean })?.active) setNotice(next);
+    };
     const channel = supabase.channel(`screen-notice-${userId}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` }, payload => setNotice({ body: String(payload.new["message"] ?? "కొత్త సమాచారం · New alert") }))
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.${userId}` }, payload => setNotice({ body: String(payload.new["body"] ?? "కొత్త సమాధానం · New reply"), sender: String(payload.new["sender_id"]), payment: payload.new['needs_admin'] === true, post: typeof payload.new["post_id"] === "string" ? payload.new["post_id"] : undefined }))
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` }, payload => { void receive({ body: String(payload.new["message"] ?? "కొత్త సమాచారం · New alert") }); })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.${userId}` }, payload => { void receive({ body: String(payload.new["body"] ?? "కొత్త సమాధానం · New reply"), sender: String(payload.new["sender_id"]), payment: payload.new['needs_admin'] === true, post: typeof payload.new["post_id"] === "string" ? payload.new["post_id"] : undefined }); })
       .subscribe();
-    return () => { void supabase.removeChannel(channel); };
+    return () => { active = false; setNotice(null); void supabase.removeChannel(channel); };
   }, [userId]);
   useEffect(() => { if (notice) playBell(); }, [notice]);
   const toggleSound=()=>change(muted);

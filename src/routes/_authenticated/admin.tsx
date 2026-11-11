@@ -15,6 +15,7 @@ import { AdminDevotional } from "@/components/AdminDevotional";
 import { AdminSharingClaims } from '@/components/AdminSharingClaims';
 import { PostEvidence } from '@/components/PostEvidence';
 import { AdminMessages } from '@/components/AdminMessages';
+import { AdminPrime99 } from '@/components/AdminPrime99';
 
 export const Route = createFileRoute("/_authenticated/admin")({
   beforeLoad: async () => {
@@ -95,6 +96,7 @@ function Admin() {
     <div className="space-y-4 p-4">
       <div className="flex items-center justify-between gap-3"><h2 className="text-2xl font-bold">అడ్మిన్ డాష్‌బోర్డ్ <span className="text-base font-normal text-muted-foreground">Admin</span></h2><Button asChild variant="outline"><Link to="/admin-settings">సెట్టింగులు · Settings</Link></Button></div>
       <AdminMessages />
+      <AdminPrime99 />
       <section className="rounded-xl border bg-card p-3"><h3 className="text-xl font-bold">బుకింగులు · Bookings</h3><p>ఇంకా నిర్ధారించిన బుకింగ్ నమోదులు లేవు. అందుబాటు అభ్యర్థనలు లేదా గంట సంభాషణలు బుకింగులు కావు. · No confirmed booking records; requests and bell chats are not bookings.</p></section>
       <AdminReferralCash />
       <AdminDevotional />

@@ -19,6 +19,8 @@ import { HomeListings } from "@/components/HomeListings";
 import { ServiceDirectory } from "@/components/ServiceDirectory";
 import { DEFAULT_HOME_SETTINGS, useHomeSettings } from "@/lib/home-settings";
 import { ReferralBoard } from '@/components/ReferralBoard';
+import { useMe } from '@/lib/session';
+import { useAccountProgram } from '@/lib/use-account-program';
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -38,6 +40,8 @@ export const Route = createFileRoute("/")({
 
 
 function Index() {
+  const { data: me } = useMe();
+  const { data: program } = useAccountProgram(me?.id);
   const { data: homeSettings = DEFAULT_HOME_SETTINGS } = useHomeSettings();
   const [devotional, setDevotional] = useState(0);
   const [day, setDay] = useState("");
@@ -67,14 +71,16 @@ function Index() {
           <h1 className="flex min-w-0 items-center gap-1 text-sm font-extrabold text-gold"><img src={emblem} alt="" width={28} height={28} className="size-7 shrink-0 object-contain" /><span>గాయత్రి వన్<span className="block text-xs">Gayatri One</span></span></h1>
           <div className="flex gap-2">
             <Link to="/notifications" className="gold-ring bg-gold text-royal" aria-label="అలర్ట్స్ · Alerts"><Inbox className="size-6" /></Link>
-            <InstallButton compact />
-            <Link to="/dashboard" className="gold-ring" aria-label="ప్రొఫైల్ · Profile"><User className="size-6" /></Link>
           </div>
         </div>
         <BellJoin>
           <img key={day} src={[mata, mataGreen, mataIvory][devotional]} alt="గాయత్రి మాత చెక్కిన బంగారు గుడి గంట · Gayatri Mata engraved gold temple bell" className="home-engraved-bell" width={768} height={768} onError={event => { const el = event.currentTarget; const tried = (el.dataset["tried"] ?? "").split("|").filter(Boolean); const next = devotionalFallback(el.src, [mata, mataGreen, mataIvory], devotional, tried); if (next) { el.dataset["tried"] = [...tried, el.src].join("|"); el.src = next; } else el.style.visibility = "hidden"; }} />
         </BellJoin>
         <p className="mt-2 text-center font-serif text-4xl font-extrabold text-gold">GAYATRI ONE</p>
+        <div className="mt-2 flex items-center justify-center gap-3">
+          <InstallButton compact remind />
+          <Button asChild variant="outline" className={`gold-ring p-0 ${program?.completed_at ? '' : 'unfinished-action'}`}><Link to="/dashboard" aria-label="ప్రొఫైల్ · Profile"><User className="size-6" /></Link></Button>
+        </div>
         <p className="text-center text-base opacity-90">మన ఊరు · మన బండి · మన పని</p>
         <DailyWelcome />
       </section>
@@ -95,6 +101,7 @@ function Index() {
         <Button asChild variant="ghost" className="w-full">
           <Link to="/feed">ఇప్పటికే అకౌంట్ ఉంది? Open app</Link>
         </Button>
+        <Button asChild variant="outline" className="w-full"><Link to="/admin-login">నిర్వాహక ప్రవేశం · Admin login</Link></Button>
       </section>
       <ResponsibilityNotice />
       <DesignFooter />

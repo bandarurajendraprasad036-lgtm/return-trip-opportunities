@@ -15,6 +15,7 @@ import mataGold from '@/assets/gayatri-mata.jpg';
 import mataGreen from '@/assets/gayatri-mata-green.jpg';
 import mataIvory from '@/assets/gayatri-mata-ivory.jpg';
 import { clearAccountSession } from '@/lib/sign-out';
+import { Prime99Payment } from '@/components/Prime99Payment';
 
 const MATA_IMAGES = [mataGold, mataGreen, mataIvory];
 
@@ -80,6 +81,7 @@ function Dashboard() {
       </div>
       <AdminChatButton />
       <AccountProfile />
+      <Prime99Payment />
       <SharingImage />
       <ReferralVip />
       <NotificationSettings />

@@ -6,6 +6,8 @@ export async function dispatchPush() {
   const key = process.env['LOVABLE_API_KEY']; const connection = process.env['FIREBASE_MESSAGING_API_KEY'];
   if (!key || !connection) throw new Error('Push connection not configured');
   const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
+  const dailyBoard = await db.rpc('dispatch_daily_referral_board');
+  if (dailyBoard.error) throw dailyBoard.error;
   const vip = await db.rpc('vip_daily_reconcile');
   if (vip.error) throw vip.error;
   const requests=await db.rpc('dispatch_program_requests');
@@ -20,14 +22,15 @@ export async function dispatchPush() {
   if (claimed.error) throw claimed.error;
   const rows = claimed.data ?? [];
   for (const row of rows) {
-    const [device, prefs, notice] = await Promise.all([
+    const [device, prefs, notice, eligibility] = await Promise.all([
       db.from('push_devices').select('token,sound_enabled').eq('id', row.device_id).maybeSingle(),
       db.from('notification_preferences').select('*').eq('user_id', row.user_id).maybeSingle(),
       db.from('notifications').select('id,is_read').eq('id', row.notification_id).maybeSingle(),
+      db.rpc('has_prime99', { _user: row.user_id }),
     ]);
-    if (device.error || prefs.error || notice.error) throw device.error ?? prefs.error ?? notice.error;
+    if (device.error || prefs.error || notice.error || eligibility.error) throw device.error ?? prefs.error ?? notice.error ?? eligibility.error;
     const policy = pushPolicy(new Date(), prefs.data, device.data?.sound_enabled ?? false);
-    if (!device.data || !notice.data || notice.data.is_read || !policy.allowed) {
+    if (!eligibility.data || !device.data || !notice.data || notice.data.is_read || !policy.allowed) {
       const skipped = await db.from('push_deliveries').update({ status: 'skipped', updated_at: new Date().toISOString() }).eq('id', row.id);
       if (skipped.error) throw skipped.error;
       continue;
