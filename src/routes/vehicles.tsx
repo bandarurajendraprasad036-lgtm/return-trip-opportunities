@@ -10,6 +10,15 @@ import { AppShell } from '@/components/AppShell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Bell } from 'lucide-react';
+import { toast } from 'sonner';
+
+// Vehicle kinds shown when no real listing matches; never invented numbers, drivers or phones.
+const CATALOG: Record<VehiclePageKind, string[]> = {
+  goods: ['ఆటో · Auto', 'టాటా ఏస్ · Tata Ace', 'బొలెరో పికప్ · Bolero Pickup', 'డీసీఎం · DCM', 'లారీ · Lorry'],
+  returns: ['టాటా ఏస్ · Tata Ace', 'బొలెరో పికప్ · Bolero Pickup', 'డీసీఎం · DCM', 'లారీ · Lorry'],
+  cars: ['ఇన్నోవా · Innova', 'స్విఫ్ట్ డిజైర్ · Swift Dzire', 'ఎర్టిగా · Ertiga', 'బొలెరో · Bolero'],
+};
 
 export const Route = createFileRoute('/vehicles')({
   validateSearch: (s: Record<string, unknown>): { category: VehiclePageKind; from: string; to: string } => ({ category: s['category'] === 'cars' || s['category'] === 'returns' ? s['category'] : 'goods', from: typeof s['from'] === 'string' ? s['from'].slice(0,80) : '', to: typeof s['to'] === 'string' ? s['to'].slice(0,80) : '' }),
@@ -30,7 +39,7 @@ function Vehicles() {
     {search.category === 'cars' && <div className="grid grid-cols-2 gap-2"><Button variant={carMode === 'advance' ? 'default' : 'outline'} aria-pressed={carMode === 'advance'} className="h-auto min-h-12 whitespace-normal" onClick={() => setCarMode('advance')}>ముందస్తు కార్లు · Advance cars</Button><Button variant={carMode === 'return' ? 'default' : 'outline'} aria-pressed={carMode === 'return'} className="h-auto min-h-12 whitespace-normal" onClick={() => setCarMode('return')}>ముందస్తు + తిరుగు కార్లు · Advance + return cars</Button></div>}
     {instant ? <p className="text-muted-foreground">ఇప్పటికప్పుడు బుక్ చేసే వాహనాలు · Instant booking vehicles</p> : <><Label htmlFor="vehicle-date">వాహన తేదీ · Vehicle date</Label><Input id="vehicle-date" type="date" value={date} onChange={e => setDate(e.target.value)} /><Button variant="ghost" onClick={() => setDate('')}>అన్ని తేదీలు · All dates</Button></>}
     {isPending && <p role="status">వస్తున్నాయి · Loading</p>}{isError && <Button onClick={() => void refetch()}>మళ్లీ చూడండి · Retry</Button>}
-    {!isPending && !isError && rows.length === 0 && <p>సరిపోయే నిజమైన ప్రకటనలు ఇంకా లేవు · No matching listings yet</p>}
+    {!isPending && !isError && rows.length === 0 && <ul className="space-y-2">{CATALOG[search.category].map(name => <li key={name} className="flex items-center justify-between gap-3 rounded-lg border bg-card p-3"><div className="min-w-0"><p className="text-lg font-bold">{name}</p><p className="text-sm text-muted-foreground">నంబర్, డ్రైవర్, మొబైల్: ఈ రకం వాహనం నమోదు కాగానే కనిపిస్తాయి · Shown once a driver registers</p></div><Button type="button" variant="outline" size="icon" aria-label="గంట · Bell" onClick={() => toast.info('ఈ రకం వాహనం డ్రైవర్ ఇంకా నమోదు కాలేదు. నమోదు కాగానే మా నుండి మీకు సమాచారం అందుతుంది.', { duration: 8000 })}><Bell /></Button></li>)}</ul>}
     {rows.map(post => <PostCard key={post.id} post={post} meId={me?.id} />)}
     <Button asChild variant="outline" className="w-full"><Link to="/post/new">వాహనం కావాలి / వాహనం నమోదు · Request or post a vehicle</Link></Button>
   </div>;
