@@ -10,7 +10,6 @@ import { AppShell } from '@/components/AppShell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ResponsibilityNotice } from '@/components/ResponsibilityNotice';
 
 export const Route = createFileRoute('/vehicles')({
   validateSearch: (s: Record<string, unknown>): { category: VehiclePageKind; from: string; to: string } => ({ category: s['category'] === 'cars' || s['category'] === 'returns' ? s['category'] : 'goods', from: typeof s['from'] === 'string' ? s['from'].slice(0,80) : '', to: typeof s['to'] === 'string' ? s['to'].slice(0,80) : '' }),
@@ -30,6 +29,5 @@ function Vehicles() {
     {!isPending && !isError && rows.length === 0 && <p>సరిపోయే నిజమైన ప్రకటనలు ఇంకా లేవు · No matching listings yet</p>}
     {rows.map(post => <PostCard key={post.id} post={post} meId={me?.id} />)}
     <Button asChild variant="outline" className="w-full"><Link to="/post/new">వాహనం కావాలి / వాహనం నమోదు · Request or post a vehicle</Link></Button>
-    <ResponsibilityNotice />
   </div>;
 }

@@ -18,6 +18,7 @@ import { ResponsibilityNotice } from "@/components/ResponsibilityNotice";
 import { HomeListings } from "@/components/HomeListings";
 import { ServiceDirectory } from "@/components/ServiceDirectory";
 import { DEFAULT_HOME_SETTINGS, useHomeSettings } from "@/lib/home-settings";
+import { ReferralBoard } from '@/components/ReferralBoard';
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -87,6 +88,7 @@ function Index() {
           </div>
         )}
         {homeSettings.showSharing && <SharingImage />}
+        <ReferralBoard />
         <Button asChild variant="secondary" size="xl" className="w-full">
           <Link to="/auth">ప్రారంభించండి · Get Started</Link>
         </Button>
