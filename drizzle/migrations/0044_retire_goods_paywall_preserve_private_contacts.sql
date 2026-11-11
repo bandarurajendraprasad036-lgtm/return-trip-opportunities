@@ -1,0 +1,10 @@
+CREATE OR REPLACE FUNCTION public.has_goods_membership(_user uuid DEFAULT auth.uid()) RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT _user IS NOT NULL AND public.account_allowed(_user) $$;
+CREATE OR REPLACE FUNCTION public.get_post_details(_post uuid) RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$ DECLARE p public.posts; BEGIN SELECT * INTO p FROM public.posts WHERE id=_post AND (user_id=auth.uid() OR (status='active' AND (visible_after IS NULL OR visible_after<=now()) AND (job_expires_at IS NULL OR job_expires_at>now()) AND public.account_allowed(user_id))); IF p.id IS NULL THEN RAISE EXCEPTION 'POST_UNAVAILABLE'; END IF; RETURN jsonb_build_object('description',p.description,'goods_type',p.goods_type,'capacity_tons',p.capacity_tons,'trip_date',p.trip_date); END $$;
+COMMENT ON FUNCTION public.has_goods_membership(uuid) IS 'Legacy API compatibility: authenticated active account access only; paid eligibility retired. Never grants identity visibility.';
+CREATE FUNCTION public.retire_program_reminders() RETURNS trigger LANGUAGE plpgsql SET search_path=public AS $$ BEGIN NEW.reminder_consent:=false; RETURN NEW; END $$;
+CREATE TRIGGER disable_retired_program_reminders BEFORE INSERT OR UPDATE ON public.account_programs FOR EACH ROW EXECUTE FUNCTION public.retire_program_reminders();
+CREATE OR REPLACE FUNCTION public.dispatch_program_requests() RETURNS integer LANGUAGE sql AS $$ SELECT 0 $$;
+CREATE OR REPLACE FUNCTION public.send_referral_reminders() RETURNS integer LANGUAGE sql AS $$ SELECT 0 $$;
+CREATE FUNCTION public.vip_daily_reconcile() RETURNS integer LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ BEGIN IF auth.role()<>'service_role' THEN RAISE EXCEPTION 'SERVICE_ONLY'; END IF; RETURN public.refresh_referral_vip_notices(); END $$;
+REVOKE ALL ON FUNCTION public.vip_daily_reconcile() FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION public.vip_daily_reconcile() TO service_role;

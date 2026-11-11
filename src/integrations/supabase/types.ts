@@ -1685,6 +1685,7 @@ export type Database = {
         Args: { _target: string; _user: string }
         Returns: string
       }
+      vip_daily_reconcile: { Args: never; Returns: number }
     }
     Enums: {
       app_role: "admin" | "user"
