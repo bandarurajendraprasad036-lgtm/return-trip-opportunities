@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AdminLoginRouteImport } from './routes/admin-login'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as FeedRouteImport } from './routes/feed'
+import { Route as VehiclesRouteImport } from './routes/vehicles'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin-settings'
 import { Route as AuthenticatedAiMatchRouteImport } from './routes/_authenticated/ai-match'
@@ -49,6 +50,11 @@ const AuthRoute = AuthRouteImport.update({
 const FeedRoute = FeedRouteImport.update({
   id: '/feed',
   path: '/feed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VehiclesRoute = VehiclesRouteImport.update({
+  id: '/vehicles',
+  path: '/vehicles',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -120,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRoute
   '/feed': typeof FeedRoute
+  '/vehicles': typeof VehiclesRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-settings': typeof AuthenticatedAdminSettingsRoute
   '/ai-match': typeof AuthenticatedAiMatchRoute
@@ -138,6 +145,7 @@ export interface FileRoutesByTo {
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRoute
   '/feed': typeof FeedRoute
+  '/vehicles': typeof VehiclesRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-settings': typeof AuthenticatedAdminSettingsRoute
   '/ai-match': typeof AuthenticatedAiMatchRoute
@@ -158,6 +166,7 @@ export interface FileRoutesById {
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRoute
   '/feed': typeof FeedRoute
+  '/vehicles': typeof VehiclesRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/admin-settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/ai-match': typeof AuthenticatedAiMatchRoute
@@ -178,6 +187,7 @@ export interface FileRouteTypes {
     | '/admin-login'
     | '/auth'
     | '/feed'
+    | '/vehicles'
     | '/admin'
     | '/admin-settings'
     | '/ai-match'
@@ -196,6 +206,7 @@ export interface FileRouteTypes {
     | '/admin-login'
     | '/auth'
     | '/feed'
+    | '/vehicles'
     | '/admin'
     | '/admin-settings'
     | '/ai-match'
@@ -215,6 +226,7 @@ export interface FileRouteTypes {
     | '/admin-login'
     | '/auth'
     | '/feed'
+    | '/vehicles'
     | '/_authenticated/admin'
     | '/_authenticated/admin-settings'
     | '/_authenticated/ai-match'
@@ -235,6 +247,7 @@ export interface RootRouteChildren {
   AdminLoginRoute: typeof AdminLoginRoute
   AuthRoute: typeof AuthRoute
   FeedRoute: typeof FeedRoute
+  VehiclesRoute: typeof VehiclesRoute
   ProfileUserIdRoute: typeof ProfileUserIdRoute
   ApiPublicPushDispatchRoute: typeof ApiPublicPushDispatchRoute
 }
@@ -274,6 +287,13 @@ declare module '@tanstack/react-router' {
       path: '/feed'
       fullPath: '/feed'
       preLoaderRoute: typeof FeedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vehicles': {
+      id: '/vehicles'
+      path: '/vehicles'
+      fullPath: '/vehicles'
+      preLoaderRoute: typeof VehiclesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -398,6 +418,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminLoginRoute: AdminLoginRoute,
   AuthRoute: AuthRoute,
   FeedRoute: FeedRoute,
+  VehiclesRoute: VehiclesRoute,
   ProfileUserIdRoute: ProfileUserIdRoute,
   ApiPublicPushDispatchRoute: ApiPublicPushDispatchRoute,
 }
