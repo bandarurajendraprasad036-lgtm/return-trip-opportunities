@@ -6,6 +6,8 @@ export async function dispatchPush() {
   const key = process.env['LOVABLE_API_KEY']; const connection = process.env['FIREBASE_MESSAGING_API_KEY'];
   if (!key || !connection) throw new Error('Push connection not configured');
   const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
+  const vip = await db.rpc('vip_daily_reconcile');
+  if (vip.error) throw vip.error;
   const requests=await db.rpc('dispatch_program_requests');
   if(requests.error)throw requests.error;
   const released=await db.rpc('dispatch_visible_post_matches');
