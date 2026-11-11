@@ -15,7 +15,7 @@ import { useAccountProgram } from '@/lib/use-account-program';
 import { ProfileRequest } from '@/components/ProfileRequest';
 import { useMe } from '@/lib/session';
 import { markAccountBellActivated, shouldShowProfileRequest } from '@/lib/bell-activation';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 export type Post = Database["public"]["Tables"]["posts"]["Row"];
 

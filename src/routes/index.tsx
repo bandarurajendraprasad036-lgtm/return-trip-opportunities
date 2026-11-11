@@ -19,6 +19,7 @@ import { HomeListings } from "@/components/HomeListings";
 import { ServiceDirectory } from "@/components/ServiceDirectory";
 import { DEFAULT_HOME_SETTINGS, useHomeSettings } from "@/lib/home-settings";
 import { ReferralBoard } from '@/components/ReferralBoard';
+import { WeeklyWinners } from '@/components/WeeklyWinners';
 import { useMe } from '@/lib/session';
 import { useAccountProgram } from '@/lib/use-account-program';
 import { homeActionPending } from '@/lib/prime99';
@@ -95,6 +96,7 @@ function Index() {
           </div>
         )}
         {homeSettings.showSharing && <SharingImage />}
+        <WeeklyWinners />
         <ReferralBoard />
         <Button asChild variant="secondary" size="xl" className="w-full">
           <Link to="/auth">ప్రారంభించండి · Get Started</Link>
