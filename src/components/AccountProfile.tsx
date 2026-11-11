@@ -31,7 +31,7 @@ export function AccountProfile() {
   useEffect(() => {
     const value = sessionStorage.getItem('gayatri-interest') || '';
     setInterest(value);
-    if (!program && ['cars', 'goods', 'return'].includes(value)) {
+    if (['cars', 'goods', 'return'].includes(value)) {
       setKind('business');
       if (value === 'cars') setVehicleType('Car');
     }
@@ -50,6 +50,11 @@ export function AccountProfile() {
     const vehicle = parseVehicleCategory(program.category);
     setVehicleType(vehicle.vehicleType);
     setTons(vehicle.tons);
+    const selection = sessionStorage.getItem('gayatri-interest');
+    if (['cars', 'goods', 'return'].includes(selection || '')) {
+      setKind('business');
+      if (selection === 'cars') { setVehicleType('Car'); setTons(''); }
+    }
   }, [program]);
 
   const vehicleProfile = kind === 'owner' || kind === 'business';

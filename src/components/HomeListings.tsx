@@ -87,7 +87,7 @@ export function HomeListings({ today, settings }: { today: string; settings: Hom
         {([{ kind: 'seeker', te: 'పని కావాలా?', en: 'Need work?', display: 'పని కావాల్సినవారు', displayEn: 'Job seekers' }, { kind: 'employer', te: 'మనిషి కావాలా?', en: 'Need a worker?', display: 'ఉద్యోగ ఖాళీలు', displayEn: 'Jobs' }] as const).map(section => {
           const rows = homeJobs(posts, jobLocation, section.kind);
           return <section className="home-display-column" key={section.kind} aria-label={section.displayEn}>
-            <Button asChild variant="outline" className="home-apply"><Link to="/post/new" search={{ kind: section.kind, loc: jobLocation || undefined }}><span>{section.te}<span className="block text-sm">{section.en}</span></span></Link></Button>
+            <Button asChild variant="outline" className="home-apply"><Link to="/post/new" search={{ kind: section.kind, loc: jobLocation || undefined }} onClick={() => sessionStorage.setItem('gayatri-interest', 'job')}><span>{section.te}<span className="block text-sm">{section.en}</span></span></Link></Button>
             <h3>{section.display}<span>{section.displayEn}</span></h3>
             <div className="home-display-list">{status()}{rows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact />)}{examples(section.kind, rows.length)}</div>
           </section>;

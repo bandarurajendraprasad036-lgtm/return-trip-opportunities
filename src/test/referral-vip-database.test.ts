@@ -17,6 +17,7 @@ describe('direct referral cash and privacy database', () => {
       CREATE FUNCTION ensure_my_referral_code() RETURNS text LANGUAGE sql AS $$SELECT referral_code FROM profiles WHERE id=auth.uid()$$;
       INSERT INTO profiles VALUES('${admin}','ADM1',null,null),('${a}','AAAA',null,null),('${b}','BBBB',null,null),('${c}','CCCC',null,null);`);
     await db.exec(readFileSync('drizzle/migrations/0043_direct_referral_vip_cash.sql','utf8'));
+    await db.exec(readFileSync('drizzle/migrations/0045_consented_referral_board_and_event_controls.sql','utf8'));
     await db.exec(`SELECT set_config('test.user','${b}',false); SELECT apply_referral('AAAA'); SELECT set_config('test.user','${c}',false); SELECT apply_referral('BBBB');`);
   }, 30000);
   afterAll(async () => { await db.close(); });
@@ -28,4 +29,6 @@ describe('direct referral cash and privacy database', () => {
   it('prevents duplicate receipt rewards', async () => { await db.exec(`SELECT set_config('test.user','${admin}',false)`); await expect(db.query(`SELECT confirm_referral_cash('${b}','REAL-TEST-RECEIPT',100000)`)).rejects.toThrow(); expect((await db.query<{n:number}>('SELECT count(*)::int AS n FROM referral_cash_rewards')).rows[0]?.n).toBe(1); });
   it('hides another users reward from ordinary users', async () => { await db.exec(`SELECT set_config('test.user','${c}',false); SET ROLE authenticated;`); expect((await db.query<{n:number}>('SELECT count(*)::int AS n FROM referral_cash_rewards')).rows[0]?.n).toBe(0); await db.exec('RESET ROLE'); });
   it('sends the top hundred eligibility only to its owner', async () => { const rows=await db.query<{user_id:string}>('SELECT user_id FROM notifications WHERE message LIKE \'మీరు మొదటి వంద%\''); expect(rows.rows.some(r=>r.user_id===a)).toBe(true); expect(rows.rows.some(r=>r.user_id===c)).toBe(false); });
+  it('shows only consented names and counts from AP and Telangana on the public board', async () => { await db.exec(`INSERT INTO referral_board_consent VALUES('${a}','Private name','AP',false),('${b}','Consented name','TG',true);`); const result=await db.query<{board:{rows:{name:string,count:number}[]}}>('SELECT public_referral_vip_board() AS board'); expect(result.rows[0]?.board.rows.map(r=>r.name)).toEqual(['','Consented name']); expect(result.rows[0]?.board.rows.map(r=>r.count)).toEqual([1,1]); });
+  it('lets only admins set the public event date', async () => { await db.exec(`SELECT set_config('test.user','${a}',false)`); await expect(db.query("SELECT configure_referral_event('సంక్రాంతి')")).rejects.toThrow('ADMIN_ONLY'); await db.exec(`SELECT set_config('test.user','${admin}',false); SELECT configure_referral_event('సంక్రాంతి');`); expect((await db.query<{event_label:string}>('SELECT event_label FROM referral_vip_campaign')).rows[0]?.event_label).toBe('సంక్రాంతి'); });
 });
