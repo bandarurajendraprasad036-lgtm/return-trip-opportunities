@@ -90,4 +90,18 @@ describe('Prime 99 approved rules in PostgreSQL', () => {
     expect((await db.query<{n:number}>(`SELECT count(*)::int n FROM daily_referral_board_notices WHERE user_id='${joined}'`)).rows[0]?.n).toBe(1);
     expect((await db.query<{n:number}>(`SELECT count(*)::int n FROM daily_referral_board_notices WHERE user_id='${unpaid}'`)).rows[0]?.n).toBe(0);
   });
+  it('allows a new three-post period after the prior period expires', async () => {
+    await db.exec(`UPDATE monthly_post_periods SET ends_at=now() WHERE user_id='${unpaid}'; INSERT INTO posts(user_id) VALUES('${unpaid}')`);
+    expect((await db.query<{used:number}>(`SELECT (my_post_quota99()->>'used')::int used FROM (SELECT set_config('test.user','${unpaid}',false)) x`)).rows[0]?.used).toBe(1);
+    await db.exec(`SELECT set_config('test.user','${admin}',false)`);
+  });
+  it('another account cannot see private payment receipts', async () => {
+    await db.exec(`SELECT set_config('test.user','${unpaid}',false); SET ROLE authenticated`);
+    expect((await db.query<{n:number}>('SELECT count(*)::int n FROM prime99_payments')).rows[0]?.n).toBe(0);
+    await db.exec(`RESET ROLE; SELECT set_config('test.user','${admin}',false)`);
+  });
+  it('duplicate payment confirmation never creates a second referral award', async () => {
+    await expect(db.exec("SELECT review_prime99((SELECT id FROM prime99_payments WHERE reference='SECOND-99'),true,'again')")).rejects.toThrow('NO_PENDING_PAYMENT');
+    expect((await db.query<{n:number}>(`SELECT count(*)::int n FROM referral_cash_rewards WHERE user_id='${inviter}'`)).rows[0]?.n).toBe(1);
+  });
 });

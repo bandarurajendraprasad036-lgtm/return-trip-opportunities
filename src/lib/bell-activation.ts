@@ -5,5 +5,6 @@ export function shouldShowProfileRequest(profileCompleted: boolean, bellActivate
 }
 
 export async function markAccountBellActivated(userId: string) {
-  await supabase.from('profiles').update({ bell_activated_at: new Date().toISOString() }).eq('id', userId).is('bell_activated_at', null);
+  const result = await supabase.from('profiles').update({ bell_activated_at: new Date().toISOString() }).eq('id', userId).is('bell_activated_at', null);
+  if (result.error) throw result.error;
 }
