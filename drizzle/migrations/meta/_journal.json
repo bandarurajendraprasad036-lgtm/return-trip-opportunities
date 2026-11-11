@@ -323,6 +323,13 @@
       "when": 1794374093910,
       "tag": "0045_consented_referral_board_and_event_controls",
       "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1794375009590,
+      "tag": "0046_two_sided_referral_rewards_and_remaining_vip_slots",
+      "breakpoints": true
     }
   ]
 }
