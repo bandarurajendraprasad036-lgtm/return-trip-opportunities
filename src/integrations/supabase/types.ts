@@ -990,6 +990,42 @@ export type Database = {
           },
         ]
       }
+      referral_invitee_rewards: {
+        Row: {
+          amount_paise: number
+          created_at: string
+          receipt_id: string
+          user_id: string
+        }
+        Insert: {
+          amount_paise: number
+          created_at?: string
+          receipt_id: string
+          user_id: string
+        }
+        Update: {
+          amount_paise?: number
+          created_at?: string
+          receipt_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_invitee_rewards_receipt_id_fkey"
+            columns: ["receipt_id"]
+            isOneToOne: true
+            referencedRelation: "referral_cash_receipts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_invitee_rewards_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       referral_vip_campaign: {
         Row: {
           details_at: string
@@ -1624,6 +1660,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      referral_vip_slots: { Args: never; Returns: Json }
       refresh_referral_vip_notices: { Args: never; Returns: number }
       request_own_bell_notice: { Args: { _device: string }; Returns: string }
       request_vehicle_availability: { Args: { _post: string }; Returns: string }
