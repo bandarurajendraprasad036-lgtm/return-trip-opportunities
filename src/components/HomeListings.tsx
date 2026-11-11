@@ -16,9 +16,9 @@ import { HomeAdminChat } from '@/components/HomeAdminChat';
 import type { HomeSettings } from '@/lib/home-settings';
 
 const sections: { key: HomeVehicleSection; te: string; en: string; className: string }[] = [
-  { key: 'local', te: 'స్థానిక సరకు వాహనాలు', en: 'Local Goods', className: 'vehicle-choice-local' },
-  { key: 'return', te: 'తిరిగి & ముందస్తు రిటర్న్ సరకు వాహనాలు', en: 'Return & Advance Return Goods', className: 'vehicle-choice-return' },
-  { key: 'cars', te: 'కార్లు', en: 'Cars', className: 'vehicle-choice-car' },
+  { key: 'local', te: 'స్థానిక సరకు వాహనాలు', en: 'Local Goods Vehicle', className: 'vehicle-choice-local' },
+  { key: 'return', te: 'స్థానిక తిరుగు & ముందస్తు సరకు వాహనాలు', en: 'Local Return & Advance Return Goods Vehicles', className: 'vehicle-choice-return' },
+  { key: 'cars', te: 'స్థానిక కార్ల బుకింగ్', en: 'Local Cars Booking', className: 'vehicle-choice-car' },
 ];
 
 export function HomeListings({ today, settings }: { today: string; settings: HomeSettings }) {
@@ -73,8 +73,8 @@ export function HomeListings({ today, settings }: { today: string; settings: Hom
         <Button type="submit" aria-label="వెతకండి · Search"><Search />వెతకండి · SEARCH</Button>
       </form>
       {searched && <div className="flex items-center justify-between gap-2 py-1 text-sm"><span className="min-w-0 break-words">{[route.from, route.to].filter(Boolean).join(' → ')}</span><Button variant="ghost" size="icon" aria-label="వెతుకులాట తీసేయండి · Clear search" onClick={() => { setRoute({ from: '', to: '' }); setFrom(''); setTo(''); setFromEdited(true); setToEdited(true); setVehicleSection(null); }}><X /></Button></div>}
-      {settings.showVehicles && searched && <div className="grid grid-cols-3 gap-2" role="group" aria-label="వాహన ఎంపికలు · Vehicle options">
-        {sections.map(section => <Button key={section.key} type="button" variant="outline" aria-pressed={vehicleSection === section.key} aria-controls="home-vehicle-results" className={`h-auto min-h-20 whitespace-normal px-1 py-2 text-sm ${section.className}`} onClick={() => setVehicleSection(section.key)}><span>{section.te}<span className="block text-xs">{section.en}</span></span></Button>)}
+      {settings.showVehicles && <div className="grid grid-cols-3 gap-2" role="group" aria-label="వాహన ఎంపికలు · Vehicle options">
+        {sections.map(section => <Button key={section.key} type="button" variant="outline" aria-pressed={vehicleSection === section.key} aria-controls="home-vehicle-results" className={`h-auto min-h-20 whitespace-normal px-1 py-2 text-sm ${section.className}`} asChild><Link to="/vehicles" search={{ category: section.key === 'local' ? 'goods' : section.key === 'return' ? 'returns' : 'cars', from: searched ? route.from : from.trim(), to: searched ? route.to : to.trim() }} onClick={() => { const choice = section.key === 'local' ? 'goods' : section.key; sessionStorage.setItem('gayatri-interest', choice); }}><span>{section.te}<span className="block text-xs">{section.en}</span></span></Link></Button>)}
       </div>}
       {settings.showVehicles && vehicleSection !== null && <section id="home-vehicle-results" className="home-display-column mt-2" aria-live="polite" aria-label="వాహన ఫలితాలు · Vehicle results">
         <h3>{sections.find(section => section.key === vehicleSection)?.te}</h3>
@@ -87,7 +87,7 @@ export function HomeListings({ today, settings }: { today: string; settings: Hom
         {([{ kind: 'seeker', te: 'పని కావాలా?', en: 'Need work?', display: 'పని కావాల్సినవారు', displayEn: 'Job seekers' }, { kind: 'employer', te: 'మనిషి కావాలా?', en: 'Need a worker?', display: 'ఉద్యోగ ఖాళీలు', displayEn: 'Jobs' }] as const).map(section => {
           const rows = homeJobs(posts, jobLocation, section.kind);
           return <section className="home-display-column" key={section.kind} aria-label={section.displayEn}>
-            <Button asChild variant="outline" className="home-apply"><Link to="/post/new" search={{ kind: section.kind, loc: jobLocation || undefined }}><span>{section.te}<span className="block text-sm">{section.en}</span></span></Link></Button>
+            <Button asChild variant="outline" className="home-apply"><Link to="/post/new" search={{ kind: section.kind, loc: jobLocation || undefined }} onClick={() => sessionStorage.setItem('gayatri-interest', 'job')}><span>{section.te}<span className="block text-sm">{section.en}</span></span></Link></Button>
             <h3>{section.display}<span>{section.displayEn}</span></h3>
             <div className="home-display-list">{status()}{rows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact />)}{examples(section.kind, rows.length)}</div>
           </section>;

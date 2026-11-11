@@ -1,0 +1,34 @@
+import { PGlite } from '@electric-sql/pglite';
+import { readFileSync } from 'node:fs';
+import { beforeAll, afterAll, describe, expect, it } from 'vitest';
+const admin='11111111-1111-4111-8111-111111111111', a='22222222-2222-4222-8222-222222222222', b='33333333-3333-4333-8333-333333333333', c='44444444-4444-4444-8444-444444444444';
+describe('direct referral cash and privacy database', () => {
+  let db: PGlite;
+  beforeAll(async () => {
+    db = new PGlite();
+    await db.exec(`CREATE SCHEMA auth; CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role;
+      CREATE TABLE profiles(id uuid primary key,referral_code text,referred_by uuid,referred_at timestamptz);
+      CREATE TABLE membership_payments(id uuid);
+      CREATE TABLE notifications(id uuid default gen_random_uuid(),user_id uuid,message text);
+      CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$SELECT nullif(current_setting('test.user',true),'')::uuid$$;
+      CREATE FUNCTION account_allowed(uuid) RETURNS boolean LANGUAGE sql AS $$SELECT true$$;
+      CREATE FUNCTION has_role(uuid,text) RETURNS boolean LANGUAGE sql AS $$SELECT $1='${admin}'::uuid AND $2='admin'$$;
+      CREATE FUNCTION can_notify(uuid) RETURNS boolean LANGUAGE sql AS $$SELECT true$$;
+      CREATE FUNCTION ensure_my_referral_code() RETURNS text LANGUAGE sql AS $$SELECT referral_code FROM profiles WHERE id=auth.uid()$$;
+      INSERT INTO profiles VALUES('${admin}','ADM1',null,null),('${a}','AAAA',null,null),('${b}','BBBB',null,null),('${c}','CCCC',null,null);`);
+    await db.exec(readFileSync('drizzle/migrations/0043_direct_referral_vip_cash.sql','utf8'));
+    await db.exec(readFileSync('drizzle/migrations/0045_consented_referral_board_and_event_controls.sql','utf8'));
+    await db.exec(`SELECT set_config('test.user','${b}',false); SELECT apply_referral('AAAA'); SELECT set_config('test.user','${c}',false); SELECT apply_referral('BBBB');`);
+  }, 30000);
+  afterAll(async () => { await db.close(); });
+  it('counts each directly invited join and lets invitees invite others', async () => { await db.exec(`SELECT set_config('test.user','${a}',false)`); const result=await db.query<{ stats:{count:number} }>('SELECT my_referral_vip() AS stats'); expect(result.rows[0]?.stats.count).toBe(1); });
+  it('rejects linking the same joined account twice', async () => { await db.exec(`SELECT set_config('test.user','${b}',false)`); expect((await db.query<{ok:boolean}>("SELECT apply_referral('CCCC') AS ok")).rows[0]?.ok).toBe(false); });
+  it('rejects referral cycles', async () => { await db.exec(`SELECT set_config('test.user','${a}',false)`); expect((await db.query<{ok:boolean}>("SELECT apply_referral('CCCC') AS ok")).rows[0]?.ok).toBe(false); });
+  it('does not let users confirm their own cash award', async () => { await db.exec(`SELECT set_config('test.user','${b}',false)`); await expect(db.query(`SELECT confirm_referral_cash('${b}','DENIED',100000)`)).rejects.toThrow('ADMIN_ONLY'); });
+  it('immediately records twenty percent of an admin-confirmed receipt for the direct inviter only', async () => { await db.exec(`SELECT set_config('test.user','${admin}',false); SELECT confirm_referral_cash('${b}','REAL-TEST-RECEIPT',100000);`); const result=await db.query<{user_id:string; amount_paise:number}>('SELECT user_id,amount_paise FROM referral_cash_rewards'); expect(result.rows).toEqual([{user_id:a,amount_paise:20000}]); });
+  it('prevents duplicate receipt rewards', async () => { await db.exec(`SELECT set_config('test.user','${admin}',false)`); await expect(db.query(`SELECT confirm_referral_cash('${b}','REAL-TEST-RECEIPT',100000)`)).rejects.toThrow(); expect((await db.query<{n:number}>('SELECT count(*)::int AS n FROM referral_cash_rewards')).rows[0]?.n).toBe(1); });
+  it('hides another users reward from ordinary users', async () => { await db.exec(`SELECT set_config('test.user','${c}',false); SET ROLE authenticated;`); expect((await db.query<{n:number}>('SELECT count(*)::int AS n FROM referral_cash_rewards')).rows[0]?.n).toBe(0); await db.exec('RESET ROLE'); });
+  it('sends the top hundred eligibility only to its owner', async () => { const rows=await db.query<{user_id:string}>('SELECT user_id FROM notifications WHERE message LIKE \'మీరు మొదటి వంద%\''); expect(rows.rows.some(r=>r.user_id===a)).toBe(true); expect(rows.rows.some(r=>r.user_id===c)).toBe(false); });
+  it('shows only consented names and counts from AP and Telangana on the public board', async () => { await db.exec(`INSERT INTO referral_board_consent VALUES('${a}','Private name','AP',false),('${b}','Consented name','TG',true);`); const result=await db.query<{board:{rows:{name:string,count:number}[]}}>('SELECT public_referral_vip_board() AS board'); expect(result.rows[0]?.board.rows.map(r=>r.name)).toEqual(['','Consented name']); expect(result.rows[0]?.board.rows.map(r=>r.count)).toEqual([1,1]); });
+  it('lets only admins set the public event date', async () => { await db.exec(`SELECT set_config('test.user','${a}',false)`); await expect(db.query("SELECT configure_referral_event('సంక్రాంతి')")).rejects.toThrow('ADMIN_ONLY'); await db.exec(`SELECT set_config('test.user','${admin}',false); SELECT configure_referral_event('సంక్రాంతి');`); expect((await db.query<{event_label:string}>('SELECT event_label FROM referral_vip_campaign')).rows[0]?.event_label).toBe('సంక్రాంతి'); });
+});

@@ -6,8 +6,7 @@ import { Inbox } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PostCard, type Post } from "@/components/PostCard";
 import { useMe } from "@/lib/session";
-import { FREE_DAILY_ALERTS, PRIME_PRICE } from "@/lib/jobs";
-import { GROUP_MEMBERSHIP_AMOUNT } from '@/lib/membership';
+import { FREE_DAILY_ALERTS } from "@/lib/jobs";
 
 export const Route = createFileRoute("/_authenticated/notifications")({
   head: () => ({

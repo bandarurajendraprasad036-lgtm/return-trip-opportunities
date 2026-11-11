@@ -15,8 +15,8 @@ export function ProgramEvidence({ postId }: { postId?: string | undefined }) {
   const { data: me } = useMe(); const qc = useQueryClient(); const send = useServerFn(submitProgramEvidence);
   const [files, setFiles] = useState<File[]>([]), [busy, setBusy] = useState(false), [status, setStatus] = useState('');
   const id = `program-evidence-${postId || 'account'}`;
-  return <section className="space-y-3 border-y py-3"><h3 className="text-lg font-bold">ఉచిత సభ్యత్వం · Free subscription</h3>
-    <p className="text-sm">సర్, డబ్బులు తీసుకోము. మా చిత్రాన్ని మీ స్థితి + 5 సమూహాల్లో పంచుకుని, ఆధార చిత్రాలు నిర్వాహక సంభాషణకు పంపండి. చిత్రాలు అందగానే ఉచిత సభ్యత్వం కొనసాగుతుంది. · Share our photo to status + 5 groups; upload screenshots for free membership.</p>
+  return <section className="space-y-3 border-y py-3"><h3 className="text-lg font-bold">పంచుకున్న ఆధారాలు · Sharing evidence</h3>
+    <p className="text-sm">పంచుకున్న ఆధార చిత్రాలను నిర్వాహక సంభాషణకు పంపండి. · Send sharing evidence to admin.</p>
     <Label htmlFor={id}>స్థితి + 5 సమూహాల ఆధారాలు · Status + 5 groups screenshots</Label>
     <Input id={id} type="file" multiple accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={e => { setFiles(Array.from(e.target.files || [])); setStatus(''); }} />
     <p className="text-xs text-muted-foreground">ఒక స్థితి చిత్రం, ఐదు సమూహాల చిత్రాలు; ఇతరుల వ్యక్తిగత వివరాలు కప్పండి. నిర్వాహకులకే వీక్షణ, 24 గంటల గడువు. · Six images, redact private information; admin-only, 24 hours.</p>
@@ -30,7 +30,7 @@ export function ProgramEvidence({ postId }: { postId?: string | undefined }) {
           const upload = await supabase.storage.from('sharing-evidence').upload(path, file, { contentType: file.type }); if (upload.error) throw upload.error; paths.push(path);
         }
         await send({ data: { paths, ...(postId ? { post: postId } : {}) } });
-        setFiles([]); setStatus('చిత్రాలు అందాయి; ఉచిత సభ్యత్వం ప్రారంభమైంది · Screenshots received; free membership active'); await qc.invalidateQueries();
+        setFiles([]); setStatus('చిత్రాలు అందాయి · Screenshots received'); await qc.invalidateQueries();
       } catch (e) { if (paths.length) await supabase.storage.from('sharing-evidence').remove(paths); toast.error(e instanceof Error ? e.message : 'పంపలేకపోయాం · Could not send'); }
       finally { setBusy(false); }
     }}>నిర్వాహక సంభాషణకు పంపండి · Send to admin</Button>

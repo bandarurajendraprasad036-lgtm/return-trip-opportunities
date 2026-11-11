@@ -1,4 +1,4 @@
-import sharingImage from '@/assets/gayatri-one-sharing-final.jpg';
+import sharingImage from '@/assets/gayatri-one-sharing-clean.jpg';
 import { Download, Share2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useServerFn } from '@tanstack/react-start';
@@ -36,11 +36,18 @@ export function SharingImage() {
     let cancelled = false;
     setPreview(''); canvas.current = null;
     const draw = async () => {
-      if (!me || !code) return;
       const image = new Image(); image.src = sharingImage; await image.decode();
       const target = document.createElement('canvas'); target.width = image.naturalWidth; target.height = image.naturalHeight;
       const ctx = target.getContext('2d'); if (!ctx) return;
       ctx.drawImage(image, 0, 0);
+      const artworkTheme = getComputedStyle(document.documentElement);
+      ctx.fillStyle = artworkTheme.getPropertyValue('--gold').trim();
+      ctx.textAlign = 'center'; ctx.font = 'bold 30px sans-serif';
+      ctx.fillText('నేను గాయత్రి వన్ లో చేరాను.. మీరూ చేరండి', target.width / 2, target.height * .765, target.width - 48);
+      ctx.font = 'bold 28px sans-serif';
+      ctx.fillText('మొదటి 100 మందికి ప్రత్యేక ప్రవేశ అర్హత', target.width / 2, target.height * .81, target.width - 48);
+      ctx.font = '24px sans-serif'; ctx.fillText('gayatrione.com', target.width / 2, target.height * .845);
+      ctx.textAlign = 'left';
       if (code) {
         const theme = getComputedStyle(document.documentElement);
         ctx.fillStyle = theme.getPropertyValue('--gold').trim();

@@ -9,7 +9,6 @@ import { NotificationPermission } from "@/components/AppHelpers";
 import { DesignFooter } from "@/components/DesignFooter";
 import { IncomingNotice } from "@/components/IncomingNotice";
 import { ResponsibilityNotice } from "@/components/ResponsibilityNotice";
-import { MembershipReminder } from '@/components/MembershipReminder';
 import { AdminChatButton } from '@/components/AdminChatButton';
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -84,7 +83,6 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main className="flex-1 pb-24">{children}<ResponsibilityNotice /><DesignFooter /></main>
       {me && <IncomingNotice userId={me.id} />}
       {me && <NotificationPermission userId={me.id} />}
-      {me && <MembershipReminder userId={me.id} prime={!!me.profile?.is_prime} />}
       <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-md border-t bg-card">
         <Link to="/feed" className={tab} activeProps={active}>
           <Home className="size-6" />

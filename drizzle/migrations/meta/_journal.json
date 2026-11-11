@@ -302,6 +302,27 @@
       "when": 1794284880651,
       "tag": "0042_admin_messages_phone_accounts_and_bell_activation",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1794373779379,
+      "tag": "0043_direct_referral_vip_cash",
+      "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1794373927531,
+      "tag": "0044_retire_goods_paywall_preserve_private_contacts",
+      "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1794374093910,
+      "tag": "0045_consented_referral_board_and_event_controls",
+      "breakpoints": true
     }
   ]
 }

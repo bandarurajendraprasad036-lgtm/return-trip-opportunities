@@ -27,6 +27,15 @@ export function AccountProfile() {
   const [kind, setKind] = useState('seeker');
   const [busy, setBusy] = useState(false);
   const [publicService, setPublicService] = useState(false);
+  const [interest, setInterest] = useState('');
+  useEffect(() => {
+    const value = sessionStorage.getItem('gayatri-interest') || '';
+    setInterest(value);
+    if (['cars', 'goods', 'return'].includes(value)) {
+      setKind('business');
+      if (value === 'cars') setVehicleType('Car');
+    }
+  }, [program]);
 
   useEffect(() => {
     setName(me?.profile?.full_name || '');
@@ -41,6 +50,11 @@ export function AccountProfile() {
     const vehicle = parseVehicleCategory(program.category);
     setVehicleType(vehicle.vehicleType);
     setTons(vehicle.tons);
+    const selection = sessionStorage.getItem('gayatri-interest');
+    if (['cars', 'goods', 'return'].includes(selection || '')) {
+      setKind('business');
+      if (selection === 'cars') { setVehicleType('Car'); setTons(''); }
+    }
   }, [program]);
 
   const vehicleProfile = kind === 'owner' || kind === 'business';
@@ -49,6 +63,7 @@ export function AccountProfile() {
     <section id="account-profile" className="profile-panel space-y-4 border-y px-3 py-5">
       <div>
         <h2 className="text-xl font-bold">నా వివరాలు · My profile</h2>
+        {interest && <p className="profile-copy">మీ ఎంపిక: {interest === 'cars' ? 'కార్లు · Cars' : interest === 'goods' ? 'సరకు వాహనం · Goods vehicle' : interest === 'return' ? 'తిరుగు వాహనం · Return vehicle' : 'ఉద్యోగం · Job'}</p>}
         <p className="profile-copy text-sm">మొబైల్ నంబరు తప్పనిసరి. మార్గాలు ఖాళీగా వదిలినా వివరాలు భద్రపరచవచ్చు.</p>
       </div>
       <form className="space-y-4" onSubmit={async event => {

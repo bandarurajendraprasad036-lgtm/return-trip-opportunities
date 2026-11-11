@@ -45,10 +45,11 @@
 - Homepage uses one submitted From/To search for all vehicle and job sections, without map or directions controls; actual location may prefill an unedited From field, never replace manual entry or infer proximity.
 - Vehicle contact surfaces reuse the shared responsibility notice; compact bells show it before interest submission without implying a confirmed booking.
 - Search examples are separate presentation-only objects without post or user IDs; their bells never call interest or booking APIs.
-- Membership prices share one frontend source; SQL validates new plans while retaining historical amounts, and locked admin review grants group time atomically to four distinct registered accounts.
+- Historical payment records remain read/review compatible; new direct-referral receipts use an admin-authorized atomic cash-prize ledger to prevent client awards and duplicate receipts.
 - Goods-only access checks approved individual payment-linked monthly periods plus current profile membership; jobs and vehicle inserts do not consume historical job quota records, preserving payment history.
 - Sharing evidence uses owner-checked server hashing with atomic digest registration, admin-only short-lived signing and existing managed dispatch cleanup; review decisions notify the owner transactionally.
 - Chat attachments use authenticated server validation, private storage and participant-checked short-lived signing; post conversations require bell-created pair rows, backfilled only for historical owner/member conversations to preserve privacy.
 - Listing cards stay anonymous; safe-column grants prevent direct sensitive reads, while get_post_details checks payment-linked current goods membership before returning explicitly shared goods details. Jobs/car details never return identity fields.
-- Account promotional benefits use locked owner RPCs and service-only evidence hashing/safety inspection; screenshot receipt grants the configured benefit without claiming verified external sharing, while profile start and referral rewards remain immutable and once-only.
+- Direct-referral campaign ranks count only new campaign join edges, enforce one inviter and no cycles, and expose only owner-scoped stats; cash awards never imply payout.
+- Vehicle choices open one public category-aware listing route with date and endpoint filtering; requests remain unconfirmed until a genuine booking workflow exists.
 - Personalized sharing artwork renders existing owner referral identity and same-origin product links through canvas; private profile photos never enter it, and published photos require explicit owner consent after the configured trial.

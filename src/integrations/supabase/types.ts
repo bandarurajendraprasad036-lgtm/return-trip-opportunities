@@ -883,6 +883,190 @@ export type Database = {
           },
         ]
       }
+      referral_board_consent: {
+        Row: {
+          display_name: string
+          published: boolean
+          region: string
+          user_id: string
+        }
+        Insert: {
+          display_name?: string
+          published?: boolean
+          region?: string
+          user_id: string
+        }
+        Update: {
+          display_name?: string
+          published?: boolean
+          region?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_board_consent_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referral_cash_receipts: {
+        Row: {
+          amount_paise: number
+          confirmed_by: string
+          id: string
+          received_at: string
+          reference: string
+          user_id: string
+        }
+        Insert: {
+          amount_paise: number
+          confirmed_by: string
+          id?: string
+          received_at?: string
+          reference: string
+          user_id: string
+        }
+        Update: {
+          amount_paise?: number
+          confirmed_by?: string
+          id?: string
+          received_at?: string
+          reference?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_cash_receipts_confirmed_by_fkey"
+            columns: ["confirmed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_cash_receipts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referral_cash_rewards: {
+        Row: {
+          amount_paise: number
+          created_at: string
+          receipt_id: string
+          user_id: string
+        }
+        Insert: {
+          amount_paise: number
+          created_at?: string
+          receipt_id: string
+          user_id: string
+        }
+        Update: {
+          amount_paise?: number
+          created_at?: string
+          receipt_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_cash_rewards_receipt_id_fkey"
+            columns: ["receipt_id"]
+            isOneToOne: true
+            referencedRelation: "referral_cash_receipts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_cash_rewards_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referral_vip_campaign: {
+        Row: {
+          details_at: string
+          event_label: string
+          id: boolean
+          started_at: string
+        }
+        Insert: {
+          details_at?: string
+          event_label?: string
+          id?: boolean
+          started_at?: string
+        }
+        Update: {
+          details_at?: string
+          event_label?: string
+          id?: boolean
+          started_at?: string
+        }
+        Relationships: []
+      }
+      referral_vip_joins: {
+        Row: {
+          joined_at: string
+          joined_user: string
+          referrer_id: string
+        }
+        Insert: {
+          joined_at?: string
+          joined_user: string
+          referrer_id: string
+        }
+        Update: {
+          joined_at?: string
+          joined_user?: string
+          referrer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_vip_joins_joined_user_fkey"
+            columns: ["joined_user"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_vip_joins_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referral_vip_notice_state: {
+        Row: {
+          signature: string
+          user_id: string
+        }
+        Insert: {
+          signature: string
+          user_id: string
+        }
+        Update: {
+          signature?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_vip_notice_state_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reward_wallets: {
         Row: {
           points: number
@@ -1334,6 +1518,7 @@ export type Database = {
         }
         Returns: string
       }
+      admin_broadcast: { Args: { _message: string }; Returns: number }
       admin_evidence_sender: { Args: { _id: string }; Returns: string }
       apply_referral: { Args: { _code: string }; Returns: boolean }
       block_confirmed_content: {
@@ -1375,6 +1560,11 @@ export type Database = {
         }
         Returns: string
       }
+      configure_referral_event: { Args: { _label: string }; Returns: undefined }
+      confirm_referral_cash: {
+        Args: { _amount_paise: number; _reference: string; _user: string }
+        Returns: string
+      }
       dispatch_approximate_route_alerts: { Args: never; Returns: number }
       dispatch_program_requests: { Args: never; Returns: number }
       dispatch_vehicle_availability: { Args: never; Returns: number }
@@ -1402,6 +1592,7 @@ export type Database = {
       my_notification_quota: { Args: never; Returns: Json }
       my_program_referrals: { Args: never; Returns: Json }
       my_referral_stats: { Args: never; Returns: Json }
+      my_referral_vip: { Args: never; Returns: Json }
       notify_matches: { Args: { _post_id: string }; Returns: number }
       post_alert_eligible: { Args: { _user: string }; Returns: boolean }
       posts_match_area: {
@@ -1412,6 +1603,7 @@ export type Database = {
         Returns: boolean
       }
       process_program_referral: { Args: { _user: string }; Returns: number }
+      public_referral_vip_board: { Args: never; Returns: Json }
       public_service_directory: { Args: never; Returns: Json }
       public_stats: { Args: never; Returns: Json }
       record_evidence_hashes: {
@@ -1424,6 +1616,15 @@ export type Database = {
       }
       redeem_reward_points: { Args: never; Returns: string }
       referral_target: { Args: { _d: string }; Returns: number }
+      referral_vip_ranks: {
+        Args: never
+        Returns: {
+          joins: number
+          rank_no: number
+          user_id: string
+        }[]
+      }
+      refresh_referral_vip_notices: { Args: never; Returns: number }
       request_own_bell_notice: { Args: { _device: string }; Returns: string }
       request_vehicle_availability: { Args: { _post: string }; Returns: string }
       review_membership: {
@@ -1515,6 +1716,7 @@ export type Database = {
         Args: { _target: string; _user: string }
         Returns: string
       }
+      vip_daily_reconcile: { Args: never; Returns: number }
     }
     Enums: {
       app_role: "admin" | "user"

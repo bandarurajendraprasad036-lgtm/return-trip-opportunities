@@ -200,7 +200,7 @@ function NewPost() {
       if (registered.error) toast.error('ప్రకటన భద్రపడింది; పరిధి స్థానాలు భద్రపడలేదు · Post saved; radius coordinates not saved');
     }
     setBusy(false);
-    if (error) { toast.error(error.message.includes('THREE_MONTHLY_JOBS_USED') ? 'ఈ సభ్యత్వ నెలలో మూడు ఉద్యోగ ప్రకటనలు ఉపయోగించారు · Three monthly job posts used' : error.message.includes("MOBILE_REQUIRED") ? "ప్రకటనకు ముందు మొబైల్ నంబరు ఇవ్వండి · Mobile number required" : error.message.includes("BAD_CONTENT") ? "🚫 బూతులు, చెడు మాటలు, దేశ వ్యతిరేక విషయాలు పోస్ట్ చేయకూడదు · Abusive or anti-national content is not allowed" : error.message); return; }
+    if (error) { toast.error(error.message.includes('THREE_MONTHLY_JOBS_USED') ? 'ప్రకటన పరిమితి పూర్తయింది · Posting limit reached' : error.message.includes("MOBILE_REQUIRED") ? "ప్రకటనకు ముందు మొబైల్ నంబరు ఇవ్వండి · Mobile number required" : error.message.includes("BAD_CONTENT") ? "🚫 బూతులు, చెడు మాటలు, దేశ వ్యతిరేక విషయాలు పోస్ట్ చేయకూడదు · Abusive or anti-national content is not allowed" : error.message); return; }
     toast.success(savedPost?.visible_after&&Date.parse(savedPost.visible_after)>Date.now()?"మీ సమాచారం మాకు సమర్పించారు; మరో ఐదు గంటల్లో చూడవచ్చు · Submitted; visible after five hours":"మీ సమాచారం మాకు సమర్పించారు; మీ ప్రకటన ఇప్పుడు చూడవచ్చు · Submitted; now visible");
     qc.invalidateQueries();
     nav({ to: "/my-posts" });
