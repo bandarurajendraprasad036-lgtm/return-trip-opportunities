@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from '@tanstack/react-router';
+import { AdminChatButton } from '@/components/AdminChatButton';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useMe } from '@/lib/session';
@@ -31,7 +31,7 @@ export function Prime99Payment() {
     <p>ఒక నెలలో మొత్తం మూడు ఉద్యోగ/వాహన పోస్టులు. ₹99 చెల్లింపు ఆమోదిస్తేనే గంట శబ్దం, తెర సూచనలు. · Three total posts monthly; approved ₹99 required for alerts.</p>
     <p>ఈ నెల పోస్టులు · Posts used: {quota.data?.used ?? '—'} / 3</p>
     {quota.data?.ends_at && <p>పోస్టుల గడువు · Post period ends: {new Date(quota.data.ends_at).toLocaleString('te-IN', { timeZone: 'Asia/Kolkata' })}</p>}
-    <Button asChild variant="outline"><Link to="/admin-chat">చెల్లింపు వివరాలు అడగండి · Ask payment details</Link></Button>
+    <AdminChatButton />
     <p className="text-sm">చెల్లింపు ఎక్కడ చేయాలో నిర్వాహకుడిని అడగండి. ఆధారం పంపడమే ఆమోదం కాదు. · Ask admin where to pay; submission is not approval.</p>
     <Label htmlFor="prime99-reference">₹99 చెల్లింపు లావాదేవీ సంఖ్య · Transaction reference</Label>
     <Input id="prime99-reference" value={reference} maxLength={64} onChange={e => setReference(e.target.value)} disabled={busy} />

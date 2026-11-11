@@ -51,6 +51,8 @@
 - Chat attachments use authenticated server validation, private storage and participant-checked short-lived signing; post conversations require bell-created pair rows, backfilled only for historical owner/member conversations to preserve privacy.
 - Listing cards stay anonymous; safe-column grants prevent direct sensitive reads, while get_post_details checks payment-linked current goods membership before returning explicitly shared goods details. Jobs/car details never return identity fields.
 - Direct-referral campaign ranks count only new campaign join edges, enforce one inviter and no cycles, and expose only owner-scoped stats; cash awards never imply payout.
-- Each confirmed referred receipt atomically credits separate inviter and invitee ledgers; new accounts get deterministic unique codes, and public remaining-slot reads expose aggregates only with ten-second visible-page refresh.
+- Confirmed receipts atomically credit only the eligible direct inviter; historical invitee ledgers remain read-only evidence, new accounts keep unique codes, and remaining-slot reads expose aggregates only.
+- Paid alert eligibility is enforced by receipt-linked periods at database insertion/read and every screen/device delivery path, never by editable profile flags; post usage persists separately from deletable posts to prevent quota bypass.
+- Daily competition notices reuse the managed dispatcher and an atomic per-user/day ledger; public photo signing accepts only publication-and-competition-consent-checked paths to prevent private image disclosure.
 - Vehicle choices open one public category-aware listing route with date and endpoint filtering; requests remain unconfirmed until a genuine booking workflow exists.
 - Personalized sharing artwork renders existing owner referral identity and same-origin product links through canvas; private profile photos never enter it, and published photos require explicit owner consent after the configured trial.

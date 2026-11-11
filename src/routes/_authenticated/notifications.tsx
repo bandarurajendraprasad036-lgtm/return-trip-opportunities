@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { PostCard, type Post } from "@/components/PostCard";
 import { useMe } from "@/lib/session";
 import { FREE_DAILY_ALERTS } from "@/lib/jobs";
+import { usePrime99 } from '@/lib/prime99';
+import { Button } from '@/components/ui/button';
 
 export const Route = createFileRoute("/_authenticated/notifications")({
   head: () => ({
@@ -24,10 +26,11 @@ export const Route = createFileRoute("/_authenticated/notifications")({
 
 function Notifications() {
   const { data: me } = useMe();
+  const { data: prime } = usePrime99(me?.id);
   const qc = useQueryClient();
   const { data = [], isLoading, isError, refetch } = useQuery({
     queryKey: ["notifications", me?.id],
-    enabled: !!me?.id,
+    enabled: Boolean(me?.id && prime?.active),
     refetchInterval: 20000,
     refetchOnWindowFocus: true,
     retry: 3,
@@ -62,9 +65,10 @@ function Notifications() {
   return (
     <div className="space-y-3 p-4">
       <h2 className="text-2xl font-bold">మ్యాచ్ అలర్ట్స్ <span className="text-base font-normal text-muted-foreground">Match alerts</span></h2>
+      {!prime?.active && <div className="space-y-2"><p>సూచనలు చూడడానికి ఆమోదించిన ₹99 సభ్యత్వం అవసరం. · Approved ₹99 required for alerts.</p><Button asChild variant="outline"><Link to="/dashboard">నా చెల్లింపు స్థితి · Payment status</Link></Button></div>}
       {capped && (
         <div className="rounded-xl border-2 border-secondary bg-secondary/20 p-4">
-          <p className="font-bold">⚠️ ఈ రోజు {FREE_DAILY_ALERTS} ఉచిత అలర్ట్స్ పూర్తయ్యాయి</p>
+          <p className="font-bold">⚠️ ఈ రోజు {FREE_DAILY_ALERTS} అలర్ట్స్ పూర్తయ్యాయి</p>
           <p className="text-sm">రోజుకు గరిష్టం ఐదు; మీ సమాచార ఎంపికలు, నిశ్శబ్ద సమయం వర్తిస్తాయి. · Maximum five daily, preferences and quiet hours apply.</p>
         </div>
       )}
@@ -74,7 +78,7 @@ function Notifications() {
           లోడ్ కాలేదు — మళ్ళీ ప్రయత్నించండి · Tap to retry
         </button>
       )}
-      {me && !isLoading && !isError && data.length === 0 && (
+      {me && prime?.active && !isLoading && !isError && data.length === 0 && (
         <div className="rounded-xl border border-dashed bg-card p-8 text-center text-muted-foreground">
           <Inbox className="mx-auto mb-2 size-10" />
           ఇంకా మ్యాచ్‌లు లేవు. పోస్ట్ చేయండి!<br />No matches yet. <Link to="/post/new" className="text-primary underline">Create a post</Link>
