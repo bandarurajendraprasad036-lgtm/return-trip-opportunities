@@ -59,8 +59,8 @@ function Chat() {
 
   const key = ["chat", userId, postId];
   const { data: msgs = [] } = useQuery({
-    queryKey: key,
-    enabled: !!me,
+    queryKey: [...key, adminId],
+    enabled: !!me && adminId !== undefined,
     queryFn: async () => {
       if (!me) return [];
       let query = supabase
@@ -68,6 +68,7 @@ function Chat() {
         .select("*")
         .or(`and(sender_id.eq.${me.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${me.id})`);
       if (postId) query = query.eq("post_id", postId);
+      if (adminId && (userId === adminId || me.id === adminId)) query = query.gte("created_at", indiaDayStartIso());
       const { data, error } = await query.order("created_at");
       if (error) throw error;
       return data;
@@ -148,4 +149,10 @@ function Chat() {
       <Dialog open={!!imageUrl} onOpenChange={open=>{if(!open)setImageUrl('');}}><DialogContent><DialogTitle>వ్యక్తిగత చిత్రం · Private image</DialogTitle>{imageUrl && <img src={imageUrl} alt="సంభాషణ చిత్రం · Chat image" className="max-h-[70svh] w-full object-contain" />}</DialogContent></Dialog>
     </div>
   );
+}
+
+// Admin chats show only the current Indian calendar day; older rows stay stored but hidden.
+function indiaDayStartIso(now = new Date()) {
+  const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(now);
+  return new Date(`${day}T00:00:00+05:30`).toISOString();
 }

@@ -11,7 +11,7 @@ import { IncomingNotice } from "@/components/IncomingNotice";
 import { ResponsibilityNotice } from "@/components/ResponsibilityNotice";
 import { AdminChatButton } from '@/components/AdminChatButton';
 
-export function AppShell({ children }: { children: ReactNode }) {
+export function AppShell({ children, hideTopActions = false }: { children: ReactNode; hideTopActions?: boolean }) {
   const { data: me } = useMe();
   const qc = useQueryClient();
   const { data: unread = 0 } = useQuery({
@@ -53,7 +53,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <Link to="/feed" className="min-w-0 font-display text-lg font-extrabold leading-none">
           <Brand />
         </Link>
-        <ClientOnly fallback={<div className="h-10" />}>{me === null ? (
+        <ClientOnly fallback={<div className="h-10" />}>{hideTopActions ? <span /> : me === null ? (
           <Link to="/auth" className="rounded-full bg-secondary px-4 py-2 text-sm font-bold text-secondary-foreground">
             లాగిన్ / రిజిస్టర్
           </Link>
