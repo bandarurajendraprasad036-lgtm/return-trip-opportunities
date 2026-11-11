@@ -56,3 +56,5 @@
 - Daily competition notices reuse the managed dispatcher and an atomic per-user/day ledger; public photo signing accepts only publication-and-competition-consent-checked paths to prevent private image disclosure.
 - Vehicle choices open one public category-aware listing route with date and endpoint filtering; requests remain unconfirmed until a genuine booking workflow exists.
 - Personalized sharing artwork renders existing owner referral identity and same-origin product links through canvas; private profile photos never enter it, and published photos require explicit owner consent after the configured trial.
+- Vehicle owner posts expose owner-entered vehicle name/number/driver/mobile only through vehicle_public_details (owner requested public display); other identity stays private.
+- Referral joins count only via confirm_referral_join (code + own mobile + OK); weekly winners come from select_weekly_winners (SQL cron Sunday night IST) requiring 70% paid joins and a consented published photo.
