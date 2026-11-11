@@ -316,6 +316,13 @@
       "when": 1794373927531,
       "tag": "0044_retire_goods_paywall_preserve_private_contacts",
       "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1794374093910,
+      "tag": "0045_consented_referral_board_and_event_controls",
+      "breakpoints": true
     }
   ]
 }

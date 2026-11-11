@@ -883,6 +883,35 @@ export type Database = {
           },
         ]
       }
+      referral_board_consent: {
+        Row: {
+          display_name: string
+          published: boolean
+          region: string
+          user_id: string
+        }
+        Insert: {
+          display_name?: string
+          published?: boolean
+          region?: string
+          user_id: string
+        }
+        Update: {
+          display_name?: string
+          published?: boolean
+          region?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_board_consent_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       referral_cash_receipts: {
         Row: {
           amount_paise: number
@@ -1531,6 +1560,7 @@ export type Database = {
         }
         Returns: string
       }
+      configure_referral_event: { Args: { _label: string }; Returns: undefined }
       confirm_referral_cash: {
         Args: { _amount_paise: number; _reference: string; _user: string }
         Returns: string
@@ -1573,6 +1603,7 @@ export type Database = {
         Returns: boolean
       }
       process_program_referral: { Args: { _user: string }; Returns: number }
+      public_referral_vip_board: { Args: never; Returns: Json }
       public_service_directory: { Args: never; Returns: Json }
       public_stats: { Args: never; Returns: Json }
       record_evidence_hashes: {
