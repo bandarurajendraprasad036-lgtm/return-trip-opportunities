@@ -330,6 +330,20 @@
       "when": 1794375009590,
       "tag": "0046_two_sided_referral_rewards_and_remaining_vip_slots",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1794382962166,
+      "tag": "0047_prime99_paid_alerts_monthly_posts_and_daily_board",
+      "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1794383284501,
+      "tag": "0048_prime99_renewal_quota_and_daily_fairness",
+      "breakpoints": true
     }
   ]
 }

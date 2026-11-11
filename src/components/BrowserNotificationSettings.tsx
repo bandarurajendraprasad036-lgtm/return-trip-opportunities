@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useMe } from '@/lib/session';
 import { registerPushDevice, updatePushSound } from '@/lib/push.functions';
 import { enablePush, pushDeviceId, type PushStatus } from '@/lib/firebase-push';
+import { usePrime99 } from '@/lib/prime99';
 
 export function BrowserNotificationSettings() {
   const { muted, change } = useBellSound();
@@ -20,6 +21,7 @@ export function BrowserNotificationSettings() {
   const register = useServerFn(registerPushDevice);
   const sound = useServerFn(updatePushSound);
   const { data: me } = useMe();
+  const { data: prime } = usePrime99(me?.id);
   const { data: delivery, refetch } = useQuery({ queryKey: ['push-device-status', me?.id], enabled: Boolean(me), queryFn: async () => {
     if (!me) return null;
     const id = pushDeviceId();
@@ -61,7 +63,7 @@ export function BrowserNotificationSettings() {
         {muted ? <VolumeX /> : <Volume2 />}{muted ? 'ఆఫ్ · Off' : 'ఆన్ · On'}
       </Button>
     </div>
-    <p className="text-sm">{muted ? 'ఆఫ్: గంట శబ్దం రాదు; సమాచారం తెరపై మాత్రమే కనిపిస్తుంది. · Off: silent, on-screen notice only.' : 'ఆన్: అన్ని సూచనలు గంట శబ్దంతో వస్తాయి. · On: all alerts with bell sound.'}</p>
+    <p className="text-sm">{!prime?.active ? 'సూచనలు, గంట శబ్దానికి ఆమోదించిన ₹99 చెల్లింపు అవసరం. · Approved ₹99 required for notices and sound.' : muted ? 'ఆఫ్: గంట శబ్దం రాదు; అర్హమైన సమాచారం తెరపై కనిపిస్తుంది. · Silent eligible alerts.' : 'ఆన్: మీ ఎంపికలకు లోబడి అర్హమైన సూచనలకు గంట శబ్దం. · Eligible alerts with sound, subject to preferences.'}</p>
     <p role="status">{permissionHelp[permission]}</p>
     <p role="status">{push === 'not-configured' ? 'అనుసంధానంలో వెబ్ సూచనల వివరాలు చేర్చండి · Include web push in connection settings' : push === 'open-in-new-tab' ? permissionHelp['open-in-new-tab'] : push === 'denied' ? permissionHelp.denied : push === 'unsupported' ? permissionHelp.unsupported : push === 'failed' ? 'ఫోన్ నమోదు కాలేదు; మళ్లీ ఆన్ చేయండి · Registration failed; turn on again' : delivery?.registered ? 'ఈ ఫోన్ నమోదైంది; చేరినట్లు ఇంకా నిర్ధారణ లేదు · Device registered; delivery unverified' : 'ఈ ఫోన్ ఇంకా నమోదు కాలేదు · Device not registered'}</p>
     {delivery?.latest && <p role="status">{delivery.latest.status === 'accepted' ? 'సేవ సూచనను స్వీకరించింది; ఫోన్‌కు చేరినట్లు నిర్ధారణ కాదు · Provider accepted; not a delivery receipt' : delivery.latest.status === 'failed' ? `పంపడం విఫలమైంది · Send failed (${delivery.latest.provider_status ?? '—'})` : delivery.latest.status === 'skipped' ? 'చదివిన సమాచారం లేదా మీ ఎంపికల కారణంగా పంపలేదు · Skipped' : 'పంపేందుకు వేచి ఉంది · Awaiting send'}</p>}

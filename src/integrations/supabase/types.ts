@@ -167,6 +167,39 @@ export type Database = {
           },
         ]
       }
+      daily_referral_board_notices: {
+        Row: {
+          day: string
+          notification_id: string | null
+          user_id: string
+        }
+        Insert: {
+          day: string
+          notification_id?: string | null
+          user_id: string
+        }
+        Update: {
+          day?: string
+          notification_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_referral_board_notices_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_referral_board_notices_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       evidence_content_registry: {
         Row: {
           created_at: string
@@ -388,6 +421,58 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      monthly_post_periods: {
+        Row: {
+          ends_at: string
+          starts_at: string
+          user_id: string
+        }
+        Insert: {
+          ends_at: string
+          starts_at: string
+          user_id: string
+        }
+        Update: {
+          ends_at?: string
+          starts_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monthly_post_periods_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      monthly_post_usage: {
+        Row: {
+          post_id: string
+          used_at: string
+          user_id: string
+        }
+        Insert: {
+          post_id: string
+          used_at?: string
+          user_id: string
+        }
+        Update: {
+          post_id?: string
+          used_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monthly_post_usage_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -668,6 +753,53 @@ export type Database = {
         }
         Relationships: []
       }
+      prime99_payments: {
+        Row: {
+          amount: number
+          ends_at: string | null
+          id: string
+          received_at: string | null
+          reference: string
+          review_note: string
+          reviewed_by: string | null
+          status: string
+          submitted_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          ends_at?: string | null
+          id?: string
+          received_at?: string | null
+          reference: string
+          review_note?: string
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          ends_at?: string | null
+          id?: string
+          received_at?: string | null
+          reference?: string
+          review_note?: string
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prime99_payments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           bell_activated_at: string | null
@@ -886,18 +1018,21 @@ export type Database = {
       referral_board_consent: {
         Row: {
           display_name: string
+          photo_consent: boolean
           published: boolean
           region: string
           user_id: string
         }
         Insert: {
           display_name?: string
+          photo_consent?: boolean
           published?: boolean
           region?: string
           user_id: string
         }
         Update: {
           display_name?: string
+          photo_consent?: boolean
           published?: boolean
           region?: string
           user_id?: string
@@ -1023,6 +1158,35 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      referral_prize_payouts: {
+        Row: {
+          paid_at: string
+          receipt_id: string
+          recorded_by: string
+          reference: string
+        }
+        Insert: {
+          paid_at?: string
+          receipt_id: string
+          recorded_by: string
+          reference: string
+        }
+        Update: {
+          paid_at?: string
+          receipt_id?: string
+          recorded_by?: string
+          reference?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_prize_payouts_receipt_id_fkey"
+            columns: ["receipt_id"]
+            isOneToOne: true
+            referencedRelation: "referral_cash_rewards"
+            referencedColumns: ["receipt_id"]
           },
         ]
       }
@@ -1602,6 +1766,7 @@ export type Database = {
         Returns: string
       }
       dispatch_approximate_route_alerts: { Args: never; Returns: number }
+      dispatch_daily_referral_board: { Args: never; Returns: number }
       dispatch_program_requests: { Args: never; Returns: number }
       dispatch_vehicle_availability: { Args: never; Returns: number }
       dispatch_visible_post_matches: { Args: never; Returns: number }
@@ -1613,6 +1778,7 @@ export type Database = {
         Returns: string
       }
       has_goods_membership: { Args: { _user?: string }; Returns: boolean }
+      has_prime99: { Args: { _user: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1626,6 +1792,8 @@ export type Database = {
       }
       my_goods_membership: { Args: never; Returns: boolean }
       my_notification_quota: { Args: never; Returns: Json }
+      my_post_quota99: { Args: never; Returns: Json }
+      my_prime99: { Args: never; Returns: Json }
       my_program_referrals: { Args: never; Returns: Json }
       my_referral_stats: { Args: never; Returns: Json }
       my_referral_vip: { Args: never; Returns: Json }
@@ -1644,6 +1812,10 @@ export type Database = {
       public_stats: { Args: never; Returns: Json }
       record_evidence_hashes: {
         Args: { _claim: string; _hashes: string[] }
+        Returns: undefined
+      }
+      record_referral_prize_paid: {
+        Args: { _receipt: string; _reference: string }
         Returns: undefined
       }
       record_service_view: {
@@ -1674,6 +1846,10 @@ export type Database = {
       }
       review_post_evidence_with_reason: {
         Args: { _approve: boolean; _id: string; _note: string }
+        Returns: undefined
+      }
+      review_prime99: {
+        Args: { _approve: boolean; _id: string; _note?: string }
         Returns: undefined
       }
       review_sharing_claim: {

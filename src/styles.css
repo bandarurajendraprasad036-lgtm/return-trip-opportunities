@@ -229,3 +229,7 @@ body { color-scheme: dark; letter-spacing: 0; }
 .home-display-column h3 { min-height:3.5rem; }
 .home-apply { min-height:5rem; }
 @media (max-width:340px) { .home-route-row { grid-template-columns:4rem minmax(0,1fr); gap:.25rem; } .home-quick-box { padding:.125rem; } }
+
+@keyframes unfinished-action-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+.unfinished-action { animation: unfinished-action-pulse 1.8s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .unfinished-action { animation: none; outline: 2px dashed var(--gold); outline-offset: 3px; } }
