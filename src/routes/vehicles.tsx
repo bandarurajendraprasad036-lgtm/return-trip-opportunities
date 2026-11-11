@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -15,8 +15,8 @@ import { toast } from 'sonner';
 
 // Vehicle kinds shown when no real listing matches; never invented numbers, drivers or phones.
 const CATALOG: Record<VehiclePageKind, string[]> = {
-  goods: ['ఆటో · Auto', 'టాటా ఏస్ · Tata Ace', 'బొలెరో పికప్ · Bolero Pickup', 'డీసీఎం · DCM', 'లారీ · Lorry'],
-  returns: ['టాటా ఏస్ · Tata Ace', 'బొలెరో పికప్ · Bolero Pickup', 'డీసీఎం · DCM', 'లారీ · Lorry'],
+  goods: ['ఆటో · Auto', 'ఆపే ట్రాలీ · Ape trolley', 'టాటా ఏస్ · Tata Ace', 'బొలెరో పికప్ · Bolero Pickup', 'డీసీఎం · DCM', 'లారీ · Lorry'],
+  returns: ['ఆపే ట్రాలీ · Ape trolley', 'టాటా ఏస్ · Tata Ace', 'బొలెరో పికప్ · Bolero Pickup', 'డీసీఎం · DCM', 'లారీ · Lorry'],
   cars: ['ఇన్నోవా · Innova', 'స్విఫ్ట్ డిజైర్ · Swift Dzire', 'ఎర్టిగా · Ertiga', 'బొలెరో · Bolero'],
 };
 
@@ -25,7 +25,7 @@ export const Route = createFileRoute('/vehicles')({
   head: ({ match }) => { const title = match.search.category === 'cars' ? 'స్థానిక కార్లు' : match.search.category === 'returns' ? 'తిరిగి వచ్చే, ముందస్తు వాహనాలు' : 'స్థానిక సరకు వాహనాలు'; return { meta: [{ title: `${title} — గాయత్రి వన్` }, { name: 'description', content: `${title}: నిజమైన ప్రకటనలు, మార్గం, తేదీ ఎంపిక.` }, { property: 'og:title', content: `${title} — గాయత్రి వన్` }, { property: 'og:description', content: 'నిజమైన వాహన ప్రకటనలు, మార్గం, తేదీ ఎంపిక.' }, { property: 'og:type', content: 'website' }, { name: 'twitter:card', content: 'summary_large_image' }] }; },
   component: VehiclesPage,
 });
-function VehiclesPage() { const search = Route.useSearch(); return <AppShell hideTopActions={search.category === 'goods'}><Vehicles /></AppShell>; }
+function VehiclesPage() { const search = Route.useSearch(); return <AppShell hideTopActions><Vehicles /></AppShell>; }
 function Vehicles() {
   const search = Route.useSearch();
   const { data: me } = useMe();
@@ -41,6 +41,5 @@ function Vehicles() {
     {isPending && <p role="status">వస్తున్నాయి · Loading</p>}{isError && <Button onClick={() => void refetch()}>మళ్లీ చూడండి · Retry</Button>}
     {!isPending && !isError && rows.length === 0 && <ul className="space-y-2">{CATALOG[search.category].map(name => <li key={name} className="flex items-center justify-between gap-3 rounded-lg border bg-card p-3"><div className="min-w-0"><p className="text-lg font-bold">{name}</p><p className="text-sm text-muted-foreground">నంబర్, డ్రైవర్, మొబైల్: ఈ రకం వాహనం నమోదు కాగానే కనిపిస్తాయి · Shown once a driver registers</p></div><Button type="button" variant="outline" size="icon" aria-label="గంట · Bell" onClick={() => toast.info('ఈ రకం వాహనం డ్రైవర్ ఇంకా నమోదు కాలేదు. నమోదు కాగానే మా నుండి మీకు సమాచారం అందుతుంది.', { duration: 8000 })}><Bell /></Button></li>)}</ul>}
     {rows.map(post => <PostCard key={post.id} post={post} meId={me?.id} />)}
-    <Button asChild variant="outline" className="w-full"><Link to="/post/new">వాహనం కావాలి / వాహనం నమోదు · Request or post a vehicle</Link></Button>
   </div>;
 }
