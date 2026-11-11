@@ -12,4 +12,5 @@ export function vipShortfall(count: number, rank: number | null, rankedUsers: nu
   if (rank !== null && rank <= VIP_PLACES) return 0;
   return rankedUsers < VIP_PLACES ? 1 : Math.max(1, cutoff - count + 1);
 }
-export type ReferralVip = { count: number; rank: number | null; needed: number; vip: boolean; reward_paise: number; code: string; invited_by: string | null };
+export type VipSlotCount = { total: number; occupied: number; remaining: number; as_of: string };
+export type ReferralVip = { count: number; rank: number | null; needed: number; vip: boolean; reward_paise: number; inviter_reward_paise: number; invitee_reward_paise: number; code: string; invited_by: string | null; slots: VipSlotCount };

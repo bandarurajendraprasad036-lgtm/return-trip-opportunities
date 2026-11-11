@@ -15,6 +15,7 @@ export function Referral() {
   }, []);
   useEffect(() => {
     if (!me?.id) return;
+    void supabase.rpc('ensure_my_referral_code');
     const code = localStorage.getItem(REF_KEY); if (!code) return;
     void supabase.rpc('apply_referral', { _code: code }).then(result => { if (!result.error) localStorage.removeItem(REF_KEY); });
   }, [me?.id]);

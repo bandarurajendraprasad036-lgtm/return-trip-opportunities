@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import { VipSlots } from '@/components/VipSlots';
 
 export function ReferralVip() {
   const { data: me } = useMe();
@@ -16,7 +17,7 @@ export function ReferralVip() {
   const [busy, setBusy] = useState(false);
   const [region, setRegion] = useState('');
   const [publicName, setPublicName] = useState(false);
-  const { data, isError, refetch } = useQuery({ queryKey: ['referral-vip', me?.id], enabled: !!me, queryFn: async () => {
+  const { data, isError, refetch } = useQuery({ queryKey: ['referral-vip', me?.id], enabled: !!me, refetchInterval: 10000, refetchOnWindowFocus: true, queryFn: async () => {
     const result = await supabase.rpc('my_referral_vip');
     if (result.error) throw result.error;
     return result.data as unknown as Vip;
@@ -28,6 +29,9 @@ export function ReferralVip() {
       <p>మీ ద్వారా చేరినవారు · Your joins: <b>{data.count}</b></p>
       <p>మీ స్థానం · Your rank: <b>{data.rank ?? '—'}</b></p>
       <p>20% నగదు బహుమతి · Cash prize: <b>₹{(data.reward_paise / 100).toFixed(2)}</b></p>
+      <p className="text-sm">పరిచయం చేసినందుకు · Inviter benefit: ₹{(data.inviter_reward_paise / 100).toFixed(2)}; చేరినందుకు · Invitee benefit: ₹{(data.invitee_reward_paise / 100).toFixed(2)}</p>
+      <p className="text-sm">మీ సంకేతంతో చేరిన వ్యక్తి చెల్లింపు నిర్ధారిస్తే, మీకూ ఆ వ్యక్తికీ అందిన మొత్తంలో వేర్వేరుగా 20% బహుమతి. · Both direct parties earn 20% each of the confirmed received payment.</p>
+      <VipSlots />
       <p className="text-sm text-muted-foreground">నిర్ధారించిన చెల్లింపుల బహుమతి లెక్క మాత్రమే; నగదు పంపినట్లు కాదు. · Confirmed reward balance, not a payout receipt.</p>
       <p>{data.vip ? 'మొదటి వంద స్థానాల్లో ఉన్నారు; ప్రత్యేక ప్రవేశ అర్హత పొందారు. · Top 100 VIP eligibility earned.' : `మొదటి వంద స్థానాలకు ఇంకా ${data.needed} మందిని చేర్పించండి. · ${data.needed} more joins to enter Top 100.`}</p>
       <p className="text-sm">ఇతరుల చేరికలతో స్థానాలు మారవచ్చు. వేడుక పూర్తి వివరాలు మరో పదిహేను రోజుల్లో తెలియజేస్తాం. · Rankings can change; event details will be announced in fifteen days.</p>
