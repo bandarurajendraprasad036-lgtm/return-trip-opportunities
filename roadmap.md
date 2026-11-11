@@ -178,3 +178,14 @@
 - [x] Home bell layout check across phone sizes and orientations (scripts/check-bell-layout.py)
 - [ ] Bell image load/layout check: Chrome + Firefox pass; Safari engine crashes in test machine (unverified)
 - [x] Alt text check for daily and fallback Mata image
+
+## Nov 11 weekly winner request
+- [x] White text on black, gold only for highlights
+- [x] Admin chat shows today only (older hidden, kept)
+- [x] Local goods: no date, no top boxes
+- [x] Cars: advance / advance+return options with date
+- [x] Vehicle touch: "driver not responded yet" notice
+- [ ] Weekly TG/AP winner poster (Sunday night, photo required, 70% paid rule) — waits for database approval
+- [ ] Join counts only after code + mobile + OK; referral code shown after bell — waits for database approval
+- [ ] Vehicle name/number/driver name/mobile display — waits for database approval
+- [ ] 7 km nearby alerts with admin-editable km — waits for database approval

@@ -68,6 +68,7 @@ export function PostCard({
     <DialogContent className="max-h-[85svh] overflow-y-auto">
       <DialogTitle>వాహనం సంప్రదించే ముందు · Before contacting the vehicle</DialogTitle>
       <DialogDescription>{vehicleTypeLabel(post.vehicle_type)} · {post.from_place} → {post.to_place}</DialogDescription>
+      <p role="status" className="rounded-lg border p-3 font-bold">వాహనం ఉంది, కానీ డ్రైవర్ ఇంకా స్పందించలేదు. డ్రైవర్ స్పందించగానే మా నుండి మీకు సమాచారం అందుతుంది. · Vehicle listed, driver has not responded yet; we will inform you when the driver responds.</p>
       <ResponsibilityNotice prominent />
       <Button onClick={() => { setNoticeOpen(false); void ring(); }}><MessageCircle />సంప్రదించండి · Contact</Button>
     </DialogContent>
