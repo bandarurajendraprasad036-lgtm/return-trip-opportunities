@@ -172,7 +172,7 @@ function NewPost() {
     if (!program) { toast.error("ముందుగా వివరాలు నింపండి · Complete profile first"); return; }
     const schema = isJob
       ? z.object({ location: txt(80), skill: txt(100), salary: z.string().trim().max(40).optional(), description: z.string().trim().max(500).optional(), contact_phone: z.string().trim().max(15).optional(), category: z.string().max(30).optional(), show_contact: z.string().optional() })
-      : z.object({ from_place: txt(80), to_place: txt(80), trip_date: txt(10), ...(kind === "owner" ? { vehicle_type: txt(60) } : { goods_type: txt(80) }), description: z.string().trim().max(500).optional(), contact_phone: z.string().trim().max(15).optional() });
+      : z.object({ from_place: txt(80), to_place: txt(80), trip_date: txt(10), ...(kind === "owner" ? { vehicle_type: txt(60), vehicle_name: z.string().trim().max(60).optional(), vehicle_number: z.string().trim().max(20).optional(), driver_name: z.string().trim().max(60).optional() } : { goods_type: txt(80) }), description: z.string().trim().max(500).optional(), contact_phone: z.string().trim().max(15).optional() });
     setContentError('');
     const { company_name: companyName = '', vacancies = '', ...fields } = f;
     const employerInfo = kind === 'employer' ? [companyName.trim() && `కంపెనీ · Company: ${companyName.trim()}`, vacancies.trim() && `ఖాళీలు · Vacancies: ${vacancies.trim()}`].filter(Boolean).join('\n') : '';
@@ -253,6 +253,7 @@ function NewPost() {
           {field("trip_date", "తేదీ", "Date", { type: "date" })}
           <div className="space-y-1"><Label className="text-base">వాహనం రకం · Vehicle type</Label><select aria-label="వాహనం రకం · Vehicle type" value={f["vehicle_type"] ?? ""} onChange={event => setF({ ...f, vehicle_type: event.target.value, capacity_tons: '' })} className="h-12 w-full rounded-md border bg-card px-3 text-lg" required><option value="">ఎంచుకోండి · Choose</option>{VEHICLE_TYPES.map(type => <option key={type.value} value={type.value}>{type.te} · {type.en}</option>)}</select></div>
           {!isCar(f['vehicle_type']) && field("capacity_tons", "బరువు సామర్థ్యం (టన్నులు)", "Capacity (tons)", { type: "number", min: "0.1", max: "100", step: "0.1", required: true })}
+          {kind === "owner" && <>{field("vehicle_name", "వాహనం పేరు", "Vehicle name", { placeholder: "e.g. Tata Ace, Ashok Leyland" })}{field("vehicle_number", "వాహనం నంబర్", "Vehicle number", { placeholder: "TS 09 AB 1234" })}{field("driver_name", "డ్రైవర్ పేరు", "Driver name")}{field("contact_phone", "మొబైల్ నంబర్", "Mobile number", { inputMode: "numeric", maxLength: 10 })}</>}
           {kind === "business" && field("goods_type", "సరుకు రకం", "Goods type", { placeholder: "e.g. Rice bags, Cement" })}
         </>
       )}

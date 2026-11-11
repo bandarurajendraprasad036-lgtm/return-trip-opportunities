@@ -15,7 +15,7 @@ import { useAccountProgram } from '@/lib/use-account-program';
 import { ProfileRequest } from '@/components/ProfileRequest';
 import { useMe } from '@/lib/session';
 import { markAccountBellActivated, shouldShowProfileRequest } from '@/lib/bell-activation';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 export type Post = Database["public"]["Tables"]["posts"]["Row"];
 
@@ -93,6 +93,7 @@ export function PostCard({
     }
     const { data, error } = await supabase.rpc("ring_post", { _post_id: post.id });
     if (error) { if (error.message.includes('GOODS_MEMBERSHIP_REQUIRED')) setUpgradeOpen(true); else toast.error(error.message.includes("DAILY_ALERT_LIMIT") ? "అవతలి వ్యక్తి రోజువారీ సమాచార పరిమితి పూర్తయింది · Recipient's daily alert limit reached" : "సమాచారం పంపలేకపోయాం · Could not send interest"); return; }
+    if (!isJob) void supabase.rpc('notify_nearby_vehicles', { _post: post.id });
     if (data) nav({ to: "/chat/$userId", params: { userId: data }, search: { post: post.id } });
   };
   return <article className={compact ? "home-post-row" : "space-y-2 rounded-lg border bg-card p-3"}>
@@ -105,10 +106,17 @@ export function PostCard({
       {jobIsVisible(post) && <Button type="button" variant="outline" size="icon" className="shrink-0" onClick={contact} aria-label="సంప్రదించండి · Contact"><MessageCircle /></Button>}
     </div>
     {!compact && <Button variant="ghost" size="sm" disabled={detailsBusy} onClick={() => void openDetails()}><Info />వివరాలు · Details</Button>}
-    <Dialog open={detailsOpen} onOpenChange={open => { setDetailsOpen(open); if (!open) setDetails(null); }}><DialogContent className="max-h-[85svh] overflow-y-auto"><DialogTitle>ప్రకటన వివరాలు · Post details</DialogTitle><DialogDescription>{isJob ? post.skill || 'ఉద్యోగం · Job' : vehicleTypeLabel(post.vehicle_type)}</DialogDescription><p>{isJob ? post.location : `${post.from_place || '…'} → ${post.to_place || '…'}`}</p>{post.salary && <p>{post.salary}</p>}{details?.description && <p className="whitespace-pre-wrap break-words">{details.description}</p>}{details?.trip_date && <p>{details.trip_date}</p>}{details?.capacity_tons != null && <p>{details.capacity_tons} టన్నులు · tons</p>}</DialogContent></Dialog>
+    <Dialog open={detailsOpen} onOpenChange={open => { setDetailsOpen(open); if (!open) setDetails(null); }}><DialogContent className="max-h-[85svh] overflow-y-auto"><DialogTitle>ప్రకటన వివరాలు · Post details</DialogTitle><DialogDescription>{isJob ? post.skill || 'ఉద్యోగం · Job' : vehicleTypeLabel(post.vehicle_type)}</DialogDescription><p>{isJob ? post.location : `${post.from_place || '…'} → ${post.to_place || '…'}`}</p>{post.salary && <p>{post.salary}</p>}{details?.description && <p className="whitespace-pre-wrap break-words">{details.description}</p>}{details?.trip_date && <p>{details.trip_date}</p>}{details?.capacity_tons != null && <p>{details.capacity_tons} టన్నులు · tons</p>}{!isJob && post.kind === 'owner' && <VehiclePublicDetails postId={post.id} />}</DialogContent></Dialog>
     <Dialog open={upgradeOpen} onOpenChange={setUpgradeOpen}><DialogContent><DialogTitle>సరకు వాహన వివరాలు · Goods details</DialogTitle><DialogDescription>ఈ ప్రకటన వివరాలు ప్రస్తుతం అందుబాటులో లేవు. నిర్వాహకుడిని సంప్రదించండి. · Details currently unavailable; contact admin.</DialogDescription><Button onClick={() => nav({ to: '/dashboard' })}>నా వివరాలు · My profile</Button></DialogContent></Dialog>
     {actions && meId === post.user_id && <div className="flex flex-wrap gap-2">{actions}</div>}
     {vehicleNotice}
     <ProfileRequest open={profileOpen} onOpenChange={setProfileOpen} />
   </article>;
+}
+
+function VehiclePublicDetails({ postId }: { postId: string }) {
+  const { data } = useQuery({ queryKey: ['vehicle-public', postId], queryFn: async () => { const r = await supabase.rpc('vehicle_public_details', { _post: postId }); if (r.error) throw r.error; return r.data as { vehicle_name: string; vehicle_number: string; driver_name: string; mobile: string } | null; } });
+  if (!data) return null;
+  const row = (te: string, v: string) => <p><span className="text-muted-foreground">{te}: </span><b>{v || '—'}</b></p>;
+  return <div className="space-y-1 rounded-lg border p-3">{row('వాహనం పేరు · Vehicle', data.vehicle_name)}{row('వాహనం నంబర్ · Number', data.vehicle_number)}{row('డ్రైవర్ · Driver', data.driver_name)}{data.mobile ? <p><span className="text-muted-foreground">మొబైల్ · Mobile: </span><a className="font-bold text-primary underline" href={`tel:${data.mobile}`}>{data.mobile}</a></p> : row('మొబైల్ · Mobile', '')}</div>;
 }

@@ -189,3 +189,4 @@
 - [ ] Join counts only after code + mobile + OK; referral code shown after bell — waits for database approval
 - [ ] Vehicle name/number/driver name/mobile display — waits for database approval
 - [ ] 7 km nearby alerts with admin-editable km — waits for database approval
+- [x] (done Nov 11 second pass) weekly winner, OK-join counting, vehicle details, 7 km admin setting

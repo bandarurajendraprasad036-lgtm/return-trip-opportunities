@@ -14,7 +14,9 @@ import { VipSlots } from '@/components/VipSlots';
 export function ReferralVip() {
   const { data: me } = useMe();
   const qc = useQueryClient();
-  const [code, setCode] = useState('');
+  const [code, setCode] = useState(() => typeof window === 'undefined' ? '' : localStorage.getItem('g1_ref') ?? '');
+  const [mobile, setMobile] = useState('');
+  const bellDone = !!me?.profile?.bell_activated_at;
   const [busy, setBusy] = useState(false);
   const [region, setRegion] = useState('');
   const [publicName, setPublicName] = useState(false);
@@ -32,7 +34,7 @@ export function ReferralVip() {
   if (!me) return null;
   return <section className="space-y-3 border-y py-4"><h2 className="text-xl font-bold">మీ పరిచయాలు · Your referrals</h2>
     {isError && <Button variant="outline" onClick={() => void refetch()}>మళ్లీ చూడండి · Retry</Button>}
-    {data && <><p>మీ సంకేతం · Your code: <b>{data.code}</b></p><p className="break-all">{referralLink(data.code)}</p>
+    {data && <>{bellDone ? <><p>మీ సంకేతం · Your code: <b>{data.code}</b></p><p className="break-all">{referralLink(data.code)}</p></> : <p className="font-bold text-primary">🔔 మీ పరిచయ సంకేతం చూడటానికి ముందు హోమ్ పేజీలో గంట నొక్కండి · Tap the home bell to see your code</p>}
       <p>మీ ద్వారా చేరినవారు · Your joins: <b>{data.count}</b></p>
       <p>మీ స్థానం · Your rank: <b>{data.rank ?? '—'}</b></p>
       <p>20% నగదు బహుమతి · Cash prize: <b>₹{(data.reward_paise / 100).toFixed(2)}</b></p>
@@ -47,7 +49,7 @@ export function ReferralVip() {
       <Button asChild variant="outline"><Link to="/service-profile">పోటీకి పంచుకునే చిత్రం · Published photo</Link></Button>
       <label className="flex gap-2 text-sm"><input type="checkbox" checked={photoConsent} onChange={e => setPhotoConsent(e.target.checked)} />నేను ప్రచురించిన సేవా చిత్రాన్ని పోటీ పట్టికలో చూపించడానికి ప్రత్యేక అనుమతి; తీసివేయడానికి ఎంపిక ఆపి భద్రపరచండి. · Allow my published service photo on rankings; uncheck and save to withdraw.</label>
       <Button className="h-auto min-h-12 max-w-full whitespace-normal" disabled={busy || !region} variant="outline" onClick={async () => { setBusy(true); const result = await supabase.from('referral_board_consent').upsert({ user_id: me.id, region, published: publicName, photo_consent: photoConsent, display_name: publicName ? me.profile?.full_name || '' : '' }); setBusy(false); if (result.error) toast.error('ఎంపిక భద్రపడలేదు'); else { await qc.invalidateQueries({ queryKey: ['referral-board'] }); toast.success('పట్టిక ఎంపిక భద్రపడింది'); } }}>పట్టిక ఎంపిక భద్రపరచండి · Save leaderboard choice</Button>
-      {!data.invited_by && <div className="space-y-2"><Label htmlFor="vip-referral-code">మిమ్మల్ని పరిచయం చేసిన వారి సంకేతం · Inviter code</Label><Input id="vip-referral-code" value={code} onChange={e => setCode(e.target.value)} maxLength={40} /><Button disabled={busy || !/^[a-z0-9]{4,40}$/i.test(code)} onClick={async () => { setBusy(true); try { const result = await supabase.rpc('apply_referral', { _code: code }); if (result.error) throw result.error; if (!result.data) { toast.error('సంకేతం సరిపోలలేదు లేదా ఇప్పటికే నమోదు అయింది · Invalid or already linked'); return; } await qc.invalidateQueries({ queryKey: ['referral-vip'] }); await qc.invalidateQueries({ queryKey: ['me'] }); toast.success('పరిచయం నమోదైంది · Referral recorded'); } catch { toast.error('నమోదు కాలేదు · Could not save'); } finally { setBusy(false); } }}>నమోదు చేయండి · Apply</Button></div>}
+      {!data.invited_by && <div className="space-y-2"><Label htmlFor="vip-referral-code">మిమ్మల్ని పరిచయం చేసిన వారి సంకేతం · Inviter code</Label><Input id="vip-referral-code" value={code} onChange={e => setCode(e.target.value)} maxLength={40} /><Label htmlFor="vip-mobile">మీ మొబైల్ నంబర్ · Your mobile</Label><Input id="vip-mobile" inputMode="numeric" value={mobile} onChange={e => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))} maxLength={10} /><Button disabled={busy || !/^[a-z0-9]{4,40}$/i.test(code) || !/^[6-9]\d{9}$/.test(mobile)} onClick={async () => { setBusy(true); try { const result = await supabase.rpc('confirm_referral_join', { _code: code, _phone: mobile }); if (result.error) { toast.error(result.error.message.includes('MOBILE_MISMATCH') ? 'మీ ఖాతా నంబర్ వేయండి · Enter your account mobile' : 'నమోదు కాలేదు · Could not save'); return; } if (!result.data) { toast.error('సంకేతం సరిపోలలేదు లేదా ఇప్పటికే నమోదు అయింది · Invalid or already linked'); return; } localStorage.removeItem('g1_ref'); await qc.invalidateQueries({ queryKey: ['referral-vip'] }); await qc.invalidateQueries({ queryKey: ['me'] }); toast.success('చేరిక లెక్కించబడింది · Join counted'); } finally { setBusy(false); } }}>సరే · OK</Button></div>}
     </>}
   </section>;
 }
