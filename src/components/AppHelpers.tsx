@@ -4,12 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from 'sonner';
-import { permissionThanks } from '@/lib/friendly-notifications';
-import { enableBellAudio,playBell } from '@/lib/bell';
-import { permissionHelp } from '@/lib/browser-notifications';
-import { enablePush, pushDeviceId, deviceSound } from '@/lib/firebase-push';
-import { registerPushDevice } from '@/lib/push.functions';
-import { useServerFn } from '@tanstack/react-start';
 import { homeActionPending } from '@/lib/prime99';
 
 type InstallEvent = Event & { prompt: () => Promise<void> };
@@ -49,15 +43,8 @@ export function InstallButton({ compact = false, remind = false }: { compact?: b
   );
 }
 
-/** Asks for notification permission 5 seconds after sign-in, then shows phone alerts for new matches while the app is open. */
-export function NotificationPermission({ userId }: { userId: string }) {
-  const [ask, setAsk] = useState(false);
-  const register = useServerFn(registerPushDevice);
-  useEffect(() => {
-    if (typeof Notification === "undefined" || Notification.permission !== "default") return;
-    const t = setTimeout(() => setAsk(true), 5000);
-    return () => clearTimeout(t);
-  }, []);
+/** Existing message alerts only; permission is requested exclusively by the home bell. */
+export function MessagePhoneNotices({ userId }: { userId: string }) {
   useEffect(() => {
     if (typeof Notification === "undefined") return;
     const ch = supabase
@@ -77,24 +64,7 @@ export function NotificationPermission({ userId }: { userId: string }) {
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [userId]);
-  if (!ask) return null;
-  return (
-    <div className="fixed inset-x-3 bottom-24 z-30 mx-auto max-w-md rounded-xl border bg-card p-4 shadow-card">
-      <p className="font-bold">మ్యాచ్ వస్తే ఫోన్‌కు అలర్ట్ కావాలా?</p>
-      <p className="text-sm text-muted-foreground">Get alerts on your phone when a match comes?</p>
-      <div className="mt-3 flex gap-2">
-        <Button className="flex-1" onClick={async () => {
-          enableBellAudio(); setAsk(false);
-          try {
-            const result = await enablePush();
-            if (result.status === 'registered' && result.token) { await register({ data: { id: pushDeviceId(), token: result.token, sound: deviceSound() } }); const message=permissionThanks(true); if(message) toast.success(message,{duration:10000}); const eligibility=await supabase.rpc('my_prime99'); if ((eligibility.data as { active?: boolean })?.active) playBell(); }
-            else toast.info(result.status === 'not-configured' ? 'వెబ్ సూచనల వివరాలు చేర్చాలి · Configure web push' : result.status === 'open-in-new-tab' ? permissionHelp['open-in-new-tab'] : result.status === 'denied' ? permissionHelp.denied : 'ఫోన్ సూచనలు ప్రారంభం కాలేదు · Phone registration unavailable');
-          } catch { toast.error('ఫోన్ నమోదు కాలేదు · Device registration failed'); }
-        }}>అవును · Allow</Button>
-        <Button variant="outline" className="flex-1" onClick={() => setAsk(false)}>తర్వాత · Later</Button>
-      </div>
-    </div>
-  );
+  return null;
 }
 
 /** Resolves support by UUID, without exposing an admin phone. */

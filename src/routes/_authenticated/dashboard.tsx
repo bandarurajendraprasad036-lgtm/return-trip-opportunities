@@ -61,15 +61,15 @@ function Dashboard() {
         <img src={mataImage} alt="గాయత్రీ అమ్మవారు · Gayatri Mata" className="h-40 w-full object-cover object-top" />
       </div>
       <div className="flex items-center gap-3 rounded-xl bg-card p-4 shadow-card">
-        <span className="grid size-14 place-items-center rounded-full bg-accent text-2xl font-bold text-accent-foreground">{(me?.profile?.full_name || "?").charAt(0).toUpperCase()}</span>
-        <div className="flex-1">
+        <span className="grid size-14 shrink-0 place-items-center rounded-full bg-accent text-2xl font-bold text-accent-foreground">{(me?.profile?.full_name || "?").charAt(0).toUpperCase()}</span>
+        <div className="min-w-0 flex-1 break-words">
           <p className="text-xl font-bold">{me?.profile?.full_name || "—"}</p>
           <p className="text-sm text-muted-foreground">📞 {me?.profile?.phone} · 📍 {me?.profile?.location || "—"}</p>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-2">
-        <Button variant="outline" onClick={async () => { await clearAccountSession(qc); await navigate({ to: "/auth", replace: true }); }}><LogOut />లాగౌట్ · Logout</Button>
-        <Button variant="outline" onClick={async () => { await clearAccountSession(qc); await navigate({ to: "/auth", replace: true }); }}><Users />ఖాతా మార్చండి · Switch account</Button>
+        <Button variant="outline" className="h-auto min-h-14 min-w-0 w-full gap-1 px-2 py-2 whitespace-normal" onClick={async () => { await clearAccountSession(qc); await navigate({ to: "/auth", replace: true }); }}><LogOut className="shrink-0" /><span className="min-w-0 break-words leading-snug"><span className="block">లాగౌట్</span><span className="block text-xs">Logout</span></span></Button>
+        <Button variant="outline" className="h-auto min-h-14 min-w-0 w-full gap-1 px-2 py-2 whitespace-normal" onClick={async () => { await clearAccountSession(qc); await navigate({ to: "/auth", replace: true }); }}><Users className="shrink-0" /><span className="min-w-0 break-words leading-snug"><span className="block">ఖాతా మార్చండి</span><span className="block text-xs">Switch account</span></span></Button>
       </div>
       {countsError && <div role="alert" className="rounded-xl border p-3"><p>మీ ఖాతా గణాంకాలు రాలేదు · Your account counts could not load</p><Button variant="outline" onClick={() => void refetchCounts()}>మళ్లీ ప్రయత్నించండి · Retry</Button></div>}
       <div className="grid grid-cols-2 gap-3">

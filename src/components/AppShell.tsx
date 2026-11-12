@@ -5,7 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Inbox, Home, MessageCircle, PlusCircle, User, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/session";
-import { NotificationPermission } from "@/components/AppHelpers";
+import { MessagePhoneNotices } from "@/components/AppHelpers";
 import { DesignFooter } from "@/components/DesignFooter";
 import { IncomingNotice } from "@/components/IncomingNotice";
 import { ResponsibilityNotice } from "@/components/ResponsibilityNotice";
@@ -82,7 +82,7 @@ export function AppShell({ children, hideTopActions = false }: { children: React
       </header>
       <main className="flex-1 pb-24">{children}<ResponsibilityNotice /><DesignFooter /></main>
       {me && <IncomingNotice userId={me.id} />}
-      {me && <NotificationPermission userId={me.id} />}
+      {me && <MessagePhoneNotices userId={me.id} />}
       <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-md border-t bg-card">
         <Link to="/feed" className={tab} activeProps={active}>
           <Home className="size-6" />
