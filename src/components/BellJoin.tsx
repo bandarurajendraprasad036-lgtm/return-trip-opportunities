@@ -18,7 +18,6 @@ import { useServerFn } from '@tanstack/react-start';
 import { toast } from 'sonner';
 import { homeActionPending, usePrime99 } from '@/lib/prime99';
 import { BellPaymentNotice } from '@/components/BellPaymentNotice';
-import { InstallButton } from '@/components/AppHelpers';
 
 export function BellJoin({ children }: { children?: React.ReactNode }) {
   const { data: me } = useMe();
@@ -48,15 +47,7 @@ export function BellJoin({ children }: { children?: React.ReactNode }) {
   return <>
     <Button type="button" variant="ghost" disabled={busy} data-touched={touched} onClick={() => setProfileOpen(true)} aria-label="గంట కొట్టండి · Ring the bell" className={`${children ? 'home-temple-trigger' : 'home-bell relative z-10 mx-auto -mt-2 grid size-20 place-items-center rounded-none border-0 bg-transparent p-2 text-gold shadow-none ring-0 hover:bg-transparent active:scale-95'} ${homeActionPending('bell', Boolean(touched || me?.profile?.bell_activated_at)) ? 'unfinished-action' : ''}`}>{children || <Bell className="size-16!" fill="currentColor" strokeWidth={1.5} />}</Button>
     <ProfileRequest home open={profileOpen} onOpenChange={setProfileOpen} showProfileLink={Boolean(me)}>
-      <InstallButton />
-      {me ? <Button disabled={busy} onClick={async () => {
-      const access = await supabase.rpc('has_paid_bell', { _user: me.id });
-      if (access.error) { toast.error('చెల్లింపు తనిఖీ కాలేదు; మళ్లీ ప్రయత్నించండి.'); return; }
-      if (!access.data) { setProfileOpen(false); setPaymentOpen(true); return; }
-      enableBellAudio(); if (prime?.alerts_ready) playBell(); setTouched(true);
-      if (!hasValidMobile(me.profile?.phone)) { setProfileOpen(false); setMobileOpen(true); return; }
-      await activate();
-    }}>₹100 గంట కోసం కొనసాగించండి</Button> : <><GoogleSignIn /><Button onClick={() => { setProfileOpen(false); setPaymentOpen(true); }}>₹100 చెల్లింపు వివరాలు</Button><Button asChild variant="outline"><Link to="/feed">ప్రకటనలు చూడండి · Browse</Link></Button></>}
+      {!me && <><GoogleSignIn /><Button asChild variant="outline"><Link to="/feed">ప్రకటనలు చూడండి · Browse</Link></Button></>}
     </ProfileRequest>
     <Dialog open={mobileOpen} onOpenChange={setMobileOpen}><DialogContent><DialogTitle>మీ మొబైల్ నంబరు · Your mobile</DialogTitle><DialogDescription>మీ ఖాతాలో మాత్రమే భద్రపరుస్తాం; బయట చూపించం. సంఖ్య ఇవ్వడం ఫోన్ ధృవీకరణ కాదు.</DialogDescription><Input aria-label="మీ మొబైల్ నంబరు" inputMode="numeric" maxLength={10} value={mobile} onChange={e => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))} /><Button disabled={busy || !hasValidMobile(mobile)} onClick={async () => { if (!me) return; setBusy(true); const r = await supabase.from('profiles').update({ phone: mobile }).eq('id', me.id); setBusy(false); if (r.error) { toast.error('నంబరు భద్రపడలేదు'); return; } await queryClient.invalidateQueries({ queryKey: ['me'] }); setMobileOpen(false); toast.success('నంబరు భద్రపడింది; ప్రధాన గంటను నొక్కి ఫోన్ సూచనలు అనుమతించండి'); }}>కొనసాగించండి · Continue</Button></DialogContent></Dialog>
     <p className="mt-1 text-center text-lg font-bold">ఏది కావాలన్నా గంట కొట్టు</p>

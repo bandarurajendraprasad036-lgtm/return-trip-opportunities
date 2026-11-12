@@ -14,6 +14,8 @@ import { isCar, VEHICLE_TYPES } from '@/lib/vehicle-types';
 import { parseVehicleCategory, vehicleCategory } from '@/lib/profile-vehicle';
 import { PhoneNumberChange } from '@/components/PhoneNumberChange';
 import { ProviderContacts } from '@/components/ProviderContacts';
+import { SubscribeAfterProfile } from '@/components/SubscribeAfterProfile';
+import { markAccountBellActivated } from '@/lib/bell-activation';
 
 export function AccountProfile() {
   const { data: me } = useMe();
@@ -28,6 +30,7 @@ export function AccountProfile() {
   const [kind, setKind] = useState('seeker');
   const [busy, setBusy] = useState(false);
   const [publicService, setPublicService] = useState(false);
+  const [subscribeOpen, setSubscribeOpen] = useState(false);
   const [interest, setInterest] = useState('');
   useEffect(() => {
     const value = sessionStorage.getItem('gayatri-interest') || '';
@@ -61,6 +64,7 @@ export function AccountProfile() {
   const vehicleProfile = kind === 'owner' || kind === 'business';
 
   return <>
+    <SubscribeAfterProfile open={subscribeOpen} onOpenChange={setSubscribeOpen} />
     <section id="account-profile" className="profile-panel space-y-4 border-y px-3 py-5">
       <div>
         <h2 className="text-xl font-bold">నా వివరాలు · My profile</h2>
@@ -94,6 +98,9 @@ export function AccountProfile() {
           }
           await qc.invalidateQueries();
           toast.success('మీ వివరాలు భద్రపడ్డాయి · Profile saved');
+          const paid = await supabase.rpc('has_paid_bell', { _user: me.id });
+          if (paid.data) { await supabase.from('notification_preferences').upsert({ user_id: me.id, enabled: true }); await markAccountBellActivated(me.id); }
+          else setSubscribeOpen(true);
         } catch {
           toast.error('మీ వివరాలు భద్రపడలేదు · Profile not saved');
         } finally { setBusy(false); }
