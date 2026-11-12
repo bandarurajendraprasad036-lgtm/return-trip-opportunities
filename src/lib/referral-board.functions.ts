@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start';
 import { createClient } from '@supabase/supabase-js';
+import { competitionDisplayOpen } from '@/lib/current-membership';
 
 export type ReferralBoardData = { limit: number; event_label: string; totals: { TG: number; AP: number }; rows: { rank: number; count: number; name: string; region: string; photo_path: string; photo: string }[] };
 export const getReferralBoard = createServerFn({ method: 'GET' }).handler(async () => {
@@ -14,6 +15,7 @@ export const getReferralBoard = createServerFn({ method: 'GET' }).handler(async 
   const result = await client.rpc('public_referral_vip_board');
   if (result.error) throw new Error('పట్టిక తెరుచుకోలేదు');
   const board = result.data as ReferralBoardData;
+  if (!competitionDisplayOpen(Date.now())) return { ...board, rows: [] };
   const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
   return { ...board, rows: await Promise.all(board.rows.map(async row => {
     if (!row.photo_path) return { ...row, photo: '' };

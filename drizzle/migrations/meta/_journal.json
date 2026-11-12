@@ -358,6 +358,27 @@
       "when": 1794390009735,
       "tag": "0050_nearby_vehicle_notice_bell_mode",
       "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "7",
+      "when": 1794472358804,
+      "tag": "0051_hundred_forty_days_private_contacts_extra_posts",
+      "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "7",
+      "when": 1794472480043,
+      "tag": "0052_service_bell_quota_district_and_next_sunday",
+      "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "7",
+      "when": 1794472693302,
+      "tag": "0053_five_image_publication_evidence_and_public_rank_gate",
+      "breakpoints": true
     }
   ]
 }

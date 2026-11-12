@@ -764,39 +764,51 @@ export type Database = {
       }
       prime99_payments: {
         Row: {
+          alerts_start_at: string | null
           amount: number
           ends_at: string | null
           id: string
+          payable_amount: number
+          payment_purpose: string
           received_at: string | null
           reference: string
           review_note: string
           reviewed_by: string | null
           status: string
           submitted_at: string
+          used_post_id: string | null
           user_id: string
         }
         Insert: {
+          alerts_start_at?: string | null
           amount?: number
           ends_at?: string | null
           id?: string
+          payable_amount?: number
+          payment_purpose?: string
           received_at?: string | null
           reference: string
           review_note?: string
           reviewed_by?: string | null
           status?: string
           submitted_at?: string
+          used_post_id?: string | null
           user_id: string
         }
         Update: {
+          alerts_start_at?: string | null
           amount?: number
           ends_at?: string | null
           id?: string
+          payable_amount?: number
+          payment_purpose?: string
           received_at?: string | null
           reference?: string
           review_note?: string
           reviewed_by?: string | null
           status?: string
           submitted_at?: string
+          used_post_id?: string | null
           user_id?: string
         }
         Relationships: [
@@ -934,6 +946,89 @@ export type Database = {
           },
         ]
       }
+      provider_contact_batches: {
+        Row: {
+          created_at: string
+          id: string
+          review_note: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          review_note?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          review_note?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_contact_batches_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_contacts: {
+        Row: {
+          batch_id: string
+          consent_confirmed: boolean
+          id: string
+          mobile: string
+          service: string
+          town: string
+          user_id: string
+        }
+        Insert: {
+          batch_id: string
+          consent_confirmed: boolean
+          id?: string
+          mobile: string
+          service: string
+          town: string
+          user_id: string
+        }
+        Update: {
+          batch_id?: string
+          consent_confirmed?: boolean
+          id?: string
+          mobile?: string
+          service?: string
+          town?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_contacts_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "provider_contact_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_contacts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       push_deliveries: {
         Row: {
           attempts: number
@@ -1027,6 +1122,8 @@ export type Database = {
       referral_board_consent: {
         Row: {
           display_name: string
+          district: string
+          district_group: string
           photo_consent: boolean
           published: boolean
           region: string
@@ -1034,6 +1131,8 @@ export type Database = {
         }
         Insert: {
           display_name?: string
+          district?: string
+          district_group?: string
           photo_consent?: boolean
           published?: boolean
           region?: string
@@ -1041,6 +1140,8 @@ export type Database = {
         }
         Update: {
           display_name?: string
+          district?: string
+          district_group?: string
           photo_consent?: boolean
           published?: boolean
           region?: string
@@ -1296,6 +1397,39 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_chat_pairs: {
+        Row: {
+          created_at: string
+          member_id: string
+          owner_id: string
+        }
+        Insert: {
+          created_at?: string
+          member_id: string
+          owner_id: string
+        }
+        Update: {
+          created_at?: string
+          member_id?: string
+          owner_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_chat_pairs_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_chat_pairs_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "service_profiles"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -1774,6 +1908,10 @@ export type Database = {
       admin_broadcast: { Args: { _message: string }; Returns: number }
       admin_evidence_sender: { Args: { _id: string }; Returns: string }
       admin_referral_eligibility: { Args: never; Returns: Json }
+      admin_video_notice: {
+        Args: { _message: string; _url: string }
+        Returns: number
+      }
       apply_referral: { Args: { _code: string }; Returns: boolean }
       block_confirmed_content: {
         Args: { _reason: string; _user: string }
@@ -1823,6 +1961,10 @@ export type Database = {
         Args: { _code: string; _phone: string }
         Returns: boolean
       }
+      consume_post_slot: {
+        Args: { _id: string; _user: string }
+        Returns: undefined
+      }
       dispatch_approximate_route_alerts: { Args: never; Returns: number }
       dispatch_daily_referral_board: { Args: never; Returns: number }
       dispatch_program_requests: { Args: never; Returns: number }
@@ -1849,6 +1991,7 @@ export type Database = {
         Returns: boolean
       }
       my_goods_membership: { Args: never; Returns: boolean }
+      my_membership_price: { Args: never; Returns: number }
       my_notification_quota: { Args: never; Returns: Json }
       my_post_quota99: { Args: never; Returns: Json }
       my_prime99: { Args: never; Returns: Json }
@@ -1857,6 +2000,7 @@ export type Database = {
       my_referral_vip: { Args: never; Returns: Json }
       notify_matches: { Args: { _post_id: string }; Returns: number }
       notify_nearby_vehicles: { Args: { _post: string }; Returns: number }
+      paid_alert_ready: { Args: { _user: string }; Returns: boolean }
       post_alert_eligible: { Args: { _user: string }; Returns: boolean }
       posts_match_area: {
         Args: {
@@ -1866,6 +2010,7 @@ export type Database = {
         Returns: boolean
       }
       process_program_referral: { Args: { _user: string }; Returns: number }
+      public_competition_areas: { Args: never; Returns: Json }
       public_referral_vip_board: { Args: never; Returns: Json }
       public_service_directory: { Args: never; Returns: Json }
       public_stats: { Args: never; Returns: Json }
@@ -1921,11 +2066,16 @@ export type Database = {
         Args: { _approve: boolean; _id: string; _note?: string }
         Returns: undefined
       }
+      review_provider_contacts: {
+        Args: { _approve: boolean; _id: string; _note?: string }
+        Returns: undefined
+      }
       review_sharing_claim: {
         Args: { _approve: boolean; _id: string; _note?: string }
         Returns: undefined
       }
       ring_post: { Args: { _post_id: string }; Returns: string }
+      ring_service: { Args: { _owner: string }; Returns: string }
       save_service_listing: {
         Args: {
           _category: string
@@ -1984,6 +2134,7 @@ export type Database = {
         Args: { _paths: string[]; _post: string; _purpose: string }
         Returns: string
       }
+      submit_provider_contacts: { Args: { _rows: Json }; Returns: string }
       submit_verified_post_evidence: {
         Args: {
           _hashes: string[]

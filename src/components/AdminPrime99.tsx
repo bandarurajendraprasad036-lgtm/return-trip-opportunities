@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 export function AdminPrime99() {
   const qc = useQueryClient(); const [busy, setBusy] = useState(false); const [reference, setReference] = useState('');
   const payments = useQuery({ queryKey: ['admin-prime99'], refetchInterval: 10000, queryFn: async () => {
-    const [result, people] = await Promise.all([supabase.from('prime99_payments').select('*').eq('status', 'pending').order('submitted_at'), supabase.from('profiles').select('id,full_name,phone')]);
+    const [result, people] = await Promise.all([supabase.from('prime99_payments').select('*').order('submitted_at', { ascending: false }), supabase.from('profiles').select('id,full_name,phone')]);
     if (result.error || people.error) throw result.error ?? people.error;
     return result.data.map(p => ({ ...p, person: people.data.find(u => u.id === p.user_id) }));
   } });
@@ -18,17 +18,19 @@ export function AdminPrime99() {
     return result.data.filter(r => !paid.data.some(p => p.receipt_id === r.receipt_id));
   } });
   const review = async (id: string, approve: boolean) => {
-    if (approve && !window.confirm('బ్యాంకులో ₹99 నిజంగా అందిందని నిర్ధారించారా?')) return;
+    const payment = payments.data?.find(p => p.id === id);
+    if (!payment) return;
+    if (approve && !window.confirm(`బ్యాంకులో ₹${payment.payable_amount} నిజంగా అందిందని నిర్ధారించారా?`)) return;
     setBusy(true); try {
-      const result = await supabase.rpc('review_prime99', { _id: id, _approve: approve, _note: approve ? '₹99 అందినట్లు నిర్ధారించాం' : 'చెల్లింపు ఆమోదించలేదు' });
+      const result = await supabase.rpc('review_prime99', { _id: id, _approve: approve, _note: approve ? `₹${payment.payable_amount} అందినట్లు నిర్ధారించాం` : 'చెల్లింపు ఆమోదించలేదు' });
       if (result.error) throw result.error;
       await qc.invalidateQueries(); toast.success('పరిశీలన నమోదైంది');
     } catch { toast.error('పరిశీలన నమోదు కాలేదు; చెల్లింపు సంఖ్యను తనిఖీ చేయండి'); } finally { setBusy(false); }
   };
-  return <section className="space-y-3 border-y py-4"><h2 className="text-xl font-bold">₹99 చెల్లింపుల పరిశీలన · Prime review</h2>
+  return <section className="space-y-3 border-y py-4"><h2 className="text-xl font-bold">చెల్లింపుల పరిశీలన, చరిత్ర · Payment review</h2>
     {payments.isError && <Button onClick={() => void payments.refetch()}>మళ్లీ చూడండి · Retry</Button>}
     {payments.data?.length === 0 && <p>పరిశీలనకు కొత్త చెల్లింపులు లేవు · No pending payments</p>}
-    {payments.data?.map(p => <article key={p.id} className="space-y-2 border-b py-3"><p>{p.person?.full_name || '—'} · {p.person?.phone}</p><p className="break-all">₹99 · {p.reference}</p><div className="flex gap-2"><Button disabled={busy} onClick={() => void review(p.id, true)}>ఆమోదించు · Approve</Button><Button variant="outline" disabled={busy} onClick={() => void review(p.id, false)}>తిరస్కరించు · Reject</Button></div></article>)}
+    {payments.data?.map(p => <article key={p.id} className="space-y-2 border-b py-3"><p>{p.person?.full_name || '—'} · {p.person?.phone}</p><p className="break-all">₹{p.payable_amount} · {p.reference}</p><p>{p.payment_purpose === 'extra_post' ? 'అదనపు పోస్ట్' : 'సభ్యత్వం'} · {p.status === 'approved' ? 'ఆమోదం' : p.status === 'rejected' ? 'తిరస్కరణ' : 'పరిశీలనలో'}</p>{p.status === 'pending' && <div className="flex gap-2"><Button disabled={busy} onClick={() => void review(p.id, true)}>ఆమోదించు · Approve</Button><Button variant="outline" disabled={busy} onClick={() => void review(p.id, false)}>తిరస్కరించు · Reject</Button></div>}</article>)}
     <h3 className="text-lg font-bold">వేడుక నగదు ఇచ్చిన నమోదు · Record actual payout</h3>
     <p>వేడుక రోజు నిజంగా ఇచ్చిన తర్వాతే నమోదు చేయండి. లెక్కలో బహుమతి ఉండటం నగదు ఇచ్చినట్లు కాదు.</p>
     <Input aria-label="నగదు ఇచ్చిన ఆధారం · Payout reference" value={reference} maxLength={120} onChange={e => setReference(e.target.value)} />

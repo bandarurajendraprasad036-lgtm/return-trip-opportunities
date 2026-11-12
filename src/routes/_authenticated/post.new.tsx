@@ -200,7 +200,7 @@ function NewPost() {
       if (registered.error) toast.error('ప్రకటన భద్రపడింది; పరిధి స్థానాలు భద్రపడలేదు · Post saved; radius coordinates not saved');
     }
     setBusy(false);
-    if (error) { toast.error(error.message.includes('MONTHLY_THREE_POST_LIMIT') ? 'ఈ నెల మూడు పోస్టులు పూర్తయ్యాయి; తదుపరి నెల గడువులో మళ్లీ పెట్టవచ్చు · Three monthly posts used' : error.message.includes('THREE_MONTHLY_JOBS_USED') ? 'ప్రకటన పరిమితి పూర్తయింది · Posting limit reached' : error.message.includes("MOBILE_REQUIRED") ? "ప్రకటనకు ముందు మొబైల్ నంబరు ఇవ్వండి · Mobile number required" : error.message.includes("BAD_CONTENT") ? "🚫 బూతులు, చెడు మాటలు, దేశ వ్యతిరేక విషయాలు పోస్ట్ చేయకూడదు · Abusive or anti-national content is not allowed" : error.message); return; }
+    if (error) { toast.error(error.message.includes('MONTHLY_THREE_POST_LIMIT') ? 'ఈ నెల మూడు ఉచిత పోస్టులు పూర్తయ్యాయి; అదనపు పోస్టుకు ₹49 చెల్లింపు ఆమోదం కావాలి' : error.message.includes('THREE_MONTHLY_JOBS_USED') ? 'ప్రకటన పరిమితి పూర్తయింది · Posting limit reached' : error.message.includes("MOBILE_REQUIRED") ? "ప్రకటనకు ముందు మొబైల్ నంబరు ఇవ్వండి · Mobile number required" : error.message.includes("BAD_CONTENT") ? "🚫 బూతులు, చెడు మాటలు, దేశ వ్యతిరేక విషయాలు పోస్ట్ చేయకూడదు · Abusive or anti-national content is not allowed" : error.message); return; }
     toast.success(savedPost?.visible_after&&Date.parse(savedPost.visible_after)>Date.now()?"మీ సమాచారం మాకు సమర్పించారు; మరో ఐదు గంటల్లో చూడవచ్చు · Submitted; visible after five hours":"మీ సమాచారం మాకు సమర్పించారు; మీ ప్రకటన ఇప్పుడు చూడవచ్చు · Submitted; now visible");
     qc.invalidateQueries();
     nav({ to: "/my-posts" });
@@ -216,7 +216,7 @@ function NewPost() {
   return (
     <form onSubmit={submit} className="space-y-4 p-4">
       <p>ఒక నెలలో ఉద్యోగం, వాహనం కలిపి మొత్తం మూడు పోస్టులు. · Three total job/vehicle posts per month.</p>
-      <p className="text-sm">పంచుకున్న ఆధారాలు పంపితే ఇప్పుడే; లేకపోతే ఐదు గంటల తర్వాత. పని కోరే ప్రకటన వెంటనే. · Sharing evidence: now; otherwise five hours. Job seekers: now.</p>
+      <p className="text-sm">నెలకు మూడు పోస్టులు ఉచితం; తరువాత ఒక్కో పోస్టుకు ₹49. ఉచిత ప్రకటనలు ఐదు గంటల తరువాత కనిపిస్తాయి. చెల్లింపు ఆమోదం ఉంటే కొత్త ప్రకటన వెంటనే.</p>
       <div className={`flex items-center gap-3 rounded-xl border p-3 text-foreground ${opt.tone}`}>
         <opt.icon className="size-7" />
         <div><p className="text-lg font-bold">{opt.te}</p><p className="text-sm opacity-90">{opt.en}</p></div>

@@ -13,6 +13,7 @@ import { hasValidMobile } from '@/lib/phone';
 import { isCar, VEHICLE_TYPES } from '@/lib/vehicle-types';
 import { parseVehicleCategory, vehicleCategory } from '@/lib/profile-vehicle';
 import { PhoneNumberChange } from '@/components/PhoneNumberChange';
+import { ProviderContacts } from '@/components/ProviderContacts';
 
 export function AccountProfile() {
   const { data: me } = useMe();
@@ -153,5 +154,6 @@ export function AccountProfile() {
       {isError && <p role="alert">వివరాలు రాలేదు · Profile unavailable</p>}
     </section>
     <SavedVehicleRoutes />
+    <ProviderContacts />
   </>;
 }

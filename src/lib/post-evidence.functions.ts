@@ -1,10 +1,10 @@
 import { createServerFn } from '@tanstack/react-start';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 import { z } from 'zod';
-import {distinctEvidence} from '@/lib/evidence-rules';
+import {distinctEvidence,evidenceImageCount} from '@/lib/evidence-rules';
 
 export const submitPostEvidence = createServerFn({method:'POST'}).middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({post:z.string().uuid(),purpose:z.enum(['early_publication','notifications']),paths:z.array(z.string().max(200)).min(10).max(11)}).parse(input))
+  .inputValidator((input: unknown) => z.object({post:z.string().uuid(),purpose:z.enum(['early_publication','notifications']),paths:z.array(z.string().max(200)).min(5).max(10)}).refine(data => data.paths.length === evidenceImageCount(data.purpose)).parse(input))
   .handler(async ({data,context}) => {
     const owned = await context.supabase.from('posts').select('id,title,skill,location,from_place,to_place').eq('id',data.post).eq('user_id',context.userId).maybeSingle();
     if (owned.error || !owned.data || data.paths.some(path => !path.startsWith(`${context.userId}/`))) throw new Error('మీ ప్రకటన ఆధారాలనే పంపండి · Own post required');

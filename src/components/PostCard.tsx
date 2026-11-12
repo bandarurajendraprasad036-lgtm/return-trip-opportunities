@@ -15,7 +15,7 @@ import { useAccountProgram } from '@/lib/use-account-program';
 import { ProfileRequest } from '@/components/ProfileRequest';
 import { useMe } from '@/lib/session';
 import { markAccountBellActivated, shouldShowProfileRequest } from '@/lib/bell-activation';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 
 export type Post = Database["public"]["Tables"]["posts"]["Row"];
 
@@ -47,18 +47,16 @@ export function PostCard({
   const queryClient = useQueryClient();
   const [profileOpen, setProfileOpen] = useState(false);
   const checkAccess = async () => {
-    if (!goods) return true;
     if (!meId) { nav({ to: '/auth' }); return false; }
-    const { data, error } = await supabase.rpc('my_goods_membership');
+    const { data, error } = await supabase.rpc('my_prime99');
     if (error) { toast.error('ప్రవేశం తనిఖీ కాలేదు · Could not check access'); return false; }
-    if (!data) { setUpgradeOpen(true); return false; }
+    if (!(data as { active?: boolean })?.active) { setUpgradeOpen(true); return false; }
     return true;
   };
   const openDetails = async () => {
     if (detailsBusy) return;
     setDetailsBusy(true);
     try {
-      if (!await checkAccess()) return;
       const { data, error } = await supabase.rpc('get_post_details', { _post: post.id });
       if (error) { if (error.message.includes('GOODS_MEMBERSHIP_REQUIRED')) setUpgradeOpen(true); else toast.error('వివరాలు రాలేదు · Could not load details'); return; }
       setDetails(data as PostDetails); setDetailsOpen(true);
@@ -68,7 +66,7 @@ export function PostCard({
     <DialogContent className="max-h-[85svh] overflow-y-auto">
       <DialogTitle>వాహనం సంప్రదించే ముందు · Before contacting the vehicle</DialogTitle>
       <DialogDescription>{vehicleTypeLabel(post.vehicle_type)} · {post.from_place} → {post.to_place}</DialogDescription>
-      <p role="status" className="rounded-lg border p-3 font-bold">వాహనం ఉంది, కానీ డ్రైవర్ ఇంకా స్పందించలేదు. డ్రైవర్ స్పందించగానే మా నుండి మీకు సమాచారం అందుతుంది. · Vehicle listed, driver has not responded yet; we will inform you when the driver responds.</p>
+      <p role="status" className="rounded-lg border p-3 font-bold">ఈ రకమైన వాహనం ప్రస్తుతానికి అందుబాటులో లేదు. అందుబాటులోకి వచ్చాక మీకు నోటిఫికేషన్ వస్తుంది. సూచనలకు చెల్లింపు అర్హత, మీ గంట ఎంపిక అవసరం; అందుబాటు ఇంకా నిర్ధారణ కాలేదు.</p>
       <ResponsibilityNotice prominent />
       <Button onClick={() => { setNoticeOpen(false); void ring(); }}><MessageCircle />సంప్రదించండి · Contact</Button>
     </DialogContent>
@@ -79,12 +77,12 @@ export function PostCard({
     if (!me?.profile?.bell_activated_at) {
       void markAccountBellActivated(meId).then(() => queryClient.invalidateQueries({ queryKey: ['me'] }));
     }
+    if (!await checkAccess()) return;
     if (!program) {
       if (shouldShowProfileRequest(false, me?.profile?.bell_activated_at)) setProfileOpen(true);
       else nav({ to: '/dashboard' });
       return;
     }
-    if (!await checkAccess()) return;
     if (post.user_id === meId) {
       const { data, error } = await supabase.rpc("notify_matches", { _post_id: post.id });
       if (error?.message.includes('GOODS_MEMBERSHIP_REQUIRED')) setUpgradeOpen(true);
@@ -92,7 +90,7 @@ export function PostCard({
       return;
     }
     const { data, error } = await supabase.rpc("ring_post", { _post_id: post.id });
-    if (error) { if (error.message.includes('GOODS_MEMBERSHIP_REQUIRED')) setUpgradeOpen(true); else toast.error(error.message.includes("DAILY_ALERT_LIMIT") ? "అవతలి వ్యక్తి రోజువారీ సమాచార పరిమితి పూర్తయింది · Recipient's daily alert limit reached" : "సమాచారం పంపలేకపోయాం · Could not send interest"); return; }
+    if (error) { if (error.message.includes('PAID_CHAT_REQUIRED') || error.message.includes('GOODS_MEMBERSHIP_REQUIRED')) setUpgradeOpen(true); else toast.error(error.message.includes("DAILY_ALERT_LIMIT") ? "అవతలి వ్యక్తి రోజువారీ సమాచార పరిమితి పూర్తయింది · Recipient's daily alert limit reached" : "సమాచారం పంపలేకపోయాం · Could not send interest"); return; }
     if (!isJob) { toast.info(VEHICLE_WAIT_MESSAGE, { duration: 8000 }); void supabase.rpc('notify_nearby_vehicles', { _post: post.id }); }
     if (data) nav({ to: "/chat/$userId", params: { userId: data }, search: { post: post.id } });
   };
@@ -103,23 +101,15 @@ export function PostCard({
         <p className="flex items-center gap-1 break-words text-sm"><MapPin className="size-4 shrink-0" />{isJob ? post.location : `${post.from_place || '…'} → ${post.to_place || '…'}`}</p>
         {post.salary && <p className="flex items-center gap-1 text-sm font-semibold"><IndianRupee className="size-4 shrink-0" />{post.salary}</p>}
       </div>
-      {jobIsVisible(post) && <Button type="button" variant="outline" size="icon" className="shrink-0" onClick={contact} aria-label={isJob ? "సంప్రదించండి · Contact" : "గంట · Bell"}>{isJob ? <MessageCircle /> : <Bell />}</Button>}
-    {!isJob && post.kind === 'owner' && !compact && <VehiclePublicDetails postId={post.id} />}
+      {jobIsVisible(post) && <Button type="button" variant="outline" size="icon" className="shrink-0" onClick={contact} aria-label="గంట · Bell"><Bell /></Button>}
     </div>
     {!compact && <Button variant="ghost" size="sm" disabled={detailsBusy} onClick={() => void openDetails()}><Info />వివరాలు · Details</Button>}
-    <Dialog open={detailsOpen} onOpenChange={open => { setDetailsOpen(open); if (!open) setDetails(null); }}><DialogContent className="max-h-[85svh] overflow-y-auto"><DialogTitle>ప్రకటన వివరాలు · Post details</DialogTitle><DialogDescription>{isJob ? post.skill || 'ఉద్యోగం · Job' : vehicleTypeLabel(post.vehicle_type)}</DialogDescription><p>{isJob ? post.location : `${post.from_place || '…'} → ${post.to_place || '…'}`}</p>{post.salary && <p>{post.salary}</p>}{details?.description && <p className="whitespace-pre-wrap break-words">{details.description}</p>}{details?.trip_date && <p>{details.trip_date}</p>}{details?.capacity_tons != null && <p>{details.capacity_tons} టన్నులు · tons</p>}{!isJob && post.kind === 'owner' && <VehiclePublicDetails postId={post.id} />}</DialogContent></Dialog>
-    <Dialog open={upgradeOpen} onOpenChange={setUpgradeOpen}><DialogContent><DialogTitle>సరకు వాహన వివరాలు · Goods details</DialogTitle><DialogDescription>ఈ ప్రకటన వివరాలు ప్రస్తుతం అందుబాటులో లేవు. నిర్వాహకుడిని సంప్రదించండి. · Details currently unavailable; contact admin.</DialogDescription><Button onClick={() => nav({ to: '/dashboard' })}>నా వివరాలు · My profile</Button></DialogContent></Dialog>
+    <Dialog open={detailsOpen} onOpenChange={open => { setDetailsOpen(open); if (!open) setDetails(null); }}><DialogContent className="max-h-[85svh] overflow-y-auto"><DialogTitle>ప్రకటన వివరాలు · Post details</DialogTitle><DialogDescription>{isJob ? post.skill || 'ఉద్యోగం · Job' : vehicleTypeLabel(post.vehicle_type)}</DialogDescription><p>{isJob ? post.location : `${post.from_place || '…'} → ${post.to_place || '…'}`}</p>{post.salary && <p>{post.salary}</p>}{details?.description && <p className="whitespace-pre-wrap break-words">{details.description}</p>}{details?.trip_date && <p>{details.trip_date}</p>}{details?.capacity_tons != null && <p>{details.capacity_tons} టన్నులు · tons</p>}</DialogContent></Dialog>
+    <Dialog open={upgradeOpen} onOpenChange={setUpgradeOpen}><DialogContent><DialogTitle>గంట, సంభాషణకు చెల్లింపు · Paid contact</DialogTitle><DialogDescription>చూడటం ఉచితం. గంట ద్వారా చాట్‌కు ₹100 సభ్యత్వ చెల్లింపు ఆమోదం కావాలి; అర్హమైన నంబర్ల తగ్గింపు ₹49. వ్యక్తిగత పేరు, ఫోటో, మొబైల్ వివరాల్లో కనిపించవు.</DialogDescription><Button onClick={() => nav({ to: '/dashboard' })}>చెల్లింపు వివరాలు · Payment</Button></DialogContent></Dialog>
     {actions && meId === post.user_id && <div className="flex flex-wrap gap-2">{actions}</div>}
     {vehicleNotice}
     <ProfileRequest open={profileOpen} onOpenChange={setProfileOpen} />
   </article>;
 }
 
-function VehiclePublicDetails({ postId }: { postId: string }) {
-  const { data } = useQuery({ queryKey: ['vehicle-public', postId], queryFn: async () => { const r = await supabase.rpc('vehicle_public_details', { _post: postId }); if (r.error) throw r.error; return r.data as { vehicle_name: string; vehicle_number: string; driver_name: string; mobile: string } | null; } });
-  if (!data) return null;
-  const row = (te: string, v: string) => <p><span className="text-muted-foreground">{te}: </span><b>{v || '—'}</b></p>;
-  return <div className="space-y-1 rounded-lg border p-3">{row('వాహనం పేరు · Vehicle', data.vehicle_name)}{row('వాహనం నంబర్ · Number', data.vehicle_number)}{row('డ్రైవర్ · Driver', data.driver_name)}{data.mobile ? <p><span className="text-muted-foreground">మొబైల్ · Mobile: </span><a className="font-bold text-primary underline" href={`tel:${data.mobile}`}>{data.mobile}</a></p> : row('మొబైల్ · Mobile', '')}</div>;
-}
-
-export const VEHICLE_WAIT_MESSAGE = 'వెహికల్ ఉంది కానీ డ్రైవర్ రెస్పాన్స్ ఇవ్వలేదు.. డ్రైవర్ నుండి రెస్పాన్స్ రాగానే మీకు మా నుండి సమాచారం అందుతుంది';
+export const VEHICLE_WAIT_MESSAGE = 'ఈ రకమైన వాహనం ప్రస్తుతానికి అందుబాటులో లేదు. అందుబాటులోకి వచ్చాక మీకు నోటిఫికేషన్ వస్తుంది. ఇది బుకింగ్ నిర్ధారణ కాదు; సూచన అర్హత, అనుమతులు వర్తిస్తాయి.';

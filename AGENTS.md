@@ -47,15 +47,17 @@
 - Vehicle contact surfaces reuse the shared responsibility notice; compact bells show it before interest submission without implying a confirmed booking.
 - Search examples are separate presentation-only objects without post or user IDs; their bells never call interest or booking APIs.
 - Historical payment records remain read/review compatible; new direct-referral receipts use an admin-authorized atomic cash-prize ledger to prevent client awards and duplicate receipts.
-- Goods-only access checks approved individual payment-linked monthly periods plus current profile membership; jobs and vehicle inserts do not consume historical job quota records, preserving payment history.
+- Current membership and extra-post submissions use the existing receipt table with separate purpose/payable fields; preserve legacy amount/history while server review alone grants access.
 - Sharing evidence uses owner-checked server hashing with atomic digest registration, admin-only short-lived signing and existing managed dispatch cleanup; review decisions notify the owner transactionally.
 - Chat attachments use authenticated server validation, private storage and participant-checked short-lived signing; post conversations require bell-created pair rows, backfilled only for historical owner/member conversations to preserve privacy.
-- Listing cards stay anonymous; safe-column grants prevent direct sensitive reads, while get_post_details checks payment-linked current goods membership before returning explicitly shared goods details. Jobs/car details never return identity fields.
+- Listing cards/details stay anonymous with safe-column grants; paid bell/chat authorization is separate from free detail viewing to prevent identity disclosure.
 - Direct-referral campaign ranks count only new campaign join edges, enforce one inviter and no cycles, and expose only owner-scoped stats; cash awards never imply payout.
 - Confirmed receipts atomically credit only the eligible direct inviter; historical invitee ledgers remain read-only evidence, new accounts keep unique codes, and remaining-slot reads expose aggregates only.
 - Paid alert eligibility is enforced by receipt-linked periods at database insertion/read and every screen/device delivery path, never by editable profile flags; post usage persists separately from deletable posts to prevent quota bypass.
 - Daily competition notices reuse the managed dispatcher and an atomic per-user/day ledger; public photo signing accepts only publication-and-competition-consent-checked paths to prevent private image disclosure.
 - Vehicle choices open one public category-aware listing route with date and endpoint filtering; requests remain unconfirmed until a genuine booking workflow exists.
 - Personalized sharing artwork renders existing owner referral identity and same-origin product links through canvas; private profile photos never enter it, and published photos require explicit owner consent after the configured trial.
-- Vehicle owner posts expose owner-entered vehicle name/number/driver/mobile only through vehicle_public_details (owner requested public display); other identity stays private.
+- Provider contact batches stay owner/admin private; authenticated atomic submission and admin review determine the discounted price rather than client assertions.
+- Posts and new service publication share a locked durable usage ledger; extra-post receipt consumption survives deletions to prevent quota bypass.
+- Service bells create private participant pairs through an authenticated paid RPC; public directories expose service/town/category only.
 - Referral joins count only via confirm_referral_join (code + own mobile + OK); weekly winners come from select_weekly_winners (SQL cron Sunday night IST) requiring 70% paid joins and a consented published photo.

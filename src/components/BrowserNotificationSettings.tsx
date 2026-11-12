@@ -4,21 +4,18 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { useBellSound } from '@/lib/use-bell-sound';
 import { browserPermission, permissionHelp, type PermissionStatus } from '@/lib/browser-notifications';
-import { permissionThanks } from '@/lib/friendly-notifications';
 import { useServerFn } from '@tanstack/react-start';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useMe } from '@/lib/session';
-import { registerPushDevice, updatePushSound } from '@/lib/push.functions';
-import { enablePush, pushDeviceId, type PushStatus } from '@/lib/firebase-push';
+import { updatePushSound } from '@/lib/push.functions';
+import { pushDeviceId } from '@/lib/firebase-push';
 import { usePrime99 } from '@/lib/prime99';
 
 export function BrowserNotificationSettings() {
   const { muted, change } = useBellSound();
   const [permission, setPermission] = useState<PermissionStatus>('default');
   const [busy, setBusy] = useState(false);
-  const [push, setPush] = useState<PushStatus>('idle');
-  const register = useServerFn(registerPushDevice);
   const sound = useServerFn(updatePushSound);
   const { data: me } = useMe();
   const { data: prime } = usePrime99(me?.id);
@@ -45,27 +42,17 @@ export function BrowserNotificationSettings() {
         const turnOn = muted;
         setBusy(true);
         try {
-          if (turnOn) {
-            change(true);
-            const result = await enablePush(); setPermission(browserPermission());
-            if (result.status === 'registered' && result.token) {
-              await register({ data: { id: pushDeviceId(), token: result.token, sound: true } });
-              setPush('registered'); await refetch();
-              const thanks = permissionThanks(true); if (thanks) toast.success(thanks);
-            } else setPush(result.status);
-          } else {
-            if (delivery?.registered) await sound({ data: { id: pushDeviceId(), sound: false } });
-            change(false);
-          }
-        } catch { setPush('failed'); toast.error('మళ్లీ ప్రయత్నించండి · Please retry'); }
+          if (delivery?.registered) await sound({ data: { id: pushDeviceId(), sound: turnOn } });
+          change(turnOn); await refetch();
+        } catch { toast.error('మళ్లీ ప్రయత్నించండి · Please retry'); }
         finally { setBusy(false); }
       }}>
         {muted ? <VolumeX /> : <Volume2 />}{muted ? 'ఆఫ్ · Off' : 'ఆన్ · On'}
       </Button>
     </div>
-    <p className="text-sm">{!prime?.active ? 'సూచనలు, గంట శబ్దానికి ఆమోదించిన ₹99 చెల్లింపు అవసరం. · Approved ₹99 required for notices and sound.' : muted ? 'ఆఫ్: గంట శబ్దం రాదు; అర్హమైన సమాచారం తెరపై కనిపిస్తుంది. · Silent eligible alerts.' : 'ఆన్: మీ ఎంపికలకు లోబడి అర్హమైన సూచనలకు గంట శబ్దం. · Eligible alerts with sound, subject to preferences.'}</p>
+    <p className="text-sm">{!prime?.alerts_ready ? 'సూచనలకు ఆమోదించిన ₹100 చెల్లింపు, మూడు రోజుల గడువు, హోమ్ గంట ఎంపిక అవసరం. అర్హమైన నంబర్ల తగ్గింపు ₹49.' : muted ? 'ఆఫ్: గంట శబ్దం రాదు; అర్హమైన సమాచారం తెరపై కనిపిస్తుంది. · Silent eligible alerts.' : 'ఆన్: మీ ఎంపికలకు లోబడి అర్హమైన సూచనలకు గంట శబ్దం. · Eligible alerts with sound, subject to preferences.'}</p>
     <p role="status">{permissionHelp[permission]}</p>
-    <p role="status">{push === 'not-configured' ? 'అనుసంధానంలో వెబ్ సూచనల వివరాలు చేర్చండి · Include web push in connection settings' : push === 'open-in-new-tab' ? permissionHelp['open-in-new-tab'] : push === 'denied' ? permissionHelp.denied : push === 'unsupported' ? permissionHelp.unsupported : push === 'failed' ? 'ఫోన్ నమోదు కాలేదు; మళ్లీ ఆన్ చేయండి · Registration failed; turn on again' : delivery?.registered ? 'ఈ ఫోన్ నమోదైంది; చేరినట్లు ఇంకా నిర్ధారణ లేదు · Device registered; delivery unverified' : 'ఈ ఫోన్ ఇంకా నమోదు కాలేదు · Device not registered'}</p>
+    <p role="status">{delivery?.registered ? 'ఈ ఫోన్ నమోదైంది; చేరినట్లు ఇంకా నిర్ధారణ లేదు · Device registered; delivery unverified' : 'ఫోన్ నమోదు కోసం హోమ్ పేజీలో ప్రధాన గంటను ఎంచుకోండి · Use home bell to register'}</p>
     {delivery?.latest && <p role="status">{delivery.latest.status === 'accepted' ? 'సేవ సూచనను స్వీకరించింది; ఫోన్‌కు చేరినట్లు నిర్ధారణ కాదు · Provider accepted; not a delivery receipt' : delivery.latest.status === 'failed' ? `పంపడం విఫలమైంది · Send failed (${delivery.latest.provider_status ?? '—'})` : delivery.latest.status === 'skipped' ? 'చదివిన సమాచారం లేదా మీ ఎంపికల కారణంగా పంపలేదు · Skipped' : 'పంపేందుకు వేచి ఉంది · Awaiting send'}</p>}
     <p className="text-sm">యాప్ మూసినప్పుడు ఫోన్ నిర్ణయించిన శబ్దం రావచ్చు; ప్రత్యేక గంట శబ్దానికి హామీ లేదు. ఫోన్‌లో సూచనలు, శబ్దం అనుమతించండి. బలవంతంగా ఆపిన యాప్‌కు సూచనలు రాకపోవచ్చు. · Background sound depends on browser and phone settings; custom bell sound is not guaranteed.</p>
   </div>;

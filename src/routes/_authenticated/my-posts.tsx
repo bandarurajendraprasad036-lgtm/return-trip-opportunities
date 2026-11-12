@@ -9,6 +9,7 @@ import { PostCard, type Post } from "@/components/PostCard";
 import { useMe } from "@/lib/session";
 import { jobIsVisible } from '@/lib/post-publication';
 import { PostEvidence } from '@/components/PostEvidence';
+import { PublicationCountdown } from '@/components/PublicationCountdown';
 
 export const Route = createFileRoute("/_authenticated/my-posts")({
   head: () => ({
@@ -30,6 +31,7 @@ function MyPosts() {
   const { data = [] } = useQuery({
     queryKey: ["my-posts", me?.id],
     enabled: !!me,
+    refetchInterval: 30000,
     queryFn: async () => {
       if (!me) return [];
       const { data, error } = await supabase.from("posts").select(POST_LIST_COLUMNS).eq("user_id", me.id).order("created_at", { ascending: false });
@@ -69,8 +71,10 @@ function MyPosts() {
       {data.map((p) => (
         <div key={p.id} className={p.status !== "active" ? "opacity-60" : ""}>
           {p.visible_after && Date.parse(p.visible_after)>Date.now()&&<p role="status" className="py-3 font-semibold">మీ సమాచారం మాకు సమర్పించారు; ఐదు గంటల తర్వాత చూడవచ్చు. · Submitted; visible after five hours.<br/>ప్రచురణ సమయం · Available: {new Date(p.visible_after).toLocaleString('te-IN',{timeZone:'Asia/Kolkata'})}</p>}
+          {p.visible_after && <PublicationCountdown visibleAfter={p.visible_after} />}
           <PostCard
             post={p}
+            meId={me?.id}
             actions={
               <>
                 {jobIsVisible(p) ? (

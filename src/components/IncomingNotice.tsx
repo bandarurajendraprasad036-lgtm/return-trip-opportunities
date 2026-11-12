@@ -13,7 +13,7 @@ export function IncomingNotice({ userId }: { userId: string }) {
     let active = true;
     const receive = async (next: NonNullable<typeof notice>) => {
       const eligibility = await supabase.rpc('my_prime99');
-      if (active && !eligibility.error && (eligibility.data as { active?: boolean })?.active) setNotice(next);
+      if (active && !eligibility.error && (eligibility.data as { alerts_ready?: boolean })?.alerts_ready) setNotice(next);
     };
     const channel = supabase.channel(`screen-notice-${userId}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` }, payload => { void receive({ body: String(payload.new["message"] ?? "కొత్త సమాచారం · New alert") }); })

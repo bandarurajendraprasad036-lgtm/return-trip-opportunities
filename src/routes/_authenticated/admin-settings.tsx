@@ -42,6 +42,8 @@ function AdminSettings() {
   const [form, setForm] = useState<HomeSettings | null>(null);
   const [busy, setBusy] = useState(false);
   const [eventLabel, setEventLabel] = useState('డిసెంబర్ 31');
+  const [videoUrl, setVideoUrl] = useState('');
+  const [videoMessage, setVideoMessage] = useState('');
   useEffect(() => { if (data) setForm(data); }, [data]);
   const save = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -66,5 +68,6 @@ function AdminSettings() {
       <Button type="submit" className="w-full" disabled={busy}>{busy ? 'భద్రపరుస్తున్నాం…' : 'సెట్టింగులు భద్రపరచండి · Save settings'}</Button>
     </form>}
     <section className="space-y-3 border-y py-4"><Label htmlFor="event-label">వేడుక తేదీ / సందర్భం · Event date</Label><Input id="event-label" value={eventLabel} maxLength={80} onChange={e => setEventLabel(e.target.value)} /><Button disabled={busy || !eventLabel.trim()} onClick={async () => { setBusy(true); const result = await supabase.rpc('configure_referral_event', { _label: eventLabel.trim() }); setBusy(false); if (result.error) toast.error('వేడుక తేదీ భద్రపడలేదు.'); else toast.success('వేడుక తేదీ భద్రపడింది.'); }}>వేడుక తేదీ భద్రపరచండి · Save event date</Button><p>పూర్తి వివరాలు మరో పదిహేను రోజుల్లో తెలియజేస్తాం.</p></section>
+    <section className="space-y-3 border-y py-4"><Label htmlFor="video-notice-url">వీడియో చిరునామా · Video link</Label><Input id="video-notice-url" type="url" value={videoUrl} maxLength={500} onChange={e => setVideoUrl(e.target.value)} /><Label htmlFor="video-notice-message">సందేశం · Message</Label><Input id="video-notice-message" value={videoMessage} maxLength={1000} onChange={e => setVideoMessage(e.target.value)} /><Button disabled={busy || !videoUrl.startsWith('https://') || !videoMessage.trim()} onClick={async () => { if (!window.confirm('అర్హులైన సభ్యులకు ఈ వీడియో సందేశం పంపాలా?')) return; setBusy(true); const r = await supabase.rpc('admin_video_notice', { _url: videoUrl, _message: videoMessage }); setBusy(false); if (r.error) toast.error('సందేశం నమోదు కాలేదు'); else toast.success(`${r.data} అర్హమైన ఖాతాలకు సందేశం నమోదైంది; ఫోన్ చేరిక నిర్ధారణ కాదు`); }}>వీడియో సందేశం పంపండి · Send video notice</Button><p className="text-sm">చెల్లింపు, గంట ఎంపిక, సూచన పరిమితులు గౌరవిస్తాం; అందరికీ ఫోన్ చేరిక హామీ లేదు.</p></section>
   </div>;
 }

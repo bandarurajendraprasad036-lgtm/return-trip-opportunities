@@ -26,7 +26,7 @@ export async function dispatchPush() {
       db.from('push_devices').select('token,sound_enabled').eq('id', row.device_id).maybeSingle(),
       db.from('notification_preferences').select('*').eq('user_id', row.user_id).maybeSingle(),
       db.from('notifications').select('id,is_read').eq('id', row.notification_id).maybeSingle(),
-      db.rpc('has_prime99', { _user: row.user_id }),
+      db.rpc('paid_alert_ready', { _user: row.user_id }),
     ]);
     if (device.error || prefs.error || notice.error || eligibility.error) throw device.error ?? prefs.error ?? notice.error ?? eligibility.error;
     const policy = pushPolicy(new Date(), prefs.data, device.data?.sound_enabled ?? false);

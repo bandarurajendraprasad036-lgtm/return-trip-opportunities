@@ -56,7 +56,7 @@ export function MessagePhoneNotices({ userId }: { userId: string }) {
         const m = p.new as { body?: string; needs_admin?: boolean; is_auto?: boolean };
         if (Notification.permission !== "granted" || m.is_auto) return;
         const eligibility = await supabase.rpc('my_prime99');
-        if (eligibility.error || !(eligibility.data as { active?: boolean })?.active) return;
+        if (eligibility.error || !(eligibility.data as { alerts_ready?: boolean })?.alerts_ready) return;
         const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
         if (isAdmin && !m.needs_admin) return; // admin is alerted only for money questions
         new Notification(isAdmin ? "💰 డబ్బు ప్రశ్న · Payment question" : "కొత్త మెసేజ్ · New message", { body: String(m.body ?? "").slice(0, 120), icon: "/favicon.svg",silent:true });
