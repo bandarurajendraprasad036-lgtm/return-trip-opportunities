@@ -89,7 +89,10 @@ function Chat() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [me, userId, postId]);
 
-  useEffect(() => bottom.current?.scrollIntoView(), [msgs.length]);
+  useEffect(() => {
+    // Scrolling adapters may return a value; React must never receive it as cleanup.
+    bottom.current?.scrollIntoView();
+  }, [msgs.length]);
 
   const sendSupport = useServerFn(sendSupportMessage);
   const send = async (e: React.FormEvent) => {
