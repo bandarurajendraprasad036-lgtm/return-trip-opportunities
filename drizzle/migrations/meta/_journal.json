@@ -379,6 +379,13 @@
       "when": 1794472693302,
       "tag": "0053_five_image_publication_evidence_and_public_rank_gate",
       "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "7",
+      "when": 1794483510596,
+      "tag": "0054_monthly_paid_exact_owner_bells_free_private_chat",
+      "breakpoints": true
     }
   ]
 }

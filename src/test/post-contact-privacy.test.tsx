@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { PostCard, type Post } from '@/components/PostCard';
+import { supabase } from '@/integrations/supabase/client';
 vi.mock('@tanstack/react-router',()=>({useNavigate:()=>vi.fn()}));
 vi.mock('@/integrations/supabase/client',()=>({supabase:{rpc:vi.fn(async()=>({data:{description:'Work details'},error:null}))}}));
 vi.mock('@/components/ResponsibilityNotice',()=>({ResponsibilityNotice:()=>null}));
@@ -8,6 +9,7 @@ vi.mock('@/lib/use-account-program',()=>({useAccountProgram:()=>({data:{complete
 vi.mock('@/lib/session',()=>({useMe:()=>({data:{id:'member',profile:{bell_activated_at:'2026-11-10T04:00:00Z'}}})}));
 vi.mock('@tanstack/react-query',()=>({useQueryClient:()=>({invalidateQueries:vi.fn()})}));
 vi.mock('@/components/ProfileRequest',()=>({ProfileRequest:()=>null}));
+vi.mock('@/components/BellPaymentNotice',()=>({BellPaymentNotice:()=>null}));
 afterEach(cleanup);
 describe('post contact disclosure',()=>{
   const post={id:'post',user_id:'owner',module:'job',status:'active',skill:'Driver',title:'Private name',location:'Hyderabad',salary:'15000',show_contact:true,public_brand:'Consented name',public_photo:'https://example.com/private-photo.jpg',contact_phone:'9876543210'} as Post;
@@ -28,5 +30,20 @@ describe('post contact disclosure',()=>{
     await screen.findByRole('dialog');
     expect(screen.queryByText('9876543210')).toBeNull();
     expect(screen.queryByText('Consented name')).toBeNull();
+  });
+  it('sends a paid bell only for the selected post without a nearby broadcast',async()=>{
+    vi.mocked(supabase.rpc).mockClear();
+    vi.mocked(supabase.rpc).mockResolvedValueOnce({data:true,error:null} as never).mockResolvedValueOnce({data:'owner',error:null} as never);
+    render(<PostCard post={{...post,module:'vehicle',vehicle_type:'car'}} meId="member" />);
+    fireEvent.click(screen.getByRole('button',{name:'గంట · Bell'}));
+    await vi.waitFor(()=>expect(supabase.rpc).toHaveBeenCalledWith('ring_post',{_post_id:'post'}));
+    expect(vi.mocked(supabase.rpc).mock.calls.map(call=>call[0])).toEqual(['has_paid_bell','ring_post']);
+  });
+  it('never sends interest for an unconfirmed payment',async()=>{
+    vi.mocked(supabase.rpc).mockClear();vi.mocked(supabase.rpc).mockResolvedValueOnce({data:false,error:null} as never);
+    render(<PostCard post={post} meId="member" />);
+    fireEvent.click(screen.getByRole('button',{name:'గంట · Bell'}));
+    await vi.waitFor(()=>expect(supabase.rpc).toHaveBeenCalledWith('has_paid_bell',{_user:'member'}));
+    expect(vi.mocked(supabase.rpc).mock.calls.map(call=>call[0])).toEqual(['has_paid_bell']);
   });
 });

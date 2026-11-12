@@ -1978,6 +1978,7 @@ export type Database = {
         Returns: string
       }
       has_goods_membership: { Args: { _user?: string }; Returns: boolean }
+      has_paid_bell: { Args: { _user: string }; Returns: boolean }
       has_prime99: { Args: { _user: string }; Returns: boolean }
       has_role: {
         Args: {

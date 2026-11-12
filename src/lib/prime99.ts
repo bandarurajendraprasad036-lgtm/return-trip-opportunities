@@ -4,7 +4,7 @@ import { MEMBERSHIP_AMOUNT, FREE_POSTS } from '@/lib/current-membership';
 
 export const PRIME99_AMOUNT = MEMBERSHIP_AMOUNT;
 export const MONTHLY_POST_LIMIT = FREE_POSTS;
-export type Prime99 = { active: boolean; alerts_ready?: boolean; alerts_start_at?: string | null; ends_at: string | null; amount: number };
+export type Prime99 = { active: boolean; bell_active?: boolean; alerts_ready?: boolean; alerts_start_at?: string | null; ends_at: string | null; amount: number };
 export function unfinishedHomeActions(bellActivated: boolean, installed: boolean, profileCompleted: boolean) {
   return { bell: !bellActivated, install: !installed, profile: !profileCompleted };
 }

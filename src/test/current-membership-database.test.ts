@@ -33,6 +33,7 @@ describe('current confirmed receipt rules in PostgreSQL', () => {
   for(const name of ['0047_prime99_paid_alerts_monthly_posts_and_daily_board','0048_prime99_renewal_quota_and_daily_fairness','0051_hundred_forty_days_private_contacts_extra_posts']) await db.exec(readFileSync(`drizzle/migrations/${name}.sql`,'utf8'));
   await db.exec(`CREATE TABLE weekly_winners(week_start date,region text,user_id uuid,display_name text,photo_path text,joins bigint,paid bigint,percent numeric,created_at timestamptz DEFAULT now(),UNIQUE(week_start,region));`);
   await db.exec(readFileSync('drizzle/migrations/0052_service_bell_quota_district_and_next_sunday.sql','utf8'));
+  await db.exec(readFileSync('drizzle/migrations/0054_monthly_paid_exact_owner_bells_free_private_chat.sql','utf8'));
   await db.exec(`CREATE TRIGGER post_delay BEFORE INSERT OR UPDATE ON posts FOR EACH ROW EXECUTE FUNCTION guard_post_delay();`);
  },30000);
  afterAll(async()=>{await db.close();});
@@ -41,13 +42,13 @@ describe('current confirmed receipt rules in PostgreSQL', () => {
   await db.exec(`INSERT INTO prime99_payments(user_id,reference,payable_amount) VALUES('${owner}','FULL-100',100)`);
   expect((await db.query<{ok:boolean}>(`SELECT has_prime99('${owner}') ok`)).rows[0]?.ok).toBe(false);
  });
- it('only admin confirmation grants forty days with exactly three days delay',async()=>{
+ it('only admin confirmation grants one month without a three-day delay',async()=>{
   await expect(db.exec(`SELECT review_prime99((SELECT id FROM prime99_payments WHERE reference='FULL-100'),true,'')`)).rejects.toThrow('ADMIN_ONLY');
   await actor(admin);await db.exec(`SELECT review_prime99((SELECT id FROM prime99_payments WHERE reference='FULL-100'),true,'received')`);
-  const r=await db.query<{days:number,delay:number}>(`SELECT extract(epoch FROM ends_at-received_at)/86400 days,extract(epoch FROM alerts_start_at-received_at)/86400 delay FROM prime99_payments WHERE reference='FULL-100'`);
-  expect(Number(r.rows[0]?.days)).toBe(40);expect(Number(r.rows[0]?.delay)).toBe(3);
+  const r=await db.query<{monthly:boolean,delay:number}>(`SELECT ends_at=received_at+interval '1 month' monthly,extract(epoch FROM alerts_start_at-received_at)/86400 delay FROM prime99_payments WHERE reference='FULL-100'`);
+  expect(r.rows[0]?.monthly).toBe(true);expect(Number(r.rows[0]?.delay)).toBe(0);
  });
- it('alerts require both elapsed three days and a bell activation',async()=>{
+ it('confirmed 100 enables notices immediately after bell activation',async()=>{
   expect((await db.query<{ok:boolean}>(`SELECT paid_alert_ready('${owner}') ok`)).rows[0]?.ok).toBe(false);
   await db.exec(`UPDATE prime99_payments SET alerts_start_at=now()-interval '1 second' WHERE user_id='${owner}'`);
   expect((await db.query<{ok:boolean}>(`SELECT paid_alert_ready('${owner}') ok`)).rows[0]?.ok).toBe(false);
@@ -92,9 +93,27 @@ describe('current confirmed receipt rules in PostgreSQL', () => {
   await expect(db.exec(`INSERT INTO posts(user_id) VALUES('${owner}')`)).rejects.toThrow('MONTHLY_THREE_POST_LIMIT');
  });
  it('only paid members can ring an actual published service',async()=>{
-  await actor(other);await expect(db.exec(`SELECT ring_service('${owner}')`)).rejects.toThrow('PAID_CHAT_REQUIRED');
+  await actor(other);await expect(db.exec(`SELECT ring_service('${owner}')`)).rejects.toThrow('PAID_BELL_REQUIRED');
   await actor(joined);await db.exec(`SELECT ring_service('${owner}')`);
   expect((await db.query<{ok:boolean}>(`SELECT can_post_chat(NULL,'${owner}') ok`)).rows[0]?.ok).toBe(true);
   expect((await db.query<{n:number}>('SELECT count(*)::int n FROM service_chat_pairs')).rows[0]?.n).toBe(1);
+ });
+ it('every selected listing notifies only its exact owner, never other areas or vehicles',async()=>{
+  await db.exec(`INSERT INTO notification_preferences(user_id,enabled,timezone,daily_limit) VALUES('${owner}',true,'Asia/Kolkata',5);DELETE FROM notifications;UPDATE posts SET id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',module='vehicle',kind='return' WHERE id=(SELECT id FROM posts WHERE user_id='${owner}' LIMIT 1);INSERT INTO posts(id,user_id,module,kind) VALUES('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','${admin}','vehicle','local');`);
+  await actor(joined);
+  expect((await db.query<{owner:string}>(`SELECT ring_post('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa') owner`)).rows[0]?.owner).toBe(owner);
+  expect((await db.query<{user_id:string,post_id:string}>('SELECT user_id,post_id FROM notifications')).rows).toEqual([{user_id:owner,post_id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'}]);
+  expect((await db.query<{n:number}>(`SELECT notify_nearby_vehicles('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa') n`)).rows[0]?.n).toBe(0);
+ });
+ it('pending or discounted receipts cannot operate a bell',async()=>{
+  await actor(other);await expect(db.exec(`SELECT ring_post('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa')`)).rejects.toThrow('PAID_BELL_REQUIRED');
+  await db.exec(`INSERT INTO prime99_payments(user_id,reference,payable_amount) VALUES('${other}','DISCOUNT-49',49)`);await actor(admin);await db.exec(`SELECT review_prime99((SELECT id FROM prime99_payments WHERE reference='DISCOUNT-49'),true,'received')`);
+  await actor(other);expect((await db.query<{ok:boolean}>(`SELECT has_paid_bell('${other}') ok`)).rows[0]?.ok).toBe(false);
+ });
+ it('established conversations stay free after payment expiry without granting unrelated access',async()=>{
+  await db.exec(`UPDATE prime99_payments SET ends_at=now()-interval '1 second' WHERE user_id='${joined}'`);await actor(joined);
+  expect((await db.query<{ok:boolean}>(`SELECT can_post_chat('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','${owner}') ok`)).rows[0]?.ok).toBe(true);
+  expect((await db.query<{ok:boolean}>(`SELECT can_post_chat('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','${admin}') ok`)).rows[0]?.ok).toBe(false);
+  await expect(db.exec(`SELECT ring_post('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa')`)).rejects.toThrow('PAID_BELL_REQUIRED');
  });
 });

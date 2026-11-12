@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { MEMBERSHIP_AMOUNT, MEMBERSHIP_DAYS, ALERT_DELAY_DAYS, EXTRA_POST_AMOUNT, DISCOUNT_AMOUNT, FREE_POSTS, validProviderContacts, competitionDisplayOpen, publicationRemaining } from '@/lib/current-membership';
+import { MEMBERSHIP_AMOUNT, MEMBERSHIP_MONTHS, ALERT_DELAY_DAYS, EXTRA_POST_AMOUNT, DISCOUNT_AMOUNT, FREE_POSTS, validProviderContacts, competitionDisplayOpen, publicationRemaining } from '@/lib/current-membership';
 describe('November twelve confirmed rules', () => {
   it('charges the full 100', () => expect(MEMBERSHIP_AMOUNT).toBe(100));
-  it('lasts forty days', () => expect(MEMBERSHIP_DAYS).toBe(40));
-  it('waits three days for alerts', () => expect(ALERT_DELAY_DAYS).toBe(3));
+  it('lasts one payment anchored month', () => expect(MEMBERSHIP_MONTHS).toBe(1));
+  it('does not delay confirmed bell eligibility', () => expect(ALERT_DELAY_DAYS).toBe(0));
   it('charges 49 for each additional post', () => expect(EXTRA_POST_AMOUNT).toBe(49));
   it('uses the verified 49 discount', () => expect(DISCOUNT_AMOUNT).toBe(49));
   it('keeps three free posts', () => expect(FREE_POSTS).toBe(3));

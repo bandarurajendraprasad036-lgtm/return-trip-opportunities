@@ -51,7 +51,7 @@
 - Current membership and extra-post submissions use the existing receipt table with separate purpose/payable fields; preserve legacy amount/history while server review alone grants access.
 - Sharing evidence uses owner-checked server hashing with atomic digest registration, admin-only short-lived signing and existing managed dispatch cleanup; review decisions notify the owner transactionally.
 - Chat attachments use authenticated server validation, private storage and participant-checked short-lived signing; post conversations require bell-created pair rows, backfilled only for historical owner/member conversations to preserve privacy.
-- Listing cards/details stay anonymous with safe-column grants; paid bell/chat authorization is separate from free detail viewing to prevent identity disclosure.
+- Listing cards/details stay anonymous; confirmed full-price bell actions create exact-owner private pairs, and established pair chats remain free without exposing unrelated accounts.
 - Direct-referral campaign ranks count only new campaign join edges, enforce one inviter and no cycles, and expose only owner-scoped stats; cash awards never imply payout.
 - Confirmed receipts atomically credit only the eligible direct inviter; historical invitee ledgers remain read-only evidence, new accounts keep unique codes, and remaining-slot reads expose aggregates only.
 - Paid alert eligibility is enforced by receipt-linked periods at database insertion/read and every screen/device delivery path, never by editable profile flags; post usage persists separately from deletable posts to prevent quota bypass.
