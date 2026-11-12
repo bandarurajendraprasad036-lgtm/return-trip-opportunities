@@ -26,7 +26,7 @@ export function homeJobs(posts: Post[], location: string, kind: 'seeker' | 'empl
   const place = normalized(location);
   if (!place) return [];
   return posts.filter(post => jobIsVisible(post) && post.module === 'job'
-    && post.kind === kind && normalized(post.location).includes(place));
+    && post.service_type !== 'service' && post.kind === kind && normalized(post.location).includes(place));
 }
 
 // Named-area search only: an endpoint match is not proof of proximity or a local trip.

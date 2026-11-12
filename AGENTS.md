@@ -10,7 +10,7 @@
 <!-- LOVABLE:END -->
 
 - Phone login uses a synthetic email derived from the 10-digit phone (`phoneToEmail` in src/lib/match.ts) with password auth and auto-confirm — avoids SMS provider setup.
-- `isMatch` mirrors database area/route matching; post-linked notifications pass a central bell-only guard, with owner-authorized exact matching and recipient interest as the only dispatch paths, preventing automatic post triggers from sending.
+- Automatic work/service alerts use receipt-gated opposite-demand exact-area and normalized-occupation matching, with a private durable out-of-hours queue; selected listing bells remain exact-owner only to prevent unrelated recipients.
 - First user to sign up becomes admin (handle_new_user trigger); roles live in user_roles.
 - Use the shared Brand component for the bilingual wordmark so headers stay consistent.
 - App UI localization uses a bundled static catalog and subscribed JSX runtime; persist language only after hydration and preserve entered/account content with translate="no", never send runtime private data for translation.
@@ -51,7 +51,7 @@
 - Current membership and extra-post submissions use the existing receipt table with separate purpose/payable fields; preserve legacy amount/history while server review alone grants access.
 - Sharing evidence uses owner-checked server hashing with atomic digest registration, admin-only short-lived signing and existing managed dispatch cleanup; review decisions notify the owner transactionally.
 - Chat attachments use authenticated server validation, private storage and participant-checked short-lived signing; post conversations require bell-created pair rows, backfilled only for historical owner/member conversations to preserve privacy.
-- Listing cards/details stay anonymous; confirmed full-price bell actions create exact-owner private pairs, and established pair chats remain free without exposing unrelated accounts.
+- Listing cards/details stay anonymous; confirmed full-price bells create exact-owner pairs, and current full-price eligibility gates ordinary chat writes while admin evidence/support stays accessible.
 - Direct-referral campaign ranks count only new campaign join edges, enforce one inviter and no cycles, and expose only owner-scoped stats; cash awards never imply payout.
 - Confirmed receipts atomically credit only the eligible direct inviter; historical invitee ledgers remain read-only evidence, new accounts keep unique codes, and remaining-slot reads expose aggregates only.
 - Paid alert eligibility is enforced by receipt-linked periods at database insertion/read and every screen/device delivery path, never by editable profile flags; post usage persists separately from deletable posts to prevent quota bypass.
@@ -61,4 +61,5 @@
 - Provider contact batches stay owner/admin private; authenticated atomic submission and admin review determine the discounted price rather than client assertions.
 - Posts and new service publication share a locked durable usage ledger; extra-post receipt consumption survives deletions to prevent quota bypass.
 - Service bells create private participant pairs through an authenticated paid RPC; public directories expose service/town/category only.
+- New service demand/offer posts reuse the protected job-post path with a service discriminator; keep historical opted-in directory entries separate to preserve identity/privacy and publication evidence.
 - Referral joins count only via confirm_referral_join (code + own mobile + OK); weekly winners come from select_weekly_winners (SQL cron Sunday night IST) requiring 70% paid joins and a consented published photo.

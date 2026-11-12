@@ -200,6 +200,64 @@ export type Database = {
           },
         ]
       }
+      deferred_listing_notices: {
+        Row: {
+          available_at: string
+          created_at: string
+          id: string
+          matched_post_id: string | null
+          message: string
+          notice_mode: string
+          post_id: string | null
+          processed_at: string | null
+          user_id: string
+        }
+        Insert: {
+          available_at: string
+          created_at?: string
+          id?: string
+          matched_post_id?: string | null
+          message: string
+          notice_mode: string
+          post_id?: string | null
+          processed_at?: string | null
+          user_id: string
+        }
+        Update: {
+          available_at?: string
+          created_at?: string
+          id?: string
+          matched_post_id?: string | null
+          message?: string
+          notice_mode?: string
+          post_id?: string | null
+          processed_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deferred_listing_notices_matched_post_id_fkey"
+            columns: ["matched_post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deferred_listing_notices_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deferred_listing_notices_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       evidence_content_registry: {
         Row: {
           created_at: string
@@ -1999,6 +2057,14 @@ export type Database = {
       my_program_referrals: { Args: never; Returns: Json }
       my_referral_stats: { Args: never; Returns: Json }
       my_referral_vip: { Args: never; Returns: Json }
+      next_notice_open: {
+        Args: { _at?: string; _zone?: string }
+        Returns: string
+      }
+      notice_window_open: {
+        Args: { _at?: string; _zone?: string }
+        Returns: boolean
+      }
       notify_matches: { Args: { _post_id: string }; Returns: number }
       notify_nearby_vehicles: { Args: { _post: string }; Returns: number }
       paid_alert_ready: { Args: { _user: string }; Returns: boolean }
@@ -2154,6 +2220,14 @@ export type Database = {
       vehicle_public_details: { Args: { _post: string }; Returns: Json }
       vip_daily_reconcile: { Args: never; Returns: number }
       weekly_winner_photo_ok: { Args: { _path: string }; Returns: boolean }
+      work_occupation: { Args: { _value: string }; Returns: string }
+      work_posts_match: {
+        Args: {
+          a: Database["public"]["Tables"]["posts"]["Row"]
+          b: Database["public"]["Tables"]["posts"]["Row"]
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "user"

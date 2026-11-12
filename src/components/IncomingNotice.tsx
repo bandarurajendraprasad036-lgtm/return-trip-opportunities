@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { playBell } from '@/lib/bell';
 import { useBellSound } from '@/lib/use-bell-sound';
+import { pushPolicy } from '@/lib/push-rules';
 
 export function IncomingNotice({ userId }: { userId: string }) {
   const [notice, setNotice] = useState<{ body: string; sender?: string | undefined; post?: string | undefined; payment?: boolean } | null>(null);
@@ -13,6 +14,8 @@ export function IncomingNotice({ userId }: { userId: string }) {
     let active = true;
     const receive = async (next: NonNullable<typeof notice>) => {
       const eligibility = await supabase.rpc('my_prime99');
+      const preferences = await supabase.from('notification_preferences').select('enabled,timezone,quiet_start,quiet_end').eq('user_id',userId).maybeSingle();
+      if (preferences.error || !pushPolicy(new Date(),preferences.data,false).allowed) return;
       if (active && !eligibility.error && (eligibility.data as { alerts_ready?: boolean })?.alerts_ready) setNotice(next);
     };
     const channel = supabase.channel(`screen-notice-${userId}`)

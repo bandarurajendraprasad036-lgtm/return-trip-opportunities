@@ -84,7 +84,6 @@ function Index() {
       </section>
       <section className="space-y-2 px-4 pb-6 pt-0">
         <HomeListings today={day} settings={homeSettings} />
-        {homeSettings.showServices && <ServiceDirectory />}
         {ytId && (
           <div className="overflow-hidden rounded-xl border bg-card shadow-card">
             <p className="p-3 font-bold">🎬 మా గురించి · About us</p>

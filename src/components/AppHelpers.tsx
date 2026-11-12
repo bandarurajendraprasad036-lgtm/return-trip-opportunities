@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from 'sonner';
 import { homeActionPending } from '@/lib/prime99';
+import { pushPolicy } from '@/lib/push-rules';
 
 type InstallEvent = Event & { prompt: () => Promise<void> };
 
@@ -57,9 +58,11 @@ export function MessagePhoneNotices({ userId }: { userId: string }) {
         if (Notification.permission !== "granted" || m.is_auto) return;
         const eligibility = await supabase.rpc('my_prime99');
         if (eligibility.error || !(eligibility.data as { alerts_ready?: boolean })?.alerts_ready) return;
+        const preferences = await supabase.from('notification_preferences').select('enabled,timezone,quiet_start,quiet_end').eq('user_id',userId).maybeSingle();
+        if (preferences.error || !pushPolicy(new Date(),preferences.data,false).allowed) return;
         const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
         if (isAdmin && !m.needs_admin) return; // admin is alerted only for money questions
-        new Notification(isAdmin ? "💰 డబ్బు ప్రశ్న · Payment question" : "కొత్త మెసేజ్ · New message", { body: String(m.body ?? "").slice(0, 120), icon: "/favicon.svg",silent:true });
+        new Notification(isAdmin ? "💰 డబ్బు ప్రశ్న · Payment question" : "కొత్త మెసేజ్ · New message", { body: "గాయత్రి వన్‌లో కొత్త సందేశం ఉంది", icon: "/favicon.svg",silent:true });
       })
       .subscribe();
     return () => { supabase.removeChannel(ch); };

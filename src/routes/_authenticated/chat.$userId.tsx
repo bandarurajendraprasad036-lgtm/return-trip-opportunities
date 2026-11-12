@@ -124,7 +124,7 @@ function Chat() {
       {contextPost && <section className="space-y-1 border-b bg-muted px-3 py-3 text-sm" aria-label="ప్రయాణ వివరాలు · Route details"><p className="font-bold">{contextPost.title}</p>{contextPost.module === "vehicle" ? <><p>{contextPost.from_place} → {contextPost.to_place}</p><p>{contextPost.vehicle_type} {contextPost.capacity_tons != null && `· ${contextPost.capacity_tons} టన్నులు · tons`} · {contextPost.trip_date}</p></> : <p>{contextPost.location}</p>}</section>}
       <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-3">
         {!postId && userId === adminId && <ProgramEvidence />}
-        {postId && <PostEvidence postId={postId} admin={!!me?.isAdmin}/>}
+        {postId && (userId === adminId || me?.isAdmin) && <PostEvidence postId={postId} admin={!!me?.isAdmin}/>}
         {msgs.length === 0 && <p className="pt-10 text-center text-muted-foreground">నమస్కారం చెప్పండి 🙏 Say hello</p>}
         {msgs.map((m) => {
           const mine = m.sender_id === me?.id;
@@ -142,7 +142,7 @@ function Chat() {
         <div ref={bottom} />
       </div>
       {sendError && <p role="alert" className="px-3 py-2 text-sm text-destructive">{sendError}</p>}
-      {chatAllowed===false && <p role="alert" className="px-3 py-2">{contextPost?.module==='vehicle' && contextPost.vehicle_type && !['car','cars','కారు','కార్లు','కార్'].includes(contextPost.vehicle_type.trim().toLowerCase()) ? <><span>ఈ ప్రకటనలో సంప్రదింపు ప్రారంభించండి. · Start contact from this listing.</span><Link to="/dashboard" className="block underline">నా వివరాలు · My profile</Link></> : 'ముందుగా ప్రకటన గంట నొక్కండి · Ring the post bell first'}</p>}
+      {chatAllowed===false && <p role="alert" className="px-3 py-2">సంభాషణకు నెలకు ₹100 చెల్లింపు నిర్ధారణతో పాటు ప్రకటన గంట ద్వారా ప్రారంభించిన సంబంధం అవసరం.<Link to="/dashboard" className="block underline">₹100 చెల్లింపు</Link></p>}
       <form onSubmit={send} className="space-y-2 border-t bg-card p-2">
         <Input type="tel" inputMode="numeric" aria-label="ఫోన్ నంబరు · Phone number" value={phone} onChange={e=>setPhone(e.target.value.replace(/\D/g,''))} maxLength={10} placeholder="ఫోన్ నంబరు · Phone number" disabled={busy || !chatAllowed} />
         <input ref={fileInput} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>{const file=e.target.files?.[0];if(file && (file.size>CHAT_IMAGE_LIMIT || !['image/jpeg','image/png','image/webp'].includes(file.type))){setSendError('ఐదు మెగాబైట్ల లోపు చిత్రం ఎంచుకోండి · Choose an image under 5MB');e.target.value='';return;}setImage(file || null);setSendError('');}} />

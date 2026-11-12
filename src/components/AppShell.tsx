@@ -2,7 +2,7 @@ import { Brand } from "@/components/Brand";
 import { useEffect, type ReactNode } from "react";
 import { ClientOnly, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Inbox, Home, MessageCircle, PlusCircle, User } from "lucide-react";
+import { Inbox, Home, MessageCircle, FilePenLine, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/session";
 import { MessagePhoneNotices } from "@/components/AppHelpers";
@@ -69,7 +69,7 @@ export function AppShell({ children, hideTopActions = false }: { children: React
         </Link>
         <Link to="/post/new" className="-mt-5 flex flex-1 flex-col items-center gap-0.5 text-xs font-semibold">
           <span className="grid size-14 place-items-center rounded-full border-4 border-card bg-secondary text-secondary-foreground shadow-card">
-            <PlusCircle className="size-7" />
+            <FilePenLine className="size-7" />
           </span>
           పోస్ట్ Post
         </Link>

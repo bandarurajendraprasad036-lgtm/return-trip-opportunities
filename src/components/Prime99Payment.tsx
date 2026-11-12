@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { MEMBERSHIP_AMOUNT, EXTRA_POST_AMOUNT } from '@/lib/current-membership';
+import { PaymentScanner } from '@/components/PaymentScanner';
 
 export function Prime99Payment({ bellPayment = false }: { bellPayment?: boolean }) {
   const { data: me } = useMe();
@@ -32,14 +33,15 @@ export function Prime99Payment({ bellPayment = false }: { bellPayment?: boolean 
     <h2 className="text-xl font-bold">₹100 ప్రైమ్ సభ్యత్వం · Prime membership</h2>
     <p>{prime?.active ? 'చెల్లింపు ఆమోదించబడింది · Active' : 'ఆమోదించిన చెల్లింపు అవసరం · Approved payment required'}</p>
     {prime?.active && prime.ends_at && <p>గడువు · Until: {new Date(prime.ends_at).toLocaleString('te-IN', { timeZone: 'Asia/Kolkata' })}</p>}
-    <p>నెలకు మూడు పోస్టులు ఉచితం. అదనపు ఒక్కో పోస్టుకు ₹49. చూడటం అందరికీ ఉచితం; ఇప్పటికే ప్రారంభించిన వ్యక్తిగత సంభాషణ ఉచితం. గంటకు నెలకు ₹100 చెల్లింపు నిర్ధారణ అవసరం.</p>
+    {prime?.bell_active && me.profile?.referral_code && <p>మీ పరిచయ సంకేతం: <strong translate="no">{me.profile.referral_code}</strong></p>}
+    <p>నెలకు మూడు పోస్టులు ఉచితం. అదనపు ఒక్కో పోస్టుకు ₹49. చూడటం అందరికీ ఉచితం; వ్యక్తిగత సంభాషణ, గంట, సూచనలకు నెలకు ₹100 చెల్లింపు నిర్ధారణ అవసరం.</p>
     <p>కొత్త ₹100 చెల్లింపు నిర్ధారించిన రోజు నుంచి ఒక నెల గడువు. గంట సూచనలకు మీ గంట ఎంపిక, ఫోన్ అనుమతి అవసరం. చెల్లింపు ఆధారం పంపడమే నిర్ధారణ కాదు; కస్టమర్లు లేదా కాల్స్‌కు హామీ లేదు.</p>
     {prime?.alerts_start_at && !prime.alerts_ready && <p>సూచనలు ప్రారంభమయ్యే సమయం: {new Date(prime.alerts_start_at).toLocaleString('te-IN', { timeZone: 'Asia/Kolkata' })}; హోమ్ గంట ఎంపిక అవసరం.</p>}
     {price.data === 49 && !bellPayment && <p>మీ సేవా నంబర్ల పరిశీలన ఆమోదమైంది; సభ్యత్వానికి ₹49 మాత్రమే చెల్లించవచ్చు. గంట పని చేయడానికి మాత్రం ₹100 చెల్లించాలి.</p>}
     <p>ఈ నెల పోస్టులు · Posts used: {quota.data?.used ?? '—'} / 3</p>
     {quota.data?.ends_at && <p>పోస్టుల గడువు · Post period ends: {new Date(quota.data.ends_at).toLocaleString('te-IN', { timeZone: 'Asia/Kolkata' })}</p>}
     <AdminChatButton />
-    <p className="text-sm">చెల్లింపు ఎక్కడ చేయాలో నిర్వాహకుడిని అడగండి. ఆధారం పంపడమే ఆమోదం కాదు. · Ask admin where to pay; submission is not approval.</p>
+    <PaymentScanner amount={amount} />
     {!bellPayment && <div className="grid grid-cols-2 gap-2"><Button variant={purpose === 'membership' ? 'default' : 'outline'} className="h-auto min-h-12 whitespace-normal" onClick={() => setPurpose('membership')}>సభ్యత్వం · Membership</Button><Button variant={purpose === 'extra_post' ? 'default' : 'outline'} className="h-auto min-h-12 whitespace-normal" onClick={() => setPurpose('extra_post')}>అదనపు పోస్ట్ ₹49 · Extra post</Button></div>}
     <Label htmlFor="prime99-reference">₹{amount} చెల్లింపు లావాదేవీ సంఖ్య · Transaction reference</Label>
     <Input id="prime99-reference" value={reference} maxLength={64} onChange={e => setReference(e.target.value)} disabled={busy} />

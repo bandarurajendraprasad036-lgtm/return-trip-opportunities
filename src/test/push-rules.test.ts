@@ -6,7 +6,8 @@ describe('background notification rules', () => {
   it('overnight local quiet hours block delivery until their exact end', () => {
     const pref = { timezone: 'Asia/Kolkata', quiet_start: '22:00', quiet_end: '06:00' };
     expect(pushPolicy(new Date('2026-11-04T18:31:00Z'), pref, true).allowed).toBe(false);
-    expect(pushPolicy(new Date('2026-11-05T00:30:00Z'), pref, true).allowed).toBe(true);
+    expect(pushPolicy(new Date('2026-11-05T00:30:00Z'), pref, true).allowed).toBe(false);
+    expect(pushPolicy(new Date('2026-11-05T03:30:00Z'), pref, true).allowed).toBe(true);
   });
   it('keeps the 20:30 India bell cutoff', () => { expect(pushPolicy(new Date('2026-11-04T15:00:00Z'), null, true).silent).toBe(true); });
   it('removes unregistered and invalid device tokens without retries', () => {

@@ -13,6 +13,8 @@ import { areaExamples } from '@/lib/search-examples';
 import { IndiaPlaceInput } from '@/components/IndiaPlaceInput';
 import { useCurrentArea } from '@/lib/use-current-area';
 import type { HomeSettings } from '@/lib/home-settings';
+import { workListings } from '@/lib/work-listings';
+import { ServiceDirectory } from '@/components/ServiceDirectory';
 
 const sections: { key: HomeVehicleSection; te: string; en: string; className: string }[] = [
   { key: 'local', te: 'స్థానిక సరకు వాహనాలు', en: 'Local Goods Vehicle', className: 'vehicle-choice-local' },
@@ -27,6 +29,7 @@ export function HomeListings({ today, settings }: { today: string; settings: Hom
   const [toEdited, setToEdited] = useState(false);
   const [route, setRoute] = useState({ from: '', to: '' });
   const [vehicleSection, setVehicleSection] = useState<HomeVehicleSection | null>(null);
+  const [workArea, setWorkArea] = useState('');
   const { data: me } = useMe();
   const { area, message: areaMessage, locating } = useCurrentArea(me?.id);
   const actualArea = area?.area || area?.address || '';
@@ -79,18 +82,20 @@ export function HomeListings({ today, settings }: { today: string; settings: Hom
         <div className="home-display-list">{status()}{vehicleRows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact hideDate={vehicleSection === 'local'} />)}{examples(vehicleSection, vehicleRows.length)}</div>
       </section>}
     </section>
+    {(settings.showJobs || settings.showServices) && <div className="border-t border-gold py-3"><label htmlFor="work-area" className="mb-2 block font-bold">ప్రాంతం</label><IndiaPlaceInput id="work-area" value={workArea} onChange={setWorkArea} maxLength={80} placeholder="అన్ని ప్రాంతాలు" /></div>}
     {settings.showJobs && <section className="home-market-section" aria-labelledby="job-location-heading">
-      <h2 id="job-location-heading" className="home-section-title flex-wrap"><MapPin />పనులు · Jobs{jobLocation && <span translate="no" className="min-w-0 break-words text-sm"> — {jobLocation}</span>}</h2>
+      <h2 id="job-location-heading" className="home-section-title">పనులు</h2>
       <div className="home-job-columns">
-        {([{ kind: 'seeker', te: 'పని కావాలా?', en: 'Need work?', display: 'పని కావాల్సినవారు', displayEn: 'Job seekers' }, { kind: 'employer', te: 'మనిషి కావాలా?', en: 'Need a worker?', display: 'ఉద్యోగ ఖాళీలు', displayEn: 'Jobs' }] as const).map(section => {
-          const rows = homeJobs(posts, jobLocation, section.kind);
-          return <section className="home-display-column" key={section.kind} aria-label={section.displayEn}>
-            <Button asChild variant="outline" className="home-apply"><Link to="/post/new" search={{ kind: section.kind, loc: jobLocation || undefined }} onClick={() => sessionStorage.setItem('gayatri-interest', 'job')}><span>{section.te}<span className="block text-sm">{section.en}</span></span></Link></Button>
-            <h3>{section.display}<span>{section.displayEn}</span></h3>
-            <div className="home-display-list">{status()}{rows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact />)}{examples(section.kind, rows.length)}</div>
+        {([{ kind: 'seeker', te: 'పని కావాలి', display: 'పని కోసం అప్లై చేసిన వాళ్ళు' }, { kind: 'employer', te: 'పని ఇస్తాను', display: 'పని ఇచ్చే వాళ్ళు' }] as const).map(section => {
+          const rows = workListings(posts, workArea, section.kind);
+          return <section className="home-display-column work-display-column" key={section.kind} aria-label={section.display}>
+            <Button asChild className="home-apply"><Link to="/post/new" search={{ kind: section.kind, loc: workArea || undefined }} onClick={() => sessionStorage.setItem('gayatri-interest', 'job')}>{section.te}</Link></Button>
+            <h3>{section.display}</h3>
+            <div className="home-display-list">{isLoading ? <p role="status">వస్తున్నాయి</p> : isError ? <p role="alert">వివరాలు రాలేదు</p> : rows.length === 0 ? <p className="home-empty">ఇంకా ప్రకటనలు లేవు</p> : rows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact />)}</div>
           </section>;
         })}
       </div>
     </section>}
+    {settings.showServices && <ServiceDirectory area={workArea} posts={posts} />}
   </>;
 }

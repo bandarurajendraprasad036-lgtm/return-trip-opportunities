@@ -27,6 +27,7 @@ import { generalWorkValue, hasProhibitedJobWords, jobPostIdentity, WORK_SUGGESTI
 import { IndiaPlaceInput } from '@/components/IndiaPlaceInput';
 import { RoutePointPicker } from '@/components/RoutePointPicker';
 import type { Coordinates } from '@/lib/india-places';
+import { PostSubmissionNotice } from '@/components/PostSubmissionNotice';
 
 function AiJobAd({ kind, onDraft, work }: { kind: "seeker" | "employer"; onDraft: (d: JobAdDraft) => void; work: string }) {
   const run = useServerFn(draftJobAd);
@@ -93,9 +94,10 @@ function AiJobAd({ kind, onDraft, work }: { kind: "seeker" | "employer"; onDraft
 }
 
 export const Route = createFileRoute("/_authenticated/post/new")({
-  validateSearch: (search: Record<string, unknown>): { kind?: 'seeker' | 'employer' | undefined; loc?: string | undefined } => ({
+  validateSearch: (search: Record<string, unknown>): { kind?: 'seeker' | 'employer' | undefined; loc?: string | undefined; service?: boolean | undefined } => ({
     kind: search['kind'] === 'seeker' || search['kind'] === 'employer' ? search['kind'] : undefined,
     loc: typeof search['loc'] === 'string' ? search['loc'].trim().slice(0, 80) : undefined,
+    service: search['service'] === true || search['service'] === 'true' ? true : undefined,
   }),
   head: () => ({
     meta: [
@@ -111,8 +113,8 @@ export const Route = createFileRoute("/_authenticated/post/new")({
 });
 
 const OPTIONS: { kind: Kind; module: "job" | "vehicle"; te: string; en: string; icon: typeof Briefcase; tone: string }[] = [
-  { kind: "seeker", module: "job", te: "పని కావాలా?", en: "Need work?", icon: UserSearch, tone: "bg-job" },
-  { kind: "employer", module: "job", te: "మనిషి కావాలా?", en: "Need a worker?", icon: Users, tone: "bg-job" },
+  { kind: "seeker", module: "job", te: "పని కావాలి", en: "Need work", icon: UserSearch, tone: "bg-job" },
+  { kind: "employer", module: "job", te: "పని ఇస్తాను", en: "Offer work", icon: Users, tone: "bg-job" },
   { kind: "owner", module: "vehicle", te: "ఖాళీ రిటర్న్ ట్రిప్ ఉంది", en: "Empty return trip", icon: Truck, tone: "bg-vehicle" },
   { kind: "business", module: "vehicle", te: "రిటర్న్ వాహనం కావాలి", en: "Need return vehicle", icon: Package, tone: "bg-vehicle" },
 ];
@@ -128,6 +130,7 @@ function NewPost() {
   const [kind, setKind] = useState<Kind | null>(search.kind ?? null);
   const [f, setF] = useState<Record<string, string>>(search.loc ? { location: search.loc } : {});
   const [busy, setBusy] = useState(false);
+  const [submitted, setSubmitted] = useState<string | null>(null);
   const [generalWork, setGeneralWork] = useState(false);
   const [contentError, setContentError] = useState('');
   const [fromPoint, setFromPoint] = useState<Coordinates | null>(null);
@@ -143,6 +146,8 @@ function NewPost() {
     }));
   }, [me, kind]);
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setF({ ...f, [k]: e.target.value });
+
+  if (submitted) return <PostSubmissionNotice postId={submitted} />;
 
   if (programLoading) return <p className="p-4">వస్తున్నాయి · Loading…</p>;
   if (me && !program) return <div className="p-4"><AccountProfile /></div>;
@@ -164,6 +169,7 @@ function NewPost() {
   const opt = OPTIONS.find((o) => o.kind === kind);
   if (!opt) return null;
   const isJob = opt.module === "job";
+  const isService = isJob && search.service === true;
 
   const submit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
@@ -194,16 +200,15 @@ function NewPost() {
     setBusy(true);
     const mod = await checkText({ data: { text: Object.values(v).join(" \n ") } }).catch(() => ({ ok: false }));
     if (!mod.ok) { setBusy(false); await qc.invalidateQueries({queryKey:['me']}); setContentError('తనిఖీ పూర్తికాలేదు లేదా అనుమతించని విషయం ఉంది; ప్రకటన పంపలేదు. · Check unavailable or prohibited content; not submitted.'); return; }
-    const { data: savedPost, error } = await supabase.from("posts").insert({ ...v, ...(!isJob ? { capacity_tons: capacity?.success ? capacity.data : null, vehicle_type: f["vehicle_type"]?.trim().slice(0, 60) || null } : {}), show_contact: false, user_id: me.id, ...identity }).select('id,visible_after').single();
+    const { data: savedPost, error } = await supabase.from("posts").insert({ ...v, ...(isJob ? { service_type: search.service ? 'service' : '', area_scope: v['location'] === 'ఏ ప్రాంతమైనా' ? 'country' : 'local' } : { capacity_tons: capacity?.success ? capacity.data : null, vehicle_type: f["vehicle_type"]?.trim().slice(0, 60) || null }), show_contact: false, user_id: me.id, ...identity }).select('id,visible_after').single();
     if (!error && savedPost && !isJob && capturedPoints.from && capturedPoints.to) {
       const registered = await supabase.rpc('save_vehicle_post_points', { _post: savedPost.id, _from_lat: capturedPoints.from.latitude, _from_lng: capturedPoints.from.longitude, _to_lat: capturedPoints.to.latitude, _to_lng: capturedPoints.to.longitude });
       if (registered.error) toast.error('ప్రకటన భద్రపడింది; పరిధి స్థానాలు భద్రపడలేదు · Post saved; radius coordinates not saved');
     }
     setBusy(false);
     if (error) { toast.error(error.message.includes('MONTHLY_THREE_POST_LIMIT') ? 'ఈ నెల మూడు ఉచిత పోస్టులు పూర్తయ్యాయి; అదనపు పోస్టుకు ₹49 చెల్లింపు ఆమోదం కావాలి' : error.message.includes('THREE_MONTHLY_JOBS_USED') ? 'ప్రకటన పరిమితి పూర్తయింది · Posting limit reached' : error.message.includes("MOBILE_REQUIRED") ? "ప్రకటనకు ముందు మొబైల్ నంబరు ఇవ్వండి · Mobile number required" : error.message.includes("BAD_CONTENT") ? "🚫 బూతులు, చెడు మాటలు, దేశ వ్యతిరేక విషయాలు పోస్ట్ చేయకూడదు · Abusive or anti-national content is not allowed" : error.message); return; }
-    toast.success(savedPost?.visible_after&&Date.parse(savedPost.visible_after)>Date.now()?"మీ సమాచారం మాకు సమర్పించారు; మరో ఐదు గంటల్లో చూడవచ్చు · Submitted; visible after five hours":"మీ సమాచారం మాకు సమర్పించారు; మీ ప్రకటన ఇప్పుడు చూడవచ్చు · Submitted; now visible");
     qc.invalidateQueries();
-    nav({ to: "/my-posts" });
+    if (savedPost) setSubmitted(savedPost.id);
   };
 
   const field = (k: string, te: string, en: string, props: React.InputHTMLAttributes<HTMLInputElement> = {}) => (
@@ -217,20 +222,21 @@ function NewPost() {
     <form onSubmit={submit} className="space-y-4 p-4">
       <p>ఒక నెలలో ఉద్యోగం, వాహనం కలిపి మొత్తం మూడు పోస్టులు. · Three total job/vehicle posts per month.</p>
       <p className="text-sm">నెలకు మూడు పోస్టులు ఉచితం; తరువాత ఒక్కో పోస్టుకు ₹49. ఉచిత ప్రకటనలు ఐదు గంటల తరువాత కనిపిస్తాయి. చెల్లింపు ఆమోదం ఉంటే కొత్త ప్రకటన వెంటనే.</p>
-      <div className={`flex items-center gap-3 rounded-xl border p-3 text-foreground ${opt.tone}`}>
+      {!isJob && <div className={`flex items-center gap-3 rounded-xl border p-3 text-foreground ${opt.tone}`}>
         <opt.icon className="size-7" />
-        <div><p className="text-lg font-bold">{opt.te}</p><p className="text-sm opacity-90">{opt.en}</p></div>
+        <div><p className="text-lg font-bold">{search.service ? kind === 'seeker' ? 'సర్వీస్ కావాలి' : 'నేను సర్వీస్ ఇస్తాను' : opt.te}</p></div>
         <Button type="button" variant="ghost" disabled={busy} onClick={() => setKind(null)} className="ml-auto text-sm underline">మార్చు</Button>
-      </div>
+      </div>}
       {isJob ? (
         <>
           {/* Point 8: separately selectable job seeker/employer tabs. */}
           <Tabs value={kind} onValueChange={value => { if (!busy && (value === 'seeker' || value === 'employer')) { setKind(value); setContentError(''); } }}>
-            <TabsList className="grid h-auto w-full grid-cols-2 gap-1"><TabsTrigger disabled={busy} value="seeker" className="min-h-16 whitespace-normal text-base">పని కావాలా? · Need work?</TabsTrigger><TabsTrigger disabled={busy} value="employer" className="min-h-16 whitespace-normal text-base">మనిషి కావాలా? · Need a worker?</TabsTrigger></TabsList>
+            <TabsList className="grid h-auto w-full grid-cols-2 gap-1"><TabsTrigger disabled={busy} value="seeker" className="min-h-16 whitespace-normal text-base">{search.service ? 'సర్వీస్ కావాలి' : 'పని కావాలి'}</TabsTrigger><TabsTrigger disabled={busy} value="employer" className="min-h-16 whitespace-normal text-base">{search.service ? 'నేను సర్వీస్ ఇస్తాను' : 'పని ఇస్తాను'}</TabsTrigger></TabsList>
           </Tabs>
-          <AiJobAd work={generalWork ? (f["general_work"] ?? "") : (f["skill"] ?? "")} kind={kind as "seeker" | "employer"} onDraft={(d) => setF((prev) => ({ ...prev, ...Object.fromEntries(Object.entries(d).filter(([, v]) => v)) }))} />
+          {!isService && <AiJobAd work={generalWork ? (f["general_work"] ?? "") : (f["skill"] ?? "")} kind={kind as "seeker" | "employer"} onDraft={(d) => setF((prev) => ({ ...prev, ...Object.fromEntries(Object.entries(d).filter(([, v]) => v)) }))} />}
           <div><Label htmlFor="job-location">ఊరు / ప్రాంతం · Location</Label><IndiaPlaceInput id="job-location" value={f['location'] ?? ''} maxLength={80} onChange={value => setF(prev => ({ ...prev, location: value }))} disabled={busy} /></div>
-          {!generalWork && <JobSuggestionInput id="job-work" label="పని పేరు · Work" value={f['skill'] ?? ''} options={WORK_SUGGESTIONS} maxLength={100} onChange={value => setF(prev => ({ ...prev, skill: value }))} />}
+          <label className="flex min-h-11 items-center gap-2"><input type="checkbox" checked={f['location'] === 'ఏ ప్రాంతమైనా'} disabled={busy} onChange={event => setF(prev => ({ ...prev, location: event.target.checked ? 'ఏ ప్రాంతమైనా' : '' }))} />ఏ ప్రాంతమైనా</label>
+          {!generalWork && <JobSuggestionInput id="job-work" label={isService ? 'సేవ పేరు' : 'పని పేరు · Work'} value={f['skill'] ?? ''} options={WORK_SUGGESTIONS} maxLength={100} onChange={value => setF(prev => ({ ...prev, skill: value }))} />}
           <label className="flex items-center gap-2"><input type="checkbox" checked={generalWork} onChange={event => setGeneralWork(event.target.checked)} />జాబితాలో లేని పని · Other work</label>
           {generalWork && <div className="space-y-1"><Label htmlFor="general-work">ఇతర పని పేరు · General work</Label><Input id="general-work" className="h-12 text-lg" value={f['general_work'] ?? ''} required maxLength={100} onChange={set('general_work')} /></div>}
           <div className="space-y-1">
@@ -240,9 +246,9 @@ function NewPost() {
               {JOB_CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.te} · {c.en}</option>)}
             </select>
           </div>
-          {kind === "employer" && field("company_name", "కంపెనీ పేరు", "Company name", { maxLength: 80 })}
-          {kind === "employer" && field("vacancies", "ఖాళీల సంఖ్య", "Vacancies", { type: "number", min: "1", max: "999", inputMode: "numeric", placeholder: "1, 2, 5" })}
-          {field("salary", kind === "seeker" ? "ఆశించే జీతం" : "జీతం", kind === "seeker" ? "Expected salary" : "Salary", { placeholder: "e.g. 15000/month or 600/day" })}
+          {!isService && kind === "employer" && field("company_name", "కంపెనీ పేరు", "Company name", { maxLength: 80 })}
+          {!isService && kind === "employer" && field("vacancies", "ఖాళీల సంఖ్య", "Vacancies", { type: "number", min: "1", max: "999", inputMode: "numeric", placeholder: "1, 2, 5" })}
+          {field("salary", isService ? 'సేవ రుసుము' : kind === "seeker" ? "ఆశించే జీతం" : "జీతం", isService ? 'Service rate' : kind === "seeker" ? "Expected salary" : "Salary", { placeholder: "e.g. 15000/month or 600/day" })}
         </>
       ) : (
         <>
