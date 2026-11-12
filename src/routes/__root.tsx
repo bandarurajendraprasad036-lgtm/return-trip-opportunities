@@ -18,6 +18,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { setupOfflineSupport } from "@/lib/offline";
 import { PushSoundSync } from '@/components/PushSoundSync';
 import {AccountBlockGate} from '@/components/AccountBlockGate';
+import { restoreLanguage } from '@/lib/language';
 
 function NotFoundComponent() {
   return (
@@ -130,6 +131,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
   useEffect(() => { void setupOfflineSupport().catch(() => {}); }, []);
+  useEffect(() => { restoreLanguage(); }, []);
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;

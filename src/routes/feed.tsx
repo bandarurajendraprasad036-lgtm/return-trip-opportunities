@@ -92,10 +92,10 @@ function Feed() {
           <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="ఉద్యోగం / ఊరు వెతకండి · Search job or place" className="h-12 bg-card pl-10 text-base" />
         </div>
         {filter !== "vehicle" && (
-          <div className="flex gap-2">
-            <input list="cities" value={city === ANYWHERE ? "" : city} onChange={(e) => setCity(e.target.value || ANYWHERE)} placeholder="🇮🇳 భారత్ అంతా · Anywhere in India" aria-label="City, district or state" className="h-11 min-w-0 flex-1 rounded-md bg-card px-3 text-base" />
+          <div className="grid grid-cols-[minmax(0,1fr)_7rem] items-start gap-2">
+            <div className="min-w-0"><input list="cities" value={city === ANYWHERE ? "" : city} onChange={(e) => setCity(e.target.value || ANYWHERE)} placeholder="🇮🇳 భారత్ అంతా · Anywhere in India" aria-label="City, district or state" className="h-12 w-full min-w-0 rounded-md bg-card px-3 text-base" />{city !== ANYWHERE && <p translate="no" className="break-words px-3 text-sm">{city}</p>}</div>
             <datalist id="cities">{CITIES.map((c) => <option key={c} value={c} />)}</datalist>
-            <select value={cat} onChange={(e) => setCat(e.target.value)} aria-label="Job category" className="h-11 rounded-md bg-card px-2 text-base">
+            <select value={cat} onChange={(e) => setCat(e.target.value)} aria-label="Job category" className="h-12 w-full min-w-0 rounded-md border border-input bg-card px-1 text-sm">
               <option value="">అన్ని పనులు · All</option>
               {JOB_CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.te} · {c.en}</option>)}
             </select>
@@ -106,13 +106,14 @@ function Feed() {
         )}
         <div className="flex gap-2">
           {FILTERS.map((f) => (
-            <button
+            <Button
               key={f.id}
               onClick={() => setFilter(f.id)}
-              className={`flex flex-1 items-center justify-center gap-1 rounded-full border py-2 text-sm font-semibold ${filter === f.id ? "bg-secondary text-secondary-foreground" : "bg-background text-foreground"}`}
+              variant={filter === f.id ? 'default' : 'outline'}
+              className="min-w-0 flex-1 gap-1 whitespace-normal px-1 py-2 text-sm font-semibold"
             >
               <f.icon className="size-4" />{f.te}
-            </button>
+            </Button>
           ))}
         </div>
       </div>

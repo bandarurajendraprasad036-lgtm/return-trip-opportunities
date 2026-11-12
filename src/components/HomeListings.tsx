@@ -12,7 +12,6 @@ import { SearchExample } from '@/components/SearchExample';
 import { areaExamples } from '@/lib/search-examples';
 import { IndiaPlaceInput } from '@/components/IndiaPlaceInput';
 import { useCurrentArea } from '@/lib/use-current-area';
-import { HomeAdminChat } from '@/components/HomeAdminChat';
 import type { HomeSettings } from '@/lib/home-settings';
 
 const sections: { key: HomeVehicleSection; te: string; en: string; className: string }[] = [
@@ -60,8 +59,7 @@ export function HomeListings({ today, settings }: { today: string; settings: Hom
   const focusFrom = () => { setFromEdited(true); document.getElementById('home-from')?.focus(); };
   return <>
     <section className="home-market-section border-t-0! pt-0!" aria-label="ఒకే వెతుకులాట · Shared search">
-      {(settings.showAdminChat || settings.showLocation) && <div className="home-quick-grid">
-        {settings.showAdminChat && <HomeAdminChat />}
+      {settings.showLocation && <div className="home-quick-grid grid-cols-1!">
         {settings.showLocation && <div className="home-quick-box home-location-box"><Button type="button" variant="ghost" className="h-auto min-h-12 w-full whitespace-normal px-1" onClick={focusFrom}><MapPin /><span>స్థానం మార్చండి<span className="block text-xs">Change location</span></span></Button><p className="w-full break-words px-1 text-center text-xs">{actualArea || (locating ? 'చూస్తున్నాం…' : 'ఊరి పేరు ఎంచుకోండి')}</p></div>}
       </div>}
       {!actualArea && areaMessage && <p className="pb-1 text-xs text-muted-foreground">{areaMessage}</p>}
@@ -82,7 +80,7 @@ export function HomeListings({ today, settings }: { today: string; settings: Hom
       </section>}
     </section>
     {settings.showJobs && <section className="home-market-section" aria-labelledby="job-location-heading">
-      <h2 id="job-location-heading" className="home-section-title"><MapPin />పనులు · Jobs{jobLocation && <span className="break-words text-sm"> — {jobLocation}</span>}</h2>
+      <h2 id="job-location-heading" className="home-section-title flex-wrap"><MapPin />పనులు · Jobs{jobLocation && <span translate="no" className="min-w-0 break-words text-sm"> — {jobLocation}</span>}</h2>
       <div className="home-job-columns">
         {([{ kind: 'seeker', te: 'పని కావాలా?', en: 'Need work?', display: 'పని కావాల్సినవారు', displayEn: 'Job seekers' }, { kind: 'employer', te: 'మనిషి కావాలా?', en: 'Need a worker?', display: 'ఉద్యోగ ఖాళీలు', displayEn: 'Jobs' }] as const).map(section => {
           const rows = homeJobs(posts, jobLocation, section.kind);

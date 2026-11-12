@@ -13,6 +13,7 @@
 - `isMatch` mirrors database area/route matching; post-linked notifications pass a central bell-only guard, with owner-authorized exact matching and recipient interest as the only dispatch paths, preventing automatic post triggers from sending.
 - First user to sign up becomes admin (handle_new_user trigger); roles live in user_roles.
 - Use the shared Brand component for the bilingual wordmark so headers stay consistent.
+- App UI localization uses a bundled static catalog and subscribed JSX runtime; persist language only after hydration and preserve entered/account content with translate="no", never send runtime private data for translation.
 - Keep the synthetic phone-email domain unchanged during rebrands because existing account credentials depend on it.
 - Job drafting composes structured seeker inputs into the existing authenticated drafting call; preserve one inference path and do not invent missing facts.
 - Phone installation uses generateSW through vite-plugin-pwa for the explicitly requested offline public pages; register only through the guarded wrapper and never cache private data or OAuth.

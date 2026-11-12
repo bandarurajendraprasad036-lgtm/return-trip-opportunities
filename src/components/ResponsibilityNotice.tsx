@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useLanguage } from '@/lib/language';
 import { ShieldCheck } from "lucide-react";
 
 const statements: Record<string, { label: string; text: string }> = {
@@ -18,13 +18,10 @@ const statements: Record<string, { label: string; text: string }> = {
 };
 
 export function ResponsibilityNotice({ prominent = false }: { prominent?: boolean }) {
-  const [language, setLanguage] = useState("te");
-  useEffect(() => {
-    try { const saved = localStorage.getItem("gayatri-notice-language") ?? navigator.language.split("-")[0]; if (saved && statements[saved]) setLanguage(saved); } catch { /* Default Telugu. */ }
-  }, []);
+  const language = useLanguage();
   const statement = statements[language] ?? statements["te"];
   return <section className="space-y-2 border-y bg-muted px-4 py-4" aria-label="బాధ్యత ప్రకటన · Responsibility">
-    <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="flex items-center gap-2 text-base font-bold"><ShieldCheck className="size-5 text-primary" />బాధ్యత · Responsibility</h2><select aria-label="ప్రకటన భాష · Notice language" value={language} className="min-h-10 max-w-full rounded-md border bg-card px-2 text-sm" onChange={event => { setLanguage(event.target.value); try { localStorage.setItem("gayatri-notice-language", event.target.value); } catch { /* Optional. */ } }}>{Object.entries(statements).map(([code, item]) => <option key={code} value={code}>{item.label}</option>)}</select></div>
-    <p lang={language} dir={language === "ur" ? "rtl" : undefined} className={prominent ? "text-lg font-bold leading-relaxed" : "text-sm leading-relaxed"}>{statement?.text}</p>
+    <h2 className="flex items-center gap-2 text-base font-bold"><ShieldCheck className="size-5 text-primary" />బాధ్యత · Responsibility</h2>
+    <p translate="no" lang={language} dir={language === "ur" ? "rtl" : undefined} className={prominent ? "text-lg font-bold leading-relaxed" : "text-sm leading-relaxed"}>{statement?.text}</p>
   </section>;
 }

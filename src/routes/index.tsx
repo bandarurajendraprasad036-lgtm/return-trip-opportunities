@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Inbox, User } from "lucide-react";
+import { MessageCircle } from "lucide-react";
+import { LanguageButton } from '@/components/LanguageButton';
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import emblem from "@/assets/gayatri-one-emblem.jpg";
@@ -20,17 +21,14 @@ import { ServiceDirectory } from "@/components/ServiceDirectory";
 import { DEFAULT_HOME_SETTINGS, useHomeSettings } from "@/lib/home-settings";
 import { ReferralBoard } from '@/components/ReferralBoard';
 import { WeeklyWinners } from '@/components/WeeklyWinners';
-import { useMe } from '@/lib/session';
-import { useAccountProgram } from '@/lib/use-account-program';
-import { homeActionPending } from '@/lib/prime99';
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "గాయత్రి వన్ · Gayatri One — ఉద్యోగాలు & రిటర్న్ వాహనాలు" },
-      { name: "description", content: "గాయత్రి వన్ · Gayatri One — Find jobs, workers and empty return trucks in your area. Telugu + English." },
+      { name: "description", content: "గాయత్రి వన్ — Find jobs, workers and return vehicles in your area with twelve selectable Indian languages." },
       { property: "og:title", content: "గాయత్రి వన్ · Gayatri One — Jobs & Return Vehicles" },
-      { property: "og:description", content: "గాయత్రి వన్ · Gayatri One — Find jobs, workers and empty return trucks in your area. Telugu + English." },
+      { property: "og:description", content: "Gayatri One — Jobs, workers and return vehicles, with twelve selectable Indian languages." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -42,8 +40,6 @@ export const Route = createFileRoute("/")({
 
 
 function Index() {
-  const { data: me } = useMe();
-  const { data: program } = useAccountProgram(me?.id);
   const { data: homeSettings = DEFAULT_HOME_SETTINGS } = useHomeSettings();
   const [devotional, setDevotional] = useState(0);
   const [day, setDay] = useState("");
@@ -69,10 +65,11 @@ function Index() {
   return (
     <div className="mx-auto min-h-screen max-w-[480px] overflow-x-hidden bg-royal">
       <section className="home-devotional bg-royal px-4 pb-6 pt-4 text-on-royal">
-        <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-2">
           <h1 className="flex min-w-0 items-center gap-1 text-sm font-extrabold text-gold"><img src={emblem} alt="" width={28} height={28} className="size-7 shrink-0 object-contain" /><span>గాయత్రి వన్<span className="block text-xs">Gayatri One</span></span></h1>
-          <div className="flex gap-2">
-            <Link to="/notifications" className="gold-ring bg-gold text-royal" aria-label="అలర్ట్స్ · Alerts"><Inbox className="size-6" /></Link>
+          <div className="flex shrink-0 items-center gap-2">
+            <LanguageButton />
+            <Button asChild size="icon" className="size-11" aria-label="సందేశాలు · Messages"><Link to="/chats"><MessageCircle className="size-5" /></Link></Button>
           </div>
         </div>
         <p className="mt-2 text-center font-serif text-4xl font-extrabold text-gold">GAYATRI ONE</p>
@@ -81,7 +78,6 @@ function Index() {
         </BellJoin>
         <div className="mt-2 flex items-center justify-center gap-3">
           <InstallButton compact remind />
-          <Button asChild variant="outline" className={`gold-ring p-0 ${homeActionPending('profile', Boolean(program?.completed_at)) ? 'unfinished-action' : ''}`}><Link to="/dashboard" aria-label="ప్రొఫైల్ · Profile"><User className="size-6" /></Link></Button>
         </div>
         <p className="text-center text-base opacity-90">మన ఊరు · మన బండి · మన పని</p>
         <DailyWelcome />

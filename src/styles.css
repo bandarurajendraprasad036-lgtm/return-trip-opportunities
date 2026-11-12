@@ -233,3 +233,6 @@ body { color-scheme: dark; letter-spacing: 0; }
 @keyframes unfinished-action-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
 .unfinished-action { animation: unfinished-action-pulse 1.8s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .unfinished-action { animation: none; outline: 2px dashed var(--gold); outline-offset: 3px; } }
+
+html:not([lang="te"]) body { font-family: "Noto Sans", system-ui, sans-serif; }
+html[lang="ur"] p, html[lang="ur"] label { unicode-bidi: plaintext; }

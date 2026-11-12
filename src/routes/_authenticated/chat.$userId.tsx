@@ -128,7 +128,7 @@ function Chat() {
           return (
             <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
               <div className={`max-w-[80%] space-y-2 break-words rounded-2xl px-3 py-2 text-base ${mine ? "bg-primary text-primary-foreground" : "bg-card shadow-card"}`}>
-                <p className="whitespace-pre-wrap">{m.body.replace(/\/chat\/[0-9a-f-]{36}/g,'ప్రకటన గంట నొక్కండి · Ring listing bell')}</p>
+                <p translate="no" className="whitespace-pre-wrap">{m.body.replace(/\/chat\/[0-9a-f-]{36}/g,'ప్రకటన గంట నొక్కండి · Ring listing bell')}</p>
                 {m.chat_phone && <p className="flex items-center gap-1"><Phone className="size-4" />{m.chat_phone}</p>}
                 {m.image_path && <Button variant="outline" onClick={async()=>{try{const result=await showImage({data:{message:m.id}});setImageUrl(result.url);}catch{setSendError('చిత్రం తెరవలేకపోయాం · Image unavailable');}}}><ImagePlus />ఫోటో చూడండి · View image</Button>}
                 {mine && (m.image_path || m.chat_phone) && <Button variant="ghost" size="icon" aria-label="నా పంపిన వివరాలు తొలగించండి · Delete my attachment" onClick={async()=>{try{await removeEntry({data:{message:m.id}});await qc.invalidateQueries({queryKey:key});}catch{setSendError('తొలగించలేకపోయాం · Could not delete');}}}><X /></Button>}

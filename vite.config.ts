@@ -9,7 +9,19 @@ import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
   vite: {
-    plugins: [VitePWA({
+    plugins: [{
+      name: 'gayatri-localized-jsx',
+      enforce: 'pre',
+      transform(code, id) {
+        if (!id.includes('/src/') || !id.split('?')[0]?.endsWith('.tsx') || id.includes('/lib/localized-') || id.includes('/test/')) return;
+        const localizedCode = code.replace(/from\s+['"]sonner['"]/g, "from '@/lib/localized-toast'");
+        return { code: `/** @jsxImportSource /src/lib/localized */\n${localizedCode}`, map: null };
+      },
+      resolveId(id) {
+        if (id === '/src/lib/localized/jsx-runtime' || id === '/src/lib/localized/jsx-dev-runtime') return `${process.cwd()}/src/lib/localized-jsx.tsx`;
+        return null;
+      },
+    }, VitePWA({
       strategies: "generateSW",
       filename: "sw.js",
       registerType: "autoUpdate",

@@ -39,7 +39,7 @@ export function AdminMessages() {
       const other = message.sender_id === me?.id ? message.receiver_id : message.sender_id;
       return <article key={message.id} className="space-y-2 rounded-lg border p-3 text-sm">
         <p className="break-words font-bold">{person(message.sender_id)} → {person(message.receiver_id)}</p>
-        <p className="whitespace-pre-wrap break-words">{message.body || 'చిత్రం మాత్రమే · Image only'}</p>
+        <p translate="no" className="whitespace-pre-wrap break-words">{message.body || 'చిత్రం మాత్రమే · Image only'}</p>
         <p className="text-xs text-muted-foreground">{new Date(message.created_at).toLocaleString('te-IN')}</p>
         <div className="flex flex-wrap gap-2">
           {message.image_path && <Button type="button" variant="outline" onClick={async () => { setImageError(''); try { const result = await showImage({ data: { message: message.id } }); setImageUrl(result.url); } catch { setImageError('చిత్రం తెరవలేకపోయాం · Image unavailable'); } }}><ImagePlus />చిత్రం · Image</Button>}

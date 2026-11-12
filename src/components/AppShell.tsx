@@ -2,14 +2,14 @@ import { Brand } from "@/components/Brand";
 import { useEffect, type ReactNode } from "react";
 import { ClientOnly, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Inbox, Home, MessageCircle, PlusCircle, User, Shield } from "lucide-react";
+import { Inbox, Home, MessageCircle, PlusCircle, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/session";
 import { MessagePhoneNotices } from "@/components/AppHelpers";
 import { DesignFooter } from "@/components/DesignFooter";
 import { IncomingNotice } from "@/components/IncomingNotice";
 import { ResponsibilityNotice } from "@/components/ResponsibilityNotice";
-import { AdminChatButton } from '@/components/AdminChatButton';
+import { LanguageButton } from '@/components/LanguageButton';
 
 export function AppShell({ children, hideTopActions = false }: { children: ReactNode; hideTopActions?: boolean }) {
   const { data: me } = useMe();
@@ -53,32 +53,7 @@ export function AppShell({ children, hideTopActions = false }: { children: React
         <Link to="/feed" className="min-w-0 font-display text-lg font-extrabold leading-none">
           <Brand />
         </Link>
-        <ClientOnly fallback={<div className="h-10" />}>{hideTopActions ? <span /> : me === null ? (
-          <Link to="/auth" className="rounded-full bg-secondary px-4 py-2 text-sm font-bold text-secondary-foreground">
-            లాగిన్ / రిజిస్టర్
-          </Link>
-        ) : (
-        <div className="flex items-center gap-1">
-          {me?.isAdmin && (
-            <Link to="/admin" className="rounded-full p-2" aria-label="Admin">
-              <Shield className="size-6" />
-            </Link>
-          )}
-          <AdminChatButton labeled />
-          <Link to="/notifications" className="relative rounded-full p-2" aria-label="Notifications">
-            <Inbox className="size-6" />
-            {unread > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 grid min-w-5 place-items-center rounded-full bg-secondary px-1 text-xs font-bold text-secondary-foreground">
-                {unread}
-              </span>
-            )}
-          </Link>
-          <Link to="/dashboard" className="flex min-h-11 items-center gap-1.5 rounded-full border-2 border-primary bg-card px-3 text-xs font-bold text-primary" aria-label="ప్రొఫైల్ · Profile">
-            <User className="size-5" />
-            ప్రొఫైల్ · Profile
-          </Link>
-        </div>
-        )}</ClientOnly>
+        <div className="flex shrink-0 items-center gap-1"><LanguageButton />{!hideTopActions && <Link to="/chats" className="grid size-11 shrink-0 place-items-center rounded-md bg-primary text-primary-foreground" aria-label="సందేశాలు · Messages"><MessageCircle className="size-5" /><ClientOnly>{unread > 0 && <span className="sr-only">{unread}</span>}</ClientOnly></Link>}</div>
       </header>
       <main className="flex-1 pb-24">{children}<ResponsibilityNotice /><DesignFooter /></main>
       {me && <IncomingNotice userId={me.id} />}
