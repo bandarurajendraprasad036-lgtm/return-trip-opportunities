@@ -13,7 +13,6 @@ import { areaExamples } from '@/lib/search-examples';
 import { IndiaPlaceInput } from '@/components/IndiaPlaceInput';
 import { useCurrentArea } from '@/lib/use-current-area';
 import type { HomeSettings } from '@/lib/home-settings';
-import { workListings } from '@/lib/work-listings';
 import { ServiceDirectory } from '@/components/ServiceDirectory';
 
 const sections: { key: HomeVehicleSection; te: string; en: string; className: string }[] = [
@@ -56,7 +55,6 @@ export function HomeListings({ today, settings }: { today: string; settings: Hom
     if (isError) return <p role="alert" className="home-empty">నిజమైన నమోదులు రాలేదు · Could not load listings</p>;
     return null;
   };
-  const [openWork, setOpenWork] = useState<'seeker' | 'employer' | null>(null);
   const examples = (category: HomeVehicleSection | 'seeker' | 'employer', realCount: number) => searched && !isLoading && realCount === 0
     ? areaExamples(route.from, route.to, category).map((example, index) => <SearchExample key={`${category}-${index}`} example={example} />)
     : null;
@@ -88,14 +86,8 @@ export function HomeListings({ today, settings }: { today: string; settings: Hom
       <h2 id="job-location-heading" className="home-section-title">పనులు</h2>
       <div className="home-job-columns">
         {([{ kind: 'seeker', te: 'పని కావాలి', display: 'పని కోసం అప్లై చేసిన వాళ్ళు' }, { kind: 'employer', te: 'పని ఇస్తాను', display: 'పని ఇచ్చే వాళ్ళు' }] as const).map(section => {
-          const rows = workListings(posts, workArea, section.kind);
           return <section className="home-display-column work-display-column" key={section.kind} aria-label={section.display}>
-            <Button type="button" className="home-apply" aria-expanded={openWork === section.kind} onClick={() => setOpenWork(openWork === section.kind ? null : section.kind)}>{section.te}</Button>
-            {openWork === section.kind && <>
-              <h3>{section.display}</h3>
-              <Button asChild variant="outline" className="w-full"><Link to="/post/new" search={{ kind: section.kind, loc: workArea || undefined }} onClick={() => sessionStorage.setItem('gayatri-interest', 'job')}>{section.kind === 'seeker' ? 'పని కోసం అప్లై చేయండి' : 'పని ఇస్తాను అని పెట్టండి'}</Link></Button>
-              <div className="home-display-list">{isLoading ? <p role="status">వస్తున్నాయి</p> : isError ? <p role="alert">వివరాలు రాలేదు</p> : rows.length === 0 ? <p className="home-empty">ఇంకా ప్రకటనలు లేవు</p> : rows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact />)}</div>
-            </>}
+            <Button asChild className="home-apply"><Link to="/work" search={{ kind: section.kind, area: workArea }}>{section.te}</Link></Button>
           </section>;
         })}
       </div>

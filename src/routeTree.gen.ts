@@ -15,6 +15,7 @@ import { Route as AdminLoginRouteImport } from './routes/admin-login'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as FeedRouteImport } from './routes/feed'
 import { Route as VehiclesRouteImport } from './routes/vehicles'
+import { Route as WorkRouteImport } from './routes/work'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin-settings'
 import { Route as AuthenticatedAiMatchRouteImport } from './routes/_authenticated/ai-match'
@@ -55,6 +56,11 @@ const FeedRoute = FeedRouteImport.update({
 const VehiclesRoute = VehiclesRouteImport.update({
   id: '/vehicles',
   path: '/vehicles',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkRoute = WorkRouteImport.update({
+  id: '/work',
+  path: '/work',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -127,6 +133,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/feed': typeof FeedRoute
   '/vehicles': typeof VehiclesRoute
+  '/work': typeof WorkRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-settings': typeof AuthenticatedAdminSettingsRoute
   '/ai-match': typeof AuthenticatedAiMatchRoute
@@ -146,6 +153,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/feed': typeof FeedRoute
   '/vehicles': typeof VehiclesRoute
+  '/work': typeof WorkRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-settings': typeof AuthenticatedAdminSettingsRoute
   '/ai-match': typeof AuthenticatedAiMatchRoute
@@ -167,6 +175,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/feed': typeof FeedRoute
   '/vehicles': typeof VehiclesRoute
+  '/work': typeof WorkRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/admin-settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/ai-match': typeof AuthenticatedAiMatchRoute
@@ -188,6 +197,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/feed'
     | '/vehicles'
+    | '/work'
     | '/admin'
     | '/admin-settings'
     | '/ai-match'
@@ -207,6 +217,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/feed'
     | '/vehicles'
+    | '/work'
     | '/admin'
     | '/admin-settings'
     | '/ai-match'
@@ -227,6 +238,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/feed'
     | '/vehicles'
+    | '/work'
     | '/_authenticated/admin'
     | '/_authenticated/admin-settings'
     | '/_authenticated/ai-match'
@@ -248,6 +260,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   FeedRoute: typeof FeedRoute
   VehiclesRoute: typeof VehiclesRoute
+  WorkRoute: typeof WorkRoute
   ProfileUserIdRoute: typeof ProfileUserIdRoute
   ApiPublicPushDispatchRoute: typeof ApiPublicPushDispatchRoute
 }
@@ -294,6 +307,13 @@ declare module '@tanstack/react-router' {
       path: '/vehicles'
       fullPath: '/vehicles'
       preLoaderRoute: typeof VehiclesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/work': {
+      id: '/work'
+      path: '/work'
+      fullPath: '/work'
+      preLoaderRoute: typeof WorkRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -419,6 +439,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   FeedRoute: FeedRoute,
   VehiclesRoute: VehiclesRoute,
+  WorkRoute: WorkRoute,
   ProfileUserIdRoute: ProfileUserIdRoute,
   ApiPublicPushDispatchRoute: ApiPublicPushDispatchRoute,
 }
