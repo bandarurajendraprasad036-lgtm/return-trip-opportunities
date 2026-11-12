@@ -81,7 +81,7 @@ export function HomeListings({ today, settings }: { today: string; settings: Hom
         <div className="home-display-list">{status()}{vehicleRows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact hideDate={vehicleSection === 'local'} />)}{examples(vehicleSection, vehicleRows.length)}</div>
       </section>}
     </section>
-    {(settings.showJobs || settings.showServices) && <div className="border-t border-gold py-3"><label htmlFor="work-area" className="mb-2 block font-bold">ప్రాంతం</label><IndiaPlaceInput id="work-area" value={workArea} onChange={setWorkArea} maxLength={80} placeholder="అన్ని ప్రాంతాలు" /></div>}
+    {(settings.showJobs || settings.showServices) && <div className="border-t border-gold py-3"><label htmlFor="work-area" className="mb-2 block font-bold">ప్రాంతం</label><IndiaPlaceInput id="work-area" value={workArea} onChange={setWorkArea} maxLength={80} placeholder="మీ ప్రాంతం పేరు" /></div>}
     {settings.showJobs && <section className="home-market-section" aria-labelledby="job-location-heading">
       <h2 id="job-location-heading" className="home-section-title">పనులు</h2>
       <div className="home-job-columns">
@@ -92,6 +92,6 @@ export function HomeListings({ today, settings }: { today: string; settings: Hom
         })}
       </div>
     </section>}
-    {settings.showServices && <ServiceDirectory area={workArea} posts={posts} />}
+    {settings.showServices && <ServiceDirectory area={workArea} />}
   </>;
 }

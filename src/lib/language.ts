@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import catalog from './locales/interface.json';
+import { serviceCatalog } from './service-catalog';
 
 export const LANGUAGES = [
   { code: 'te', name: 'తెలుగు' }, { code: 'hi', name: 'हिन्दी' },
@@ -35,7 +36,7 @@ export function useLanguage() {
 const messages = catalog as Record<string, Partial<Record<Language, string>>>;
 export function translateText(value: string, language: Language): string {
   const normalized = value.replace(/\s+/g, ' ').trim();
-  let result = messages[normalized]?.[language];
+  let result = serviceCatalog[normalized]?.[language] ?? messages[normalized]?.[language];
   if (!result && normalized.includes(' · ')) {
     const parts = normalized.split(' · ');
     const preferred = language === 'te' ? parts[0] : parts[parts.length - 1];

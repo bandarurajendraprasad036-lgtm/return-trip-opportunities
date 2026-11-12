@@ -51,6 +51,11 @@ function Chat() {
     const result=await supabase.rpc('can_post_chat',{...(postId ? {_post:postId} : {}),_other:userId});
     if(result.error)throw result.error;return result.data;
   }});
+  const { data: contactAllowed } = useQuery({ queryKey: ['service-chat-open', me?.id, userId], enabled: !!me && !!chatAllowed, refetchInterval: 5000, queryFn: async () => {
+    const result = await supabase.rpc('open_service_chat', { _other: userId });
+    if (result.error) throw result.error;
+    return result.data;
+  } });
   const { data: contextPost } = useQuery({ queryKey: ["chat-post", postId], enabled: !!postId, queryFn: async () => {
     if (!postId) return null;
     const { data, error } = await supabase.from("posts").select("id,title,module,from_place,to_place,trip_date,vehicle_type,capacity_tons,location").eq("id", postId).maybeSingle();
@@ -144,7 +149,7 @@ function Chat() {
       {sendError && <p role="alert" className="px-3 py-2 text-sm text-destructive">{sendError}</p>}
       {chatAllowed===false && <p role="alert" className="px-3 py-2">సంభాషణకు నెలకు ₹100 చెల్లింపు నిర్ధారణతో పాటు ప్రకటన గంట ద్వారా ప్రారంభించిన సంబంధం అవసరం.<Link to="/dashboard" className="block underline">₹100 చెల్లింపు</Link></p>}
       <form onSubmit={send} className="space-y-2 border-t bg-card p-2">
-        <Input type="tel" inputMode="numeric" aria-label="ఫోన్ నంబరు · Phone number" value={phone} onChange={e=>setPhone(e.target.value.replace(/\D/g,''))} maxLength={10} placeholder="ఫోన్ నంబరు · Phone number" disabled={busy || !chatAllowed} />
+        <Input type="tel" inputMode="numeric" aria-label="ఫోన్ నంబరు · Phone number" value={phone} onChange={e=>setPhone(e.target.value.replace(/\D/g,''))} maxLength={10} placeholder="ఫోన్ నంబరు · Phone number" disabled={busy || !chatAllowed || contactAllowed !== true} />
         <input ref={fileInput} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>{const file=e.target.files?.[0];if(file && (file.size>CHAT_IMAGE_LIMIT || !['image/jpeg','image/png','image/webp'].includes(file.type))){setSendError('ఐదు మెగాబైట్ల లోపు చిత్రం ఎంచుకోండి · Choose an image under 5MB');e.target.value='';return;}setImage(file || null);setSendError('');}} />
         {image && <div className="flex items-center gap-2 text-sm"><span className="min-w-0 flex-1 truncate">{image.name}</span><Button type="button" variant="ghost" size="icon" aria-label="చిత్రం తీసేయండి · Remove image" onClick={()=>{setImage(null);if(fileInput.current)fileInput.current.value='';}}><X /></Button></div>}
         <div className="flex gap-2"><Button type="button" variant="outline" size="icon" aria-label="వాట్సాప్ చిత్రం పంపండి · Upload WhatsApp screenshot" disabled={busy || !chatAllowed} onClick={()=>fileInput.current?.click()}><ImagePlus /></Button><Input value={text} onChange={(e) => setText(e.target.value)} maxLength={1000} placeholder="మీ సమాచారం · Your message" className="h-12 min-w-0 text-base" disabled={busy || !chatAllowed} /><Button type="submit" disabled={busy || !chatAllowed || (!text.trim() && !phone && !image)} size="icon" className="size-12 shrink-0" aria-label="పంపండి · Send"><Send /></Button></div>

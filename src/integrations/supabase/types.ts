@@ -1491,6 +1491,42 @@ export type Database = {
           },
         ]
       }
+      service_chat_presence: {
+        Row: {
+          member_id: string
+          member_opened: boolean
+          owner_id: string
+          owner_opened: boolean
+        }
+        Insert: {
+          member_id: string
+          member_opened?: boolean
+          owner_id: string
+          owner_opened?: boolean
+        }
+        Update: {
+          member_id?: string
+          member_opened?: boolean
+          owner_id?: string
+          owner_opened?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_chat_presence_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_chat_presence_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_likes: {
         Row: {
           profile_id: string
@@ -1582,6 +1618,78 @@ export type Database = {
             foreignKeyName: "service_profiles_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_request_pairs: {
+        Row: {
+          member_id: string
+          owner_id: string
+          request_id: string
+        }
+        Insert: {
+          member_id: string
+          owner_id: string
+          request_id: string
+        }
+        Update: {
+          member_id?: string
+          owner_id?: string
+          request_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_request_pairs_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_request_pairs_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_request_pairs_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "service_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_requests: {
+        Row: {
+          area: string
+          created_at: string
+          id: string
+          service: string
+          user_id: string
+        }
+        Insert: {
+          area: string
+          created_at?: string
+          id?: string
+          service: string
+          user_id: string
+        }
+        Update: {
+          area?: string
+          created_at?: string
+          id?: string
+          service?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -2067,6 +2175,7 @@ export type Database = {
       }
       notify_matches: { Args: { _post_id: string }; Returns: number }
       notify_nearby_vehicles: { Args: { _post: string }; Returns: number }
+      open_service_chat: { Args: { _other: string }; Returns: boolean }
       paid_alert_ready: { Args: { _user: string }; Returns: boolean }
       post_alert_eligible: { Args: { _user: string }; Returns: boolean }
       posts_match_area: {
@@ -2080,6 +2189,14 @@ export type Database = {
       public_competition_areas: { Args: never; Returns: Json }
       public_referral_vip_board: { Args: never; Returns: Json }
       public_service_directory: { Args: never; Returns: Json }
+      public_service_requests: {
+        Args: { _area: string }
+        Returns: {
+          area: string
+          id: string
+          service: string
+        }[]
+      }
       public_stats: { Args: never; Returns: Json }
       record_evidence_hashes: {
         Args: { _claim: string; _hashes: string[] }
@@ -2116,7 +2233,12 @@ export type Database = {
       referral_vip_slots: { Args: never; Returns: Json }
       refresh_referral_vip_notices: { Args: never; Returns: number }
       request_own_bell_notice: { Args: { _device: string }; Returns: string }
+      request_service: {
+        Args: { _area: string; _service: string }
+        Returns: string
+      }
       request_vehicle_availability: { Args: { _post: string }; Returns: string }
+      respond_service_request: { Args: { _request: string }; Returns: string }
       review_membership: {
         Args: { _approve: boolean; _id: string; _note?: string }
         Returns: undefined
@@ -2190,6 +2312,7 @@ export type Database = {
       }
       select_weekly_winners: { Args: never; Returns: number }
       send_referral_reminders: { Args: never; Returns: number }
+      service_occupation: { Args: { _value: string }; Returns: string }
       service_profile_data: { Args: { _id: string }; Returns: Json }
       set_program_reminders: { Args: { _enabled: boolean }; Returns: undefined }
       set_vehicle_available: { Args: { _post: string }; Returns: undefined }

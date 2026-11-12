@@ -1,0 +1,65 @@
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Bell } from 'lucide-react';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { AppShell } from '@/components/AppShell';
+import { Button } from '@/components/ui/button';
+import { IndiaPlaceInput } from '@/components/IndiaPlaceInput';
+import { BellPaymentNotice } from '@/components/BellPaymentNotice';
+import { useMe } from '@/lib/session';
+import { SERVICE_CATEGORIES, serviceLabel } from '@/lib/service-categories';
+
+export const Route = createFileRoute('/services')({
+  validateSearch: (search: Record<string, unknown>): { view: 'providers' | 'requests'; area: string } => ({ view: search['view'] === 'requests' ? 'requests' : 'providers', area: typeof search['area'] === 'string' ? search['area'].slice(0, 80) : '' }),
+  head: ({ match }) => {
+    const title = match.search.view === 'requests' ? 'సేవల అభ్యర్థనలు — గాయత్రి వన్' : 'సేవలు అందించేవారు — గాయత్రి వన్';
+    const description = 'ప్రాంతం వారీగా సేవలు, పేర్లు లేని నిజమైన అభ్యర్థనలు.';
+    return { meta: [{ title }, { name: 'description', content: description }, { property: 'og:title', content: title }, { property: 'og:description', content: description }, { property: 'og:type', content: 'website' }, { name: 'twitter:card', content: 'summary_large_image' }] };
+  },
+  component: () => <AppShell hideTopActions><ServicesPage /></AppShell>,
+});
+
+function ServicesPage() {
+  const { view, area: initialArea } = Route.useSearch();
+  const [area, setArea] = useState(initialArea);
+  const [busy, setBusy] = useState(false);
+  const [paymentOpen, setPaymentOpen] = useState(false);
+  const { data: me } = useMe();
+  const nav = useNavigate();
+  const qc = useQueryClient();
+  const { data: requests = [], isPending, isError } = useQuery({
+    queryKey: ['service-requests', area.trim()], enabled: view === 'requests' && !!area.trim(), refetchInterval: 10000,
+    queryFn: async () => { const result = await supabase.rpc('public_service_requests', { _area: area.trim() }); if (result.error) throw result.error; return result.data; },
+  });
+  const ring = async (service?: string, request?: string) => {
+    if (!me) { setPaymentOpen(true); return; }
+    if (!area.trim()) { toast.error('మీ ప్రాంతం పేరు రాయండి'); return; }
+    setBusy(true);
+    try {
+      if (request) {
+        const result = await supabase.rpc('respond_service_request', { _request: request });
+        if (result.error) throw result.error;
+        if (result.data) await nav({ to: '/chat/$userId', params: { userId: result.data }, search: { post: undefined } });
+      } else if (service) {
+        const result = await supabase.rpc('request_service', { _service: service, _area: area.trim() });
+        if (result.error) throw result.error;
+        toast.success('మీ సేవ అభ్యర్థన నమోదైంది');
+        await qc.invalidateQueries({ queryKey: ['service-requests'] });
+      }
+    } catch (error) { if (error && typeof error === 'object' && 'message' in error && String(error.message).includes('PAID_BELL_REQUIRED')) setPaymentOpen(true); else toast.error('సంభాషణ ప్రారంభం కాలేదు'); }
+    finally { setBusy(false); }
+  };
+  return <section className="space-y-4 py-3">
+    <h1 className="text-2xl font-bold">{view === 'providers' ? 'నేను సర్వీస్ ప్రొవైడర్ ను' : 'నీడ్ సర్వీస్ ప్రొవైడర్స్'}</h1>
+    <div><label htmlFor="service-page-area" className="mb-2 block font-bold">ప్రాంతం</label><IndiaPlaceInput id="service-page-area" value={area} onChange={setArea} maxLength={80} placeholder="మీ ప్రాంతం పేరు" /></div>
+    {view === 'providers' ? <>
+      <div className="divide-y divide-border">{SERVICE_CATEGORIES.map(category => <div key={category.key} className="flex min-h-16 items-center justify-between gap-3 py-3"><span className="text-lg font-bold">{category.label}</span><Button variant="outline" size="icon" aria-label="గంట · Bell" title="గంట · Bell" disabled={busy} onClick={() => void ring(category.key)}><Bell className="size-4" /></Button></div>)}</div>
+      <Button asChild className="w-full whitespace-normal"><Link to="/post/new" search={{ kind: 'employer', loc: area || undefined, service: true }}>నేను సర్వీస్ ఇస్తాను</Link></Button>
+    </> : <div className="divide-y divide-border">
+      {area.trim() && (isPending ? <p role="status">వస్తున్నాయి</p> : isError ? <p role="alert">వివరాలు రాలేదు</p> : requests.length === 0 ? <p>ఈ ప్రాంతంలో ఇంకా అభ్యర్థనలు లేవు</p> : requests.map(request => <article key={request.id} className="flex min-h-16 items-center justify-between gap-3 py-3"><div className="min-w-0"><h2 className="text-lg font-bold">{serviceLabel(request.service)}</h2><p translate="no">{request.area}</p></div><Button variant="outline" size="icon" aria-label="గంట · Bell" title="గంట · Bell" disabled={busy} onClick={() => void ring(undefined, request.id)}><Bell className="size-4" /></Button></article>))}
+    </div>}
+    <BellPaymentNotice open={paymentOpen} onOpenChange={setPaymentOpen} />
+  </section>;
+}

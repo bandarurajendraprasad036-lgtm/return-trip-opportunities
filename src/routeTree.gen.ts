@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AdminLoginRouteImport } from './routes/admin-login'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as FeedRouteImport } from './routes/feed'
+import { Route as ServicesRouteImport } from './routes/services'
 import { Route as VehiclesRouteImport } from './routes/vehicles'
 import { Route as WorkRouteImport } from './routes/work'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -51,6 +52,11 @@ const AuthRoute = AuthRouteImport.update({
 const FeedRoute = FeedRouteImport.update({
   id: '/feed',
   path: '/feed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServicesRoute = ServicesRouteImport.update({
+  id: '/services',
+  path: '/services',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VehiclesRoute = VehiclesRouteImport.update({
@@ -132,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRoute
   '/feed': typeof FeedRoute
+  '/services': typeof ServicesRoute
   '/vehicles': typeof VehiclesRoute
   '/work': typeof WorkRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -152,6 +159,7 @@ export interface FileRoutesByTo {
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRoute
   '/feed': typeof FeedRoute
+  '/services': typeof ServicesRoute
   '/vehicles': typeof VehiclesRoute
   '/work': typeof WorkRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -174,6 +182,7 @@ export interface FileRoutesById {
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRoute
   '/feed': typeof FeedRoute
+  '/services': typeof ServicesRoute
   '/vehicles': typeof VehiclesRoute
   '/work': typeof WorkRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
@@ -196,6 +205,7 @@ export interface FileRouteTypes {
     | '/admin-login'
     | '/auth'
     | '/feed'
+    | '/services'
     | '/vehicles'
     | '/work'
     | '/admin'
@@ -216,6 +226,7 @@ export interface FileRouteTypes {
     | '/admin-login'
     | '/auth'
     | '/feed'
+    | '/services'
     | '/vehicles'
     | '/work'
     | '/admin'
@@ -237,6 +248,7 @@ export interface FileRouteTypes {
     | '/admin-login'
     | '/auth'
     | '/feed'
+    | '/services'
     | '/vehicles'
     | '/work'
     | '/_authenticated/admin'
@@ -259,6 +271,7 @@ export interface RootRouteChildren {
   AdminLoginRoute: typeof AdminLoginRoute
   AuthRoute: typeof AuthRoute
   FeedRoute: typeof FeedRoute
+  ServicesRoute: typeof ServicesRoute
   VehiclesRoute: typeof VehiclesRoute
   WorkRoute: typeof WorkRoute
   ProfileUserIdRoute: typeof ProfileUserIdRoute
@@ -300,6 +313,13 @@ declare module '@tanstack/react-router' {
       path: '/feed'
       fullPath: '/feed'
       preLoaderRoute: typeof FeedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/services': {
+      id: '/services'
+      path: '/services'
+      fullPath: '/services'
+      preLoaderRoute: typeof ServicesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/vehicles': {
@@ -438,6 +458,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminLoginRoute: AdminLoginRoute,
   AuthRoute: AuthRoute,
   FeedRoute: FeedRoute,
+  ServicesRoute: ServicesRoute,
   VehiclesRoute: VehiclesRoute,
   WorkRoute: WorkRoute,
   ProfileUserIdRoute: ProfileUserIdRoute,

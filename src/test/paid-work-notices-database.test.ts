@@ -5,7 +5,7 @@ let db: PGlite;
 const owner='11111111-1111-4111-8111-111111111111', member='22222222-2222-4222-8222-222222222222', unpaid='33333333-3333-4333-8333-333333333333';
 beforeAll(async () => {
  db=new PGlite();
- await db.exec(`CREATE ROLE authenticated;CREATE ROLE service_role;CREATE SCHEMA auth;
+ await db.exec(`CREATE ROLE authenticated;CREATE ROLE service_role;CREATE ROLE anon;CREATE SCHEMA auth;
  CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$SELECT nullif(current_setting('test.user',true),'')::uuid$$;
  CREATE TABLE profiles(id uuid PRIMARY KEY,bell_activated_at timestamptz);
  CREATE TABLE prime99_payments(id uuid PRIMARY KEY,user_id uuid,status text,payment_purpose text,payable_amount int,ends_at timestamptz);
@@ -16,13 +16,13 @@ beforeAll(async () => {
  CREATE TABLE posts(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),user_id uuid,module text DEFAULT 'job',kind text,status text DEFAULT 'active',service_type text DEFAULT '',skill text,location text,area_scope text DEFAULT 'local',visible_after timestamptz,job_expires_at timestamptz,visibility_notified_at timestamptz,created_at timestamptz DEFAULT now());
  CREATE TABLE notifications(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),user_id uuid,post_id uuid,matched_post_id uuid,message text,created_at timestamptz DEFAULT now());
  CREATE TABLE notification_preferences(user_id uuid,enabled boolean,timezone text,daily_limit int,quiet_start time,quiet_end time);
- CREATE TABLE messages(sender_id uuid,receiver_id uuid,post_id uuid,body text);
+ CREATE TABLE messages(sender_id uuid,receiver_id uuid,post_id uuid,body text,chat_phone text DEFAULT '',image_path text DEFAULT '');
  CREATE TABLE post_chat_pairs(post_id uuid,member_id uuid,owner_id uuid,UNIQUE(post_id,member_id));
- CREATE TABLE service_profiles(user_id uuid,published boolean);CREATE TABLE service_chat_pairs(member_id uuid,owner_id uuid,UNIQUE(member_id,owner_id));
+ CREATE TABLE service_profiles(user_id uuid,published boolean,service text,category text,town text);CREATE TABLE service_chat_pairs(member_id uuid,owner_id uuid,UNIQUE(member_id,owner_id));
  CREATE TABLE push_deliveries(id uuid,status text,attempts int,updated_at timestamptz,available_at timestamptz,user_id uuid);
  INSERT INTO profiles VALUES('${owner}',NULL),('${member}',NULL),('${unpaid}',NULL);
  INSERT INTO prime99_payments VALUES(gen_random_uuid(),'${owner}','approved','membership',100,now()+interval '1 month'),(gen_random_uuid(),'${member}','approved','membership',100,now()+interval '1 month');`);
- for(const name of ['0055_paid_work_service_matches_daytime_queue','0056_queue_selected_owner_bell_notices']) await db.exec(readFileSync(`drizzle/migrations/${name}.sql`,'utf8'));
+ for(const name of ['0055_paid_work_service_matches_daytime_queue','0056_queue_selected_owner_bell_notices','0057_anonymous_service_requests_and_private_chat_presence']) await db.exec(readFileSync(`drizzle/migrations/${name}.sql`,'utf8'));
  await db.exec(`CREATE TRIGGER a_notice BEFORE INSERT ON notifications FOR EACH ROW EXECUTE FUNCTION guard_prime99_notice();CREATE TRIGGER b_match BEFORE INSERT ON notifications FOR EACH ROW EXECUTE FUNCTION guard_new_match_notifications();CREATE TRIGGER auto_match AFTER INSERT ON posts FOR EACH ROW EXECUTE FUNCTION match_post();`);
 },30000);
 afterAll(async()=>{await db.close();});
@@ -73,4 +73,39 @@ it('keeps unpaid posts hidden for five hours, then releases pending posts only a
  expect((await db.query<{hidden:boolean}>(`SELECT visible_after>now() hidden FROM posts WHERE id='cccccccc-cccc-4ccc-8ccc-cccccccccccc'`)).rows[0]?.hidden).toBe(true);
  await db.exec(`INSERT INTO prime99_payments VALUES('eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee','${unpaid}','pending','membership',100,now()+interval '1 month');UPDATE prime99_payments SET status='approved' WHERE id='eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';`);
  expect((await db.query<{visible:boolean}>(`SELECT visible_after<=now() visible FROM posts WHERE id='cccccccc-cccc-4ccc-8ccc-cccccccccccc'`)).rows[0]?.visible).toBe(true);
+});
+it('service category bells notify all paid matching providers in the same area, not other services or areas', async () => {
+ await db.exec(`UPDATE prime99_payments SET ends_at=now()+interval '1 month';DELETE FROM notifications;DELETE FROM deferred_listing_notices;DELETE FROM service_profiles;
+ INSERT INTO service_profiles VALUES('${owner}',true,'Electrician','Electrician','మంచిర్యాల'),('${unpaid}',true,'Plumber','Plumber','మంచిర్యాల');SELECT set_config('test.user','${member}',false);`);
+ await db.query(`SELECT request_service('ఎలక్ట్రీషియన్','మంచిర్యాల')`);
+ expect((await db.query<{user_id:string}>(`SELECT user_id FROM notifications UNION ALL SELECT user_id FROM deferred_listing_notices`)).rows.map(row=>row.user_id)).toEqual([owner]);
+ await db.exec(`DELETE FROM notifications;DELETE FROM deferred_listing_notices;UPDATE service_profiles SET town='హైదరాబాద్' WHERE user_id='${owner}'`);
+ await db.query(`SELECT request_service('electrician','విజయవాడ')`);
+ expect((await db.query<{n:number}>(`SELECT count(*)::int n FROM notifications`)).rows[0]?.n).toBe(0);
+});
+it('public service requests expose only service and selected area plus an opaque request id', async () => {
+ const rows=await db.query(`SELECT * FROM public_service_requests('మంచిర్యాల')`);
+ expect(rows.rows.length).toBe(1);
+ expect(Object.keys(rows.rows[0] ?? {}).sort()).toEqual(['area','id','service']);
+ expect((await db.query(`SELECT * FROM public_service_requests('గుంటూరు')`)).rows).toEqual([]);
+});
+it('service bells require confirmed ₹100 and repeated clicks do not create duplicate requests',async()=>{
+ await db.exec(`SELECT set_config('test.user','${member}',false)`);
+ const first=await db.query(`SELECT request_service('electrician','మంచిర్యాల') id`);
+ const second=await db.query(`SELECT request_service('electrician','మంచిర్యాల') id`);
+ expect(first.rows).toEqual(second.rows);
+ await db.exec(`UPDATE prime99_payments SET ends_at=now()-interval '1 second' WHERE user_id='${member}'`);
+ await expect(db.query(`SELECT request_service('plumber','మంచిర్యాల')`)).rejects.toThrow('PAID_BELL_REQUIRED');
+ await db.exec(`UPDATE prime99_payments SET ends_at=now()+interval '1 month' WHERE user_id='${member}'`);
+});
+it('response bells create a private chat but phone exchange waits until both participants open it',async()=>{
+ const request=(await db.query<{id:string}>(`SELECT id FROM service_requests WHERE service='electrician' AND area='మంచిర్యాల'`)).rows[0]?.id;
+ expect(request).toBeTruthy();
+ await db.exec(`SELECT set_config('test.user','${unpaid}',false)`);
+ expect((await db.query<{owner:string}>(`SELECT respond_service_request('${request}') owner`)).rows[0]?.owner).toBe(member);
+ expect((await db.query<{ok:boolean}>(`SELECT open_service_chat('${member}') ok`)).rows[0]?.ok).toBe(false);
+ await expect(db.query(`INSERT INTO messages(sender_id,receiver_id,body,chat_phone) VALUES('${unpaid}','${member}','','9876543210')`)).rejects.toThrow('BOTH_MUST_OPEN_CHAT');
+ await db.exec(`SELECT set_config('test.user','${member}',false)`);
+ expect((await db.query<{ok:boolean}>(`SELECT open_service_chat('${unpaid}') ok`)).rows[0]?.ok).toBe(true);
+ await db.query(`INSERT INTO messages(sender_id,receiver_id,body,chat_phone) VALUES('${member}','${unpaid}','','9876543210')`);
 });
