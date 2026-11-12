@@ -56,6 +56,7 @@ export function HomeListings({ today, settings }: { today: string; settings: Hom
     if (isError) return <p role="alert" className="home-empty">నిజమైన నమోదులు రాలేదు · Could not load listings</p>;
     return null;
   };
+  const [openWork, setOpenWork] = useState<'seeker' | 'employer' | null>(null);
   const examples = (category: HomeVehicleSection | 'seeker' | 'employer', realCount: number) => searched && !isLoading && realCount === 0
     ? areaExamples(route.from, route.to, category).map((example, index) => <SearchExample key={`${category}-${index}`} example={example} />)
     : null;
@@ -89,9 +90,12 @@ export function HomeListings({ today, settings }: { today: string; settings: Hom
         {([{ kind: 'seeker', te: 'పని కావాలి', display: 'పని కోసం అప్లై చేసిన వాళ్ళు' }, { kind: 'employer', te: 'పని ఇస్తాను', display: 'పని ఇచ్చే వాళ్ళు' }] as const).map(section => {
           const rows = workListings(posts, workArea, section.kind);
           return <section className="home-display-column work-display-column" key={section.kind} aria-label={section.display}>
-            <Button asChild className="home-apply"><Link to="/post/new" search={{ kind: section.kind, loc: workArea || undefined }} onClick={() => sessionStorage.setItem('gayatri-interest', 'job')}>{section.te}</Link></Button>
-            <h3>{section.display}</h3>
-            <div className="home-display-list">{isLoading ? <p role="status">వస్తున్నాయి</p> : isError ? <p role="alert">వివరాలు రాలేదు</p> : rows.length === 0 ? <p className="home-empty">ఇంకా ప్రకటనలు లేవు</p> : rows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact />)}</div>
+            <Button type="button" className="home-apply" aria-expanded={openWork === section.kind} onClick={() => setOpenWork(openWork === section.kind ? null : section.kind)}>{section.te}</Button>
+            {openWork === section.kind && <>
+              <h3>{section.display}</h3>
+              <Button asChild variant="outline" className="w-full"><Link to="/post/new" search={{ kind: section.kind, loc: workArea || undefined }} onClick={() => sessionStorage.setItem('gayatri-interest', 'job')}>{section.kind === 'seeker' ? 'పని కోసం అప్లై చేయండి' : 'పని ఇస్తాను అని పెట్టండి'}</Link></Button>
+              <div className="home-display-list">{isLoading ? <p role="status">వస్తున్నాయి</p> : isError ? <p role="alert">వివరాలు రాలేదు</p> : rows.length === 0 ? <p className="home-empty">ఇంకా ప్రకటనలు లేవు</p> : rows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact />)}</div>
+            </>}
           </section>;
         })}
       </div>
