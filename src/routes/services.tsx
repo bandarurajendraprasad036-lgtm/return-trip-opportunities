@@ -55,10 +55,10 @@ function ServicesPage() {
     <h1 className="text-2xl font-bold">{view === 'providers' ? 'నేను సర్వీస్ ప్రొవైడర్ ను' : 'నీడ్ సర్వీస్ ప్రొవైడర్స్'}</h1>
     <div><label htmlFor="service-page-area" className="mb-2 block font-bold">ప్రాంతం</label><IndiaPlaceInput id="service-page-area" value={area} onChange={setArea} maxLength={80} placeholder="మీ ప్రాంతం పేరు" /></div>
     {view === 'providers' ? <>
-      <div className="divide-y divide-border">{SERVICE_CATEGORIES.map(category => <div key={category.key} className="flex min-h-16 items-center justify-between gap-3 py-3"><span className="text-lg font-bold">{category.label}</span></div>)}</div>
+      <div className="divide-y divide-border">{SERVICE_CATEGORIES.map(category => <div key={category.key} className="flex min-h-16 items-center justify-between gap-3 py-3"><span className="text-lg font-bold">{category.label}</span><Button variant="outline" size="icon" aria-label="గంట" disabled={busy} onClick={() => void ring(category.key)}><Bell /></Button></div>)}</div>
       
     </> : <div className="divide-y divide-border">
-      {area.trim() && (isPending ? <p role="status">వస్తున్నాయి</p> : isError ? <p role="alert">వివరాలు రాలేదు</p> : requests.length === 0 ? <p>ఈ ప్రాంతంలో ఇంకా అభ్యర్థనలు లేవు</p> : requests.map(request => <article key={request.id} className="flex min-h-16 items-center justify-between gap-3 py-3"><div className="min-w-0"><h2 className="text-lg font-bold">{serviceLabel(request.service)}</h2><p translate="no">{request.area}</p></div></article>))}
+      {area.trim() && (isPending ? <p role="status">వస్తున్నాయి</p> : isError ? <p role="alert">వివరాలు రాలేదు</p> : requests.length === 0 ? <p>ఈ ప్రాంతంలో ఇంకా అభ్యర్థనలు లేవు</p> : requests.map(request => <article key={request.id} className="flex min-h-16 items-center justify-between gap-3 py-3"><div className="min-w-0"><h2 className="text-lg font-bold">{serviceLabel(request.service)}</h2><p translate="no">{request.area}</p></div><Button variant="outline" size="icon" aria-label="గంట" disabled={busy} onClick={() => void ring(undefined, request.id)}><Bell /></Button></article>))}
     </div>}
     <BellPaymentNotice open={paymentOpen} onOpenChange={setPaymentOpen} />
   </section>;

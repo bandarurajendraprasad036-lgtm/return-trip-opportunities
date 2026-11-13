@@ -60,6 +60,6 @@
 - Personalized sharing artwork renders existing owner referral identity and same-origin product links through canvas; private profile photos never enter it, and published photos require explicit owner consent after the configured trial.
 - Provider contact batches stay owner/admin private; authenticated atomic submission and admin review determine the discounted price rather than client assertions.
 - Posts and new service publication share a locked durable usage ledger; extra-post receipt consumption survives deletions to prevent quota bypass.
-- Home bell owns installation and permission; vehicle bells use a paid, name-consented durable demand ledger and exact-owner interest, with later chats authorized by participant pair rows and no profile/contact disclosure.
+- Bell boards use anonymous RPC projections and paid participant pairs; capture genuine post/service bells durably without exposing profile identity.
 - New service demand/offer posts reuse the protected job-post path with a service discriminator; keep historical opted-in directory entries separate to preserve identity/privacy and publication evidence.
 - Referral joins count only via confirm_referral_join (code + own mobile + OK); weekly winners come from select_weekly_winners (SQL cron Sunday night IST) requiring 70% paid joins and a consented published photo.

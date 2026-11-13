@@ -1,0 +1,1 @@
+REVOKE SELECT ON public.vehicle_bell_demands FROM authenticated; REVOKE EXECUTE ON FUNCTION public.list_vehicle_bell_demands() FROM authenticated; COMMENT ON FUNCTION public.list_vehicle_bell_demands() IS 'DEPRECATED: use list_anonymous_bell_board for identity-free display reads.';

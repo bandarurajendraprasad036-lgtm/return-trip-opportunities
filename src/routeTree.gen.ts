@@ -20,6 +20,7 @@ import { Route as WorkRouteImport } from './routes/work'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin-settings'
 import { Route as AuthenticatedAiMatchRouteImport } from './routes/_authenticated/ai-match'
+import { Route as AuthenticatedBellBoardRouteImport } from './routes/_authenticated/bell-board'
 import { Route as AuthenticatedChatsRouteImport } from './routes/_authenticated/chats'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedMyPostsRouteImport } from './routes/_authenticated/my-posts'
@@ -84,6 +85,11 @@ const AuthenticatedAdminSettingsRoute =
 const AuthenticatedAiMatchRoute = AuthenticatedAiMatchRouteImport.update({
   id: '/ai-match',
   path: '/ai-match',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedBellBoardRoute = AuthenticatedBellBoardRouteImport.update({
+  id: '/bell-board',
+  path: '/bell-board',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedChatsRoute = AuthenticatedChatsRouteImport.update({
@@ -151,6 +157,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-settings': typeof AuthenticatedAdminSettingsRoute
   '/ai-match': typeof AuthenticatedAiMatchRoute
+  '/bell-board': typeof AuthenticatedBellBoardRoute
   '/chats': typeof AuthenticatedChatsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/my-posts': typeof AuthenticatedMyPostsRoute
@@ -173,6 +180,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-settings': typeof AuthenticatedAdminSettingsRoute
   '/ai-match': typeof AuthenticatedAiMatchRoute
+  '/bell-board': typeof AuthenticatedBellBoardRoute
   '/chats': typeof AuthenticatedChatsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/my-posts': typeof AuthenticatedMyPostsRoute
@@ -197,6 +205,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/admin-settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/ai-match': typeof AuthenticatedAiMatchRoute
+  '/_authenticated/bell-board': typeof AuthenticatedBellBoardRoute
   '/_authenticated/chats': typeof AuthenticatedChatsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/my-posts': typeof AuthenticatedMyPostsRoute
@@ -221,6 +230,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-settings'
     | '/ai-match'
+    | '/bell-board'
     | '/chats'
     | '/dashboard'
     | '/my-posts'
@@ -243,6 +253,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-settings'
     | '/ai-match'
+    | '/bell-board'
     | '/chats'
     | '/dashboard'
     | '/my-posts'
@@ -266,6 +277,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/admin-settings'
     | '/_authenticated/ai-match'
+    | '/_authenticated/bell-board'
     | '/_authenticated/chats'
     | '/_authenticated/dashboard'
     | '/_authenticated/my-posts'
@@ -370,6 +382,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAiMatchRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/bell-board': {
+      id: '/_authenticated/bell-board'
+      path: '/bell-board'
+      fullPath: '/bell-board'
+      preLoaderRoute: typeof AuthenticatedBellBoardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/chats': {
       id: '/_authenticated/chats'
       path: '/chats'
@@ -447,6 +466,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAiMatchRoute: typeof AuthenticatedAiMatchRoute
+  AuthenticatedBellBoardRoute: typeof AuthenticatedBellBoardRoute
   AuthenticatedChatsRoute: typeof AuthenticatedChatsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedMyPostsRoute: typeof AuthenticatedMyPostsRoute
@@ -461,6 +481,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAiMatchRoute: AuthenticatedAiMatchRoute,
+  AuthenticatedBellBoardRoute: AuthenticatedBellBoardRoute,
   AuthenticatedChatsRoute: AuthenticatedChatsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedMyPostsRoute: AuthenticatedMyPostsRoute,

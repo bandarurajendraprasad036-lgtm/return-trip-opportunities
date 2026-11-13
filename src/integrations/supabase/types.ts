@@ -167,6 +167,39 @@ export type Database = {
           },
         ]
       }
+      bell_board_chat_pairs: {
+        Row: {
+          interest_id: string
+          member_id: string
+          owner_id: string
+        }
+        Insert: {
+          interest_id: string
+          member_id: string
+          owner_id: string
+        }
+        Update: {
+          interest_id?: string
+          member_id?: string
+          owner_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bell_board_chat_pairs_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bell_board_chat_pairs_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_referral_board_notices: {
         Row: {
           day: string
@@ -723,6 +756,44 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_bell_interests: {
+        Row: {
+          area: string
+          created_at: string
+          id: string
+          need: string
+          post_id: string
+          section: string
+          user_id: string
+        }
+        Insert: {
+          area: string
+          created_at?: string
+          id?: string
+          need: string
+          post_id: string
+          section: string
+          user_id: string
+        }
+        Update: {
+          area?: string
+          created_at?: string
+          id?: string
+          need?: string
+          post_id?: string
+          section?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_bell_interests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -2366,6 +2437,15 @@ export type Database = {
         Args: { _post: Database["public"]["Tables"]["posts"]["Row"] }
         Returns: boolean
       }
+      list_anonymous_bell_board: {
+        Args: { _section: string }
+        Returns: {
+          area: string
+          id: string
+          need: string
+          source: string
+        }[]
+      }
       list_vehicle_bell_demands: {
         Args: never
         Returns: {
@@ -2411,6 +2491,10 @@ export type Database = {
       }
       notify_matches: { Args: { _post_id: string }; Returns: number }
       notify_nearby_vehicles: { Args: { _post: string }; Returns: number }
+      open_anonymous_bell_chat: {
+        Args: { _id: string; _source: string }
+        Returns: string
+      }
       open_service_chat: { Args: { _other: string }; Returns: boolean }
       open_vehicle_demand_chat: { Args: { _demand: string }; Returns: string }
       paid_alert_ready: { Args: { _user: string }; Returns: boolean }
