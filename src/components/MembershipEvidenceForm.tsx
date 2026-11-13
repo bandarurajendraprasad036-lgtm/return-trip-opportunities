@@ -38,7 +38,6 @@ export function MembershipEvidenceForm({ amount = 100, beneficiary }: { amount?:
     } catch(e) { setFeedback(e instanceof Error ? e.message : 'చెల్లింపు ఆధారం పంపలేకపోయాం. మళ్లీ ప్రయత్నించండి.'); } finally { setBusy(false); }
   }}>
     {requests.data?.map(request=><p key={request.id} role="status">{request.status==='approved'?'మీ చెల్లింపు ఆమోదించాం':'చెల్లింపు పరిశీలనలో ఉంది'}</p>)}
-    <p>మీరు కట్టిన అమౌంట్ స్క్రీన్ షాట్ తో పాటు మీ యూటీఆర్ నెంబర్ ఇందులో జత చేయండి</p>
     <div className="flex min-w-0 items-center gap-3"><Button type="button" variant="outline" size="icon" className="size-12 shrink-0" aria-label="స్క్రీన్ షాట్ జత చేయండి" title="స్క్రీన్ షాట్ జత చేయండి" disabled={busy||scanning} onClick={()=>fileInput.current?.click()}><Plus className="size-7"/></Button><span className="min-w-0 break-all" translate={image?'no':undefined}>{image?image.name:'పేమెంట్ స్క్రీన్ షాట్ జత చేయండి'}</span></div>
     <Input ref={fileInput} id="membership-screenshot" className="hidden" aria-label="పేమెంట్ స్క్రీన్ షాట్" type="file" accept="image/png,image/jpeg,image/webp" required disabled={busy} onChange={async e=>{
       const version=++scanVersion.current;const file=e.target.files?.[0];setImage(null);setReference('');setPayerUpi('');setFeedback('');setManual(false);setScanning(false);
@@ -56,7 +55,7 @@ export function MembershipEvidenceForm({ amount = 100, beneficiary }: { amount?:
     <Input id="membership-upi" value={payerUpi} onChange={e=>setPayerUpi(e.target.value)} maxLength={100} autoCapitalize="none" autoCorrect="off" translate="no" required disabled={busy}/>
     <p className="text-sm">మీ లావాదేవీ సంఖ్య, మీ చెల్లింపు చిరునామా చిత్రంలోని వివరాలతో సరిపోలితేనే తాత్కాలిక ప్రైమ్ ఆన్ అవుతుంది. అడ్మిన్ చెల్లింపు పరిశీలిస్తారు.</p>
     {feedback&&<p role="status">{feedback}</p>}
-    <p className="text-payment-warning">గమనిక: మీరు రాసిన Transaction ID కి, స్క్రీన్‌షాట్ లో ఉన్న Transaction ID కి రెండూ సేమ్ ఉండాలి.</p>
+    <p role="status" translate="no">Payment Verification Pending</p>
     <Button type="submit" className="w-full" disabled={busy || scanning || !image || !/^\d{12}$/.test(reference) || !payerUpiSchema.safeParse(payerUpi).success}>{busy?'చిత్రం పరిశీలిస్తున్నాం':'చెల్లింపు వివరాలు పంపండి'}</Button>
   </form>;
 }
