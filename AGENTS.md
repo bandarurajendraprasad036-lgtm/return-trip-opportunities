@@ -17,7 +17,7 @@
 - Keep the synthetic phone-email domain unchanged during rebrands because existing account credentials depend on it.
 - Job drafting composes structured seeker inputs into the existing authenticated drafting call; preserve one inference path and do not invent missing facts.
 - Phone installation uses generateSW through vite-plugin-pwa for the explicitly requested offline public pages; register only through the guarded wrapper and never cache private data or OAuth.
-- Google is the only visible sign-in flow; preserve existing accounts and password credentials internally, never require a password reset during this change.
+- Public sign-in stays Google; admin entry also accepts existing password credentials and validates roles server-side to prevent privilege escalation.
 - Post inserts require a valid profile mobile through a database trigger; the same rule is checked in the form.
 - Membership submissions reuse the existing review_membership RPC; the WhatsApp button opens a manual send, never claims verified receipt or automatic delivery.
 - Shareable services use an opt-in service_profiles record separate from private profiles; photos stay in private storage and are signed only after checking publication, while reviewer and viewer identities remain private.
@@ -48,7 +48,7 @@
 - Vehicle contact surfaces reuse the shared responsibility notice; compact bells show it before interest submission without implying a confirmed booking.
 - Search examples are separate presentation-only objects without post or user IDs; their bells never call interest or booking APIs.
 - Historical payment records remain read/review compatible; new direct-referral receipts use an admin-authorized atomic cash-prize ledger to prevent client awards and duplicate receipts.
-- Current membership and extra-post submissions use the existing receipt table with separate purpose/payable fields; preserve legacy amount/history while server review alone grants access.
+- Screenshot+UTR submissions use server-validated private evidence and revocable provisional access; only admin review records cash, preserving historical receipts.
 - Sharing evidence uses owner-checked server hashing with atomic digest registration, admin-only short-lived signing and existing managed dispatch cleanup; review decisions notify the owner transactionally.
 - Chat attachments use authenticated server validation, private storage and participant-checked short-lived signing; post conversations require bell-created pair rows, backfilled only for historical owner/member conversations to preserve privacy.
 - Listing cards/details stay anonymous; confirmed full-price bells create exact-owner pairs, and current full-price eligibility gates ordinary chat writes while admin evidence/support stays accessible.
@@ -60,6 +60,6 @@
 - Personalized sharing artwork renders existing owner referral identity and same-origin product links through canvas; private profile photos never enter it, and published photos require explicit owner consent after the configured trial.
 - Provider contact batches stay owner/admin private; authenticated atomic submission and admin review determine the discounted price rather than client assertions.
 - Posts and new service publication share a locked durable usage ledger; extra-post receipt consumption survives deletions to prevent quota bypass.
-- Service category bells use paid same-area occupation RPCs; anonymous request projections omit identity, response pairs stay private and contact exchange requires bilateral chat presence.
+- Listings are display-only; the sole home bell owns installation and permission, preserving existing private pairs and bilateral contact protections.
 - New service demand/offer posts reuse the protected job-post path with a service discriminator; keep historical opted-in directory entries separate to preserve identity/privacy and publication evidence.
 - Referral joins count only via confirm_referral_join (code + own mobile + OK); weekly winners come from select_weekly_winners (SQL cron Sunday night IST) requiring 70% paid joins and a consented published photo.
