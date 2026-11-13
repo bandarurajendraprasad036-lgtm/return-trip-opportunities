@@ -10,8 +10,7 @@ import { AppShell } from '@/components/AppShell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Bell } from 'lucide-react';
-import { toast } from 'sonner';
+import { VehicleDemandBell } from '@/components/VehicleDemandBell';
 
 // Vehicle kinds shown when no real listing matches; never invented numbers, drivers or phones.
 const CATALOG: Record<VehiclePageKind, string[]> = {
@@ -40,7 +39,7 @@ function Vehicles() {
     {instant ? <p className="text-muted-foreground">ఇప్పటికప్పుడు బుక్ చేసే వాహనాలు · Instant booking vehicles</p> : <><Label htmlFor="vehicle-date">వాహన తేదీ · Vehicle date</Label><Input id="vehicle-date" type="date" value={date} onChange={e => setDate(e.target.value)} /><Button variant="ghost" onClick={() => setDate('')}>అన్ని తేదీలు · All dates</Button></>}
     {isPending && <p role="status">వస్తున్నాయి · Loading</p>}{isError && <Button onClick={() => void refetch()}>మళ్లీ చూడండి · Retry</Button>}
     <p className="text-sm">అందరి పోస్టులు ఫ్రీగా చూడవచ్చు</p>
-    {!isPending && !isError && rows.length === 0 && <ul className="space-y-2">{CATALOG[search.category].map(name => <li key={name} className="flex items-center justify-between gap-3 rounded-lg border bg-card p-3"><div className="min-w-0"><p className="text-lg font-bold">{name}</p><p className="text-sm text-muted-foreground">వాహన రకం మాత్రమే; ఈ ఎంపికకు నమోదైన వాహనం లేదు · Category, not an available listing</p></div><Button type="button" variant="outline" size="icon" aria-label="గంట · Bell" onClick={() => toast.info('ఈ రకమైన వాహనం ఇంకా ఎవరూ పోస్ట్ చేయలేదు. పోస్ట్ వచ్చాక దాని పక్కన గంట నొక్కితే ఆ వ్యక్తికి నోటిఫికేషన్ వెళ్తుంది.', { duration: 8000 })}><Bell /></Button></li>)}</ul>}
+    {!isPending && !isError && rows.length === 0 && <ul className="space-y-2">{CATALOG[search.category].map(name => <li key={name} className="flex items-center justify-between gap-3 rounded-lg border bg-card p-3"><div className="min-w-0"><p className="text-lg font-bold">{name}</p><p className="text-sm text-muted-foreground">వాహన రకం మాత్రమే; ఈ ఎంపికకు నమోదైన వాహనం లేదు · Category, not an available listing</p></div><VehicleDemandBell category={search.category} from={search.from} to={search.to} vehicle={name} /></li>)}</ul>}
     {rows.map(post => <PostCard key={post.id} post={post} meId={me?.id} />)}
   </div>;
 }

@@ -25,6 +25,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedMyPostsRouteImport } from './routes/_authenticated/my-posts'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedServiceProfileRouteImport } from './routes/_authenticated/service-profile'
+import { Route as AuthenticatedVehicleDemandsRouteImport } from './routes/_authenticated/vehicle-demands'
 import { Route as ProfileUserIdRouteImport } from './routes/profile.$userId'
 import { Route as AuthenticatedChatUserIdRouteImport } from './routes/_authenticated/chat.$userId'
 import { Route as AuthenticatedPostNewRouteImport } from './routes/_authenticated/post.new'
@@ -112,6 +113,12 @@ const AuthenticatedServiceProfileRoute =
     path: '/service-profile',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedVehicleDemandsRoute =
+  AuthenticatedVehicleDemandsRouteImport.update({
+    id: '/vehicle-demands',
+    path: '/vehicle-demands',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ProfileUserIdRoute = ProfileUserIdRouteImport.update({
   id: '/profile/$userId',
   path: '/profile/$userId',
@@ -149,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/my-posts': typeof AuthenticatedMyPostsRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/service-profile': typeof AuthenticatedServiceProfileRoute
+  '/vehicle-demands': typeof AuthenticatedVehicleDemandsRoute
   '/profile/$userId': typeof ProfileUserIdRoute
   '/chat/$userId': typeof AuthenticatedChatUserIdRoute
   '/post/new': typeof AuthenticatedPostNewRoute
@@ -170,6 +178,7 @@ export interface FileRoutesByTo {
   '/my-posts': typeof AuthenticatedMyPostsRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/service-profile': typeof AuthenticatedServiceProfileRoute
+  '/vehicle-demands': typeof AuthenticatedVehicleDemandsRoute
   '/profile/$userId': typeof ProfileUserIdRoute
   '/chat/$userId': typeof AuthenticatedChatUserIdRoute
   '/post/new': typeof AuthenticatedPostNewRoute
@@ -193,6 +202,7 @@ export interface FileRoutesById {
   '/_authenticated/my-posts': typeof AuthenticatedMyPostsRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/service-profile': typeof AuthenticatedServiceProfileRoute
+  '/_authenticated/vehicle-demands': typeof AuthenticatedVehicleDemandsRoute
   '/profile/$userId': typeof ProfileUserIdRoute
   '/_authenticated/chat/$userId': typeof AuthenticatedChatUserIdRoute
   '/_authenticated/post/new': typeof AuthenticatedPostNewRoute
@@ -216,6 +226,7 @@ export interface FileRouteTypes {
     | '/my-posts'
     | '/notifications'
     | '/service-profile'
+    | '/vehicle-demands'
     | '/profile/$userId'
     | '/chat/$userId'
     | '/post/new'
@@ -237,6 +248,7 @@ export interface FileRouteTypes {
     | '/my-posts'
     | '/notifications'
     | '/service-profile'
+    | '/vehicle-demands'
     | '/profile/$userId'
     | '/chat/$userId'
     | '/post/new'
@@ -259,6 +271,7 @@ export interface FileRouteTypes {
     | '/_authenticated/my-posts'
     | '/_authenticated/notifications'
     | '/_authenticated/service-profile'
+    | '/_authenticated/vehicle-demands'
     | '/profile/$userId'
     | '/_authenticated/chat/$userId'
     | '/_authenticated/post/new'
@@ -392,6 +405,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedServiceProfileRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/vehicle-demands': {
+      id: '/_authenticated/vehicle-demands'
+      path: '/vehicle-demands'
+      fullPath: '/vehicle-demands'
+      preLoaderRoute: typeof AuthenticatedVehicleDemandsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/profile/$userId': {
       id: '/profile/$userId'
       path: '/profile/$userId'
@@ -432,6 +452,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMyPostsRoute: typeof AuthenticatedMyPostsRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedServiceProfileRoute: typeof AuthenticatedServiceProfileRoute
+  AuthenticatedVehicleDemandsRoute: typeof AuthenticatedVehicleDemandsRoute
   AuthenticatedChatUserIdRoute: typeof AuthenticatedChatUserIdRoute
   AuthenticatedPostNewRoute: typeof AuthenticatedPostNewRoute
 }
@@ -445,6 +466,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMyPostsRoute: AuthenticatedMyPostsRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedServiceProfileRoute: AuthenticatedServiceProfileRoute,
+  AuthenticatedVehicleDemandsRoute: AuthenticatedVehicleDemandsRoute,
   AuthenticatedChatUserIdRoute: AuthenticatedChatUserIdRoute,
   AuthenticatedPostNewRoute: AuthenticatedPostNewRoute,
 }

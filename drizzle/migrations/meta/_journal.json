@@ -435,6 +435,13 @@
       "when": 1794553308383,
       "tag": "0061_allow_service_validated_admin_evidence_messages",
       "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "7",
+      "when": 1794556395002,
+      "tag": "0062_durable_paid_vehicle_bell_demands",
+      "breakpoints": true
     }
   ]
 }

@@ -1999,6 +1999,93 @@ export type Database = {
           },
         ]
       }
+      vehicle_bell_demands: {
+        Row: {
+          category: string
+          display_name: string
+          from_place: string
+          id: string
+          post_id: string | null
+          rang_at: string
+          to_place: string
+          user_id: string
+          vehicle_type: string
+        }
+        Insert: {
+          category: string
+          display_name: string
+          from_place: string
+          id?: string
+          post_id?: string | null
+          rang_at?: string
+          to_place: string
+          user_id: string
+          vehicle_type: string
+        }
+        Update: {
+          category?: string
+          display_name?: string
+          from_place?: string
+          id?: string
+          post_id?: string | null
+          rang_at?: string
+          to_place?: string
+          user_id?: string
+          vehicle_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_bell_demands_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicle_demand_chat_pairs: {
+        Row: {
+          created_at: string
+          demand_id: string
+          member_id: string
+          owner_id: string
+        }
+        Insert: {
+          created_at?: string
+          demand_id: string
+          member_id: string
+          owner_id: string
+        }
+        Update: {
+          created_at?: string
+          demand_id?: string
+          member_id?: string
+          owner_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_demand_chat_pairs_demand_id_fkey"
+            columns: ["demand_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_bell_demands"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_demand_chat_pairs_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_demand_chat_pairs_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicle_post_points: {
         Row: {
           created_at: string
@@ -2279,6 +2366,26 @@ export type Database = {
         Args: { _post: Database["public"]["Tables"]["posts"]["Row"] }
         Returns: boolean
       }
+      list_vehicle_bell_demands: {
+        Args: never
+        Returns: {
+          category: string
+          display_name: string
+          from_place: string
+          id: string
+          post_id: string | null
+          rang_at: string
+          to_place: string
+          user_id: string
+          vehicle_type: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "vehicle_bell_demands"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       my_goods_membership: { Args: never; Returns: boolean }
       my_membership_price: { Args: never; Returns: number }
       my_notification_quota: { Args: never; Returns: Json }
@@ -2305,6 +2412,7 @@ export type Database = {
       notify_matches: { Args: { _post_id: string }; Returns: number }
       notify_nearby_vehicles: { Args: { _post: string }; Returns: number }
       open_service_chat: { Args: { _other: string }; Returns: boolean }
+      open_vehicle_demand_chat: { Args: { _demand: string }; Returns: string }
       paid_alert_ready: { Args: { _user: string }; Returns: boolean }
       post_alert_eligible: { Args: { _user: string }; Returns: boolean }
       posts_match_area: {
@@ -2408,6 +2516,17 @@ export type Database = {
       }
       ring_post: { Args: { _post_id: string }; Returns: string }
       ring_service: { Args: { _owner: string }; Returns: string }
+      ring_vehicle_demand: {
+        Args: {
+          _category?: string
+          _from?: string
+          _name_consent?: boolean
+          _post?: string
+          _to?: string
+          _vehicle?: string
+        }
+        Returns: string
+      }
       save_detailed_vehicle_route: {
         Args: { _from: string; _to: string; _tons: number; _vehicle: string }
         Returns: string

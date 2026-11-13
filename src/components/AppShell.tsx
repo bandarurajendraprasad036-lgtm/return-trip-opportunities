@@ -56,7 +56,7 @@ export function AppShell({ children, hideTopActions = false }: { children: React
         </Link>
         <div className="flex shrink-0 items-center gap-1"><LanguageButton />{!hideTopActions && <Link to="/chats" className="grid size-11 shrink-0 place-items-center rounded-md bg-primary text-primary-foreground" aria-label="సందేశాలు · Messages"><MessageCircle className="size-5" /><ClientOnly>{unread > 0 && <span className="sr-only">{unread}</span>}</ClientOnly></Link>}</div>
       </header>
-      <main className="flex-1 pb-24">{children}<div className="px-3 py-3"><AdminChatButton /></div><ResponsibilityNotice /><DesignFooter /></main>
+      <main className="flex-1 pb-24">{children}<div className="px-3 py-3"><Link to="/vehicle-demands" className="block break-words py-3 font-semibold text-primary">గంట కొట్టిన వాళ్ళు - కావాలి లిస్ట్</Link><AdminChatButton /></div><ResponsibilityNotice /><DesignFooter /></main>
       {me && <IncomingNotice userId={me.id} />}
       {me && <MessagePhoneNotices userId={me.id} />}
       <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-md border-t bg-card">
