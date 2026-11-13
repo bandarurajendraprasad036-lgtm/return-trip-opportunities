@@ -20,7 +20,7 @@ describe('jobs and services rules', () => {
   });
   it('opens only the supplied receiving account with exactly 100 rupees', () => {
     const destination = new URL(paymentDestination(100));
-    expect(destination.searchParams.get('pa')).toBe('7036036036-3@ybl');
+    expect(destination.searchParams.get('pa')).toBe('bandarurajendraprasad036@okhdfcbank');
     expect(destination.searchParams.get('am')).toBe('100');
     expect(destination.searchParams.get('cu')).toBe('INR');
   });

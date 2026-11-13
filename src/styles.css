@@ -49,6 +49,8 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-payment-warning: var(--payment-warning);
+  --color-scanner-paper: var(--scanner-paper);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-success: var(--success);
@@ -98,6 +100,8 @@
   --accent: var(--gold);
   --accent-foreground: var(--royal);
   --destructive: var(--gold);
+  --payment-warning: oklch(0.72 0.19 25);
+  --scanner-paper: oklch(1 0 0);
   --destructive-foreground: var(--royal);
   --success: var(--gold);
   --success-foreground: var(--royal);
