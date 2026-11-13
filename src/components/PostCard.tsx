@@ -76,7 +76,7 @@ export function PostCard({
         <p className="flex min-w-0 items-start gap-1 text-sm"><MapPin className="size-4 shrink-0" /><span translate="no" className="min-w-0 whitespace-normal break-words">{isJob ? post.location : `${post.from_place || '…'} → ${post.to_place || '…'}`}</span></p>
         {(post.salary || (isJob && compact)) && <p translate="no" className="flex items-start gap-1 break-words text-sm font-semibold"><IndianRupee className="size-4 shrink-0" />{post.salary || 'జీతం ఇవ్వలేదు'}</p>}
       </div>
-      
+      {jobIsVisible(post) && <Button type="button" variant="outline" size="icon" disabled={sending} className="shrink-0" onClick={contact} aria-label="గంట · Bell"><Bell /></Button>}
     </div>
     {isJob && compact && <p className="break-words text-xs text-muted-foreground">పేరు: దాచబడింది · మొబైల్ నంబరు: దాచబడింది · ఫోటో: దాచబడింది · షాప్ పేరు: దాచబడింది</p>}
     
