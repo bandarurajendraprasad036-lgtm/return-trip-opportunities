@@ -13,6 +13,7 @@ import { enablePush,pushDeviceId,deviceSound } from '@/lib/firebase-push';
 import { registerPushDevice } from '@/lib/push.functions';
 import { referralLink } from '@/lib/account-program';
 import { supabase } from '@/integrations/supabase/client';
+import { shareReferralWithImage } from '@/lib/share-referral';
 import { markHomeBellRung } from '@/lib/home-bell';
 type InstallEvent=Event&{prompt:()=>Promise<void>};
 export function BellJoin({children}:{children?:React.ReactNode}) {
@@ -20,7 +21,7 @@ export function BellJoin({children}:{children?:React.ReactNode}) {
  const [install,setInstall]=useState<InstallEvent|null>(null);const [installed,setInstalled]=useState(false);const [open,setOpen]=useState(false);const [touched,setTouched]=useState(false);
  useEffect(()=>{setInstalled(localStorage.getItem('gayatri-installed-confirmed')==='1'||matchMedia('(display-mode: standalone)').matches);setTouched(localStorage.getItem('gayatri-home-bell-touched')==='1');const h=(e:Event)=>{e.preventDefault();setInstall(e as InstallEvent);};const done=()=>{localStorage.setItem('gayatri-installed-confirmed','1');setInstalled(true);setInstall(null);};window.addEventListener('beforeinstallprompt',h);window.addEventListener('appinstalled',done);return()=>{window.removeEventListener('beforeinstallprompt',h);window.removeEventListener('appinstalled',done);};},[]);
  const joined=!!me&&(touched||installed||!!me.profile?.bell_activated_at);const code=me?.profile?.referral_code??'';
- const share=()=>{if(code)window.open(`https://wa.me/?text=${encodeURIComponent(`మీ రిఫరల్ కోడ్: ${code}\n${referralLink(code)}`)}`,'_blank','noopener,noreferrer');};
+ const share=()=>{if(code)void shareReferralWithImage(`మీ రిఫరల్ కోడ్: ${code}\n${referralLink(code)}`);};
  const activate=async()=>{if(!me)return;try{const result=await enablePush();const saved=await supabase.from('notification_preferences').upsert({user_id:me.id,enabled:true});if(saved.error)throw saved.error;if(result.status==='registered'&&result.token)await register({data:{id:pushDeviceId(),token:result.token,sound:deviceSound()}});await markAccountBellActivated(me.id);await supabase.rpc('ensure_my_referral_code');await qc.invalidateQueries({queryKey:['me']});if(result.status!=='registered')toast.info('నోటిఫికేషన్ కోసం మీ ఫోన్ అనుమతి కావాలి');}catch{toast.error('నోటిఫికేషన్ ఆన్ కాలేదు. మళ్లీ గంట కొట్టండి');}};
  const click=async()=>{setOpen(true);if(!installed&&install){try{await install.prompt();}catch{toast.info('మీ బ్రౌజర్ లో డౌన్లోడ్ ఎంచుకోండి');}setInstall(null);}markHomeBellRung();setTouched(true);if(me)void activate();};
  return <><Button type="button" variant="ghost" onClick={()=>void click()} aria-label="గంట కొట్టండి · Ring the bell" className={children?'home-temple-trigger':'home-bell mx-auto grid size-20 place-items-center text-gold'}>{children??<Bell className="size-16"/>}</Button><p className="text-center text-2xl font-extrabold text-gold">ఏది కావాలన్నా గంట కొట్టు</p><p className="text-center text-lg font-bold">గంట కొట్టండి - నోటిఫికేషన్ ఆన్ అవుతుంది</p>

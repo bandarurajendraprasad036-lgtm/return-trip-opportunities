@@ -42,6 +42,7 @@ export function HomeListings({ today, settings }: { today: string; settings: Hom
   }, [settings.toLocation, toEdited]);
   const jobLocation = route.to || route.from;
   const searched = Boolean(route.from || route.to);
+  const vehiclesUnlocked = Boolean(route.from && route.to);
   const { data: posts = [], isLoading, isError } = useQuery({
     queryKey: ['posts'],
     queryFn: async () => {
@@ -76,7 +77,7 @@ export function HomeListings({ today, settings }: { today: string; settings: Hom
       </form>
       {searched && <div className="flex items-center justify-between gap-2 py-1 text-sm"><span className="min-w-0 break-words">{[route.from, route.to].filter(Boolean).join(' → ')}</span><Button variant="ghost" size="icon" aria-label="వెతుకులాట తీసేయండి · Clear search" onClick={() => { setRoute({ from: '', to: '' }); setFrom(''); setTo(''); setFromEdited(true); setToEdited(true); setVehicleSection(null); }}><X /></Button></div>}
       {settings.showVehicles && <div className="grid grid-cols-3 gap-2" role="group" aria-label="వాహన ఎంపికలు · Vehicle options">
-        {sections.map(section => <Button key={section.key} type="button" variant="outline" aria-pressed={vehicleSection === section.key} aria-controls="home-vehicle-results" className={`h-auto min-h-20 whitespace-normal px-1 py-2 text-sm ${section.className}`} asChild><Link to="/vehicles" search={{ category: section.key === 'local' ? 'goods' : section.key === 'return' ? 'returns' : 'cars', from: searched ? route.from : from.trim(), to: searched ? route.to : to.trim() }} onClick={event => { if (!requireHomeBell(rung, event)) return; const choice = section.key === 'local' ? 'goods' : section.key; sessionStorage.setItem('gayatri-interest', choice); }}><span>{section.te}<span className="block text-xs">{section.en}</span></span></Link></Button>)}
+        {sections.map(section => !vehiclesUnlocked ? <Button key={section.key} type="button" variant="outline" disabled aria-disabled="true" className="h-auto min-h-20 whitespace-normal px-1 py-2 text-sm opacity-100! bg-muted! text-muted-foreground! border-muted-foreground!"><span>🔒 {section.te}<span className="block text-xs">{section.en}</span></span></Button> : <Button key={section.key} type="button" variant="outline" aria-pressed={vehicleSection === section.key} aria-controls="home-vehicle-results" className={`h-auto min-h-20 whitespace-normal px-1 py-2 text-sm ${section.className}`} asChild><Link to="/vehicles" search={{ category: section.key === 'local' ? 'goods' : section.key === 'return' ? 'returns' : 'cars', from: searched ? route.from : from.trim(), to: searched ? route.to : to.trim() }} onClick={event => { if (!requireHomeBell(rung, event)) return; const choice = section.key === 'local' ? 'goods' : section.key; sessionStorage.setItem('gayatri-interest', choice); }}><span>{section.te}<span className="block text-xs">{section.en}</span></span></Link></Button>)}
       </div>}
       {settings.showVehicles && vehicleSection !== null && <section id="home-vehicle-results" className="home-display-column mt-2" aria-live="polite" aria-label="వాహన ఫలితాలు · Vehicle results">
         <h3>{sections.find(section => section.key === vehicleSection)?.te}</h3>

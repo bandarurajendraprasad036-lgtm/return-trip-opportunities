@@ -77,7 +77,7 @@ export function SharingImage() {
   }, [code, canPhoto, photoConsent, me?.id]);
   const download = () => { if (!code || !preview || !canvas.current) return; const anchor = document.createElement('a'); anchor.href = preview; anchor.download = 'gayatri-one-sharing.jpg'; anchor.click(); };
   return <section className="space-y-3 border-t py-5"><h2 className="text-xl font-bold">పంచుకునే చిత్రం · Sharing image</h2>
-    <img src={preview || sharingImage} alt="గాయత్రి వన్ పంచుకునే చిత్రం · Gayatri One sharing image" width={768} height={1280} className="h-auto w-full" loading="lazy" />
+    <img data-referral-share src={preview || sharingImage} alt="గాయత్రి వన్ పంచుకునే చిత్రం · Gayatri One sharing image" width={768} height={1280} className="h-auto w-full" loading="lazy" />
     {canPhoto && <label className="flex gap-2 text-sm"><input type="checkbox" checked={photoConsent} onChange={e => setPhotoConsent(e.target.checked)} />నా ప్రచురిత పరిచయ ఫోటోను ఈ చిత్రంలో పంచుకోవడానికి అనుమతిస్తున్నాను · Include my published photo</label>}
     <div className="flex gap-2"><Button disabled={!code || !preview} variant="outline" className="min-h-12 flex-1 whitespace-normal" onClick={download}><Download />చిత్రం తీసుకోండి · Download</Button><Button disabled={busy || !code || !preview} className="min-h-12 flex-1 whitespace-normal" onClick={async () => {
       setBusy(true);
