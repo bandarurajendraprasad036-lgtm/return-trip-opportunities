@@ -1,5 +1,5 @@
 export const MEMBERSHIP_AMOUNT = 100;
-export const DISCOUNT_AMOUNT = 49;
+export const DISCOUNT_AMOUNT = 80;
 export const EXTRA_POST_AMOUNT = 49;
 export const MEMBERSHIP_MONTHS = 1;
 export const ALERT_DELAY_DAYS = 0;

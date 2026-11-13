@@ -73,7 +73,6 @@ function Chat() {
         .select("*")
         .or(`and(sender_id.eq.${me.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${me.id})`);
       if (postId) query = query.eq("post_id", postId);
-      if (adminId && (userId === adminId || me.id === adminId)) query = query.gte("created_at", indiaDayStartIso());
       const { data, error } = await query.order("created_at");
       if (error) throw error;
       return data;
@@ -107,9 +106,10 @@ function Chat() {
     setBusy(true); setSendError("");
     try {
       chatEntrySchema.parse({receiver:userId,post:postId || null,body,phone});
-      if (postId || phone || image) {
+      if (postId || phone || image || userId === adminId) {
         const form=new FormData();form.set('receiver',userId);form.set('post',postId || '');form.set('body',body);form.set('phone',phone);if(image)form.set('image',image);
-        await sendEntry({data:form});
+        const result = await sendEntry({data:form});
+        if (result.provisional) await qc.invalidateQueries({queryKey:['prime99']});
       } else await sendSupport({ data: { adminId: userId, body } });
       setText('');setPhone('');setImage(null);if(fileInput.current)fileInput.current.value='';
       await qc.invalidateQueries({ queryKey: key });
@@ -123,11 +123,12 @@ function Chat() {
       <div className="flex items-center gap-3 border-b bg-card px-3 py-2">
         <Link to="/chats" aria-label="Back"><ArrowLeft /></Link>
         <div className="flex-1">
-          <p className="font-bold">{"సభ్యుడు · Member"}</p>
+          <p className="font-bold">{userId === adminId ? 'అడ్మిన్ తో చాట్ చేయండి / Chat with Admin' : 'సభ్యుడు · Member'}</p>
         </div>
       </div>
       {contextPost && <section className="space-y-1 border-b bg-muted px-3 py-3 text-sm" aria-label="ప్రయాణ వివరాలు · Route details"><p className="font-bold">{contextPost.title}</p>{contextPost.module === "vehicle" ? <><p>{contextPost.from_place} → {contextPost.to_place}</p><p>{contextPost.vehicle_type} {contextPost.capacity_tons != null && `· ${contextPost.capacity_tons} టన్నులు · tons`} · {contextPost.trip_date}</p></> : <p>{contextPost.location}</p>}</section>}
       <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-3">
+        {userId === adminId && <p className="border-b pb-3">₹100 కట్టిన తర్వాత ఇక్కడ మీ UTR నంబర్ + స్క్రీన్ షాట్ పంపండి. రెండూ పంపితే తాత్కాలిక ప్రైమ్ ఆన్ అవుతుంది. మేము చూసి మీ చెల్లింపు నిర్ధారిస్తాం.</p>}
         {!postId && userId === adminId && <ProgramEvidence />}
         {postId && (userId === adminId || me?.isAdmin) && <PostEvidence postId={postId} admin={!!me?.isAdmin}/>}
         {msgs.length === 0 && <p className="pt-10 text-center text-muted-foreground">నమస్కారం చెప్పండి 🙏 Say hello</p>}
@@ -152,7 +153,7 @@ function Chat() {
         <Input type="tel" inputMode="numeric" aria-label="ఫోన్ నంబరు · Phone number" value={phone} onChange={e=>setPhone(e.target.value.replace(/\D/g,''))} maxLength={10} placeholder="ఫోన్ నంబరు · Phone number" disabled={busy || !chatAllowed || contactAllowed !== true} />
         <input ref={fileInput} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>{const file=e.target.files?.[0];if(file && (file.size>CHAT_IMAGE_LIMIT || !['image/jpeg','image/png','image/webp'].includes(file.type))){setSendError('ఐదు మెగాబైట్ల లోపు చిత్రం ఎంచుకోండి · Choose an image under 5MB');e.target.value='';return;}setImage(file || null);setSendError('');}} />
         {image && <div className="flex items-center gap-2 text-sm"><span className="min-w-0 flex-1 truncate">{image.name}</span><Button type="button" variant="ghost" size="icon" aria-label="చిత్రం తీసేయండి · Remove image" onClick={()=>{setImage(null);if(fileInput.current)fileInput.current.value='';}}><X /></Button></div>}
-        <div className="flex gap-2"><Button type="button" variant="outline" size="icon" aria-label="వాట్సాప్ చిత్రం పంపండి · Upload WhatsApp screenshot" disabled={busy || !chatAllowed} onClick={()=>fileInput.current?.click()}><ImagePlus /></Button><Input value={text} onChange={(e) => setText(e.target.value)} maxLength={1000} placeholder="మీ సమాచారం · Your message" className="h-12 min-w-0 text-base" disabled={busy || !chatAllowed} /><Button type="submit" disabled={busy || !chatAllowed || (!text.trim() && !phone && !image)} size="icon" className="size-12 shrink-0" aria-label="పంపండి · Send"><Send /></Button></div>
+        <div className="flex gap-2"><Button type="button" variant="outline" size="icon" aria-label="పేమెంట్ స్క్రీన్ షాట్ పంపండి" disabled={busy || !chatAllowed} onClick={()=>fileInput.current?.click()}><ImagePlus /></Button><Input value={text} onChange={(e) => setText(e.target.value)} maxLength={1000} placeholder="మెసేజ్ / UTR నంబర్" className="h-12 min-w-0 text-base" disabled={busy || !chatAllowed} /><Button type="submit" disabled={busy || !chatAllowed || (!text.trim() && !phone && !image)} size="icon" className="size-12 shrink-0" aria-label="పంపండి · Send"><Send /></Button></div>
       </form>
       <Dialog open={!!imageUrl} onOpenChange={open=>{if(!open)setImageUrl('');}}><DialogContent><DialogTitle>వ్యక్తిగత చిత్రం · Private image</DialogTitle>{imageUrl && <img src={imageUrl} alt="సంభాషణ చిత్రం · Chat image" className="max-h-[70svh] w-full object-contain" />}</DialogContent></Dialog>
     </div>

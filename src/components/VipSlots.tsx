@@ -15,8 +15,12 @@ export function VipSlots() {
     },
   });
   return <div className="space-y-1" aria-live="polite">
-    <p className="font-bold">ప్రత్యేక ప్రవేశానికి మిగిలిన స్థానాలు · Remaining VIP slots: {data ? `${data.remaining} / ${data.total}` : '—'}</p>
-    <p className="text-sm text-muted-foreground">ప్రస్తుత మొదటి వంద అర్హుల లెక్క; ఖరారైన హోటల్ సీట్ల బుకింగ్ కాదు. · Current ranking capacity, not confirmed venue bookings.</p>
+    <h3 className="text-xl font-bold">టాప్ 100 అవకాశం / Top 100 Offer</h3>
+    <p className="font-bold">మొదటి 100 మందికి ప్రత్యేక అవకాశం!</p>
+    <p>టాప్ 100 అంటే మొదటి 100 మంది!</p>
+    <p>ఇప్పటివరకు చేరినవారు: {data ? `${data.occupied} / ${data.total} మంది` : '—'}</p>
+    <p>మిగిలిన స్థానాలు: {data ? `${data.remaining} మంది` : '—'}</p>
+    <p className="text-sm">ఇది బుకింగ్ కాదు, కేవలం మీ స్థానం. పూర్తి వివరాలు 15 రోజుల్లో తెలియజేస్తాం.</p>
     {isError && <Button variant="outline" onClick={() => void refetch()}>స్థానాలు మళ్లీ చూడండి · Refresh slots</Button>}
   </div>;
 }

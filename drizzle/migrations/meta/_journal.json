@@ -414,6 +414,27 @@
       "when": 1794552527726,
       "tag": "0058_provisional_membership_review_and_route_details",
       "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "7",
+      "when": 1794552899795,
+      "tag": "0059_referral_payment_requests_and_daily_profile_reminders",
+      "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1794553283633,
+      "tag": "0060_trusted_evidence_messages_and_exact_return_route_notices",
+      "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "7",
+      "when": 1794553308383,
+      "tag": "0061_allow_service_validated_admin_evidence_messages",
+      "breakpoints": true
     }
   ]
 }

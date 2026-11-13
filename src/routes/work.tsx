@@ -34,8 +34,8 @@ function WorkPage() {
   const rows = workListings(posts, area, kind);
   return <section className="space-y-4 py-3">
     <h1 className="text-2xl font-bold">{TITLE[kind]}</h1>
-    <div><label htmlFor="work-page-area" className="mb-2 block font-bold">ప్రాంతం</label><IndiaPlaceInput id="work-page-area" value={area} onChange={setArea} maxLength={80} placeholder="అన్ని ప్రాంతాలు" /></div>
-    <Button asChild className="home-apply w-full"><Link to="/post/new" search={{ kind, loc: area || undefined }} onClick={() => sessionStorage.setItem('gayatri-interest', 'job')}>{kind === 'seeker' ? 'పని కోసం అప్లై చేయండి' : 'పని ఇస్తాను అని పెట్టండి'}</Link></Button>
+    <div><label htmlFor="work-page-area" className="mb-2 block font-bold">ప్రాంతం</label><IndiaPlaceInput id="work-page-area" value={area} onChange={setArea} maxLength={80} placeholder="మీ ప్రాంతం పేరు" /></div>
+
     <div className="home-display-list work-display-column">{isLoading ? <p role="status">వస్తున్నాయి</p> : isError ? <p role="alert">వివరాలు రాలేదు</p> : rows.length === 0 ? <p className="home-empty">ఈ ప్రాంతంలో ఇంకా ప్రకటనలు లేవు</p> : rows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact />)}</div>
   </section>;
 }

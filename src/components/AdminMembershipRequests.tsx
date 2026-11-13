@@ -1,0 +1,14 @@
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useServerFn } from '@tanstack/react-start';
+import { supabase } from '@/integrations/supabase/client';
+import { viewChatImage } from '@/lib/chat-upload.functions';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { toast } from 'sonner';
+export function AdminMembershipRequests() {
+ const qc=useQueryClient();const show=useServerFn(viewChatImage);const [image,setImage]=useState('');const [busy,setBusy]=useState(false);
+ const {data,isError}=useQuery({queryKey:['admin-membership-requests'],refetchInterval:10000,queryFn:async()=>{const [requests,people]=await Promise.all([supabase.from('membership_requests').select('*').order('submitted_at',{ascending:false}),supabase.from('profiles').select('id,full_name,phone')]);if(requests.error||people.error)throw requests.error??people.error;return requests.data.map(r=>({...r,person:people.data.find(p=>p.id===r.user_id)}));}});
+ const action=async(id:string,approve:boolean)=>{if(approve&&!window.confirm('బ్యాంకులో డబ్బు అందిందని చూశారా?'))return;setBusy(true);const r=await supabase.rpc('review_membership_evidence',{_id:id,_approve:approve});setBusy(false);if(r.error)toast.error('పరిశీలన నమోదు కాలేదు');else await qc.invalidateQueries();};
+ return <section className="space-y-3 border-y py-4"><h2 className="text-xl font-bold">ఆటో ప్రైమ్ ఆన్ అయిన వాళ్ళు</h2>{isError&&<p role="alert">వివరాలు రాలేదు</p>}{data?.map(r=><article className="space-y-2 border-b py-3" key={r.id}><p translate="no">{r.person?.full_name||'—'} · {r.person?.phone||'—'}</p><p translate="no">₹{r.amount} · UTR {r.reference}</p><p>{new Date(r.submitted_at).toLocaleString('te-IN')} · {r.status==='pending'?'తాత్కాలిక ప్రైమ్; పరిశీలనలో ఉంది':r.status==='approved'?'చెల్లింపు ఆమోదించాం':'ప్రైమ్ ఆఫ్ చేశాం'}</p><div className="flex flex-wrap gap-2"><Button variant="outline" onClick={async()=>{try{setImage((await show({data:{message:r.message_id}})).url);}catch{toast.error('చిత్రం రాలేదు');}}}>స్క్రీన్ షాట్ చూడండి</Button>{r.status==='pending'&&<><Button disabled={busy} onClick={()=>void action(r.id,true)}>చెల్లింపు ఆమోదించండి</Button><Button variant="outline" disabled={busy} onClick={()=>void action(r.id,false)}>ప్రైమ్ ఆఫ్ చేయండి</Button></>}<Button variant="outline" disabled={busy} onClick={async()=>{setBusy(true);const result=await supabase.rpc('admin_membership_access',{_user:r.user_id,_enable:false});setBusy(false);if(result.error)toast.error('ప్రైమ్ ఆఫ్ కాలేదు');else await qc.invalidateQueries();}}>సభ్యత్వం తీసేయండి</Button></div></article>)}<Dialog open={!!image} onOpenChange={open=>{if(!open)setImage('');}}><DialogContent><DialogTitle>పేమెంట్ స్క్రీన్ షాట్</DialogTitle>{image&&<img src={image} alt="పేమెంట్ స్క్రీన్ షాట్" className="max-h-[70svh] w-full object-contain"/>}</DialogContent></Dialog></section>;
+}

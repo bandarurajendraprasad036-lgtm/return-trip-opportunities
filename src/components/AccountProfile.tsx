@@ -16,6 +16,8 @@ import { PhoneNumberChange } from '@/components/PhoneNumberChange';
 import { ProviderContacts } from '@/components/ProviderContacts';
 import { SubscribeAfterProfile } from '@/components/SubscribeAfterProfile';
 import { markAccountBellActivated } from '@/lib/bell-activation';
+import { BilingualLabel } from '@/components/BilingualLabel';
+import { PROFILE_NEEDS, PROFILE_OCCUPATIONS, TECHNICIAN_WORKS, FINAL_PROFILE_PARAGRAPHS } from '@/lib/november-profile';
 
 export function AccountProfile() {
   const { data: me } = useMe();
@@ -32,6 +34,7 @@ export function AccountProfile() {
   const [publicService, setPublicService] = useState(false);
   const [subscribeOpen, setSubscribeOpen] = useState(false);
   const [interest, setInterest] = useState('');
+  const [changeProfession, setChangeProfession] = useState(false);
   useEffect(() => {
     const value = sessionStorage.getItem('gayatri-interest') || '';
     setInterest(value);
@@ -68,8 +71,9 @@ export function AccountProfile() {
     <section id="account-profile" className="profile-panel space-y-4 border-y px-3 py-5">
       <div>
         <h2 className="text-xl font-bold">నా వివరాలు · My profile</h2>
-        {interest && <p className="profile-copy">మీ ఎంపిక: {interest === 'cars' ? 'కార్లు · Cars' : interest === 'goods' ? 'సరకు వాహనం · Goods vehicle' : interest === 'return' ? 'తిరుగు వాహనం · Return vehicle' : 'ఉద్యోగం · Job'}</p>}
-        <p className="profile-copy text-sm">మొబైల్ నంబరు తప్పనిసరి. మార్గాలు ఖాళీగా వదిలినా వివరాలు భద్రపరచవచ్చు.</p>
+        <div className="flex items-center justify-between gap-2"><p className="profile-copy">మీ వృత్తి: {PROFILE_OCCUPATIONS.find(item => item.value === occupation)?.te || occupation || 'ఉద్యోగం'}</p><Button type="button" variant="outline" onClick={() => setChangeProfession(value => !value)}>మార్చండి</Button></div>
+        {changeProfession && <select aria-label="మీ వృత్తి" value={occupation} onChange={event => { setOccupation(event.target.value); setChangeProfession(false); }} className="h-12 w-full rounded-md border bg-card px-3"><option value="Driver">డ్రైవర్</option><option value="Job">ఉద్యోగం</option><option value="Business">బిజినెస్</option><option value="Other">ఇతరము</option></select>}
+        <div className="mt-4 space-y-2">{FINAL_PROFILE_PARAGRAPHS.map(paragraph => <p key={paragraph} className="profile-copy">{paragraph}</p>)}<p className="text-sm">60% నుండి 70% తగ్గింపు ప్రతి బండికి హామీ కాదు. బండి యజమానితో ధర మాట్లాడుకోండి.</p></div>
       </div>
       <form className="space-y-4" onSubmit={async event => {
         event.preventDefault();
@@ -83,7 +87,7 @@ export function AccountProfile() {
           const saved = await supabase.rpc('complete_account_profile', {
             _name: name.trim(),
             _location: location.trim(),
-            _occupation: occupation.trim(),
+            _occupation: kind === 'service' ? category.trim() : occupation.trim(),
             _category: savedCategory,
             _kind: kind,
           });
@@ -119,28 +123,24 @@ export function AccountProfile() {
 
         <div className="profile-section-secondary space-y-3 rounded-xl p-3">
           <div className="space-y-1">
-            <Label htmlFor="account-kind">మీ అవసరం · Your need</Label>
-            <select id="account-kind" className="h-12 w-full rounded-md border bg-card px-3" value={kind} onChange={event => setKind(event.target.value)}>
-              <option value="seeker">పని కావాలా? · Need work?</option>
-              <option value="employer">మనిషి కావాలా? · Need a worker?</option>
-              <option value="owner">వాహనం ఉంది · Vehicle owner</option>
-              <option value="business">వాహనం కావాలి · Need vehicle</option>
-              <option value="service">సేవ అందిస్తాను · Service provider</option>
+            <Label htmlFor="account-kind"><BilingualLabel te="మీకు ఏది అవసరం?" en="What Do You Need?" /></Label>
+            <select id="account-kind" className="h-auto min-h-12 w-full rounded-md border bg-card px-3 py-3" value={kind} onChange={event => { setKind(event.target.value); if (event.target.value === 'service') setCategory(''); }}>
+              {PROFILE_NEEDS.map(item => <option translate="no" key={item.value} value={item.value}>{item.te} / {item.en}</option>)}
             </select>
           </div>
           <div className="space-y-1">
-            <Label htmlFor="account-work">{vehicleProfile ? 'మీ పని / వ్యాపారం · Work / business' : 'మీ పని / నిరుద్యోగి · Work / unemployed'}</Label>
-            <Input id="account-work" value={occupation} onChange={event => setOccupation(event.target.value)} required maxLength={100} />
+            <Label htmlFor="account-work"><BilingualLabel te="మీరు ఏం చేస్తారు?" en="What Do You Do?" /></Label>
+            <select id="account-work" value={occupation} onChange={event => setOccupation(event.target.value)} required className="h-12 w-full rounded-md border bg-card px-3"><option value="">ఎంచుకోండి</option>{occupation && !PROFILE_OCCUPATIONS.some(item => item.value === occupation) && <option translate="no" value={occupation}>{occupation}</option>}{PROFILE_OCCUPATIONS.map(item => <option translate="no" key={item.value} value={item.value}>{item.te} / {item.en}</option>)}</select>
           </div>
           {!vehicleProfile && <div className="space-y-1">
-            <Label htmlFor="account-category">పని లేదా సేవ వర్గం · Work or service category</Label>
-            <Input id="account-category" value={category} onChange={event => setCategory(event.target.value)} required maxLength={100} />
+            <Label htmlFor="account-category"><BilingualLabel te="ఏ వాహనం / ఏ పని?" en="Which Vehicle / Work?" /></Label>
+            {kind === 'service' ? <select id="account-category" value={category} onChange={event => setCategory(event.target.value)} required className="h-12 w-full rounded-md border bg-card px-3"><option value="">ఎంచుకోండి</option>{category && !TECHNICIAN_WORKS.some(item => item.value === category) && <option translate="no" value={category}>{category}</option>}{TECHNICIAN_WORKS.map(item => <option translate="no" key={item.value} value={item.value}>{item.te} / {item.en}</option>)}</select> : <Input id="account-category" value={category} onChange={event => setCategory(event.target.value)} required maxLength={100} />}
           </div>}
         </div>
 
         {vehicleProfile && <div className="profile-vehicle-panel space-y-3 rounded-xl p-3">
           <div className="space-y-1">
-            <Label htmlFor="account-vehicle">కావలసిన వాహనం · Wanted vehicle</Label>
+            <Label htmlFor="account-vehicle"><BilingualLabel te="ఏ వాహనం / ఏ పని?" en="Which Vehicle / Work?" /></Label>
             <select id="account-vehicle" className="h-12 w-full rounded-md border bg-card px-3" value={vehicleType} onChange={event => { setVehicleType(event.target.value); if (isCar(event.target.value)) setTons(''); }} required>
               <option value="">ఎంచుకోండి · Choose</option>
               {VEHICLE_TYPES.map(type => <option key={type.value} value={type.value}>{type.te} · {type.en}</option>)}
@@ -148,7 +148,7 @@ export function AccountProfile() {
           </div>
           {!isCar(vehicleType) && <div className="space-y-1">
             <Label htmlFor="account-tons">ఎన్ని టన్నులు? · How many tons?</Label>
-            <Input id="account-tons" type="number" inputMode="decimal" min="0.1" max="100" step="0.1" value={tons} onChange={event => setTons(event.target.value)} placeholder="ఉదాహరణ: 12" />
+            <Input id="account-tons" type="number" inputMode="decimal" min="0.1" max="100" step="0.1" value={tons} onChange={event => setTons(event.target.value)} placeholder="Mini truck - 3 టన్నులు / Mini Truck - 3 Tonnes" />
           </div>}
         </div>}
 

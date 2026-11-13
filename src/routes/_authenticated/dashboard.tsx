@@ -85,7 +85,7 @@ function Dashboard() {
       <SharingImage />
       <ReferralVip />
       <NotificationSettings />
-      <InstallButton />
+
     </div>
   );
 }

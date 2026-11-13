@@ -1,58 +1,22 @@
 import { useState } from 'react';
-import { AdminChatButton } from '@/components/AdminChatButton';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useMe } from '@/lib/session';
 import { usePrime99 } from '@/lib/prime99';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
-import { MEMBERSHIP_AMOUNT, EXTRA_POST_AMOUNT } from '@/lib/current-membership';
 import { PaymentScanner } from '@/components/PaymentScanner';
-
-export function Prime99Payment({ bellPayment = false }: { bellPayment?: boolean }) {
-  const { data: me } = useMe();
-  const { data: prime } = usePrime99(me?.id);
-  const qc = useQueryClient();
-  const [reference, setReference] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [purpose, setPurpose] = useState<'membership' | 'extra_post'>('membership');
-  const price = useQuery({ queryKey: ['membership-price', me?.id], enabled: Boolean(me), queryFn: async () => { const r = await supabase.rpc('my_membership_price'); if (r.error) throw r.error; return r.data; } });
-  const amount = purpose === 'extra_post' ? EXTRA_POST_AMOUNT : bellPayment ? MEMBERSHIP_AMOUNT : price.data ?? MEMBERSHIP_AMOUNT;
-  const payments = useQuery({ queryKey: ['prime99-payments', me?.id], enabled: Boolean(me), refetchInterval: 10000, queryFn: async () => {
-    const result = await supabase.from('prime99_payments').select('*').eq('user_id', me?.id ?? '').order('submitted_at', { ascending: false });
-    if (result.error) throw result.error; return result.data;
-  } });
-  const quota = useQuery({ queryKey: ['post-quota99', me?.id], enabled: Boolean(me), queryFn: async () => {
-    const result = await supabase.rpc('my_post_quota99'); if (result.error) throw result.error;
-    return result.data as { limit: number; used: number; ends_at: string | null };
-  } });
-  if (!me) return null;
-  return <section className="space-y-3 border-y py-4 profile-copy">
-    <h2 className="text-xl font-bold">₹100 ప్రైమ్ సభ్యత్వం · Prime membership</h2>
-    <p>{prime?.active ? 'చెల్లింపు ఆమోదించబడింది · Active' : 'ఆమోదించిన చెల్లింపు అవసరం · Approved payment required'}</p>
-    {prime?.active && prime.ends_at && <p>గడువు · Until: {new Date(prime.ends_at).toLocaleString('te-IN', { timeZone: 'Asia/Kolkata' })}</p>}
-    {prime?.bell_active && me.profile?.referral_code && <p>మీ పరిచయ సంకేతం: <strong translate="no">{me.profile.referral_code}</strong></p>}
-    <p>నెలకు మూడు పోస్టులు ఉచితం. అదనపు ఒక్కో పోస్టుకు ₹49. చూడటం అందరికీ ఉచితం; వ్యక్తిగత సంభాషణ, గంట, సూచనలకు నెలకు ₹100 చెల్లింపు నిర్ధారణ అవసరం.</p>
-    <p>కొత్త ₹100 చెల్లింపు నిర్ధారించిన రోజు నుంచి ఒక నెల గడువు. గంట సూచనలకు మీ గంట ఎంపిక, ఫోన్ అనుమతి అవసరం. చెల్లింపు ఆధారం పంపడమే నిర్ధారణ కాదు; కస్టమర్లు లేదా కాల్స్‌కు హామీ లేదు.</p>
-    {prime?.alerts_start_at && !prime.alerts_ready && <p>సూచనలు ప్రారంభమయ్యే సమయం: {new Date(prime.alerts_start_at).toLocaleString('te-IN', { timeZone: 'Asia/Kolkata' })}; హోమ్ గంట ఎంపిక అవసరం.</p>}
-    {price.data === 49 && !bellPayment && <p>మీ సేవా నంబర్ల పరిశీలన ఆమోదమైంది; సభ్యత్వానికి ₹49 మాత్రమే చెల్లించవచ్చు. గంట పని చేయడానికి మాత్రం ₹100 చెల్లించాలి.</p>}
-    <p>ఈ నెల పోస్టులు · Posts used: {quota.data?.used ?? '—'} / 3</p>
-    {quota.data?.ends_at && <p>పోస్టుల గడువు · Post period ends: {new Date(quota.data.ends_at).toLocaleString('te-IN', { timeZone: 'Asia/Kolkata' })}</p>}
-    <AdminChatButton />
-    <PaymentScanner amount={amount} />
-    {!bellPayment && <div className="grid grid-cols-2 gap-2"><Button variant={purpose === 'membership' ? 'default' : 'outline'} className="h-auto min-h-12 whitespace-normal" onClick={() => setPurpose('membership')}>సభ్యత్వం · Membership</Button><Button variant={purpose === 'extra_post' ? 'default' : 'outline'} className="h-auto min-h-12 whitespace-normal" onClick={() => setPurpose('extra_post')}>అదనపు పోస్ట్ ₹49 · Extra post</Button></div>}
-    <Label htmlFor="prime99-reference">₹{amount} చెల్లింపు లావాదేవీ సంఖ్య · Transaction reference</Label>
-    <Input id="prime99-reference" value={reference} maxLength={64} onChange={e => setReference(e.target.value)} disabled={busy} />
-    <Button disabled={busy || price.isPending || price.isError || !/^[A-Za-z0-9-]{6,64}$/.test(reference.trim()) || payments.data?.some(p => p.status === 'pending' && p.payment_purpose === purpose)} onClick={async () => {
-      setBusy(true);
-      try { const result = await supabase.from('prime99_payments').insert({ user_id: me.id, reference: reference.trim(), payable_amount: amount, payment_purpose: purpose });
-        if (result.error) throw result.error;
-        setReference(''); await qc.invalidateQueries({ queryKey: ['prime99-payments'] }); toast.success('చెల్లింపు ఆధారం పరిశీలనకు పంపాం');
-      } catch { toast.error('ఆధారం నమోదు కాలేదు; ఇదే సంఖ్య ఇప్పటికే ఉందేమో చూడండి'); } finally { setBusy(false); }
-    }}>పరిశీలనకు పంపండి · Submit for review</Button>
-    {payments.isError && <Button variant="outline" onClick={() => void payments.refetch()}>మళ్లీ చూడండి · Retry</Button>}
-    {payments.data?.map(p => <article key={p.id} className="border-b py-2"><p className="break-all">₹{p.payable_amount} · {p.reference}</p><p>{p.payment_purpose === 'extra_post' ? 'అదనపు పోస్టు' : 'సభ్యత్వం'} · {p.status === 'approved' ? 'ఆమోదించబడింది · Approved' : p.status === 'rejected' ? 'ఆమోదించలేదు · Rejected' : 'పరిశీలనలో ఉంది · Under review'}</p>{p.status === 'approved' && <p>🙏 ధన్యవాదాలు! మీరు కట్టిన ₹{p.payable_amount} అందినట్లు నిర్వాహకుడు నిర్ధారించారు.{p.payment_purpose === 'membership' ? ' మీ ప్రకటనల ప్రదర్శనలో వ్యక్తిగత పేరు, ఫోటో, మొబైల్ దాచబడతాయి.' : p.used_post_id ? ' అదనపు పోస్టు అవకాశం వినియోగించారు.' : ' ఒక అదనపు పోస్టు పెట్టవచ్చు.'}</p>}{p.review_note && <p>{p.review_note}</p>}</article>)}
-  </section>;
+import { MembershipEvidenceForm } from '@/components/MembershipEvidenceForm';
+export function Prime99Payment({bellPayment=false}:{bellPayment?:boolean}) {
+ const {data:me}=useMe();const {data:prime}=usePrime99(me?.id);const [discount,setDiscount]=useState(false);
+ const price=useQuery({queryKey:['membership-price',me?.id],enabled:!!me,queryFn:async()=>{const r=await supabase.rpc('my_membership_price');if(r.error)throw r.error;return r.data;}});
+ const quota=useQuery({queryKey:['post-quota99',me?.id],enabled:!!me,queryFn:async()=>{const r=await supabase.rpc('my_post_quota99');if(r.error)throw r.error;return r.data as {used:number;limit:number};}});
+ if(!me)return null; const amount=discount?80:100;
+ return <section className="space-y-4 border-y py-4 profile-copy"><h2 className="text-xl font-bold">₹100 ప్రైమ్ మెంబర్ షిప్ <span className="block text-xs font-normal">Prime Membership</span></h2>
+ {prime?.active&&<p role="status" className="font-bold">{prime.provisional?'తాత్కాలిక ప్రైమ్ ఆన్ అయింది; చెల్లింపు పరిశీలనలో ఉంది':'మీ ప్రైమ్ ఆన్ అయింది'}{prime.ends_at&&` · ${new Date(prime.ends_at).toLocaleDateString('te-IN')} వరకు`}</p>}
+ <div className="grid gap-3 sm:grid-cols-2"><article className="space-y-2 rounded-lg border p-3"><h3 className="text-xl font-bold">ఫ్రీ - ₹0</h3><p>నెలకు 3 పోస్టులు ఫ్రీగా పెట్టవచ్చు</p><p>అందరి పోస్టులు ఫ్రీగా చూడవచ్చు</p><p>3 కంటే ఎక్కువ పోస్టు పెడితే, ఒక్కో పోస్టుకు ₹49</p></article><article className="space-y-2 rounded-lg border-2 border-primary bg-primary/10 p-3"><h3 className="text-xl font-bold">ప్రైమ్ - ₹100 / నెలకు</h3><p>మీకు తెలిసిన 20 మంది నంబర్లు ఇస్తే, కేవలం ₹80 మాత్రమే!</p><p>నంబర్లు మేము పరిశీలించిన తర్వాతే ₹80 చెల్లించండి.</p><p>అన్ లిమిటెడ్ పోస్టులు పెట్టవచ్చు</p><p>మీకు సంబంధించిన జాబ్ వస్తే నోటిఫికేషన్ ఆటోమేటిక్ గా వస్తుంది</p><p>డైరెక్ట్ గా చాట్ చేసుకోవచ్చు, ఫోన్ చేసుకోవచ్చు</p></article></div>
+ <p className="text-sm">ప్రైమ్ తీసుకున్న రోజు నుండి 1 నెల వరకు ఉంటుంది. గంట నోటిఫికేషన్ కావాలంటే మీ ఫోన్ లో నోటిఫికేషన్ ON చేసుకోండి.</p><p>ఈ నెల పోస్ట్లు {quota.data?.used??'—'}/3</p>
+ <h3 className="font-bold">గమనిక - దయచేసి చదవండి:</h3><p>డబ్బు కట్టినంత మాత్రాన మీకు కస్టమర్ వస్తాడని గ్యారెంటీ లేదు.</p><p>మరి ఈ ₹100 ఎందుకు తీసుకుంటున్నామంటే - మీరు ఎప్పుడైనా కూడా ఎక్కడెక్కడ బండ్లు ఎక్కడికి వెళ్తున్నాయి, ఎలా వెళ్తున్నాయి - అన్నీ A to Z చూసుకునేందుకు, ప్లస్ ఎక్కడెక్కడ జాబ్స్ ఉన్నాయి - టోటల్ చూసుకునేందుకు, మీకు సంబంధించిన జాబ్ వస్తే నోటిఫికేషన్ ఆటోమేటిక్ గా వస్తుందని తెలిపేందుకు మాత్రమే ఈ ₹100 తీసుకుంటున్నాము.</p><p>ఈ ₹100 కేవలం ఒక నెల మీ ప్రకటన ఖర్చులు, మా కంపెనీ ఖర్చుల కోసం మాత్రమే. సేవా భావంతో తీసుకుంటున్నాము తప్ప వేరే ఏమీ లేదు, లాభాలు ఆశించి కాదు.</p>
+ {!bellPayment&&<div className="grid grid-cols-2 gap-2"><Button className="h-auto whitespace-normal" variant={!discount?'default':'outline'} onClick={()=>setDiscount(false)}>ప్రైమ్ అవ్వండి - ₹100 కట్టండి / Become Prime</Button><Button className="h-auto whitespace-normal" variant={discount?'default':'outline'} disabled={price.data!==80} onClick={()=>setDiscount(true)}>రిఫరల్ పేమెంట్ ₹80</Button></div>}
+ {discount&&<p className="text-sm">ఇది రిఫరల్ సర్వీస్ ప్రొవైడర్స్ ని రిఫర్ చేసిన వారి పేమెంట్. మీకు తెలిసిన ఎలక్ట్రిషియన్, ప్లంబర్ లాంటి వారిని రిఫర్ చేస్తే ₹80 కట్టండి.</p>}
+ <PaymentScanner amount={amount}/><MembershipEvidenceForm amount={amount}/></section>;
 }

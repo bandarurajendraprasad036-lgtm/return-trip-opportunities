@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { AdminMembershipRequests } from '@/components/AdminMembershipRequests';
 
 export function AdminPrime99() {
   const qc = useQueryClient(); const [busy, setBusy] = useState(false); const [reference, setReference] = useState('');
@@ -27,7 +28,7 @@ export function AdminPrime99() {
       await qc.invalidateQueries(); toast.success('పరిశీలన నమోదైంది');
     } catch { toast.error('పరిశీలన నమోదు కాలేదు; చెల్లింపు సంఖ్యను తనిఖీ చేయండి'); } finally { setBusy(false); }
   };
-  return <section className="space-y-3 border-y py-4"><h2 className="text-xl font-bold">చెల్లింపుల పరిశీలన, చరిత్ర · Payment review</h2>
+  return <section className="space-y-3 border-y py-4"><AdminMembershipRequests/><h2 className="text-xl font-bold">చెల్లింపుల పరిశీలన, చరిత్ర · Payment review</h2>
     {payments.isError && <Button onClick={() => void payments.refetch()}>మళ్లీ చూడండి · Retry</Button>}
     {payments.data?.length === 0 && <p>పరిశీలనకు కొత్త చెల్లింపులు లేవు · No pending payments</p>}
     {payments.data?.map(p => <article key={p.id} className="space-y-2 border-b py-3"><p>{p.person?.full_name || '—'} · {p.person?.phone}</p><p className="break-all">₹{p.payable_amount} · {p.reference}</p><p>{p.payment_purpose === 'extra_post' ? 'అదనపు పోస్ట్' : 'సభ్యత్వం'} · {p.status === 'approved' ? 'ఆమోదం' : p.status === 'rejected' ? 'తిరస్కరణ' : 'పరిశీలనలో'}</p>{p.status === 'pending' && <div className="flex gap-2"><Button disabled={busy} onClick={() => void review(p.id, true)}>ఆమోదించు · Approve</Button><Button variant="outline" disabled={busy} onClick={() => void review(p.id, false)}>తిరస్కరించు · Reject</Button></div>}</article>)}

@@ -1,56 +1,30 @@
-import { useState } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
-import { Bell } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useMe } from "@/lib/session";
-import { GoogleSignIn } from "@/components/GoogleSignIn";
-import { enableBellAudio, playBell } from '@/lib/bell';
-import { Input } from '@/components/ui/input';
-import { hasValidMobile } from '@/lib/phone';
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { ProfileRequest } from '@/components/ProfileRequest';
-import { markAccountBellActivated } from '@/lib/bell-activation';
+import { useEffect, useState } from 'react';
+import { Link } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { enablePush, pushDeviceId, deviceSound } from '@/lib/firebase-push';
-import { registerPushDevice } from '@/lib/push.functions';
 import { useServerFn } from '@tanstack/react-start';
+import { Bell } from 'lucide-react';
 import { toast } from 'sonner';
-import { homeActionPending, usePrime99 } from '@/lib/prime99';
-import { BellPaymentNotice } from '@/components/BellPaymentNotice';
-
-export function BellJoin({ children }: { children?: React.ReactNode }) {
-  const { data: me } = useMe();
-  const { data: prime } = usePrime99(me?.id);
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
-  const register = useServerFn(registerPushDevice);
-  const [busy, setBusy] = useState(false);
-  const [touched, setTouched] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [mobile, setMobile] = useState('');
-  const [paymentOpen, setPaymentOpen] = useState(false);
-  const activate = async () => {
-    if (!me) return;
-    const registration = enablePush(); setBusy(true);
-    try {
-      const saved = await supabase.from('notification_preferences').upsert({ user_id: me.id, enabled: true }); if (saved.error) throw saved.error;
-      await markAccountBellActivated(me.id);
-      const code = await supabase.rpc('ensure_my_referral_code'); if (code.error) throw code.error;
-      const result = await registration;
-      if (result.status === 'registered' && result.token) await register({ data: { id: pushDeviceId(), token: result.token, sound: deviceSound() } });
-      else toast.info('గంట ఎంపిక నమోదైంది; ఫోన్ సూచనలకు పరికర అనుమతి అవసరం.');
-      await queryClient.invalidateQueries({ queryKey: ['me'] }); setProfileOpen(false); await navigate({ to: '/dashboard', hash: 'account-profile' });
-    } catch { toast.error('సూచనలు ప్రారంభించలేకపోయాం; మళ్లీ ప్రయత్నించండి.'); } finally { setBusy(false); }
-  };
-  return <>
-    <Button type="button" variant="ghost" disabled={busy} data-touched={touched} onClick={() => setProfileOpen(true)} aria-label="గంట కొట్టండి · Ring the bell" className={`${children ? 'home-temple-trigger' : 'home-bell relative z-10 mx-auto -mt-2 grid size-20 place-items-center rounded-none border-0 bg-transparent p-2 text-gold shadow-none ring-0 hover:bg-transparent active:scale-95'} ${homeActionPending('bell', Boolean(touched || me?.profile?.bell_activated_at)) ? 'unfinished-action' : ''}`}>{children || <Bell className="size-16!" fill="currentColor" strokeWidth={1.5} />}</Button>
-    <ProfileRequest home open={profileOpen} onOpenChange={setProfileOpen} showProfileLink={Boolean(me)}>
-      {!me && <><GoogleSignIn /><Button asChild variant="outline"><Link to="/feed">ప్రకటనలు చూడండి · Browse</Link></Button></>}
-    </ProfileRequest>
-    <Dialog open={mobileOpen} onOpenChange={setMobileOpen}><DialogContent><DialogTitle>మీ మొబైల్ నంబరు · Your mobile</DialogTitle><DialogDescription>మీ ఖాతాలో మాత్రమే భద్రపరుస్తాం; బయట చూపించం. సంఖ్య ఇవ్వడం ఫోన్ ధృవీకరణ కాదు.</DialogDescription><Input aria-label="మీ మొబైల్ నంబరు" inputMode="numeric" maxLength={10} value={mobile} onChange={e => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))} /><Button disabled={busy || !hasValidMobile(mobile)} onClick={async () => { if (!me) return; setBusy(true); const r = await supabase.from('profiles').update({ phone: mobile }).eq('id', me.id); setBusy(false); if (r.error) { toast.error('నంబరు భద్రపడలేదు'); return; } await queryClient.invalidateQueries({ queryKey: ['me'] }); setMobileOpen(false); toast.success('నంబరు భద్రపడింది; ప్రధాన గంటను నొక్కి ఫోన్ సూచనలు అనుమతించండి'); }}>కొనసాగించండి · Continue</Button></DialogContent></Dialog>
-    <p className="mt-1 text-center text-lg font-bold">ఏది కావాలన్నా గంట కొట్టు</p>
-    <BellPaymentNotice open={paymentOpen} onOpenChange={setPaymentOpen} />
-  </>;
+import { Button } from '@/components/ui/button';
+import { Dialog,DialogContent,DialogTitle,DialogDescription } from '@/components/ui/dialog';
+import { useMe } from '@/lib/session';
+import { GoogleSignIn } from '@/components/GoogleSignIn';
+import { markAccountBellActivated } from '@/lib/bell-activation';
+import { enablePush,pushDeviceId,deviceSound } from '@/lib/firebase-push';
+import { registerPushDevice } from '@/lib/push.functions';
+import { referralLink } from '@/lib/account-program';
+import { supabase } from '@/integrations/supabase/client';
+type InstallEvent=Event&{prompt:()=>Promise<void>};
+export function BellJoin({children}:{children?:React.ReactNode}) {
+ const {data:me}=useMe();const qc=useQueryClient();const register=useServerFn(registerPushDevice);
+ const [install,setInstall]=useState<InstallEvent|null>(null);const [installed,setInstalled]=useState(false);const [open,setOpen]=useState(false);const [touched,setTouched]=useState(false);
+ useEffect(()=>{setInstalled(localStorage.getItem('gayatri-installed-confirmed')==='1'||matchMedia('(display-mode: standalone)').matches);setTouched(localStorage.getItem('gayatri-home-bell-touched')==='1');const h=(e:Event)=>{e.preventDefault();setInstall(e as InstallEvent);};const done=()=>{localStorage.setItem('gayatri-installed-confirmed','1');setInstalled(true);setInstall(null);};window.addEventListener('beforeinstallprompt',h);window.addEventListener('appinstalled',done);return()=>{window.removeEventListener('beforeinstallprompt',h);window.removeEventListener('appinstalled',done);};},[]);
+ const joined=!!me&&(touched||installed||!!me.profile?.bell_activated_at);const code=me?.profile?.referral_code??'';
+ const share=()=>{if(code)window.open(`https://wa.me/?text=${encodeURIComponent(`మీ రిఫరల్ కోడ్: ${code}\n${referralLink(code)}`)}`,'_blank','noopener,noreferrer');};
+ const activate=async()=>{if(!me)return;try{const result=await enablePush();const saved=await supabase.from('notification_preferences').upsert({user_id:me.id,enabled:true});if(saved.error)throw saved.error;if(result.status==='registered'&&result.token)await register({data:{id:pushDeviceId(),token:result.token,sound:deviceSound()}});await markAccountBellActivated(me.id);await supabase.rpc('ensure_my_referral_code');await qc.invalidateQueries({queryKey:['me']});if(result.status!=='registered')toast.info('నోటిఫికేషన్ కోసం మీ ఫోన్ అనుమతి కావాలి');}catch{toast.error('నోటిఫికేషన్ ఆన్ కాలేదు. మళ్లీ గంట కొట్టండి');}};
+ const click=async()=>{setOpen(true);if(!installed&&install){try{await install.prompt();}catch{toast.info('మీ బ్రౌజర్ లో డౌన్లోడ్ ఎంచుకోండి');}setInstall(null);}localStorage.setItem('gayatri-home-bell-touched','1');setTouched(true);if(me)void activate();};
+ return <><Button type="button" variant="ghost" onClick={()=>void click()} aria-label="గంట కొట్టండి · Ring the bell" className={children?'home-temple-trigger':'home-bell mx-auto grid size-20 place-items-center text-gold'}>{children??<Bell className="size-16"/>}</Button><p className="text-center text-lg font-bold">గంట కొట్టండి - నోటిఫికేషన్ ఆన్ అవుతుంది</p>
+ {!installed&&<Button variant="ghost" className="unfinished-action w-full whitespace-normal" onClick={()=>void click()}>⬇️ డౌన్లోడ్ చేయండి - గంట కొట్టండి</Button>}
+ <Dialog open={open} onOpenChange={setOpen}><DialogContent className="max-h-[85svh] overflow-y-auto"><DialogTitle>{joined?'🎉 మీరు ఆల్రెడీ జాయిన్ అయ్యారు!':'డౌన్లోడ్ / Install'}</DialogTitle><DialogDescription asChild><div className="space-y-3 text-lg">{joined?<><p>ఇప్పుడు మీ వంతు!</p><p>మీ ద్వారా మరి కొంతమందిని జాయిన్ చేయండి!</p><p>మీ రిఫరల్ కోడ్ ద్వారా మరి కొంతమందిని జాయిన్ చేయండి!</p></>:<p>డౌన్లోడ్ / Install ఎంచుకోండి. మీ ఫోన్ అనుమతిస్తే గాయత్రి వన్ ఐకాన్ వస్తుంది.</p>}</div></DialogDescription>
+ {joined?<><p className="text-xl font-bold">మీ రిఫరల్ కోడ్: <span translate="no">{code||'వస్తుంది'}</span></p><Button disabled={!code} onClick={async()=>{if(!code)return;try{await navigator.clipboard.writeText(`${code}\n${referralLink(code)}`);toast.success('కాపీ చేశాం');}catch{share();}}}>📲 రిఫరల్ కోడ్ షేర్ చేయండి</Button><Button disabled={!code} variant="outline" onClick={share}>వాట్సాప్ లో షేర్ చేయండి</Button></>:<>{install&&<Button onClick={async()=>{await install.prompt();setInstall(null);}}>డౌన్లోడ్ / Install</Button>}{!install&&!installed&&<p>బ్రౌజర్ మూడు చుక్కల దగ్గర డౌన్లోడ్ / Install ఎంచుకోండి. ఈ ఎంపిక మీ ఫోన్ లో అందుబాటులో ఉంటేనే డౌన్లోడ్ అవుతుంది.</p>}{!me&&<GoogleSignIn/>}<Button asChild variant="outline"><Link to="/dashboard" hash="account-profile" onClick={()=>setOpen(false)}>ప్రొఫైల్ (మీ వివరాలు) నింపండి</Link></Button></>}
+ </DialogContent></Dialog></>;
 }

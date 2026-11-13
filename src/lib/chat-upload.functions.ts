@@ -2,6 +2,7 @@ import { createServerFn } from '@tanstack/react-start';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 import { z } from 'zod';
 import { chatEntrySchema, CHAT_IMAGE_LIMIT, validChatImage } from '@/lib/chat-rules';
+import { paymentUtr } from '@/lib/november-profile';
 
 export const sendChatEntry = createServerFn({ method:'POST' }).middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => {
@@ -9,7 +10,9 @@ export const sendChatEntry = createServerFn({ method:'POST' }).middleware([requi
     const entry = chatEntrySchema.parse({ receiver:input.get('receiver'), post:input.get('post') || null, body:input.get('body') || '', phone:input.get('phone') || '' });
     const image = input.get('image');
     if (image && (!(image instanceof File) || image.size>CHAT_IMAGE_LIMIT)) throw new Error('చిత్రం పరిమాణం ఎక్కువ · Image too large');
-    return { ...entry, image:image instanceof File && image.size>0 ? image : null };
+    const amount = input.get('membership_amount') ? z.coerce.number().int().refine(value => value === 80 || value === 100).parse(input.get('membership_amount')) : null;
+    const beneficiary = z.string().uuid().nullable().parse(input.get('beneficiary') || null);
+    return { ...entry, amount, beneficiary, image:image instanceof File && image.size>0 ? image : null };
   }).handler(async ({data,context}) => {
     const allowed = await context.supabase.rpc('can_post_chat',{...(data.post ? {_post:data.post} : {}),_other:data.receiver});
     if (allowed.error || !allowed.data) throw new Error('ముందుగా ప్రకటన గంట నొక్కండి · Ring the post bell first');
@@ -29,7 +32,24 @@ export const sendChatEntry = createServerFn({ method:'POST' }).middleware([requi
       if (path) await supabaseAdmin.storage.from('chat-images').remove([path]);
       throw new Error('వివరాలు భద్రపడలేదు · Message not saved');
     }
-    return {id:saved.data.id};
+    const admin = await context.supabase.rpc('has_role', { _user_id: data.receiver, _role: 'admin' });
+    let provisional = false;
+    if (!data.post && admin.data) {
+      let reference = paymentUtr(data.body);
+      if (!reference && path) {
+        const previous = await context.supabase.from('messages').select('body').eq('sender_id',context.userId).eq('receiver_id',data.receiver).gte('created_at',new Date(Date.now()-30*60*1000).toISOString()).order('created_at',{ascending:false}).limit(10);
+        reference = previous.data?.map(row=>paymentUtr(row.body)).find(value=>value!==null) ?? null;
+      }
+      if (reference && path) {
+        const price = data.amount ?? (await context.supabase.rpc('my_membership_price')).data ?? 100;
+        const grant = await supabaseAdmin.rpc('register_membership_evidence', { _payer: context.userId, _user: data.beneficiary ?? context.userId, _amount: price, _reference: reference, _message: saved.data.id });
+        if (grant.error) throw new Error('చెల్లింపు ఆధారం పరిశీలనలో ఉంది. అడ్మిన్ తో చాట్ చేయండి.');
+        provisional = true;
+      } else if (reference) {
+        await supabaseAdmin.from('messages').insert({ sender_id: data.receiver, receiver_id: context.userId, body: 'దయచేసి స్క్రీన్ షాట్ కూడా పంపండి', is_auto: true });
+      }
+    }
+    return {id:saved.data.id, provisional};
   });
 
 export const viewChatImage = createServerFn({method:'POST'}).middleware([requireSupabaseAuth])

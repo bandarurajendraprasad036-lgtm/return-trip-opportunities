@@ -2285,6 +2285,13 @@ export type Database = {
       my_post_quota99: { Args: never; Returns: Json }
       my_prime99: { Args: never; Returns: Json }
       my_program_referrals: { Args: never; Returns: Json }
+      my_referral_payment_requests: {
+        Args: never
+        Returns: {
+          joined_at: string
+          joined_user: string
+        }[]
+      }
       my_referral_stats: { Args: never; Returns: Json }
       my_referral_vip: { Args: never; Returns: Json }
       next_notice_open: {

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import { PostCard, type Post } from '@/components/PostCard';
 import { supabase } from '@/integrations/supabase/client';
 vi.mock('@tanstack/react-router',()=>({useNavigate:()=>vi.fn()}));
@@ -13,37 +13,29 @@ vi.mock('@/components/BellPaymentNotice',()=>({BellPaymentNotice:()=>null}));
 afterEach(cleanup);
 describe('post contact disclosure',()=>{
   const post={id:'post',user_id:'owner',module:'job',status:'active',skill:'Driver',title:'Private name',location:'Hyderabad',salary:'15000',show_contact:true,public_brand:'Consented name',public_photo:'https://example.com/private-photo.jpg',contact_phone:'9876543210'} as Post;
-  it('keeps contact and photo hidden even after opening details with sharing enabled',async()=>{
+  it('keeps contact and photo hidden in display-only listings even with sharing enabled',async()=>{
     render(<PostCard post={post} meId="member" />);
     expect(screen.queryByText('9876543210')).toBeNull();
     expect(screen.queryByText('Consented name')).toBeNull();
-    fireEvent.click(screen.getByRole('button',{name:'వివరాలు · Details'}));
-    await screen.findByRole('dialog');
     expect(screen.queryByText('9876543210')).toBeNull();
     expect(screen.queryByText('Consented name')).toBeNull();
     expect(document.querySelector('img')).toBeNull();
     expect(document.querySelector('a[href^="tel:"]')).toBeNull();
   });
-  it('never reveals contact without sharing consent even after details',async()=>{
+  it('never reveals contact without sharing consent',async()=>{
     render(<PostCard post={{...post,show_contact:false}} meId="member" />);
-    fireEvent.click(screen.getByRole('button',{name:'వివరాలు · Details'}));
-    await screen.findByRole('dialog');
     expect(screen.queryByText('9876543210')).toBeNull();
     expect(screen.queryByText('Consented name')).toBeNull();
   });
-  it('sends a paid bell only for the selected post without a nearby broadcast',async()=>{
+  it('never requests interest or broadcasts from a display-only vehicle listing',async()=>{
     vi.mocked(supabase.rpc).mockClear();
     vi.mocked(supabase.rpc).mockResolvedValueOnce({data:true,error:null} as never).mockResolvedValueOnce({data:'owner',error:null} as never);
     render(<PostCard post={{...post,module:'vehicle',vehicle_type:'car'}} meId="member" />);
-    fireEvent.click(screen.getByRole('button',{name:'గంట · Bell'}));
-    await vi.waitFor(()=>expect(supabase.rpc).toHaveBeenCalledWith('ring_post',{_post_id:'post'}));
-    expect(vi.mocked(supabase.rpc).mock.calls.map(call=>call[0])).toEqual(['has_paid_bell','ring_post']);
+    expect(supabase.rpc).not.toHaveBeenCalled();
   });
   it('never sends interest for an unconfirmed payment',async()=>{
     vi.mocked(supabase.rpc).mockClear();vi.mocked(supabase.rpc).mockResolvedValueOnce({data:false,error:null} as never);
     render(<PostCard post={post} meId="member" />);
-    fireEvent.click(screen.getByRole('button',{name:'గంట · Bell'}));
-    await vi.waitFor(()=>expect(supabase.rpc).toHaveBeenCalledWith('has_paid_bell',{_user:'member'}));
-    expect(vi.mocked(supabase.rpc).mock.calls.map(call=>call[0])).toEqual(['has_paid_bell']);
+    expect(supabase.rpc).not.toHaveBeenCalled();
   });
 });

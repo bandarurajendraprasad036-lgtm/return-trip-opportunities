@@ -5,7 +5,7 @@ describe('November twelve confirmed rules', () => {
   it('lasts one payment anchored month', () => expect(MEMBERSHIP_MONTHS).toBe(1));
   it('does not delay confirmed bell eligibility', () => expect(ALERT_DELAY_DAYS).toBe(0));
   it('charges 49 for each additional post', () => expect(EXTRA_POST_AMOUNT).toBe(49));
-  it('uses the verified 49 discount', () => expect(DISCOUNT_AMOUNT).toBe(49));
+  it('uses the reviewed 80 discount', () => expect(DISCOUNT_AMOUNT).toBe(80));
   it('keeps three free posts', () => expect(FREE_POSTS).toBe(3));
   const contacts = Array.from({ length: 20 }, (_, i) => ({ town: 'Town', service: 'Plumber', mobile: String(9000000000 + i), consent: true }));
   it('requires at least twenty genuine consented distinct contacts', () => { expect(validProviderContacts(contacts)).toBe(true); expect(validProviderContacts(contacts.slice(1))).toBe(false); expect(validProviderContacts(contacts.map((r, i) => i === 0 ? { ...r, consent: false } : r))).toBe(false); expect(validProviderContacts(contacts.map(r => ({ ...r, mobile: '9000000000' })))).toBe(false); });

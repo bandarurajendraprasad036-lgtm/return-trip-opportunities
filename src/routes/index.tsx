@@ -12,7 +12,7 @@ import mataIvory from "@/assets/gayatri-bell-ivory-daily.jpg";
 import { dailyDevotionalIndex, devotionalFallback, indianDay } from "@/lib/daily-devotional";
 import { DesignFooter } from "@/components/DesignFooter";
 import { SharingImage } from "@/components/SharingImage";
-import { InstallButton } from "@/components/AppHelpers";
+import { AdminChatButton } from "@/components/AdminChatButton";
 import { BellJoin } from "@/components/BellJoin";
 import { DailyWelcome } from "@/components/DailyWelcome";
 import { ResponsibilityNotice } from "@/components/ResponsibilityNotice";
@@ -76,9 +76,7 @@ function Index() {
         <BellJoin>
           <img key={day} src={[mata, mataGreen, mataIvory][devotional]} alt="గాయత్రి మాత చెక్కిన బంగారు గుడి గంట · Gayatri Mata engraved gold temple bell" className="home-engraved-bell" width={768} height={768} onError={event => { const el = event.currentTarget; const tried = (el.dataset["tried"] ?? "").split("|").filter(Boolean); const next = devotionalFallback(el.src, [mata, mataGreen, mataIvory], devotional, tried); if (next) { el.dataset["tried"] = [...tried, el.src].join("|"); el.src = next; } else el.style.visibility = "hidden"; }} />
         </BellJoin>
-        <div className="mt-2 flex items-center justify-center gap-3">
-          <InstallButton compact remind />
-        </div>
+
         <p className="text-center text-base opacity-90">మన ఊరు · మన బండి · మన పని</p>
         <DailyWelcome />
       </section>
@@ -101,6 +99,7 @@ function Index() {
         </Button>
         <Button asChild variant="outline" className="w-full"><Link to="/admin-login">నిర్వాహక ప్రవేశం · Admin login</Link></Button>
       </section>
+      <div className="px-4 py-3"><AdminChatButton /></div>
       <ResponsibilityNotice />
       <DesignFooter />
     </div>
