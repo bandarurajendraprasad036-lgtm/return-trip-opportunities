@@ -3,7 +3,7 @@ import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 import { z } from 'zod';
 import { chatEntrySchema, CHAT_IMAGE_LIMIT, validChatImage } from '@/lib/chat-rules';
 import { paymentUtr } from '@/lib/november-profile';
-import { payerUpiSchema, paymentImageDecision, paymentImageFeedback, type PaymentReading } from '@/lib/payment-image';
+import { payerUpiSchema, paymentImageDecision, paymentImageFeedback, resolvePaymentPayer, type PaymentReading } from '@/lib/payment-image';
 
 export const sendChatEntry = createServerFn({ method:'POST' }).middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => {
@@ -14,7 +14,7 @@ export const sendChatEntry = createServerFn({ method:'POST' }).middleware([requi
     const amount = input.get('membership_amount') ? z.coerce.number().int().refine(value => value === 80 || value === 100).parse(input.get('membership_amount')) : null;
     const beneficiary = z.string().uuid().nullable().parse(input.get('beneficiary') || null);
     const payerUpi = input.get('payer_upi') ? payerUpiSchema.parse(input.get('payer_upi')) : null;
-    if (amount && (!payerUpi || !(image instanceof File) || !image.size || !paymentUtr(entry.body))) throw new Error('లావాదేవీ సంఖ్య, మీ చెల్లింపు చిరునామా, స్క్రీన్ షాట్ తప్పనిసరి');
+    if (amount && (!(image instanceof File) || !image.size || !paymentUtr(entry.body))) throw new Error('12 అంకెల లావాదేవీ సంఖ్య, స్క్రీన్ షాట్ ఇవ్వండి');
     return { ...entry, amount, beneficiary, payerUpi, image:image instanceof File && image.size>0 ? image : null };
   }).handler(async ({data,context}) => {
     const allowed = await context.supabase.rpc('can_post_chat',{...(data.post ? {_post:data.post} : {}),_other:data.receiver});
@@ -30,7 +30,6 @@ export const sendChatEntry = createServerFn({ method:'POST' }).middleware([requi
       if (!validChatImage(bytes,data.image.type)) throw new Error('సరైన చిత్రం ఎంచుకోండి · Invalid image');
       // Only explicitly submitted payment evidence is read; ordinary chat images stay untouched.
       if (!data.post && receivingAdmin.data && paymentUtr(data.body)) {
-        if (!data.payerUpi) throw new Error('మీ చెల్లింపు చిరునామా కూడా ఇవ్వండి');
         try {
           const { readPaymentImage } = await import('@/lib/payment-reading.server');
           reading = await readPaymentImage(bytes, data.image.type);
@@ -56,9 +55,10 @@ export const sendChatEntry = createServerFn({ method:'POST' }).middleware([requi
         reference = previous.data?.map(row=>paymentUtr(row.body)).find(value=>value!==null) ?? null;
       }
       if (reference && path) {
-        if (!reading || !data.payerUpi) throw new Error('లావాదేవీ సంఖ్య, మీ చెల్లింపు చిరునామాతో స్క్రీన్ షాట్ మళ్లీ పంపండి');
-        const decision=paymentImageDecision(reference,data.payerUpi,reading);
-        const check=await supabaseAdmin.from('payment_image_checks').insert({message_id:saved.data.id,payer_id:context.userId,entered_upi:data.payerUpi,observed_upi:reading.payer_upi,observed_utr:reading.utr,match_status:decision});
+        if (!reading) throw new Error('లావాదేవీ సంఖ్యతో స్క్రీన్ షాట్ మళ్లీ పంపండి');
+        const payerUpi = resolvePaymentPayer(data.payerUpi, reading);
+        const decision=payerUpi ? paymentImageDecision(reference,payerUpi,reading) : 'unreadable';
+        const check=await supabaseAdmin.from('payment_image_checks').insert({message_id:saved.data.id,payer_id:context.userId,entered_upi:payerUpi ?? '',observed_upi:reading.payer_upi,observed_utr:reading.utr,match_status:decision});
         if(check.error) throw new Error('చిత్రం పరిశీలన భద్రపడలేదు; మళ్లీ ప్రయత్నించండి');
         if(decision!=='matched') {
           const feedback=paymentImageFeedback(decision);
