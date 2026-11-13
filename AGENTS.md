@@ -48,7 +48,7 @@
 - Vehicle contact surfaces reuse the shared responsibility notice; compact bells show it before interest submission without implying a confirmed booking.
 - Search examples are separate presentation-only objects without post or user IDs; their bells never call interest or booking APIs.
 - Historical payment records remain read/review compatible; new direct-referral receipts use an admin-authorized atomic cash-prize ledger to prevent client awards and duplicate receipts.
-- Payment preview/submission share a server-only reader; submission rechecks original UTR/payer-UPI/recipient before provisional posting, never admin roles. Preserve private checks, retry deduplication and admin-confirmed fraud revocation; suspicion never bans, only review records cash.
+- Payment uses one server reader, admin-only evidence signing, neutral pending status and a server posting hold for unmatched evidence; paid acknowledgement is not proof. Preserve existing access, free quotas, retry deduplication and admin fraud review to avoid false bans.
 - Sharing evidence uses owner-checked server hashing with atomic digest registration, admin-only short-lived signing and existing managed dispatch cleanup; review decisions notify the owner transactionally.
 - Chat attachments use authenticated server validation, private storage and participant-checked short-lived signing; post conversations require bell-created pair rows, backfilled only for historical owner/member conversations to preserve privacy.
 - Listing cards/details stay anonymous; confirmed full-price bells create exact-owner pairs, and current full-price eligibility gates ordinary chat writes while admin evidence/support stays accessible.

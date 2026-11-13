@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const { generateResponse } = vi.hoisted(()=>({generateResponse:vi.fn()}));
 vi.mock('@lovable.dev/ai-gateway',()=>({generateResponse}));
 import { readPaymentImage } from '@/lib/payment-reading.server';
-const reading={utr:'412345678901',payer_upi:'payer@ybl',recipient_upi:'bandarurajendraprasad036@okhdfcbank',readable:true,suspected_edit:false};
+const reading={utr:'412345678901',payer_upi:'payer@ybl',recipient_upi:'bandarurajendraprasad036@oksbi',readable:true,suspected_edit:false};
 function respond(value:typeof reading){generateResponse.mockResolvedValue({output:[{type:'message',content:[{type:'output_text',text:JSON.stringify(value)}]}]});}
 describe('payment image recipient and independent reading',()=>{
   beforeEach(()=>{generateResponse.mockReset();});

@@ -14,6 +14,7 @@ import { ProgramEvidence } from '@/components/ProgramEvidence';
 import { sendChatEntry, viewChatImage, deleteChatEntry } from '@/lib/chat-upload.functions';
 import { CHAT_IMAGE_LIMIT, chatEntrySchema } from '@/lib/chat-rules';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { hidePaymentEvidence } from '@/lib/payment-status';
 
 export const Route = createFileRoute("/_authenticated/chat/$userId")({
   validateSearch: (search: Record<string, unknown>): { post?: string | undefined } => ({ post: typeof search["post"] === "string" && z.string().uuid().safeParse(search["post"]).success ? search["post"] : undefined }),
@@ -134,6 +135,8 @@ function Chat() {
         {msgs.length === 0 && <p className="pt-10 text-center text-muted-foreground">నమస్కారం చెప్పండి 🙏 Say hello</p>}
         {msgs.map((m) => {
           const mine = m.sender_id === me?.id;
+          const paymentHidden=hidePaymentEvidence(m.body,userId===adminId,me?.isAdmin===true);
+          if(paymentHidden)return <p key={m.id} role="status">చెల్లింపు పరిశీలనలో ఉంది</p>;
           return (
             <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
               <div className={`max-w-[80%] space-y-2 break-words rounded-2xl px-3 py-2 text-base ${mine ? "bg-primary text-primary-foreground" : "bg-card shadow-card"}`}>

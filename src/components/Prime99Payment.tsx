@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { PaymentScanner } from '@/components/PaymentScanner';
 import { MembershipEvidenceForm } from '@/components/MembershipEvidenceForm';
 export function Prime99Payment({bellPayment=false}:{bellPayment?:boolean}) {
- const {data:me}=useMe();const {data:prime}=usePrime99(me?.id);const [discount,setDiscount]=useState(false);
+ const {data:me}=useMe();const {data:prime}=usePrime99(me?.id);const [discount,setDiscount]=useState(false);const [paidFor,setPaidFor]=useState<number|null>(null);
  const price=useQuery({queryKey:['membership-price',me?.id],enabled:!!me,queryFn:async()=>{const r=await supabase.rpc('my_membership_price');if(r.error)throw r.error;return r.data;}});
  const quota=useQuery({queryKey:['post-quota99',me?.id],enabled:!!me,queryFn:async()=>{const r=await supabase.rpc('my_post_quota99');if(r.error)throw r.error;return r.data as {used:number;limit:number};}});
  if(!me)return null; const amount=discount?80:100;
@@ -18,5 +18,5 @@ export function Prime99Payment({bellPayment=false}:{bellPayment?:boolean}) {
  <h3 className="font-bold">గమనిక - దయచేసి చదవండి:</h3><p>డబ్బు కట్టినంత మాత్రాన మీకు కస్టమర్ వస్తాడని గ్యారెంటీ లేదు.</p><p>మరి ఈ ₹100 ఎందుకు తీసుకుంటున్నామంటే - మీరు ఎప్పుడైనా కూడా ఎక్కడెక్కడ బండ్లు ఎక్కడికి వెళ్తున్నాయి, ఎలా వెళ్తున్నాయి - అన్నీ A to Z చూసుకునేందుకు, ప్లస్ ఎక్కడెక్కడ జాబ్స్ ఉన్నాయి - టోటల్ చూసుకునేందుకు, మీకు సంబంధించిన జాబ్ వస్తే నోటిఫికేషన్ ఆటోమేటిక్ గా వస్తుందని తెలిపేందుకు మాత్రమే ఈ ₹100 తీసుకుంటున్నాము.</p><p>ఈ ₹100 కేవలం ఒక నెల మీ ప్రకటన ఖర్చులు, మా కంపెనీ ఖర్చుల కోసం మాత్రమే. సేవా భావంతో తీసుకుంటున్నాము తప్ప వేరే ఏమీ లేదు, లాభాలు ఆశించి కాదు.</p>
  {!bellPayment&&<div className="grid grid-cols-2 gap-2"><Button className="h-auto whitespace-normal" variant={!discount?'default':'outline'} onClick={()=>setDiscount(false)}>ప్రైమ్ అవ్వండి - ₹100 కట్టండి / Become Prime</Button><Button className="h-auto whitespace-normal" variant={discount?'default':'outline'} disabled={price.data!==80} onClick={()=>setDiscount(true)}>రిఫరల్ పేమెంట్ ₹80</Button></div>}
  {discount&&<p className="text-sm">ఇది రిఫరల్ సర్వీస్ ప్రొవైడర్స్ ని రిఫర్ చేసిన వారి పేమెంట్. మీకు తెలిసిన ఎలక్ట్రిషియన్, ప్లంబర్ లాంటి వారిని రిఫర్ చేస్తే ₹80 కట్టండి.</p>}
- <PaymentScanner amount={amount}/><MembershipEvidenceForm amount={amount}/></section>;
+ <PaymentScanner amount={amount} onPaid={()=>setPaidFor(amount)}/>{paidFor===amount&&<MembershipEvidenceForm key={`${me.id}-${amount}`} amount={amount}/>}</section>;
 }

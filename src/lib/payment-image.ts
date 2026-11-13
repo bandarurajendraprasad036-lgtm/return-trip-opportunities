@@ -9,7 +9,5 @@ export function paymentImageDecision(utr: string, upi: string, reading: PaymentR
   return reading.utr === utr && reading.payer_upi.trim().toLowerCase() === upi.trim().toLowerCase() ? 'matched' : 'mismatch';
 }
 export function paymentImageFeedback(status: string) {
-  if (status === 'suspected_edit') return 'మీ స్క్రీన్ షాట్ ఎడిట్ చేసినట్టు అనిపిస్తుంది, దయచేసి కరెక్ట్ స్క్రీన్ షాట్ ఇవ్వండి';
-  if (status === 'unreadable') return 'మీ స్క్రీన్ షాట్ లో వివరాలు స్పష్టంగా కనిపించలేదు, మళ్ళీ ఒకసారి అప్లోడ్ చేయండి';
-  return 'Transaction ID తప్పుగా ఉంది. మళ్ళీ సరిగ్గా చెక్ చేసి పెట్టండి. తప్పుడు వివరాలు పెడితే మీ అకౌంట్ Block చేయడం జరుగుతుంది.';
+  return status === 'matched' ? '' : 'చెల్లింపు పరిశీలనలో ఉంది';
 }

@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { JOB_CATEGORIES } from "@/lib/jobs";
 import { z } from "zod";
@@ -28,6 +28,8 @@ import { IndiaPlaceInput } from '@/components/IndiaPlaceInput';
 import { RoutePointPicker } from '@/components/RoutePointPicker';
 import type { Coordinates } from '@/lib/india-places';
 import { PostSubmissionNotice } from '@/components/PostSubmissionNotice';
+import { usePrime99 } from '@/lib/prime99';
+import { paymentPostingHeld } from '@/lib/payment-status';
 
 function AiJobAd({ kind, onDraft, work }: { kind: "seeker" | "employer"; onDraft: (d: JobAdDraft) => void; work: string }) {
   const run = useServerFn(draftJobAd);
@@ -124,6 +126,9 @@ const txt = (max: number) => z.string().trim().min(1, "అవసరం / Require
 function NewPost() {
   const search = Route.useSearch();
   const { data: me } = useMe();
+  const { data: prime } = usePrime99(me?.id);
+  const { data: paymentPending } = useQuery({queryKey:['payment-verification-pending',me?.id],enabled:!!me,refetchInterval:10000,queryFn:async()=>{const result=await supabase.rpc('my_payment_verification_pending');if(result.error)throw result.error;return result.data;}});
+  const paymentHeld=paymentPostingHeld(prime?.active===true,paymentPending);
   const { data: program, isLoading: programLoading } = useAccountProgram(me?.id);
   const nav = useNavigate();
   const qc = useQueryClient();
@@ -173,7 +178,7 @@ function NewPost() {
 
   const submit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
-    if (busy) return;
+    if (busy || paymentHeld) return;
     if (!me) return;
     if (!program) { toast.error("ముందుగా వివరాలు నింపండి · Complete profile first"); return; }
     const schema = isJob
@@ -268,7 +273,8 @@ function NewPost() {
         <Textarea value={f["description"] ?? ""} onChange={set("description")} maxLength={500} className="text-base" />
       </div>
       {contentError && <p role="alert" className="break-words border border-destructive bg-card p-3 text-destructive">{contentError}</p>}
-      <Button type="submit" variant="secondary" size="xl" className="w-full" disabled={busy}>
+      {paymentHeld&&<p role="status">చెల్లింపు పరిశీలనలో ఉంది</p>}
+      <Button type="submit" variant="secondary" size="xl" className="w-full" disabled={busy || paymentHeld}>
         {busy ? "..." : "పోస్ట్ చేయండి · Post"}
       </Button>
     </form>

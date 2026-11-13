@@ -2558,6 +2558,7 @@ export type Database = {
       my_goods_membership: { Args: never; Returns: boolean }
       my_membership_price: { Args: never; Returns: number }
       my_notification_quota: { Args: never; Returns: Json }
+      my_payment_verification_pending: { Args: never; Returns: boolean }
       my_post_quota99: { Args: never; Returns: Json }
       my_prime99: { Args: never; Returns: Json }
       my_program_referrals: { Args: never; Returns: Json }

@@ -1,0 +1,6 @@
+CREATE FUNCTION public.my_payment_verification_pending() RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT auth.uid() IS NOT NULL AND NOT public.has_paid_bell(auth.uid()) AND COALESCE((SELECT match_status<>'matched' FROM public.payment_image_checks WHERE payer_id=auth.uid() ORDER BY created_at DESC,message_id DESC LIMIT 1),false) $$;
+REVOKE ALL ON FUNCTION public.my_payment_verification_pending() FROM PUBLIC,anon;
+GRANT EXECUTE ON FUNCTION public.my_payment_verification_pending() TO authenticated,service_role;
+CREATE FUNCTION public.hold_unmatched_payment_post() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ BEGIN IF NOT public.has_paid_bell(NEW.user_id) AND COALESCE((SELECT match_status<>'matched' FROM public.payment_image_checks WHERE payer_id=NEW.user_id ORDER BY created_at DESC,message_id DESC LIMIT 1),false) THEN RAISE EXCEPTION 'PAYMENT_VERIFICATION_PENDING'; END IF; RETURN NEW; END $$;
+REVOKE ALL ON FUNCTION public.hold_unmatched_payment_post() FROM PUBLIC,anon,authenticated;
+CREATE TRIGGER b_payment_verification_post_hold BEFORE INSERT ON public.posts FOR EACH ROW EXECUTE FUNCTION public.hold_unmatched_payment_post();

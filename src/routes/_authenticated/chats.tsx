@@ -7,6 +7,7 @@ import { useMe } from "@/lib/session";
 import { AdminChatButton } from "@/components/AdminChatButton";
 import { replyGroupKey } from "@/lib/vehicle-experience";
 import { Button } from "@/components/ui/button";
+import { hidePaymentEvidence } from '@/lib/payment-status';
 
 export const Route = createFileRoute("/_authenticated/chats")({
   head: () => ({
@@ -33,6 +34,8 @@ function Chats() {
       if (!me) return [];
       const { data, error } = await supabase.from("messages").select("*").order("created_at", { ascending: false }).limit(500);
       if (error) throw error;
+      const admin=await supabase.rpc('support_admin_id');if(admin.error)throw admin.error;
+      for(const message of data){if(hidePaymentEvidence(message.body,message.sender_id===admin.data||message.receiver_id===admin.data,me.isAdmin)){message.body='చెల్లింపు పరిశీలనలో ఉంది';message.image_path='';}}
       const ids = [...new Set(data.map(m => m.sender_id === me.id ? m.receiver_id : m.sender_id))];
       const { data: profiles, error: profileError } = ids.length ? await supabase.from("service_profiles").select("user_id, display_name").eq("published", true).in("user_id", ids) : { data: [], error: null };
       if (profileError) throw profileError;

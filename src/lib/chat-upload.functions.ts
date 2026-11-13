@@ -61,12 +61,7 @@ export const sendChatEntry = createServerFn({ method:'POST' }).middleware([requi
         const check=await supabaseAdmin.from('payment_image_checks').insert({message_id:saved.data.id,payer_id:context.userId,entered_upi:data.payerUpi,observed_upi:reading.payer_upi,observed_utr:reading.utr,match_status:decision});
         if(check.error) throw new Error('చిత్రం పరిశీలన భద్రపడలేదు; మళ్లీ ప్రయత్నించండి');
         if(decision!=='matched') {
-          let feedback=paymentImageFeedback(decision);
-          if(decision==='suspected_edit') {
-            const prior=await context.supabase.from('payment_image_checks').select('message_id').eq('payer_id',context.userId).eq('match_status','suspected_edit').neq('message_id',saved.data.id).limit(1);
-            if(prior.error) throw new Error('పాత హెచ్చరిక వివరాలు రాలేదు; మళ్లీ ప్రయత్నించండి');
-            if(prior.data?.length) feedback='మీ స్క్రీన్ షాట్ మళ్లీ ఎడిట్ చేసినట్టు అనిపిస్తుంది. నిర్వాహకుడు పరిశీలిస్తారు; నిర్ధారిస్తే మీ ఖాతా నిలిపివేస్తాం.';
-          }
+          const feedback=paymentImageFeedback(decision);
           return {id:saved.data.id,provisional:false,membershipStatus:null,feedback};
         }
         const price = data.amount ?? (await context.supabase.rpc('my_membership_price')).data ?? 100;
@@ -90,8 +85,9 @@ export const viewChatImage = createServerFn({method:'POST'}).middleware([require
     const row=await context.supabase.from('messages').select('image_path,sender_id,receiver_id').eq('id',data.message).maybeSingle();
     if (row.error || !row.data?.image_path) throw new Error('చిత్రం అందుబాటులో లేదు · Image unavailable');
     const participant = [row.data.sender_id,row.data.receiver_id].includes(context.userId);
-    const role = participant ? { data: false } : await context.supabase.rpc('has_role',{_user_id:context.userId,_role:'admin'});
+    const role = await context.supabase.rpc('has_role',{_user_id:context.userId,_role:'admin'});
     if (!participant && !role.data) throw new Error('చిత్రం అందుబాటులో లేదు · Image unavailable');
+    if(!role.data){const check=await context.supabase.from('payment_image_checks').select('message_id').eq('message_id',data.message).maybeSingle();if(check.error||check.data)throw new Error('చెల్లింపు పరిశీలనలో ఉంది');}
     const signer = participant ? context.supabase : (await import('@/integrations/supabase/client.server')).supabaseAdmin;
     const signed=await signer.storage.from('chat-images').createSignedUrl(row.data.image_path,60);
     if(signed.error || !signed.data?.signedUrl) throw new Error('చిత్రం తెరవలేకపోయాం · Image unavailable');
