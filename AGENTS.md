@@ -48,7 +48,7 @@
 - Vehicle contact surfaces reuse the shared responsibility notice; compact bells show it before interest submission without implying a confirmed booking.
 - Search examples are separate presentation-only objects without post or user IDs; their bells never call interest or booking APIs.
 - Historical payment records remain read/review compatible; new direct-referral receipts use an admin-authorized atomic cash-prize ledger to prevent client awards and duplicate receipts.
-- Screenshot+UTR submissions use server-validated private evidence and revocable provisional access; only admin review records cash, preserving historical receipts.
+- Screenshot+UTR retries reuse owner-bound locked requests and never renew access or duplicate cash; rejected proofs may reopen for admin review without restoring revoked access. Only review records cash.
 - Sharing evidence uses owner-checked server hashing with atomic digest registration, admin-only short-lived signing and existing managed dispatch cleanup; review decisions notify the owner transactionally.
 - Chat attachments use authenticated server validation, private storage and participant-checked short-lived signing; post conversations require bell-created pair rows, backfilled only for historical owner/member conversations to preserve privacy.
 - Listing cards/details stay anonymous; confirmed full-price bells create exact-owner pairs, and current full-price eligibility gates ordinary chat writes while admin evidence/support stays accessible.

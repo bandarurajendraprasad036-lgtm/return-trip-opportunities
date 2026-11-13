@@ -20,7 +20,7 @@ beforeAll(async()=>{
  CREATE TABLE monthly_post_periods(user_id uuid PRIMARY KEY,starts_at timestamptz,ends_at timestamptz);
  CREATE TABLE monthly_post_usage(post_id uuid PRIMARY KEY,user_id uuid,used_at timestamptz DEFAULT now());
  CREATE TABLE vehicle_route_preferences(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),user_id uuid,from_place text,to_place text,enabled boolean DEFAULT true);
- `);await db.exec(readFileSync('drizzle/migrations/0058_provisional_membership_review_and_route_details.sql','utf8'));
+ `);await db.exec(readFileSync('drizzle/migrations/0058_provisional_membership_review_and_route_details.sql','utf8'));await db.exec(readFileSync('drizzle/migrations/0070_idempotent_membership_evidence_retry.sql','utf8'));
 },30000);
 afterAll(async()=>{await db.close();});
 it('requires a participant-owned image and rejects UTR alone',async()=>{
@@ -69,4 +69,28 @@ it('routes store the actual vehicle and tonnes, allow multiple routes, and rejec
  await db.exec(`SELECT set_config('test.user','${member}',false)`);await db.query(`SELECT save_detailed_vehicle_route('మంచిర్యాల','హైదరాబాద్','Mini Truck',3)`);await db.query(`SELECT save_detailed_vehicle_route('మంచిర్యాల','విజయవాడ','Truck',5)`);
  expect((await db.query<{vehicle_type:string;capacity_tons:number}>(`SELECT vehicle_type,capacity_tons FROM vehicle_route_preferences ORDER BY capacity_tons`)).rows).toEqual([{vehicle_type:'Mini Truck',capacity_tons:3},{vehicle_type:'Truck',capacity_tons:5}]);
  await expect(db.query(`SELECT save_detailed_vehicle_route('A','B','Truck',4)`)).rejects.toThrow('ROUTE_DETAILS_REQUIRED');
+});
+it('same rejected UTR reopens review with latest screenshot but does not restore revoked Prime',async()=>{
+ await db.exec(`INSERT INTO messages(id,sender_id,receiver_id,image_path) VALUES('cccccccc-cccc-4ccc-8ccc-cccccccccccc','${member}','${admin}','${member}/corrected.png');`);
+ await db.query(`SELECT register_membership_evidence('${member}','${member}',100,'412345678901','cccccccc-cccc-4ccc-8ccc-cccccccccccc')`);
+ expect((await db.query<{status:string;message_id:string}>(`SELECT status,message_id FROM membership_requests WHERE reference='412345678901'`)).rows[0]).toEqual({status:'pending',message_id:'cccccccc-cccc-4ccc-8ccc-cccccccccccc'});
+ expect((await db.query<{ok:boolean}>(`SELECT has_paid_bell('${member}') ok`)).rows[0]?.ok).toBe(false);
+ expect((await db.query<{n:number}>(`SELECT count(*)::int n FROM membership_access WHERE user_id='${member}'`)).rows[0]?.n).toBe(1);
+});
+it('same pending sponsored UTR is retryable even after the referral request exists',async()=>{
+ await db.exec(`INSERT INTO referral_vip_joins VALUES('${admin}','${other}');`);
+ await db.query(`SELECT register_membership_evidence('${other}','${admin}',80,'412345678903','bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb')`);
+ await db.query(`SELECT register_membership_evidence('${other}','${admin}',80,'412345678903','bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb')`);
+ expect((await db.query<{n:number}>(`SELECT count(*)::int n FROM membership_access WHERE user_id='${admin}'`)).rows[0]?.n).toBe(1);
+});
+it('admin approval activates one month and approved UTR retries never extend it or repeat cash',async()=>{
+ await db.exec(`SELECT set_config('test.user','${admin}',false)`);
+ await db.query(`SELECT review_membership_evidence((SELECT id FROM membership_requests WHERE reference='412345678901'),true)`);
+ const before=(await db.query<{ends_at:Date}>(`SELECT ends_at FROM membership_access WHERE user_id='${member}'`)).rows[0]?.ends_at;
+ expect((await db.query<{ok:boolean}>(`SELECT has_paid_bell('${member}') ok`)).rows[0]?.ok).toBe(true);
+ expect((await db.query<{ok:boolean}>(`SELECT ends_at=starts_at+interval '1 month' ok FROM membership_access WHERE user_id='${member}'`)).rows[0]?.ok).toBe(true);
+ await db.query(`SELECT register_membership_evidence('${member}','${member}',100,'412345678901','cccccccc-cccc-4ccc-8ccc-cccccccccccc')`);
+ expect((await db.query<{status:string}>(`SELECT status FROM membership_requests WHERE reference='412345678901'`)).rows[0]?.status).toBe('approved');
+ expect((await db.query<{ends_at:Date}>(`SELECT ends_at FROM membership_access WHERE user_id='${member}'`)).rows[0]?.ends_at).toEqual(before);
+ expect((await db.query<{n:number}>(`SELECT count(*)::int n FROM referral_cash_receipts WHERE reference='412345678901'`)).rows[0]?.n).toBe(1);
 });

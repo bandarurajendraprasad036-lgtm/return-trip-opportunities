@@ -34,6 +34,7 @@ export const sendChatEntry = createServerFn({ method:'POST' }).middleware([requi
     }
     const admin = await context.supabase.rpc('has_role', { _user_id: data.receiver, _role: 'admin' });
     let provisional = false;
+    let membershipStatus: string | null = null;
     if (!data.post && admin.data) {
       let reference = paymentUtr(data.body);
       if (!reference && path) {
@@ -43,13 +44,17 @@ export const sendChatEntry = createServerFn({ method:'POST' }).middleware([requi
       if (reference && path) {
         const price = data.amount ?? (await context.supabase.rpc('my_membership_price')).data ?? 100;
         const grant = await supabaseAdmin.rpc('register_membership_evidence', { _payer: context.userId, _user: data.beneficiary ?? context.userId, _amount: price, _reference: reference, _message: saved.data.id });
-        if (grant.error) throw new Error('చెల్లింపు ఆధారం పరిశీలనలో ఉంది. అడ్మిన్ తో చాట్ చేయండి.');
-        provisional = true;
+        if (grant.error && !grant.error.message.includes('REVIEW_PENDING')) throw new Error('చెల్లింపు ఆధారం నమోదు కాలేదు. అడ్మిన్ తో చాట్ చేయండి.');
+        const request = await context.supabase.from('membership_requests').select('status').eq('payer_id',context.userId).eq('user_id',data.beneficiary ?? context.userId)
+          .eq(grant.data ? 'id' : 'status', grant.data ?? 'pending').order('submitted_at',{ascending:false}).limit(1).maybeSingle();
+        if (request.error || !request.data) throw new Error('చెల్లింపు పరిశీలన వివరాలు రాలేదు. మళ్లీ చూడండి.');
+        membershipStatus = request.data.status;
+        provisional = membershipStatus === 'pending';
       } else if (reference) {
         await supabaseAdmin.from('messages').insert({ sender_id: data.receiver, receiver_id: context.userId, body: 'దయచేసి స్క్రీన్ షాట్ కూడా పంపండి', is_auto: true });
       }
     }
-    return {id:saved.data.id, provisional};
+    return {id:saved.data.id, provisional, membershipStatus};
   });
 
 export const viewChatImage = createServerFn({method:'POST'}).middleware([requireSupabaseAuth])
