@@ -195,7 +195,9 @@ body { color-scheme: dark; letter-spacing: 0; }
   --choice-local: oklch(0.82 0.12 225);
   --choice-return: oklch(0.86 0.14 155);
   --choice-car: oklch(0.86 0.12 35);
+  --search-notice: oklch(0.72 0.2 25);
 }
+.home-search-notice { color: var(--search-notice); }
 .profile-panel { color: var(--profile-ink); background: color-mix(in oklab, var(--profile-accent) 4%, var(--royal)); }
 .profile-copy { color: var(--profile-ink); }
 .profile-panel label { color: var(--profile-accent); }
