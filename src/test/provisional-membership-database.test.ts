@@ -21,6 +21,9 @@ beforeAll(async()=>{
  CREATE TABLE monthly_post_usage(post_id uuid PRIMARY KEY,user_id uuid,used_at timestamptz DEFAULT now());
  CREATE TABLE vehicle_route_preferences(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),user_id uuid,from_place text,to_place text,enabled boolean DEFAULT true);
  `);await db.exec(readFileSync('drizzle/migrations/0058_provisional_membership_review_and_route_details.sql','utf8'));await db.exec(readFileSync('drizzle/migrations/0070_idempotent_membership_evidence_retry.sql','utf8'));
+ await db.exec(`CREATE TABLE payment_image_checks(message_id uuid,payer_id uuid,match_status text);CREATE TABLE posts(user_id uuid);`);
+ await db.exec(readFileSync('drizzle/migrations/0074_payment_photo_reference_without_ocr.sql','utf8'));
+ await db.exec(`CREATE TRIGGER require_payment_photo BEFORE INSERT OR UPDATE OF message_id ON membership_requests FOR EACH ROW EXECUTE FUNCTION require_matched_payment_image();`);
 },30000);
 afterAll(async()=>{await db.close();});
 it('requires a participant-owned image and rejects UTR alone',async()=>{
@@ -28,12 +31,21 @@ it('requires a participant-owned image and rejects UTR alone',async()=>{
  await expect(db.query(`SELECT register_membership_evidence('${member}','${member}',100,'412345678901','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa')`)).rejects.toThrow('IMAGE_REQUIRED');
  expect((await db.query<{n:number}>(`SELECT count(*)::int n FROM membership_access`)).rows[0]?.n).toBe(0);
 });
-it('UTR plus photo grants provisional access, never a confirmed receipt or cash award',async()=>{
+it('photo plus exactly 12 digits grants posting without OCR/UPI or a confirmed receipt',async()=>{
  await db.exec(`UPDATE messages SET image_path='${member}/image.png' WHERE id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';`);
  await db.query(`SELECT register_membership_evidence('${member}','${member}',100,'412345678901','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa')`);
  expect((await db.query<{source:string}>(`SELECT source FROM membership_access`)).rows).toEqual([{source:'provisional'}]);
  expect((await db.query<{ok:boolean}>(`SELECT has_paid_bell('${member}') ok`)).rows[0]?.ok).toBe(true);
  expect((await db.query<{n:number}>(`SELECT count(*)::int n FROM referral_cash_receipts`)).rows[0]?.n).toBe(0);
+ expect((await db.query<{n:number}>(`SELECT count(*)::int n FROM payment_image_checks`)).rows[0]?.n).toBe(0);
+});
+it('rejects an eleven-digit reference even with an owned photo',async()=>{
+ await expect(db.query(`SELECT register_membership_evidence('${member}','${member}',100,'41234567890','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa')`)).rejects.toThrow('INVALID_PAYMENT_EVIDENCE');
+});
+it('historical unreadable image analysis no longer holds posting',async()=>{
+ await db.exec(`INSERT INTO payment_image_checks(payer_id,match_status) VALUES('${member}','unreadable');CREATE TRIGGER old_payment_hold BEFORE INSERT ON posts FOR EACH ROW EXECUTE FUNCTION hold_unmatched_payment_post();INSERT INTO posts VALUES('${member}')`);
+ expect((await db.query<{pending:boolean}>('SELECT my_payment_verification_pending() pending')).rows[0]?.pending).toBe(false);
+ expect((await db.query<{n:number}>('SELECT count(*)::int n FROM posts')).rows[0]?.n).toBe(1);
 });
 it('duplicate UTR cannot create another access grant or be reused by another account',async()=>{
  await db.query(`SELECT register_membership_evidence('${member}','${member}',100,'412345678901','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa')`);

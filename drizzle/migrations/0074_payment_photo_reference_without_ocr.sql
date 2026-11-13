@@ -1,0 +1,8 @@
+CREATE OR REPLACE FUNCTION public.require_matched_payment_image() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ BEGIN IF NEW.reference !~ '^[0-9]{12}$' OR NOT EXISTS(SELECT 1 FROM public.messages m WHERE m.id=NEW.message_id AND m.sender_id=NEW.payer_id AND public.has_role(m.receiver_id,'admin') AND m.image_path LIKE NEW.payer_id::text||'/%') THEN RAISE EXCEPTION 'IMAGE_AND_REFERENCE_REQUIRED'; END IF; RETURN NEW; END $$;
+COMMENT ON FUNCTION public.require_matched_payment_image() IS 'Legacy name: validates owned photo and 12-digit reference only; no OCR, clarity or visual matching.';
+CREATE OR REPLACE FUNCTION public.my_payment_verification_pending() RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT false $$;
+CREATE OR REPLACE FUNCTION public.hold_unmatched_payment_post() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ BEGIN RETURN NEW; END $$;
+COMMENT ON TABLE public.payment_image_checks IS 'DEPRECATED for new submissions: historical private image analysis only; photo/reference submission no longer performs OCR or affects posting.';
+REVOKE ALL ON FUNCTION public.require_matched_payment_image(),public.hold_unmatched_payment_post() FROM PUBLIC,anon,authenticated;
+REVOKE ALL ON FUNCTION public.my_payment_verification_pending() FROM PUBLIC,anon;
+GRANT EXECUTE ON FUNCTION public.my_payment_verification_pending() TO authenticated,service_role;

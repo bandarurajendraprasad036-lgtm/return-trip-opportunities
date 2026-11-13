@@ -3,7 +3,6 @@ import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 import { z } from 'zod';
 import { chatEntrySchema, CHAT_IMAGE_LIMIT, validChatImage } from '@/lib/chat-rules';
 import { paymentUtr } from '@/lib/november-profile';
-import { payerUpiSchema, paymentImageDecision, paymentImageFeedback, resolvePaymentPayer, type PaymentReading } from '@/lib/payment-image';
 
 export const sendChatEntry = createServerFn({ method:'POST' }).middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => {
@@ -13,28 +12,19 @@ export const sendChatEntry = createServerFn({ method:'POST' }).middleware([requi
     if (image && (!(image instanceof File) || image.size>CHAT_IMAGE_LIMIT)) throw new Error('చిత్రం పరిమాణం ఎక్కువ · Image too large');
     const amount = input.get('membership_amount') ? z.coerce.number().int().refine(value => value === 80 || value === 100).parse(input.get('membership_amount')) : null;
     const beneficiary = z.string().uuid().nullable().parse(input.get('beneficiary') || null);
-    const payerUpi = input.get('payer_upi') ? payerUpiSchema.parse(input.get('payer_upi')) : null;
     if (amount && (!(image instanceof File) || !image.size || !paymentUtr(entry.body))) throw new Error('12 అంకెల లావాదేవీ సంఖ్య, స్క్రీన్ షాట్ ఇవ్వండి');
-    return { ...entry, amount, beneficiary, payerUpi, image:image instanceof File && image.size>0 ? image : null };
+    return { ...entry, amount, beneficiary, image:image instanceof File && image.size>0 ? image : null };
   }).handler(async ({data,context}) => {
     const allowed = await context.supabase.rpc('can_post_chat',{...(data.post ? {_post:data.post} : {}),_other:data.receiver});
     if (allowed.error || !allowed.data) throw new Error('ముందుగా ప్రకటన గంట నొక్కండి · Ring the post bell first');
     if (!data.body && !data.phone && !data.image) throw new Error('వివరాలు నమోదు చేయండి · Enter details');
     let path = '';
-    let reading: PaymentReading | null = null;
     const receivingAdmin = await context.supabase.rpc('has_role', { _user_id: data.receiver, _role: 'admin' });
     if (data.amount && (data.post || receivingAdmin.error || !receivingAdmin.data)) throw new Error('చెల్లింపు ఆధారం నిర్వాహకుడికే పంపాలి');
     const {supabaseAdmin} = await import('@/integrations/supabase/client.server');
     if (data.image) {
       const bytes = new Uint8Array(await data.image.arrayBuffer());
       if (!validChatImage(bytes,data.image.type)) throw new Error('సరైన చిత్రం ఎంచుకోండి · Invalid image');
-      // Only explicitly submitted payment evidence is read; ordinary chat images stay untouched.
-      if (!data.post && receivingAdmin.data && paymentUtr(data.body)) {
-        try {
-          const { readPaymentImage } = await import('@/lib/payment-reading.server');
-          reading = await readPaymentImage(bytes, data.image.type);
-        } catch { throw new Error('చిత్రం పరిశీలించలేకపోయాం. వివరాలు అలాగే ఉన్నాయి; మళ్లీ ప్రయత్నించండి.'); }
-      }
       const ext = data.image.type==='image/png'?'png':data.image.type==='image/webp'?'webp':'jpg';
       path = `${context.userId}/${crypto.randomUUID()}.${ext}`;
       const upload = await supabaseAdmin.storage.from('chat-images').upload(path,bytes,{contentType:data.image.type,upsert:false});
@@ -55,15 +45,6 @@ export const sendChatEntry = createServerFn({ method:'POST' }).middleware([requi
         reference = previous.data?.map(row=>paymentUtr(row.body)).find(value=>value!==null) ?? null;
       }
       if (reference && path) {
-        if (!reading) throw new Error('లావాదేవీ సంఖ్యతో స్క్రీన్ షాట్ మళ్లీ పంపండి');
-        const payerUpi = resolvePaymentPayer(data.payerUpi, reading);
-        const decision=payerUpi ? paymentImageDecision(reference,payerUpi,reading) : 'unreadable';
-        const check=await supabaseAdmin.from('payment_image_checks').insert({message_id:saved.data.id,payer_id:context.userId,entered_upi:payerUpi ?? '',observed_upi:reading.payer_upi,observed_utr:reading.utr,match_status:decision});
-        if(check.error) throw new Error('చిత్రం పరిశీలన భద్రపడలేదు; మళ్లీ ప్రయత్నించండి');
-        if(decision!=='matched') {
-          const feedback=paymentImageFeedback(decision);
-          return {id:saved.data.id,provisional:false,membershipStatus:null,feedback};
-        }
         const price = data.amount ?? (await context.supabase.rpc('my_membership_price')).data ?? 100;
         const grant = await supabaseAdmin.rpc('register_membership_evidence', { _payer: context.userId, _user: data.beneficiary ?? context.userId, _amount: price, _reference: reference, _message: saved.data.id });
         if (grant.error && !grant.error.message.includes('REVIEW_PENDING')) throw new Error('చెల్లింపు ఆధారం నమోదు కాలేదు. అడ్మిన్ తో చాట్ చేయండి.');
@@ -82,12 +63,17 @@ export const sendChatEntry = createServerFn({ method:'POST' }).middleware([requi
 export const viewChatImage = createServerFn({method:'POST'}).middleware([requireSupabaseAuth])
   .inputValidator((input:unknown) => z.object({message:z.string().uuid()}).parse(input))
   .handler(async ({data,context}) => {
-    const row=await context.supabase.from('messages').select('image_path,sender_id,receiver_id').eq('id',data.message).maybeSingle();
+    const row=await context.supabase.from('messages').select('image_path,sender_id,receiver_id,body').eq('id',data.message).maybeSingle();
     if (row.error || !row.data?.image_path) throw new Error('చిత్రం అందుబాటులో లేదు · Image unavailable');
     const participant = [row.data.sender_id,row.data.receiver_id].includes(context.userId);
     const role = await context.supabase.rpc('has_role',{_user_id:context.userId,_role:'admin'});
     if (!participant && !role.data) throw new Error('చిత్రం అందుబాటులో లేదు · Image unavailable');
-    if(!role.data){const check=await context.supabase.from('payment_image_checks').select('message_id').eq('message_id',data.message).maybeSingle();if(check.error||check.data)throw new Error('చెల్లింపు పరిశీలనలో ఉంది');}
+    if(!role.data){
+      const check=await context.supabase.from('payment_image_checks').select('message_id').eq('message_id',data.message).maybeSingle();
+      const request=await context.supabase.from('membership_requests').select('id').eq('message_id',data.message).maybeSingle();
+      const recipientAdmin=await context.supabase.rpc('has_role',{_user_id:row.data.receiver_id,_role:'admin'});
+      if(check.error||check.data||request.error||request.data||recipientAdmin.error||(recipientAdmin.data&&paymentUtr(row.data.body)))throw new Error('చిత్రం అందుబాటులో లేదు');
+    }
     const signer = participant ? context.supabase : (await import('@/integrations/supabase/client.server')).supabaseAdmin;
     const signed=await signer.storage.from('chat-images').createSignedUrl(row.data.image_path,60);
     if(signed.error || !signed.data?.signedUrl) throw new Error('చిత్రం తెరవలేకపోయాం · Image unavailable');
@@ -104,23 +90,4 @@ export const deleteChatEntry = createServerFn({method:'POST'}).middleware([requi
     const removed=await supabaseAdmin.from('messages').delete().eq('id',data.message).eq('sender_id',context.userId);
     if(removed.error)throw new Error('సందేశం తొలగించలేకపోయాం · Could not delete');
     return {ok:true};
-  });
-export const scanPaymentEvidence = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => {
-    if (!(input instanceof FormData)) throw new Error('చిత్రం ఎంచుకోండి');
-    const image = input.get('image');
-    if (!(image instanceof File) || !image.size || image.size > CHAT_IMAGE_LIMIT) throw new Error('సరైన చిన్న చిత్రం ఎంచుకోండి');
-    return image;
-  }).handler(async ({ data, context }) => {
-    const admin = await context.supabase.rpc('support_admin_id');
-    if (admin.error || !admin.data) throw new Error('నిర్వాహకుడు అందుబాటులో లేరు');
-    const active = await context.supabase.rpc('can_post_chat', { _other: admin.data });
-    if (active.error || !active.data) throw new Error('మీ ఖాతాలో ఈ పని చేయలేరు');
-    const bytes = new Uint8Array(await data.arrayBuffer());
-    if (!validChatImage(bytes, data.type)) throw new Error('సరైన చిత్రం ఎంచుకోండి');
-    try {
-      const { readPaymentImage } = await import('@/lib/payment-reading.server');
-      const reading = await readPaymentImage(bytes, data.type);
-      return { reference: /^\d{12}$/.test(reading.utr) ? reading.utr : '', payerUpi: payerUpiSchema.safeParse(reading.payer_upi).success ? reading.payer_upi : '' };
-    } catch { throw new Error('చిత్రం చదవలేకపోయాం. లావాదేవీ సంఖ్య మీరే ఇవ్వండి; పంపేటప్పుడు మళ్లీ తనిఖీ చేస్తాం.'); }
   });
