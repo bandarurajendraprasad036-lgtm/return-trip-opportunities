@@ -6,8 +6,8 @@ export function ServiceDirectory({ area = '', rung = true }: { area?: string; ru
   return <section className="home-market-section" aria-labelledby="service-directory-title">
     <h2 id="service-directory-title" className="home-section-title">సేవలు అందించేవారు · Service providers</h2>
     <div className="grid grid-cols-2 gap-2">
-      <div className="min-w-0 space-y-2"><Button asChild className="h-auto min-h-16 w-full whitespace-normal px-2"><Link to="/services" search={{ view: 'providers', area }} onClick={event => requireHomeBell(rung, event)}>నేను సర్వీస్ ప్రొవైడర్ ను</Link></Button><BellBoardLink section="service-providers" /></div>
-      <div className="min-w-0 space-y-2"><Button asChild className="h-auto min-h-16 w-full whitespace-normal px-2"><Link to="/services" search={{ view: 'requests', area }} onClick={event => requireHomeBell(rung, event)}>నీడ్ సర్వీస్ ప్రొవైడర్స్</Link></Button><BellBoardLink section="service-wanted" /></div>
+      <div className="min-w-0 space-y-2"><Button asChild className="h-auto min-h-16 w-full whitespace-normal px-2"><Link to="/services" search={{ view: 'providers', area }} onClick={event => requireHomeBell(rung, event)}><span>నేను సర్వీస్ ప్రొవైడర్ ను<span translate="no" className="block text-xs">నాకు పని కావాలి</span></span></Link></Button><BellBoardLink section="service-providers" /></div>
+      <div className="min-w-0 space-y-2"><Button asChild className="h-auto min-h-16 w-full whitespace-normal px-2"><Link to="/services" search={{ view: 'requests', area }} onClick={event => requireHomeBell(rung, event)}><span>నీడ్ సర్వీస్ ప్రొవైడర్స్<span translate="no" className="block text-xs">నేను పని ఇస్తాను</span></span></Link></Button><BellBoardLink section="service-wanted" /></div>
     </div>
   </section>;
 }

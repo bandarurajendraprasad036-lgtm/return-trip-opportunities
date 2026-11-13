@@ -69,7 +69,7 @@ export function HomeListings({ today, settings }: { today: string; settings: Hom
         {settings.showLocation && <div className="home-quick-box home-location-box"><Button type="button" variant="ghost" className="h-auto min-h-12 w-full whitespace-normal px-1" onClick={focusFrom}><MapPin /><span>స్థానం మార్చండి<span className="block text-xs">Change location</span></span></Button><p className="w-full break-words px-1 text-center text-xs">{actualArea || (locating ? 'చూస్తున్నాం…' : 'ఊరి పేరు ఎంచుకోండి')}</p></div>}
       </div>}
       {!actualArea && areaMessage && <p className="pb-1 text-xs text-muted-foreground">{areaMessage}</p>}
-      {settings.showVehicles && <p className="home-search-notice my-2 text-base font-bold leading-relaxed">ఎక్కడి నుండి ఎక్కడి వరకు అనే బాక్స్‌లు ఫిల్ చేసి సెర్చ్ కొట్టిన తరువాతనే లోకల్ గూడ్స్ వెహికల్, రిటర్న్ అండ్ అడ్వాన్స్ గూడ్స్ వెహికల్స్ అండ్ లోకల్ కార్స్ ఓపెన్ అవుతాయి.</p>}
+      {settings.showVehicles && <p className="home-search-notice my-1 text-sm leading-snug">ఎక్కడి నుండి ఎక్కడి వరకు అనే బాక్స్‌లు ఫిల్ చేసి సెర్చ్ కొట్టిన తరువాతనే లోకల్ గూడ్స్ వెహికల్, రిటర్న్ అండ్ అడ్వాన్స్ గూడ్స్ వెహికల్స్ అండ్ లోకల్ కార్స్ ఓపెన్ అవుతాయి.</p>}
       <form className="home-location-form" onSubmit={event => { event.preventDefault(); setRoute({ from: from.trim(), to: to.trim() }); setVehicleSection(null); }}>
         <div className="home-route-fields">
           <div className="home-route-row"><label htmlFor="home-from">నుండి<span>FROM</span></label><IndiaPlaceInput id="home-from" value={from} onChange={value => { setFromEdited(true); setFrom(value); }} maxLength={80} placeholder="ఊరి పేరు" /></div>
@@ -90,9 +90,9 @@ export function HomeListings({ today, settings }: { today: string; settings: Hom
     {settings.showJobs && <section className="home-market-section" aria-labelledby="job-location-heading">
       <h2 id="job-location-heading" className="home-section-title">పనులు</h2>
       <div className="home-job-columns">
-        {([{ kind: 'seeker', te: 'పని కావాలి', display: 'పని కోసం అప్లై చేసిన వాళ్ళు' }, { kind: 'employer', te: 'పని ఇస్తాను', display: 'పని ఇచ్చే వాళ్ళు' }] as const).map(section => {
+        {([{ kind: 'seeker', te: 'పని కావాలి', sub: '(వర్కర్స్)', display: 'పని కోసం అప్లై చేసిన వాళ్ళు' }, { kind: 'employer', te: 'పని ఇస్తాను', sub: '(ఓనర్స్)', display: 'పని ఇచ్చే వాళ్ళు' }] as const).map(section => {
           return <section className="home-display-column work-display-column" key={section.kind} aria-label={section.display}>
-            <Button asChild className="home-apply"><Link to="/work" search={{ kind: section.kind, area: workArea }} onClick={event => requireHomeBell(rung, event)}>{section.te}</Link></Button>
+            <Button asChild className="home-apply"><Link to="/work" search={{ kind: section.kind, area: workArea }} onClick={event => requireHomeBell(rung, event)}><span>{section.te}<span translate="no" className="block text-xs">{section.sub}</span></span></Link></Button>
             <div className="mt-2"><BellBoardLink section={section.kind === 'seeker' ? 'work-wanted' : 'work-offered'} /></div>
           </section>;
         })}
