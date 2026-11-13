@@ -6,7 +6,8 @@ import { POST_LIST_COLUMNS } from '@/lib/post-access';
 import { vehiclePageRows, vehicleDisplay, VEHICLE_CATALOG, type VehiclePageKind } from '@/lib/vehicle-page';
 import { useMe } from '@/lib/session';
 import { PostCard, type Post } from '@/components/PostCard';
-import { AddCategoryBox } from '@/components/AddCategoryBox';
+import { AddCategoryBox, useAddedCategories } from '@/components/AddCategoryBox';
+import { categoryNames } from '@/lib/discovery-categories';
 import { AppShell } from '@/components/AppShell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +23,7 @@ export const Route = createFileRoute('/vehicles')({
 function VehiclesPage() { const search = Route.useSearch(); return <AppShell hideTopActions><Vehicles /></AppShell>; }
 function Vehicles() {
   const search = Route.useSearch();
+  const { data: categories = [] } = useAddedCategories(search.category);
   const { data: me } = useMe();
   const [area] = useMasterArea(search.from);
   const { data: paid = false } = useQuery({queryKey:['vehicle-display-access',me?.id],enabled:!!me?.id,queryFn:async()=>{if(!me?.id)return false;const result=await supabase.rpc('has_paid_bell',{_user:me.id});if(result.error)throw result.error;return !!result.data;}});
@@ -35,11 +37,11 @@ function Vehicles() {
     {(search.from || search.to) && <p>{search.from} → {search.to}</p>}
     {search.category === 'cars' && <div className="grid grid-cols-2 gap-2"><Button variant={carMode === 'advance' ? 'default' : 'outline'} aria-pressed={carMode === 'advance'} className="h-auto min-h-12 whitespace-normal" onClick={() => setCarMode('advance')}>ముందస్తు కార్లు · Advance cars</Button><Button variant={carMode === 'return' ? 'default' : 'outline'} aria-pressed={carMode === 'return'} className="h-auto min-h-12 whitespace-normal" onClick={() => setCarMode('return')}>ముందస్తు + తిరుగు కార్లు · Advance + return cars</Button></div>}
     {instant ? <p className="text-muted-foreground">ఇప్పటికప్పుడు బుక్ చేసే వాహనాలు · Instant booking vehicles</p> : <><Label htmlFor="vehicle-date">వాహన తేదీ · Vehicle date</Label><Input id="vehicle-date" type="date" value={date} onChange={e => setDate(e.target.value)} /><Button variant="ghost" onClick={() => setDate('')}>అన్ని తేదీలు · All dates</Button></>}
-    <AddCategoryBox label="మీ వాహనం లిస్ట్ లో లేకపోతే ఇక్కడ యాడ్ చేయండి" />
     {!paid && <div className="space-y-2"><p>₹100 పే చేసి వాహనాల వివరాలు చూడండి</p><Button asChild><Link to="/dashboard">₹100 చెల్లింపు</Link></Button></div>}
     {paid && isPending && <p role="status">వస్తున్నాయి · Loading</p>}{paid && isError && <Button onClick={() => void refetch()}>మళ్లీ చూడండి · Retry</Button>}
     <p translate="no" className="text-sm">{area}</p>
-    {display.showCatalog && <ul className="space-y-2">{VEHICLE_CATALOG[search.category].map(name => <li key={name} className="flex items-center justify-between gap-3 rounded-lg border bg-card p-3"><div className="min-w-0"><p className="text-lg font-bold">{name}</p><p className="text-sm text-muted-foreground">{paid ? 'వాహన రకం మాత్రమే; ఈ ఎంపికకు నమోదైన వాహనం లేదు · Category, not an available listing' : 'వాహన రకం మాత్రమే'}</p></div><VehicleDemandBell category={search.category} from={area || search.from} to={search.to} vehicle={name} /></li>)}</ul>}
+    {(display.showCatalog || categories.length > 0) && <ul className="space-y-2">{categoryNames(display.showCatalog ? VEHICLE_CATALOG[search.category] : [], categories).map(name => <li key={name} className="flex items-center justify-between gap-3 rounded-lg border bg-card p-3"><div className="min-w-0"><p className="text-lg font-bold" translate="no">{name}</p><p className="text-sm text-muted-foreground">{paid ? 'వాహన రకం మాత్రమే; ఈ ఎంపికకు నమోదైన వాహనం లేదు · Category, not an available listing' : 'వాహన రకం మాత్రమే'}</p></div><VehicleDemandBell category={search.category} from={area || search.from} to={search.to} vehicle={name} /></li>)}</ul>}
     {display.showListings && rows.map(post => <PostCard key={post.id} post={post} meId={me?.id} />)}
+    <AddCategoryBox label="కేటగిరి చేర్చండి" section={search.category} />
   </div>;
 }

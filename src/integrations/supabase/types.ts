@@ -291,6 +291,33 @@ export type Database = {
           },
         ]
       }
+      discovery_categories: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          normalized_name: string | null
+          section: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+          normalized_name?: string | null
+          section: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          normalized_name?: string | null
+          section?: string
+        }
+        Relationships: []
+      }
       evidence_content_registry: {
         Row: {
           created_at: string
@@ -2345,6 +2372,10 @@ export type Database = {
           _post?: string
           _user: string
         }
+        Returns: string
+      }
+      add_discovery_category: {
+        Args: { _creator: string; _name: string; _section: string }
         Returns: string
       }
       admin_broadcast: { Args: { _message: string }; Returns: number }

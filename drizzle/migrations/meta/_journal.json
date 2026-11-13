@@ -477,6 +477,20 @@
       "when": 1794565968958,
       "tag": "0067_allow_custom_service_requests",
       "breakpoints": true
+    },
+    {
+      "idx": 68,
+      "version": "7",
+      "when": 1794567082646,
+      "tag": "0068_shared_moderated_discovery_categories",
+      "breakpoints": true
+    },
+    {
+      "idx": 69,
+      "version": "7",
+      "when": 1794567144963,
+      "tag": "0069_restrict_shared_category_column_access",
+      "breakpoints": true
     }
   ]
 }

@@ -9,7 +9,9 @@ import { AppShell } from '@/components/AppShell';
 import { Button } from '@/components/ui/button';
 import { IndiaPlaceInput } from '@/components/IndiaPlaceInput';
 import { workListings } from '@/lib/work-listings';
-import { AddCategoryBox } from '@/components/AddCategoryBox';
+import { AddCategoryBox, useAddedCategories } from '@/components/AddCategoryBox';
+import { categoryNames } from '@/lib/discovery-categories';
+import { JOB_CATEGORIES } from '@/lib/jobs';
 import { useMasterArea, matchesArea } from '@/lib/master-area';
 
 type Kind = 'seeker' | 'employer';
@@ -24,6 +26,9 @@ export const Route = createFileRoute('/work')({
 function WorkPage() {
   const { kind, area: initial } = Route.useSearch();
   const [area, setArea] = useMasterArea(initial);
+  const section = kind === 'employer' ? 'work-offered' : 'work-wanted';
+  const { data: categories = [] } = useAddedCategories(section);
+  const [selected, setSelected] = useState('');
   const { data: me } = useMe();
   const { data: posts = [], isLoading, isError } = useQuery({
     queryKey: ['posts'],
@@ -33,11 +38,12 @@ function WorkPage() {
       return data as Post[];
     },
   });
-  const rows = workListings(posts, area, kind).filter(post => !area.trim() || matchesArea(post.location, area));
+  const rows = workListings(posts, area, kind).filter(post => !area.trim() || matchesArea(post.location, area)).filter(post => !selected || (post.skill ?? '').trim().toLowerCase() === selected.toLowerCase());
   return <section className="space-y-4 py-3">
     <h1 className="text-2xl font-bold">{TITLE[kind]}</h1>
     <div><label htmlFor="work-page-area" className="mb-2 block font-bold">ప్రాంతం</label><IndiaPlaceInput id="work-page-area" value={area} onChange={setArea} maxLength={80} placeholder="మీ ప్రాంతం పేరు" /></div>
-    <AddCategoryBox label="మీ పని లిస్ట్ లో లేకపోతే ఇక్కడ యాడ్ చేయండి" kind={kind === 'employer' ? 'employer' : 'seeker'} />
+    <div className="flex flex-wrap gap-2"><Button variant={selected ? 'outline' : 'default'} onClick={() => setSelected('')}>అన్ని పనులు</Button>{categoryNames([], categories).map(name => <Button key={name} variant={selected === name ? 'default' : 'outline'} className="h-auto min-h-12 whitespace-normal" onClick={() => setSelected(name)}><span translate="no">{name}</span></Button>)}</div>
+    <AddCategoryBox label="కేటగిరి చేర్చండి" section={section} />
 
     <div className="home-display-list work-display-column">{isLoading ? <p role="status">వస్తున్నాయి</p> : isError ? <p role="alert">వివరాలు రాలేదు</p> : rows.length === 0 ? <p className="home-empty">ఈ ప్రాంతంలో ఇంకా ప్రకటనలు లేవు</p> : rows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact anonymousWork />)}</div>
   </section>;
