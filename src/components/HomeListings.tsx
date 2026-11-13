@@ -16,6 +16,7 @@ import type { HomeSettings } from '@/lib/home-settings';
 import { ServiceDirectory } from '@/components/ServiceDirectory';
 import { requireHomeBell, useHomeBellRung } from '@/lib/home-bell';
 import { BellBoardLink } from '@/components/BellBoardLink';
+import { useMasterArea } from '@/lib/master-area';
 
 const sections: { key: HomeVehicleSection; te: string; en: string; className: string }[] = [
   { key: 'local', te: 'స్థానిక సరకు వాహనాలు', en: 'Local Goods Vehicle', className: 'vehicle-choice-local' },
@@ -30,11 +31,14 @@ export function HomeListings({ today, settings }: { today: string; settings: Hom
   const [toEdited, setToEdited] = useState(false);
   const [route, setRoute] = useState({ from: '', to: '' });
   const [vehicleSection, setVehicleSection] = useState<HomeVehicleSection | null>(null);
-  const [workArea, setWorkArea] = useState('');
+  const [workArea, setWorkArea] = useMasterArea();
   const { data: me } = useMe();
   const rung = useHomeBellRung();
   const { area, message: areaMessage, locating } = useCurrentArea(me?.id);
   const actualArea = area?.area || area?.address || '';
+  useEffect(() => {
+    if (workArea.trim()) { setFrom(workArea); setFromEdited(true); setRoute({ from: '', to: '' }); setVehicleSection(null); }
+  }, [workArea]);
   useEffect(() => {
     if (!fromEdited) setFrom(actualArea || settings.fromLocation);
   }, [actualArea, fromEdited, settings.fromLocation]);
@@ -62,11 +66,11 @@ export function HomeListings({ today, settings }: { today: string; settings: Hom
   const examples = (category: HomeVehicleSection | 'seeker' | 'employer', realCount: number) => searched && !isLoading && realCount === 0
     ? areaExamples(route.from, route.to, category).map((example, index) => <SearchExample key={`${category}-${index}`} example={example} />)
     : null;
-  const focusFrom = () => { setFromEdited(true); document.getElementById('home-from')?.focus(); };
+  const focusFrom = () => { document.getElementById('work-area')?.focus(); };
   return <>
     <section className="home-market-section border-t-0! pt-0!" aria-label="ఒకే వెతుకులాట · Shared search">
       {settings.showLocation && <div className="home-quick-grid grid-cols-1!">
-        {settings.showLocation && <div className="home-quick-box home-location-box"><Button type="button" variant="ghost" className="h-auto min-h-12 w-full whitespace-normal px-1" onClick={focusFrom}><MapPin /><span>స్థానం మార్చండి<span className="block text-xs">Change location</span></span></Button><p className="w-full break-words px-1 text-center text-xs">{actualArea || (locating ? 'చూస్తున్నాం…' : 'ఊరి పేరు ఎంచుకోండి')}</p></div>}
+        {settings.showLocation && <div className="home-quick-box home-location-box"><Button type="button" variant="ghost" className="h-auto min-h-12 w-full whitespace-normal px-1 text-sm" onClick={focusFrom}><MapPin className="shrink-0" /><span>లొకేషన్ చేంజ్ చేసుకోండి మీకు నచ్చిన ప్లేస్ లో మీకు నచ్చిన మా సర్వీస్ ను యూస్ చేసుకోవచ్చు</span></Button><p translate="no" className="w-full break-words px-1 text-center text-xs">{workArea || actualArea || (locating ? 'చూస్తున్నాం…' : 'ఊరి పేరు ఎంచుకోండి')}</p><IndiaPlaceInput id="work-area" value={workArea} onChange={setWorkArea} maxLength={80} placeholder="మీ ప్రాంతం పేరు" /></div>}
       </div>}
       {!actualArea && areaMessage && <p className="pb-1 text-xs text-muted-foreground">{areaMessage}</p>}
       {settings.showVehicles && <p className="home-search-notice my-1 text-sm leading-snug">ఎక్కడి నుండి ఎక్కడి వరకు అనే బాక్స్‌లు ఫిల్ చేసి సెర్చ్ కొట్టిన తరువాతనే లోకల్ గూడ్స్ వెహికల్, రిటర్న్ అండ్ అడ్వాన్స్ గూడ్స్ వెహికల్స్ అండ్ లోకల్ కార్స్ ఓపెన్ అవుతాయి.</p>}
@@ -86,13 +90,12 @@ export function HomeListings({ today, settings }: { today: string; settings: Hom
         <div className="home-display-list">{status()}{vehicleRows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact hideDate={vehicleSection === 'local'} />)}{examples(vehicleSection, vehicleRows.length)}</div>
       </section>}
     </section>
-    {(settings.showJobs || settings.showServices) && <div className="border-t border-gold py-3"><label htmlFor="work-area" className="mb-2 block font-bold">ప్రాంతం</label><IndiaPlaceInput id="work-area" value={workArea} onChange={setWorkArea} maxLength={80} placeholder="మీ ప్రాంతం పేరు" /></div>}
     {settings.showJobs && <section className="home-market-section" aria-labelledby="job-location-heading">
       <h2 id="job-location-heading" className="home-section-title">పనులు</h2>
       <div className="home-job-columns">
         {([{ kind: 'seeker', te: 'పని కావాలి', sub: '(వర్కర్స్)', display: 'పని కోసం అప్లై చేసిన వాళ్ళు' }, { kind: 'employer', te: 'పని ఇస్తాను', sub: '(ఓనర్స్)', display: 'పని ఇచ్చే వాళ్ళు' }] as const).map(section => {
           return <section className="home-display-column work-display-column" key={section.kind} aria-label={section.display}>
-            <Button asChild className="home-apply"><Link to="/work" search={{ kind: section.kind, area: workArea }} onClick={event => requireHomeBell(rung, event)}><span>{section.te}<span translate="no" className="block text-xs">{section.sub}</span></span></Link></Button>
+            <Button asChild className="home-apply"><Link to="/work" search={{ kind: section.kind, area: workArea }}><span>{section.te}<span translate="no" className="block text-xs">{section.sub}</span></span></Link></Button>
             <div className="mt-2"><BellBoardLink section={section.kind === 'seeker' ? 'work-wanted' : 'work-offered'} /></div>
           </section>;
         })}

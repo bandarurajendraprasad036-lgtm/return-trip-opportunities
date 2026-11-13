@@ -2446,6 +2446,15 @@ export type Database = {
           source: string
         }[]
       }
+      list_area_bell_board: {
+        Args: { _area: string; _section: string }
+        Returns: {
+          area: string
+          id: string
+          need: string
+          source: string
+        }[]
+      }
       list_vehicle_bell_demands: {
         Args: never
         Returns: {

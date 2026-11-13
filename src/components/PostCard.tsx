@@ -23,6 +23,7 @@ export function PostCard({
   actions,
   compact = false,
   hideDate = false,
+  anonymousWork = false,
 }: {
   post: Post;
   meId?: string | undefined;
@@ -30,6 +31,7 @@ export function PostCard({
   actions?: React.ReactNode;
   compact?: boolean;
   hideDate?: boolean;
+  anonymousWork?: boolean;
 }) {
   const isJob = post.module === "job";
   const nav = useNavigate();
@@ -75,11 +77,12 @@ export function PostCard({
       <div className="min-w-0 flex-1 space-y-1">
         <h3 className="break-words text-lg font-bold">{isJob ? post.skill || post.title : vehicleTypeLabel(post.vehicle_type) || 'వాహనం · Vehicle'}</h3>
         <p className="flex min-w-0 items-start gap-1 text-sm"><MapPin className="size-4 shrink-0" /><span translate="no" className="min-w-0 whitespace-normal break-words">{isJob ? post.location : `${post.from_place || '…'} → ${post.to_place || '…'}`}</span></p>
-        {(post.salary || (isJob && compact)) && <p translate="no" className="flex items-start gap-1 break-words text-sm font-semibold"><IndianRupee className="size-4 shrink-0" />{post.salary || 'జీతం ఇవ్వలేదు'}</p>}
+        {!anonymousWork && (post.salary || (isJob && compact)) && <p translate="no" className="flex items-start gap-1 break-words text-sm font-semibold"><IndianRupee className="size-4 shrink-0" />{post.salary || 'జీతం ఇవ్వలేదు'}</p>}
       </div>
       {jobIsVisible(post) && (post.module === 'vehicle' ? <VehicleDemandBell postId={post.id} /> : <Button type="button" variant="outline" size="icon" disabled={sending} className="shrink-0" onClick={contact} aria-label="గంట · Bell"><Bell /></Button>)}
     </div>
-    {isJob && compact && <p className="break-words text-xs text-muted-foreground">పేరు: దాచబడింది · మొబైల్ నంబరు: దాచబడింది · ఫోటో: దాచబడింది · షాప్ పేరు: దాచబడింది</p>}
+    {anonymousWork && <Button variant="outline" onClick={contact} disabled={sending}><MessageCircle />చాట్</Button>}
+    {isJob && compact && !anonymousWork && <p className="break-words text-xs text-muted-foreground">పేరు: దాచబడింది · మొబైల్ నంబరు: దాచబడింది · ఫోటో: దాచబడింది · షాప్ పేరు: దాచబడింది</p>}
     
     <Dialog open={detailsOpen} onOpenChange={open => { setDetailsOpen(open); if (!open) setDetails(null); }}><DialogContent className="max-h-[85svh] overflow-y-auto"><DialogTitle>ప్రకటన వివరాలు · Post details</DialogTitle><DialogDescription>{isJob ? post.skill || 'ఉద్యోగం · Job' : vehicleTypeLabel(post.vehicle_type)}</DialogDescription><p translate="no" className="break-words">{isJob ? post.location : `${post.from_place || '…'} → ${post.to_place || '…'}`}</p>{post.salary && <p translate="no">{post.salary}</p>}{details?.description && <p translate="no" className="whitespace-pre-wrap break-words">{details.description}</p>}{details?.trip_date && <p translate="no">{details.trip_date}</p>}{details?.capacity_tons != null && <p>{details.capacity_tons} టన్నులు · tons</p>}</DialogContent></Dialog>
     <BellPaymentNotice open={upgradeOpen} onOpenChange={setUpgradeOpen} />

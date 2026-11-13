@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Bell } from 'lucide-react';
+import { Bell, MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { AppShell } from '@/components/AppShell';
@@ -10,6 +10,7 @@ import { IndiaPlaceInput } from '@/components/IndiaPlaceInput';
 import { BellPaymentNotice } from '@/components/BellPaymentNotice';
 import { useMe } from '@/lib/session';
 import { SERVICE_CATEGORIES, serviceLabel } from '@/lib/service-categories';
+import { useMasterArea } from '@/lib/master-area';
 
 export const Route = createFileRoute('/services')({
   validateSearch: (search: Record<string, unknown>): { view: 'providers' | 'requests'; area: string } => ({ view: search['view'] === 'requests' ? 'requests' : 'providers', area: typeof search['area'] === 'string' ? search['area'].slice(0, 80) : '' }),
@@ -23,7 +24,7 @@ export const Route = createFileRoute('/services')({
 
 function ServicesPage() {
   const { view, area: initialArea } = Route.useSearch();
-  const [area, setArea] = useState(initialArea);
+  const [area, setArea] = useMasterArea(initialArea);
   const [busy, setBusy] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
   const { data: me } = useMe();
@@ -58,7 +59,7 @@ function ServicesPage() {
       <div className="divide-y divide-border">{SERVICE_CATEGORIES.map(category => <div key={category.key} className="flex min-h-16 items-center justify-between gap-3 py-3"><span className="text-lg font-bold">{category.label}</span><Button variant="outline" size="icon" aria-label="గంట" disabled={busy} onClick={() => void ring(category.key)}><Bell /></Button></div>)}</div>
       
     </> : <div className="divide-y divide-border">
-      {area.trim() && (isPending ? <p role="status">వస్తున్నాయి</p> : isError ? <p role="alert">వివరాలు రాలేదు</p> : requests.length === 0 ? <p>ఈ ప్రాంతంలో ఇంకా అభ్యర్థనలు లేవు</p> : requests.map(request => <article key={request.id} className="flex min-h-16 items-center justify-between gap-3 py-3"><div className="min-w-0"><h2 className="text-lg font-bold">{serviceLabel(request.service)}</h2><p translate="no">{request.area}</p></div><Button variant="outline" size="icon" aria-label="గంట" disabled={busy} onClick={() => void ring(undefined, request.id)}><Bell /></Button></article>))}
+      {area.trim() && (isPending ? <p role="status">వస్తున్నాయి</p> : isError ? <p role="alert">వివరాలు రాలేదు</p> : requests.length === 0 ? <p>ఈ ప్రాంతంలో ఇంకా అభ్యర్థనలు లేవు</p> : requests.map(request => <article key={request.id} className="flex min-h-16 items-center justify-between gap-3 py-3"><div className="min-w-0"><h2 className="text-lg font-bold">{serviceLabel(request.service)}</h2><p translate="no">{request.area}</p></div><div className="flex shrink-0 gap-2"><Button variant="outline" size="icon" aria-label="గంట" disabled={busy} onClick={() => void ring(undefined, request.id)}><Bell /></Button><Button variant="outline" size="icon" aria-label="చాట్" disabled={busy} onClick={() => void ring(undefined, request.id)}><MessageCircle /></Button></div></article>))}
     </div>}
     <BellPaymentNotice open={paymentOpen} onOpenChange={setPaymentOpen} />
   </section>;

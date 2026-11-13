@@ -9,6 +9,7 @@ import { AppShell } from '@/components/AppShell';
 import { Button } from '@/components/ui/button';
 import { IndiaPlaceInput } from '@/components/IndiaPlaceInput';
 import { workListings } from '@/lib/work-listings';
+import { useMasterArea, matchesArea } from '@/lib/master-area';
 
 type Kind = 'seeker' | 'employer';
 const TITLE: Record<Kind, string> = { seeker: 'పని కావాలి — పని కోసం అప్లై చేసిన వాళ్ళు', employer: 'పని ఇస్తాను — పని ఇచ్చే వాళ్ళు' };
@@ -21,7 +22,7 @@ export const Route = createFileRoute('/work')({
 
 function WorkPage() {
   const { kind, area: initial } = Route.useSearch();
-  const [area, setArea] = useState(initial);
+  const [area, setArea] = useMasterArea(initial);
   const { data: me } = useMe();
   const { data: posts = [], isLoading, isError } = useQuery({
     queryKey: ['posts'],
@@ -31,11 +32,11 @@ function WorkPage() {
       return data as Post[];
     },
   });
-  const rows = workListings(posts, area, kind);
+  const rows = workListings(posts, area, kind).filter(post => matchesArea(post.location, area));
   return <section className="space-y-4 py-3">
     <h1 className="text-2xl font-bold">{TITLE[kind]}</h1>
     <div><label htmlFor="work-page-area" className="mb-2 block font-bold">ప్రాంతం</label><IndiaPlaceInput id="work-page-area" value={area} onChange={setArea} maxLength={80} placeholder="మీ ప్రాంతం పేరు" /></div>
 
-    <div className="home-display-list work-display-column">{isLoading ? <p role="status">వస్తున్నాయి</p> : isError ? <p role="alert">వివరాలు రాలేదు</p> : rows.length === 0 ? <p className="home-empty">ఈ ప్రాంతంలో ఇంకా ప్రకటనలు లేవు</p> : rows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact />)}</div>
+    <div className="home-display-list work-display-column">{isLoading ? <p role="status">వస్తున్నాయి</p> : isError ? <p role="alert">వివరాలు రాలేదు</p> : rows.length === 0 ? <p className="home-empty">ఈ ప్రాంతంలో ఇంకా ప్రకటనలు లేవు</p> : rows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact anonymousWork />)}</div>
   </section>;
 }
