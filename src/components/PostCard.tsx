@@ -60,7 +60,6 @@ export function PostCard({
   const ring = async () => {
     if (sending) return;
     if (post.user_id === meId) {
-      toast.info('ఇది మీ ప్రకటన; మీ గంట ఇతరులకు సమాచారం పంపదు.');
       return;
     }
     setSending(true);
@@ -68,7 +67,6 @@ export function PostCard({
     if (!await checkAccess()) return;
     const { data, error } = await supabase.rpc("ring_post", { _post_id: post.id });
     if (error) { if (error.message.includes('PAID_BELL_REQUIRED')) setUpgradeOpen(true); else toast.error("సమాచారం పంపలేకపోయాం · Could not send interest"); return; }
-    toast.info('ఈ ప్రకటన యజమానితో మాత్రమే సంభాషణ ప్రారంభమైంది. ఫోన్ సమాచారం వారి అనుమతులకు లోబడి ఉంటుంది; ఇది బుకింగ్ కాదు.');
     if (data) nav({ to: "/chat/$userId", params: { userId: data }, search: { post: post.id } });
     } finally { setSending(false); }
   };
