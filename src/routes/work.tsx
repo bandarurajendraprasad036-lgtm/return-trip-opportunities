@@ -32,7 +32,7 @@ function WorkPage() {
       return data as Post[];
     },
   });
-  const rows = workListings(posts, area, kind).filter(post => matchesArea(post.location, area));
+  const rows = workListings(posts, area, kind).filter(post => !area.trim() || matchesArea(post.location, area));
   return <section className="space-y-4 py-3">
     <h1 className="text-2xl font-bold">{TITLE[kind]}</h1>
     <div><label htmlFor="work-page-area" className="mb-2 block font-bold">ప్రాంతం</label><IndiaPlaceInput id="work-page-area" value={area} onChange={setArea} maxLength={80} placeholder="మీ ప్రాంతం పేరు" /></div>
