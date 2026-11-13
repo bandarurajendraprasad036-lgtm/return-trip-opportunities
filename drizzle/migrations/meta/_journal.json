@@ -470,6 +470,13 @@
       "when": 1794562072041,
       "tag": "0066_area_scoped_anonymous_boards_and_paid_vehicle_visibility",
       "breakpoints": true
+    },
+    {
+      "idx": 67,
+      "version": "7",
+      "when": 1794565968958,
+      "tag": "0067_allow_custom_service_requests",
+      "breakpoints": true
     }
   ]
 }
