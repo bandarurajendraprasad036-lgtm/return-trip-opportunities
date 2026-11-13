@@ -41,7 +41,7 @@ export function MembershipEvidenceForm({ amount = 100, beneficiary }: { amount?:
     <Input id="membership-upi" value={payerUpi} onChange={e=>setPayerUpi(e.target.value)} maxLength={100} autoCapitalize="none" autoCorrect="off" translate="no" required disabled={busy}/>
     <p className="text-sm">మీ లావాదేవీ సంఖ్య, మీ చెల్లింపు చిరునామా చిత్రంలోని వివరాలతో సరిపోలితేనే తాత్కాలిక ప్రైమ్ ఆన్ అవుతుంది. అడ్మిన్ చెల్లింపు పరిశీలిస్తారు.</p>
     <p className="text-sm text-destructive">ఎడిట్ చేసిన స్క్రీన్ షాట్ పెడితే మీ అకౌంట్ బ్లాక్ చేయబడుతుంది</p>
-    <p className="text-sm">నిర్వాహకుడు నిర్ధారించిన తర్వాతే ఖాతా నిలిపివేస్తాం.</p>
+    <p className="text-sm">మొదట హెచ్చరిస్తాం. హెచ్చరిక తర్వాత మళ్లీ మార్చిన చిత్రం ఇస్తే, నిర్వాహకుడు నిర్ధారించిన తర్వాతే ఖాతా నిలిపివేస్తాం.</p>
     {feedback&&<p role="alert" className="text-destructive">{feedback}</p>}
     <Label htmlFor="membership-screenshot">పేమెంట్ స్క్రీన్ షాట్ ఫోటో</Label><Input id="membership-screenshot" type="file" accept="image/png,image/jpeg,image/webp" required disabled={busy} onChange={e => { const file = e.target.files?.[0]; if (file && file.size > CHAT_IMAGE_LIMIT) { toast.error('చిన్న ఫోటో పంపండి'); e.target.value=''; setImage(null); return; } setImage(file ?? null); }}/>
     <Button type="submit" className="w-full" disabled={busy || !image || !/^\d{12}$/.test(reference) || !payerUpiSchema.safeParse(payerUpi).success}>{busy?'చిత్రం పరిశీలిస్తున్నాం':'చెల్లింపు వివరాలు పంపండి'}</Button>

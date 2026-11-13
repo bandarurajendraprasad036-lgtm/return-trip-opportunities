@@ -69,7 +69,15 @@ export const sendChatEntry = createServerFn({ method:'POST' }).middleware([requi
         const decision=paymentImageDecision(reference,data.payerUpi,reading);
         const check=await supabaseAdmin.from('payment_image_checks').insert({message_id:saved.data.id,payer_id:context.userId,entered_upi:data.payerUpi,observed_upi:reading.payer_upi,observed_utr:reading.utr,match_status:decision});
         if(check.error) throw new Error('చిత్రం పరిశీలన భద్రపడలేదు; మళ్లీ ప్రయత్నించండి');
-        if(decision!=='matched') return {id:saved.data.id,provisional:false,membershipStatus:null,feedback:paymentImageFeedback(decision)};
+        if(decision!=='matched') {
+          let feedback=paymentImageFeedback(decision);
+          if(decision==='suspected_edit') {
+            const prior=await context.supabase.from('payment_image_checks').select('message_id').eq('payer_id',context.userId).eq('match_status','suspected_edit').neq('message_id',saved.data.id).limit(1);
+            if(prior.error) throw new Error('పాత హెచ్చరిక వివరాలు రాలేదు; మళ్లీ ప్రయత్నించండి');
+            if(prior.data?.length) feedback='మీ స్క్రీన్ షాట్ మళ్లీ ఎడిట్ చేసినట్టు అనిపిస్తుంది. నిర్వాహకుడు పరిశీలిస్తారు; నిర్ధారిస్తే మీ ఖాతా నిలిపివేస్తాం.';
+          }
+          return {id:saved.data.id,provisional:false,membershipStatus:null,feedback};
+        }
         const price = data.amount ?? (await context.supabase.rpc('my_membership_price')).data ?? 100;
         const grant = await supabaseAdmin.rpc('register_membership_evidence', { _payer: context.userId, _user: data.beneficiary ?? context.userId, _amount: price, _reference: reference, _message: saved.data.id });
         if (grant.error && !grant.error.message.includes('REVIEW_PENDING')) throw new Error('చెల్లింపు ఆధారం నమోదు కాలేదు. అడ్మిన్ తో చాట్ చేయండి.');

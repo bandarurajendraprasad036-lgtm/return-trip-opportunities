@@ -505,6 +505,13 @@
       "when": 1794569500442,
       "tag": "0071_payment_screenshot_match_gate",
       "breakpoints": true
+    },
+    {
+      "idx": 72,
+      "version": "7",
+      "when": 1794569739824,
+      "tag": "0072_prior_payment_image_warning_before_block",
+      "breakpoints": true
     }
   ]
 }

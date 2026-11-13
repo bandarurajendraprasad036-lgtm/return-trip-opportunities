@@ -15,6 +15,7 @@ beforeAll(async()=>{
  CREATE TABLE account_blocks(user_id uuid PRIMARY KEY,reason text);
  CREATE FUNCTION block_confirmed_content(uuid,text) RETURNS void LANGUAGE sql AS $$INSERT INTO account_blocks VALUES($1,$2) ON CONFLICT DO NOTHING$$;`);
  await db.exec(readFileSync('drizzle/migrations/0071_payment_screenshot_match_gate.sql','utf8'));
+ await db.exec(readFileSync('drizzle/migrations/0072_prior_payment_image_warning_before_block.sql','utf8'));
 },30000);
 afterAll(async()=>{await db.close();});
 it('missing image comparison cannot create a Prime request',async()=>{
@@ -40,10 +41,16 @@ it('ordinary users cannot confirm fraud and block another account',async()=>{
  await expect(db.query(`SELECT confirm_edited_payment_image('${message}')`)).rejects.toThrow('ADMIN_ONLY');
 });
 it('administrator confirmation blocks the payer and revokes linked access',async()=>{
+ await db.exec(`INSERT INTO messages VALUES('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','${payer}','${payer}/earlier.png');INSERT INTO payment_image_checks(message_id,payer_id,entered_upi,observed_upi,observed_utr,match_status,created_at) VALUES('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','${payer}','payer@ybl','payer@ybl','412345678901','suspected_edit',now()-interval '1 day');`);
  await db.exec(`SELECT set_config('test.user','${admin}',false);SELECT confirm_edited_payment_image('${message}')`);
  expect((await db.query<{user_id:string}>('SELECT user_id FROM account_blocks')).rows[0]?.user_id).toBe(payer);
  expect((await db.query<{revoked:boolean}>('SELECT revoked_at IS NOT NULL revoked FROM membership_access')).rows[0]?.revoked).toBe(true);
 });
 it('private comparison evidence has no anonymous read or client write grant',async()=>{
  expect((await db.query<{read:boolean;write:boolean}>(`SELECT has_table_privilege('anon','payment_image_checks','SELECT') read,has_table_privilege('authenticated','payment_image_checks','INSERT') write`)).rows[0]).toEqual({read:false,write:false});
+});
+it('first screenshot cannot be blocked even by an administrator without a prior warning',async()=>{
+ await db.exec(`INSERT INTO messages VALUES('cccccccc-cccc-4ccc-8ccc-cccccccccccc','${admin}','${admin}/first.png');INSERT INTO payment_image_checks(message_id,payer_id,entered_upi,observed_upi,observed_utr,match_status) VALUES('cccccccc-cccc-4ccc-8ccc-cccccccccccc','${admin}','admin@ybl','admin@ybl','412345678905','suspected_edit');`);
+ await expect(db.query(`SELECT confirm_edited_payment_image('cccccccc-cccc-4ccc-8ccc-cccccccccccc')`)).rejects.toThrow('PRIOR_WARNING_REQUIRED');
+ expect((await db.query<{n:number}>(`SELECT count(*)::int n FROM account_blocks WHERE user_id='${admin}'`)).rows[0]?.n).toBe(0);
 });
