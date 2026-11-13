@@ -498,6 +498,13 @@
       "when": 1794568477453,
       "tag": "0070_idempotent_membership_evidence_retry",
       "breakpoints": true
+    },
+    {
+      "idx": 71,
+      "version": "7",
+      "when": 1794569500442,
+      "tag": "0071_payment_screenshot_match_gate",
+      "breakpoints": true
     }
   ]
 }

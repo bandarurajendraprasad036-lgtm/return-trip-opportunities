@@ -787,6 +787,51 @@ export type Database = {
           },
         ]
       }
+      payment_image_checks: {
+        Row: {
+          created_at: string
+          entered_upi: string
+          match_status: string
+          message_id: string
+          observed_upi: string
+          observed_utr: string
+          payer_id: string
+        }
+        Insert: {
+          created_at?: string
+          entered_upi: string
+          match_status: string
+          message_id: string
+          observed_upi: string
+          observed_utr: string
+          payer_id: string
+        }
+        Update: {
+          created_at?: string
+          entered_upi?: string
+          match_status?: string
+          message_id?: string
+          observed_upi?: string
+          observed_utr?: string
+          payer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_image_checks_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: true
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_image_checks_payer_id_fkey"
+            columns: ["payer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_bell_interests: {
         Row: {
           area: string
@@ -2430,6 +2475,10 @@ export type Database = {
         Returns: string
       }
       configure_referral_event: { Args: { _label: string }; Returns: undefined }
+      confirm_edited_payment_image: {
+        Args: { _message: string }
+        Returns: undefined
+      }
       confirm_referral_cash: {
         Args: { _amount_paise: number; _reference: string; _user: string }
         Returns: string
