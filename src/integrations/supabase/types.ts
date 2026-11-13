@@ -397,6 +397,54 @@ export type Database = {
           },
         ]
       }
+      membership_access: {
+        Row: {
+          ends_at: string
+          granted_by: string | null
+          id: string
+          request_id: string | null
+          revoked_at: string | null
+          source: string
+          starts_at: string
+          user_id: string
+        }
+        Insert: {
+          ends_at?: string
+          granted_by?: string | null
+          id?: string
+          request_id?: string | null
+          revoked_at?: string | null
+          source: string
+          starts_at?: string
+          user_id: string
+        }
+        Update: {
+          ends_at?: string
+          granted_by?: string | null
+          id?: string
+          request_id?: string | null
+          revoked_at?: string | null
+          source?: string
+          starts_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "membership_access_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: true
+            referencedRelation: "membership_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "membership_access_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       membership_payments: {
         Row: {
           admin_note: string
@@ -435,6 +483,70 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      membership_requests: {
+        Row: {
+          amount: number
+          id: string
+          message_id: string
+          note: string
+          payer_id: string
+          reference: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submitted_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          id?: string
+          message_id: string
+          note?: string
+          payer_id: string
+          reference: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          id?: string
+          message_id?: string
+          note?: string
+          payer_id?: string
+          reference?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "membership_requests_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "membership_requests_payer_id_fkey"
+            columns: ["payer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "membership_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       messages: {
         Row: {
@@ -1976,6 +2088,7 @@ export type Database = {
       }
       vehicle_route_preferences: {
         Row: {
+          capacity_tons: number | null
           created_at: string
           enabled: boolean
           from_place: string
@@ -1983,8 +2096,10 @@ export type Database = {
           radius_percent: number
           to_place: string
           user_id: string
+          vehicle_type: string
         }
         Insert: {
+          capacity_tons?: number | null
           created_at?: string
           enabled?: boolean
           from_place: string
@@ -1992,8 +2107,10 @@ export type Database = {
           radius_percent?: number
           to_place: string
           user_id: string
+          vehicle_type?: string
         }
         Update: {
+          capacity_tons?: number | null
           created_at?: string
           enabled?: boolean
           from_place?: string
@@ -2001,6 +2118,7 @@ export type Database = {
           radius_percent?: number
           to_place?: string
           user_id?: string
+          vehicle_type?: string
         }
         Relationships: [
           {
@@ -2073,6 +2191,10 @@ export type Database = {
       }
       admin_broadcast: { Args: { _message: string }; Returns: number }
       admin_evidence_sender: { Args: { _id: string }; Returns: string }
+      admin_membership_access: {
+        Args: { _enable: boolean; _user: string }
+        Returns: undefined
+      }
       admin_referral_eligibility: { Args: never; Returns: Json }
       admin_video_notice: {
         Args: { _message: string; _url: string }
@@ -2232,6 +2354,16 @@ export type Database = {
       }
       referral_vip_slots: { Args: never; Returns: Json }
       refresh_referral_vip_notices: { Args: never; Returns: number }
+      register_membership_evidence: {
+        Args: {
+          _amount: number
+          _message: string
+          _payer: string
+          _reference: string
+          _user: string
+        }
+        Returns: string
+      }
       request_own_bell_notice: { Args: { _device: string }; Returns: string }
       request_service: {
         Args: { _area: string; _service: string }
@@ -2241,6 +2373,10 @@ export type Database = {
       respond_service_request: { Args: { _request: string }; Returns: string }
       review_membership: {
         Args: { _approve: boolean; _id: string; _note?: string }
+        Returns: undefined
+      }
+      review_membership_evidence: {
+        Args: { _approve: boolean; _id: string }
         Returns: undefined
       }
       review_post_evidence: {
@@ -2265,6 +2401,10 @@ export type Database = {
       }
       ring_post: { Args: { _post_id: string }; Returns: string }
       ring_service: { Args: { _owner: string }; Returns: string }
+      save_detailed_vehicle_route: {
+        Args: { _from: string; _to: string; _tons: number; _vehicle: string }
+        Returns: string
+      }
       save_service_listing: {
         Args: {
           _category: string

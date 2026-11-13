@@ -407,6 +407,13 @@
       "when": 1794503852289,
       "tag": "0057_anonymous_service_requests_and_private_chat_presence",
       "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "7",
+      "when": 1794552527726,
+      "tag": "0058_provisional_membership_review_and_route_details",
+      "breakpoints": true
     }
   ]
 }
