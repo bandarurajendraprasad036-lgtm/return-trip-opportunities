@@ -554,6 +554,41 @@
       "when": 1794640353633,
       "tag": "0078_admin_only_unrestricted_posts_and_campaign",
       "breakpoints": true
+    },
+    {
+      "idx": 79,
+      "version": "7",
+      "when": 1794643446786,
+      "tag": "0079_free_home_work_categories_chat",
+      "breakpoints": true
+    },
+    {
+      "idx": 80,
+      "version": "7",
+      "when": 1794643473242,
+      "tag": "0080_preserve_existing_paid_notice_and_chat_boundaries",
+      "breakpoints": true
+    },
+    {
+      "idx": 81,
+      "version": "7",
+      "when": 1794643568473,
+      "tag": "0081_free_work_owner_notice_read",
+      "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "7",
+      "when": 1794643696769,
+      "tag": "0082_unlimited_moderated_work_categories_and_initial_matches",
+      "breakpoints": true
+    },
+    {
+      "idx": 83,
+      "version": "7",
+      "when": 1794643792312,
+      "tag": "0083_category_bells_in_same_home_box",
+      "breakpoints": true
     }
   ]
 }

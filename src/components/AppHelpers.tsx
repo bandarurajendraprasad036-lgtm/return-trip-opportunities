@@ -54,10 +54,11 @@ export function MessagePhoneNotices({ userId }: { userId: string }) {
         // Matched alerts now use Firebase push; avoid duplicate phone banners.
       })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.${userId}` }, async (p) => {
-        const m = p.new as { body?: string; needs_admin?: boolean; is_auto?: boolean };
+        const m = p.new as { body?: string; needs_admin?: boolean; is_auto?: boolean; sender_id?: string };
         if (Notification.permission !== "granted" || m.is_auto) return;
         const eligibility = await supabase.rpc('my_prime99');
-        if (eligibility.error || !(eligibility.data as { alerts_ready?: boolean })?.alerts_ready) return;
+        const free = m.sender_id ? await supabase.rpc('free_work_chat', { _other: m.sender_id }) : null;
+        if (free?.data !== true && (eligibility.error || !(eligibility.data as { alerts_ready?: boolean })?.alerts_ready)) return;
         const preferences = await supabase.from('notification_preferences').select('enabled,timezone,quiet_start,quiet_end').eq('user_id',userId).maybeSingle();
         if (preferences.error || !pushPolicy(new Date(),preferences.data,false).allowed) return;
         const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });

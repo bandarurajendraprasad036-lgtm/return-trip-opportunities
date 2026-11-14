@@ -112,7 +112,10 @@ function Chat() {
         const form=new FormData();form.set('receiver',userId);form.set('post',postId || '');form.set('body',body);form.set('phone',phone);if(image)form.set('image',image);
         const result = await sendEntry({data:form});
         if (result.provisional) await qc.invalidateQueries({queryKey:['prime99']});
-      } else await sendSupport({ data: { adminId: userId, body } });
+      } else {
+        const form = new FormData(); form.set('receiver', userId); form.set('body', body);
+        await sendEntry({ data: form });
+      }
       setText('');setPhone('');setImage(null);if(fileInput.current)fileInput.current.value='';
       await qc.invalidateQueries({ queryKey: key });
       await qc.invalidateQueries({ queryKey: ["chats"] });

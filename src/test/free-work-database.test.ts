@@ -1,0 +1,72 @@
+import { PGlite } from '@electric-sql/pglite';
+import { readFileSync } from 'node:fs';
+import { beforeAll, afterAll, expect, it } from 'vitest';
+let db: PGlite;
+const a = '11111111-1111-4111-8111-111111111111';
+const b = '22222222-2222-4222-8222-222222222222';
+const c = '33333333-3333-4333-8333-333333333333';
+beforeAll(async () => {
+  db = new PGlite();
+  await db.exec(`CREATE ROLE anon;CREATE ROLE authenticated;CREATE ROLE service_role;CREATE SCHEMA auth;
+  CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$ SELECT nullif(current_setting('test.user',true),'')::uuid $$;
+  CREATE FUNCTION auth.role() RETURNS text LANGUAGE sql AS $$ SELECT 'authenticated' $$;
+  CREATE TABLE profiles(id uuid PRIMARY KEY);INSERT INTO profiles VALUES('${a}'),('${b}'),('${c}');
+  CREATE FUNCTION account_allowed(uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT true $$;
+  CREATE FUNCTION has_paid_bell(uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
+  CREATE FUNCTION paid_alert_ready(uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
+  CREATE FUNCTION has_role(uuid,text) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
+  CREATE FUNCTION support_admin_id() RETURNS uuid LANGUAGE sql AS $$ SELECT NULL::uuid $$;
+  CREATE FUNCTION notice_window_open(timestamptz,text) RETURNS boolean LANGUAGE sql AS $$ SELECT true $$;
+  CREATE FUNCTION next_notice_open(timestamptz,text) RETURNS timestamptz LANGUAGE sql AS $$ SELECT $1 $$;
+  CREATE FUNCTION can_notify(uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
+  CREATE FUNCTION can_post_chat(_post uuid DEFAULT NULL,_other uuid DEFAULT NULL) RETURNS boolean LANGUAGE sql AS $$ SELECT false $$;
+  CREATE TABLE posts(id uuid DEFAULT gen_random_uuid(),user_id uuid,module text,kind text,service_type text,skill text,category text,title text,location text,status text,visible_after timestamptz,job_expires_at timestamptz,area_scope text);
+  CREATE TABLE service_profiles(user_id uuid,category text,service text,town text,published boolean);
+  CREATE TABLE discovery_categories(id uuid DEFAULT gen_random_uuid(),section text,name text,normalized_name text GENERATED ALWAYS AS(lower(trim(name))) STORED,created_by uuid,created_at timestamptz DEFAULT now(),UNIQUE(section,normalized_name));
+  CREATE TABLE notifications(id uuid DEFAULT gen_random_uuid(),user_id uuid,post_id uuid,matched_post_id uuid,message text,created_at timestamptz DEFAULT now());GRANT SELECT ON notifications TO authenticated;ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
+  CREATE POLICY own_notice ON notifications TO authenticated USING(user_id=auth.uid());CREATE POLICY prime99_notifications_read ON notifications AS RESTRICTIVE TO authenticated USING(paid_alert_ready(auth.uid()));
+  CREATE TABLE notification_preferences(user_id uuid,enabled boolean,timezone text,quiet_start time,quiet_end time,daily_limit integer);
+  CREATE TABLE deferred_listing_notices(user_id uuid,post_id uuid,matched_post_id uuid,message text,notice_mode text,available_at timestamptz,processed_at timestamptz);
+  CREATE TABLE bell_board_chat_pairs(member_id uuid,owner_id uuid);CREATE TABLE vehicle_demand_chat_pairs(member_id uuid,owner_id uuid);CREATE TABLE service_request_pairs(member_id uuid,owner_id uuid);CREATE TABLE service_chat_pairs(member_id uuid,owner_id uuid);CREATE TABLE post_chat_pairs(post_id uuid,member_id uuid,owner_id uuid);CREATE TABLE messages(sender_id uuid,receiver_id uuid,post_id uuid);
+  CREATE FUNCTION guard_prime99_notice() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RETURN NEW;END $$;
+  CREATE TRIGGER a_prime99_notice BEFORE INSERT ON notifications FOR EACH ROW EXECUTE FUNCTION guard_prime99_notice();`);
+  for (const file of ['0079_free_home_work_categories_chat', '0080_preserve_existing_paid_notice_and_chat_boundaries', '0081_free_work_owner_notice_read', '0082_unlimited_moderated_work_categories_and_initial_matches']) await db.exec(readFileSync(`drizzle/migrations/${file}.sql`, 'utf8'));
+}, 30000);
+afterAll(async () => { await db.close(); });
+const actor = async (id: string) => db.exec(`RESET ROLE;SELECT set_config('test.user','${id}',false);SET ROLE authenticated;`);
+it('unpaid category application is persistent and repeated application does not duplicate', async () => {
+  await actor(a);
+  await db.query("SELECT join_free_work('work-wanted','ప్లంబర్','చిత్తూరు')");
+  await db.query("SELECT join_free_work('work-wanted','ప్లంబర్','చిత్తూరు')");
+  expect((await db.query('SELECT * FROM free_work_entries')).rows).toHaveLength(1);
+});
+it('only same-area opposite category matches enter the private first-month queue', async () => {
+  await actor(b);await db.query("SELECT join_free_work('work-offered','driver','చిత్తూరు')");await db.query("SELECT join_free_work('work-offered','plumber','తిరుపతి')");
+  await actor(a);expect((await db.query('SELECT * FROM free_work_notice_queue')).rows).toHaveLength(0);
+  await actor(b);await db.query("SELECT join_free_work('work-offered','plumber','చిత్తూరు')");
+  await actor(a);expect((await db.query('SELECT * FROM free_work_notice_queue')).rows).toHaveLength(1);
+});
+it('an unpaid bell opens only the exact private free pair and never unpaid vehicle chat', async () => {
+  await actor(a);
+  const rows = await db.query<{ id: string }>("SELECT id FROM list_free_work('work-offered','చిత్తూరు','plumber')");
+  const id = rows.rows[0]?.id;expect(id).toBeTruthy();
+  const ring = await db.query<{ target: string }>(`SELECT ring_free_work('${id}','entry','work-offered') target`);expect(ring.rows[0]?.target).toBe(b);
+  expect((await db.query<{ ok: boolean }>(`SELECT can_post_chat(NULL,'${b}') ok`)).rows[0]?.ok).toBe(true);
+  expect((await db.query<{ ok: boolean }>(`SELECT can_post_chat(gen_random_uuid(),'${b}') ok`)).rows[0]?.ok).toBe(false);
+  await actor(c);expect((await db.query<{ ok: boolean }>(`SELECT can_post_chat(NULL,'${b}') ok`)).rows[0]?.ok).toBe(false);
+  expect((await db.query('SELECT * FROM free_work_pairs')).rows).toHaveLength(0);
+});
+it('unpaid owners can read only their genuine free-work notifications; opt-out holds pending notices', async () => {
+  await db.exec(`RESET ROLE;INSERT INTO notification_preferences(user_id,enabled) VALUES('${b}',false);`);await db.query('SELECT dispatch_free_work_notices()');
+  await actor(a);expect((await db.query('SELECT * FROM notifications')).rows).toHaveLength(1);
+  await actor(c);expect((await db.query('SELECT * FROM notifications')).rows).toHaveLength(0);
+  await db.exec('RESET ROLE;');
+  await db.query('SELECT dispatch_free_work_notices()');
+  await actor(b);expect((await db.query('SELECT * FROM notifications')).rows).toHaveLength(0);
+});
+it('first five genuine matches are retained without fabricated work or a daily payment requirement', async () => {
+  await db.exec(`RESET ROLE;SELECT set_config('test.user','${b}',false);`);
+  for (let i = 0; i < 6; i++) await db.exec(`INSERT INTO posts(user_id,module,kind,skill,location,status,service_type) VALUES('${b}','job','employer','painter','చిత్తూరు','active','');`);
+  await actor(a);await db.query("SELECT join_free_work('work-wanted','పెయింటర్','చిత్తూరు')");
+  expect((await db.query("SELECT * FROM free_work_notice_queue WHERE subscription_id IN(SELECT id FROM free_work_entries WHERE category='పెయింటర్')")).rows).toHaveLength(5);
+});

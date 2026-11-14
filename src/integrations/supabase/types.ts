@@ -379,6 +379,163 @@ export type Database = {
           },
         ]
       }
+      free_work_entries: {
+        Row: {
+          area: string
+          category: string
+          created_at: string
+          id: string
+          section: string
+          user_id: string
+        }
+        Insert: {
+          area: string
+          category: string
+          created_at?: string
+          id?: string
+          section: string
+          user_id: string
+        }
+        Update: {
+          area?: string
+          category?: string
+          created_at?: string
+          id?: string
+          section?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "free_work_entries_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      free_work_interests: {
+        Row: {
+          area: string
+          category: string
+          created_at: string
+          entry_id: string
+          id: string
+          section: string
+          source: string
+          user_id: string
+        }
+        Insert: {
+          area: string
+          category: string
+          created_at?: string
+          entry_id: string
+          id?: string
+          section: string
+          source: string
+          user_id: string
+        }
+        Update: {
+          area?: string
+          category?: string
+          created_at?: string
+          entry_id?: string
+          id?: string
+          section?: string
+          source?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "free_work_interests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      free_work_notice_queue: {
+        Row: {
+          created_at: string
+          entry_id: string
+          id: string
+          notification_id: string
+          processed_at: string | null
+          source: string
+          subscription_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          entry_id: string
+          id?: string
+          notification_id?: string
+          processed_at?: string | null
+          source: string
+          subscription_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          entry_id?: string
+          id?: string
+          notification_id?: string
+          processed_at?: string | null
+          source?: string
+          subscription_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "free_work_notice_queue_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "free_work_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "free_work_notice_queue_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      free_work_pairs: {
+        Row: {
+          created_at: string
+          member_id: string
+          owner_id: string
+        }
+        Insert: {
+          created_at?: string
+          member_id: string
+          owner_id: string
+        }
+        Update: {
+          created_at?: string
+          member_id?: string
+          owner_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "free_work_pairs_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "free_work_pairs_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_post_entitlements: {
         Row: {
           ends_at: string
@@ -2497,11 +2654,16 @@ export type Database = {
       }
       dispatch_approximate_route_alerts: { Args: never; Returns: number }
       dispatch_daily_referral_board: { Args: never; Returns: number }
+      dispatch_free_work_notices: { Args: never; Returns: number }
       dispatch_program_requests: { Args: never; Returns: number }
       dispatch_vehicle_availability: { Args: never; Returns: number }
       dispatch_visible_post_matches: { Args: never; Returns: number }
       ensure_my_referral_code: { Args: never; Returns: string }
       follow_vehicle_route: { Args: { _post: string }; Returns: string }
+      free_work_category: { Args: { v: string }; Returns: string }
+      free_work_chat: { Args: { _other: string }; Returns: boolean }
+      free_work_notice_allowed: { Args: { _user: string }; Returns: boolean }
+      free_work_opposite: { Args: { v: string }; Returns: string }
       get_post_details: { Args: { _post: string }; Returns: Json }
       grant_free_membership_month: {
         Args: { _source: string; _user: string }
@@ -2525,6 +2687,10 @@ export type Database = {
         Args: { _post: Database["public"]["Tables"]["posts"]["Row"] }
         Returns: boolean
       }
+      join_free_work: {
+        Args: { _area: string; _category: string; _section: string }
+        Returns: string
+      }
       list_anonymous_bell_board: {
         Args: { _section: string }
         Returns: {
@@ -2540,6 +2706,24 @@ export type Database = {
           area: string
           id: string
           need: string
+          source: string
+        }[]
+      }
+      list_free_work: {
+        Args: { _area?: string; _category?: string; _section: string }
+        Returns: {
+          area: string
+          category: string
+          id: string
+          source: string
+        }[]
+      }
+      list_free_work_interests: {
+        Args: { _area?: string; _category?: string; _section: string }
+        Returns: {
+          area: string
+          category: string
+          id: string
           source: string
         }[]
       }
@@ -2563,6 +2747,10 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      mark_free_work_category_bell: {
+        Args: { _entry: string }
+        Returns: undefined
+      }
       my_goods_membership: { Args: never; Returns: boolean }
       my_membership_price: { Args: never; Returns: number }
       my_notification_quota: { Args: never; Returns: Json }
@@ -2585,6 +2773,10 @@ export type Database = {
       }
       notice_window_open: {
         Args: { _at?: string; _zone?: string }
+        Returns: boolean
+      }
+      notification_delivery_allowed: {
+        Args: { _notice: string; _user: string }
         Returns: boolean
       }
       notify_matches: { Args: { _post_id: string }; Returns: number }
@@ -2696,6 +2888,10 @@ export type Database = {
       review_sharing_claim: {
         Args: { _approve: boolean; _id: string; _note?: string }
         Returns: undefined
+      }
+      ring_free_work: {
+        Args: { _id: string; _section: string; _source: string }
+        Returns: string
       }
       ring_post: { Args: { _post_id: string }; Returns: string }
       ring_service: { Args: { _owner: string }; Returns: string }

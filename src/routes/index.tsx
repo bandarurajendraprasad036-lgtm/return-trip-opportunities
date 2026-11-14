@@ -82,7 +82,6 @@ function Index() {
       </section>
       <section className="space-y-2 px-4 pb-6 pt-0">
         <HomeListings today={day} settings={homeSettings} />
-        <Button asChild variant="outline" className="h-auto w-full whitespace-normal"><Link to="/vehicle-demands">గంట కొట్టిన వాళ్ళు - కావాలి లిస్ట్</Link></Button>
         {ytId && (
           <div className="overflow-hidden rounded-xl border bg-card shadow-card">
             <p className="p-3 font-bold">🎬 మా గురించి · About us</p>

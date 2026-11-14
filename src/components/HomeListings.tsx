@@ -20,6 +20,7 @@ import { BellBoardLink } from '@/components/BellBoardLink';
 import { useMasterArea } from '@/lib/master-area';
 import { WorkAreaInput } from '@/components/WorkAreaInput';
 import { canOpenWorkArea } from '@/lib/work-area';
+import { FreeWorkBox } from '@/components/FreeWorkBox';
 
 const sections: { key: HomeVehicleSection; te: string; en: string; className: string }[] = [
   { key: 'local', te: 'స్థానిక సరకు వాహనాలు', en: 'Local Goods Vehicle', className: 'vehicle-choice-local' },
@@ -94,17 +95,13 @@ export function HomeListings({ today, settings }: { today: string; settings: Hom
       </section>}
     </section>
     {(settings.showJobs || settings.showServices) && <div className="py-3"><WorkAreaInput id="home-work-service-area" value={workArea} onChange={setWorkArea} /></div>}
-    {settings.showJobs && <section className="home-market-section" aria-labelledby="job-location-heading">
-      <h2 id="job-location-heading" className="home-section-title">పనులు</h2>
+    {settings.showJobs && <section className="home-market-section" aria-label="పని కావాలి / పని ఇస్తాను">
       <div className="home-job-columns">
         {([{ kind: 'seeker', te: 'పని కావాలి', sub: '(వర్కర్స్)', display: 'పని కోసం అప్లై చేసిన వాళ్ళు' }, { kind: 'employer', te: 'పని ఇస్తాను', sub: '(ఓనర్స్)', display: 'పని ఇచ్చే వాళ్ళు' }] as const).map(section => {
-          return <section className="home-display-column work-display-column" key={section.kind} aria-label={section.display}>
-            {canOpenWorkArea(workArea) ? <Button asChild className="home-apply"><Link to="/work" search={{ kind: section.kind, area: workArea }}><span>{section.te}<span translate="no" className="block text-xs">{section.sub}</span></span></Link></Button> : <Button disabled className="home-apply"><span>{section.te}<span translate="no" className="block text-xs">{section.sub}</span></span></Button>}
-            <div className="mt-2"><BellBoardLink section={section.kind === 'seeker' ? 'work-wanted' : 'work-offered'} /></div>
-          </section>;
+          return <FreeWorkBox key={section.kind} section={section.kind === 'seeker' ? 'work-wanted' : 'work-offered'} area={workArea} />;
         })}
       </div>
     </section>}
-    {settings.showServices && <ServiceDirectory area={workArea} rung={rung} />}
+    {settings.showServices && <section className="home-market-section" aria-label="సర్వీస్ ప్రొవైడర్లు"><div className="grid grid-cols-2 gap-2"><FreeWorkBox section="service-providers" area={workArea} /><FreeWorkBox section="service-wanted" area={workArea} /></div></section>}
   </>;
 }

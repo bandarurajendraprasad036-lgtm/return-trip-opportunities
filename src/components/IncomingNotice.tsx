@@ -8,18 +8,19 @@ import { useBellSound } from '@/lib/use-bell-sound';
 import { pushPolicy } from '@/lib/push-rules';
 
 export function IncomingNotice({ userId }: { userId: string }) {
-  const [notice, setNotice] = useState<{ body: string; sender?: string | undefined; post?: string | undefined; payment?: boolean } | null>(null);
+  const [notice, setNotice] = useState<{ body: string; sender?: string | undefined; post?: string | undefined; payment?: boolean; id?: string } | null>(null);
   const { muted, change } = useBellSound();
   useEffect(() => {
     let active = true;
     const receive = async (next: NonNullable<typeof notice>) => {
       const eligibility = await supabase.rpc('my_prime99');
+      const free = next.id ? await supabase.rpc('notification_delivery_allowed', { _user: userId, _notice: next.id }) : next.sender ? await supabase.rpc('free_work_chat', { _other: next.sender }) : null;
       const preferences = await supabase.from('notification_preferences').select('enabled,timezone,quiet_start,quiet_end').eq('user_id',userId).maybeSingle();
       if (preferences.error || !pushPolicy(new Date(),preferences.data,false).allowed) return;
-      if (active && !eligibility.error && (eligibility.data as { alerts_ready?: boolean })?.alerts_ready) setNotice(next);
+      if (active && (free?.data === true || (!eligibility.error && (eligibility.data as { alerts_ready?: boolean })?.alerts_ready))) setNotice(next);
     };
     const channel = supabase.channel(`screen-notice-${userId}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` }, payload => { void receive({ body: String(payload.new["message"] ?? "నోటిఫికేషన్") }); })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` }, payload => { void receive({ body: String(payload.new["message"] ?? "నోటిఫికేషన్"), id: String(payload.new['id']) }); })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.${userId}` }, payload => { void receive({ body: String(payload.new["body"] ?? "కొత్త సమాధానం · New reply"), sender: String(payload.new["sender_id"]), payment: payload.new['needs_admin'] === true, post: typeof payload.new["post_id"] === "string" ? payload.new["post_id"] : undefined }); })
       .subscribe();
     return () => { active = false; setNotice(null); void supabase.removeChannel(channel); };
