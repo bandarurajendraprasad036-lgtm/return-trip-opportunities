@@ -51,7 +51,7 @@
 - Prime payment evidence goes through the authenticated submitPrimePayment server upload (local copy is backup only); AI receipt reading auto-confirms only exact payee+UTR+amount, otherwise the request stays pending for admin with provisional access revoked, never rejected.
 - Sharing evidence uses owner-checked server hashing with atomic digest registration, admin-only short-lived signing and existing managed dispatch cleanup; review decisions notify the owner transactionally.
 - Chat attachments remain private and participant-checked; vehicle chat creates a paid pair without bell events so opening chat never notifies an owner.
-- Homepage work/service boxes use isolated free entries, anonymous projections and authenticated exact-target pairs; only those null-post pairs bypass payment, preserving paid vehicle chats and private contact exchange.
+- Homepage work/service boxes open isolated full-height dialogs; service chips count anonymous projected rows and share existing free exact-target bells/pairs, preserving paid vehicles and private contacts.
 - Direct-referral campaign ranks count only new campaign join edges, enforce one inviter and no cycles, and expose only owner-scoped stats; cash awards never imply payout.
 - Confirmed receipts atomically credit only the eligible direct inviter; historical invitee ledgers remain read-only evidence, new accounts keep unique codes, and remaining-slot reads expose aggregates only.
 - Paid alert eligibility is enforced by receipt-linked periods at database insertion/read and every screen/device delivery path, never by editable profile flags; post usage persists separately from deletable posts to prevent quota bypass.
