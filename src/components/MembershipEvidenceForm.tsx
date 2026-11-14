@@ -33,8 +33,7 @@ export function MembershipEvidenceForm({ amount = 100, beneficiary }: { amount?:
     }
     setReference(''); setImage(null);if(fileInput.current)fileInput.current.value='';
     await qc.invalidateQueries();
-    if(status==='approved')toast.success('మీ చెల్లింపు అందింది. మీ ప్రైమ్ ఆన్ అయింది - గంట, చాట్ తెరుచుకున్నాయి');
-    else toast.success('మీ వివరాలు అందాయి. అడ్మిన్ చెక్ చేసి ఆమోదిస్తారు');
+    void status;toast.success('మీ వివరాలు అందాయి. అడ్మిన్ చెక్ చేసి ఆమోదిస్తారు');
     await navigate({to:'/post/new'});
     setBusy(false);
   }}>

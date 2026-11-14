@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AdminLoginRouteImport } from './routes/admin-login'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as FeedRouteImport } from './routes/feed'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as VehiclesRouteImport } from './routes/vehicles'
 import { Route as WorkRouteImport } from './routes/work'
@@ -27,6 +28,7 @@ import { Route as AuthenticatedMyPostsRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedServiceProfileRouteImport } from './routes/_authenticated/service-profile'
 import { Route as AuthenticatedVehicleDemandsRouteImport } from './routes/_authenticated/vehicle-demands'
+import { Route as AuthCallbackRouteImport } from './routes/auth_.callback'
 import { Route as ProfileUserIdRouteImport } from './routes/profile.$userId'
 import { Route as AuthenticatedChatUserIdRouteImport } from './routes/_authenticated/chat.$userId'
 import { Route as AuthenticatedPostNewRouteImport } from './routes/_authenticated/post.new'
@@ -54,6 +56,11 @@ const AuthRoute = AuthRouteImport.update({
 const FeedRoute = FeedRouteImport.update({
   id: '/feed',
   path: '/feed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ServicesRoute = ServicesRouteImport.update({
@@ -125,6 +132,11 @@ const AuthenticatedVehicleDemandsRoute =
     path: '/vehicle-demands',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth_/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileUserIdRoute = ProfileUserIdRouteImport.update({
   id: '/profile/$userId',
   path: '/profile/$userId',
@@ -151,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRoute
   '/feed': typeof FeedRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/vehicles': typeof VehiclesRoute
   '/work': typeof WorkRoute
@@ -164,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/service-profile': typeof AuthenticatedServiceProfileRoute
   '/vehicle-demands': typeof AuthenticatedVehicleDemandsRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/profile/$userId': typeof ProfileUserIdRoute
   '/chat/$userId': typeof AuthenticatedChatUserIdRoute
   '/post/new': typeof AuthenticatedPostNewRoute
@@ -174,6 +188,7 @@ export interface FileRoutesByTo {
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRoute
   '/feed': typeof FeedRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/vehicles': typeof VehiclesRoute
   '/work': typeof WorkRoute
@@ -187,6 +202,7 @@ export interface FileRoutesByTo {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/service-profile': typeof AuthenticatedServiceProfileRoute
   '/vehicle-demands': typeof AuthenticatedVehicleDemandsRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/profile/$userId': typeof ProfileUserIdRoute
   '/chat/$userId': typeof AuthenticatedChatUserIdRoute
   '/post/new': typeof AuthenticatedPostNewRoute
@@ -199,6 +215,7 @@ export interface FileRoutesById {
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRoute
   '/feed': typeof FeedRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/vehicles': typeof VehiclesRoute
   '/work': typeof WorkRoute
@@ -212,6 +229,7 @@ export interface FileRoutesById {
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/service-profile': typeof AuthenticatedServiceProfileRoute
   '/_authenticated/vehicle-demands': typeof AuthenticatedVehicleDemandsRoute
+  '/auth_/callback': typeof AuthCallbackRoute
   '/profile/$userId': typeof ProfileUserIdRoute
   '/_authenticated/chat/$userId': typeof AuthenticatedChatUserIdRoute
   '/_authenticated/post/new': typeof AuthenticatedPostNewRoute
@@ -224,6 +242,7 @@ export interface FileRouteTypes {
     | '/admin-login'
     | '/auth'
     | '/feed'
+    | '/reset-password'
     | '/services'
     | '/vehicles'
     | '/work'
@@ -237,6 +256,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/service-profile'
     | '/vehicle-demands'
+    | '/auth/callback'
     | '/profile/$userId'
     | '/chat/$userId'
     | '/post/new'
@@ -247,6 +267,7 @@ export interface FileRouteTypes {
     | '/admin-login'
     | '/auth'
     | '/feed'
+    | '/reset-password'
     | '/services'
     | '/vehicles'
     | '/work'
@@ -260,6 +281,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/service-profile'
     | '/vehicle-demands'
+    | '/auth/callback'
     | '/profile/$userId'
     | '/chat/$userId'
     | '/post/new'
@@ -271,6 +293,7 @@ export interface FileRouteTypes {
     | '/admin-login'
     | '/auth'
     | '/feed'
+    | '/reset-password'
     | '/services'
     | '/vehicles'
     | '/work'
@@ -284,6 +307,7 @@ export interface FileRouteTypes {
     | '/_authenticated/notifications'
     | '/_authenticated/service-profile'
     | '/_authenticated/vehicle-demands'
+    | '/auth_/callback'
     | '/profile/$userId'
     | '/_authenticated/chat/$userId'
     | '/_authenticated/post/new'
@@ -296,9 +320,11 @@ export interface RootRouteChildren {
   AdminLoginRoute: typeof AdminLoginRoute
   AuthRoute: typeof AuthRoute
   FeedRoute: typeof FeedRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   ServicesRoute: typeof ServicesRoute
   VehiclesRoute: typeof VehiclesRoute
   WorkRoute: typeof WorkRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
   ProfileUserIdRoute: typeof ProfileUserIdRoute
   ApiPublicPushDispatchRoute: typeof ApiPublicPushDispatchRoute
 }
@@ -338,6 +364,13 @@ declare module '@tanstack/react-router' {
       path: '/feed'
       fullPath: '/feed'
       preLoaderRoute: typeof FeedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/services': {
@@ -431,6 +464,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVehicleDemandsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/auth_/callback': {
+      id: '/auth_/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile/$userId': {
       id: '/profile/$userId'
       path: '/profile/$userId'
@@ -501,9 +541,11 @@ const rootRouteChildren: RootRouteChildren = {
   AdminLoginRoute: AdminLoginRoute,
   AuthRoute: AuthRoute,
   FeedRoute: FeedRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   ServicesRoute: ServicesRoute,
   VehiclesRoute: VehiclesRoute,
   WorkRoute: WorkRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
   ProfileUserIdRoute: ProfileUserIdRoute,
   ApiPublicPushDispatchRoute: ApiPublicPushDispatchRoute,
 }

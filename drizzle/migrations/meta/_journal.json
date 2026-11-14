@@ -610,6 +610,13 @@
       "when": 1794670134732,
       "tag": "0086_safe_vehicle_name_teaser",
       "breakpoints": true
+    },
+    {
+      "idx": 87,
+      "version": "7",
+      "when": 1794699594767,
+      "tag": "0087_admin_approval_message_and_bell_notice_details",
+      "breakpoints": true
     }
   ]
 }

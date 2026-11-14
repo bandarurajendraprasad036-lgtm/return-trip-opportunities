@@ -30,5 +30,18 @@ export function AdminPasswordLogin() {
       <Label htmlFor="admin-identity">అడ్మిన్ ఈమెయిల్ / మొబైల్ నంబర్</Label><Input id="admin-identity" autoComplete="username" value={identity} onChange={e => setIdentity(e.target.value)} required disabled={busy}/>
       <Label htmlFor="admin-password">పాస్‌వర్డ్</Label><Input id="admin-password" type="password" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} required disabled={busy}/>
       <Button type="submit" disabled={busy} className="w-full">అడ్మిన్ ప్రవేశం</Button>{error && <p role="alert" className="text-destructive">{error}</p>}
-    </form></section>;
+    </form>
+    <ForgotPassword /></section>;
+}
+function ForgotPassword() {
+  const [open, setOpen] = useState(false); const [email, setEmail] = useState(''); const [busy, setBusy] = useState(false); const [msg, setMsg] = useState('');
+  if (!open) return <button type="button" className="block w-full py-2 text-center text-primary underline" onClick={() => setOpen(true)}>పాస్‌వర్డ్ మర్చిపోయారా? · Forgot password</button>;
+  return <form className="space-y-2 rounded-md border p-3" onSubmit={async e => {
+    e.preventDefault(); if (busy) return; setBusy(true); setMsg('');
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: `${window.location.origin}/reset-password` });
+    setBusy(false); setMsg(error ? 'లింక్ పంపలేకపోయాం. ఈమెయిల్ సరిచూసి మళ్లీ ప్రయత్నించండి.' : 'ఈ ఈమెయిల్ కు ఖాతా ఉంటే, పాస్‌వర్డ్ మార్చే లింక్ పంపాం. ఈమెయిల్ చూడండి.');
+  }}>
+    <Label htmlFor="reset-email">అడ్మిన్ ఈమెయిల్</Label><Input id="reset-email" type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} required disabled={busy} />
+    <Button type="submit" className="w-full" disabled={busy}>పాస్‌వర్డ్ మార్చే లింక్ పంపండి</Button>{msg && <p role="status">{msg}</p>}
+  </form>;
 }

@@ -19,7 +19,8 @@ export function GoogleSignIn({ destination = '/feed', redirectPath = '/' }: { de
     setError("");
     setBusy(true);
     try {
-      const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}${redirectPath}` });
+      sessionStorage.setItem('gayatri-auth-destination', redirectPath === '/admin-login' ? '/admin-login' : destination);
+      const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}/auth/callback` });
       if (result.error) { setError(googleAuthHelp(result.error.message)); return; }
       if (result.redirected) return;
       await navigate({ to: destination });

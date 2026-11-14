@@ -9,6 +9,7 @@ import { useMe } from "@/lib/session";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
+import { AdminScannerUpload, AdminNewPaymentAlert } from "@/components/AdminScannerUpload";
 import { AdminReferralCash } from "@/components/AdminReferralCash";
 import { AdminPayments } from "@/components/AdminPayments";
 import { AdminDevotional } from "@/components/AdminDevotional";
@@ -97,6 +98,7 @@ function Admin() {
   return (
     <div className="space-y-4 p-4">
       <div className="flex items-center justify-between gap-3"><h2 className="text-2xl font-bold">అడ్మిన్ డాష్‌బోర్డ్ <span className="text-base font-normal text-muted-foreground">Admin</span></h2><Button asChild variant="outline"><Link to="/admin-settings">సెట్టింగులు · Settings</Link></Button></div>
+      <AdminNewPaymentAlert />
       <AdminMessages />
       <AdminPrime99 />
       <ProviderContacts admin />
@@ -132,6 +134,7 @@ function Admin() {
           </label>
         ))}
       </div>
+      <AdminScannerUpload />
       <h3 className="text-xl font-bold">అన్ని పోస్ట్‌లు · All posts</h3>
       {postsError && <div role="alert" className="space-y-2 rounded-xl border p-3"><p>పోస్టులు రాలేదు. మళ్లీ ప్రయత్నించండి. · Could not load posts.</p><Button variant="outline" onClick={() => void refetch()}>మళ్లీ ప్రయత్నించండి · Retry</Button></div>}
       {!postsError && posts.length === 0 && <p className="text-muted-foreground">ఇంకా పోస్టులు లేవు · No posts yet</p>}

@@ -2751,6 +2751,16 @@ export type Database = {
         Args: { _entry: string }
         Returns: undefined
       }
+      my_free_work_bell_notices: {
+        Args: never
+        Returns: {
+          area: string
+          category: string
+          notification_id: string
+          ringer: string
+          section: string
+        }[]
+      }
       my_goods_membership: { Args: never; Returns: boolean }
       my_membership_price: { Args: never; Returns: number }
       my_notification_quota: { Args: never; Returns: Json }
