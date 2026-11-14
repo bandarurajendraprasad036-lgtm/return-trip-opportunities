@@ -18,6 +18,7 @@ import { requireHomeBell, useHomeBellRung } from '@/lib/home-bell';
 import { BellBoardLink } from '@/components/BellBoardLink';
 import { useMasterArea } from '@/lib/master-area';
 import { WorkAreaInput } from '@/components/WorkAreaInput';
+import { canOpenWorkArea } from '@/lib/work-area';
 
 const sections: { key: HomeVehicleSection; te: string; en: string; className: string }[] = [
   { key: 'local', te: 'స్థానిక సరకు వాహనాలు', en: 'Local Goods Vehicle', className: 'vehicle-choice-local' },
@@ -97,7 +98,7 @@ export function HomeListings({ today, settings }: { today: string; settings: Hom
       <div className="home-job-columns">
         {([{ kind: 'seeker', te: 'పని కావాలి', sub: '(వర్కర్స్)', display: 'పని కోసం అప్లై చేసిన వాళ్ళు' }, { kind: 'employer', te: 'పని ఇస్తాను', sub: '(ఓనర్స్)', display: 'పని ఇచ్చే వాళ్ళు' }] as const).map(section => {
           return <section className="home-display-column work-display-column" key={section.kind} aria-label={section.display}>
-            <Button asChild className="home-apply"><Link to="/work" search={{ kind: section.kind, area: workArea }}><span>{section.te}<span translate="no" className="block text-xs">{section.sub}</span></span></Link></Button>
+            {canOpenWorkArea(workArea) ? <Button asChild className="home-apply"><Link to="/work" search={{ kind: section.kind, area: workArea }}><span>{section.te}<span translate="no" className="block text-xs">{section.sub}</span></span></Link></Button> : <Button disabled className="home-apply"><span>{section.te}<span translate="no" className="block text-xs">{section.sub}</span></span></Button>}
             <div className="mt-2"><BellBoardLink section={section.kind === 'seeker' ? 'work-wanted' : 'work-offered'} /></div>
           </section>;
         })}
