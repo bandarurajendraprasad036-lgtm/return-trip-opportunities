@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { JOB_CATEGORIES } from "@/lib/jobs";
 import { z } from "zod";
@@ -28,8 +28,6 @@ import { IndiaPlaceInput } from '@/components/IndiaPlaceInput';
 import { RoutePointPicker } from '@/components/RoutePointPicker';
 import type { Coordinates } from '@/lib/india-places';
 import { PostSubmissionNotice } from '@/components/PostSubmissionNotice';
-import { usePrime99 } from '@/lib/prime99';
-import { paymentPostingHeld } from '@/lib/payment-status';
 
 function AiJobAd({ kind, onDraft, work }: { kind: "seeker" | "employer"; onDraft: (d: JobAdDraft) => void; work: string }) {
   const run = useServerFn(draftJobAd);
@@ -126,9 +124,6 @@ const txt = (max: number) => z.string().trim().min(1, "అవసరం / Require
 function NewPost() {
   const search = Route.useSearch();
   const { data: me } = useMe();
-  const { data: prime } = usePrime99(me?.id);
-  const { data: paymentPending } = useQuery({queryKey:['payment-verification-pending',me?.id],enabled:!!me,refetchInterval:10000,queryFn:async()=>{const result=await supabase.rpc('my_payment_verification_pending');if(result.error)throw result.error;return result.data;}});
-  const paymentHeld=paymentPostingHeld(prime?.active===true,paymentPending);
   const { data: program, isLoading: programLoading } = useAccountProgram(me?.id);
   const nav = useNavigate();
   const qc = useQueryClient();
@@ -178,7 +173,7 @@ function NewPost() {
 
   const submit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
-    if (busy || paymentHeld) return;
+    if (busy) return;
     if (!me) return;
     if (!program) { toast.error("ముందుగా వివరాలు నింపండి · Complete profile first"); return; }
     const schema = isJob
@@ -205,13 +200,13 @@ function NewPost() {
     setBusy(true);
     const mod = await checkText({ data: { text: Object.values(v).join(" \n ") } }).catch(() => ({ ok: false }));
     if (!mod.ok) { setBusy(false); await qc.invalidateQueries({queryKey:['me']}); setContentError('తనిఖీ పూర్తికాలేదు లేదా అనుమతించని విషయం ఉంది; ప్రకటన పంపలేదు. · Check unavailable or prohibited content; not submitted.'); return; }
-    const { data: savedPost, error } = await supabase.from("posts").insert({ ...v, ...(isJob ? { service_type: search.service ? 'service' : '', area_scope: v['location'] === 'ఏ ప్రాంతమైనా' ? 'country' : 'local' } : { capacity_tons: capacity?.success ? capacity.data : null, vehicle_type: f["vehicle_type"]?.trim().slice(0, 60) || null }), show_contact: false, user_id: me.id, ...identity }).select('id,visible_after').single();
+    const { data: savedPost, error } = await supabase.from("posts").insert({ ...v, ...(isJob ? { service_type: search.service ? 'service' : '', area_scope: v['location'] === 'ఏ ప్రాంతమైనా' ? 'country' : 'local' } : { capacity_tons: capacity?.success ? capacity.data : null, vehicle_type: f["vehicle_type"]?.trim().slice(0, 60) || null }), show_contact: f['show_contact'] === 'yes', user_id: me.id, ...identity }).select('id,visible_after').single();
     if (!error && savedPost && !isJob && capturedPoints.from && capturedPoints.to) {
       const registered = await supabase.rpc('save_vehicle_post_points', { _post: savedPost.id, _from_lat: capturedPoints.from.latitude, _from_lng: capturedPoints.from.longitude, _to_lat: capturedPoints.to.latitude, _to_lng: capturedPoints.to.longitude });
       if (registered.error) toast.error('ప్రకటన భద్రపడింది; పరిధి స్థానాలు భద్రపడలేదు · Post saved; radius coordinates not saved');
     }
     setBusy(false);
-    if (error) { toast.error(error.message.includes('MONTHLY_THREE_POST_LIMIT') ? 'ఈ నెల మూడు ఉచిత పోస్టులు పూర్తయ్యాయి; అదనపు పోస్టుకు ₹49 చెల్లింపు ఆమోదం కావాలి' : error.message.includes('THREE_MONTHLY_JOBS_USED') ? 'ప్రకటన పరిమితి పూర్తయింది · Posting limit reached' : error.message.includes("MOBILE_REQUIRED") ? "ప్రకటనకు ముందు మొబైల్ నంబరు ఇవ్వండి · Mobile number required" : error.message.includes("BAD_CONTENT") ? "🚫 బూతులు, చెడు మాటలు, దేశ వ్యతిరేక విషయాలు పోస్ట్ చేయకూడదు · Abusive or anti-national content is not allowed" : error.message); return; }
+    if (error) { toast.error(error.message.includes("MOBILE_REQUIRED") ? "ప్రకటనకు ముందు మొబైల్ నంబరు ఇవ్వండి" : error.message.includes("BAD_CONTENT") ? "అనుచిత విషయాలు పోస్ట్ చేయకూడదు" : error.message); return; }
     qc.invalidateQueries();
     if (savedPost) setSubmitted(savedPost.id);
   };
@@ -225,8 +220,6 @@ function NewPost() {
 
   return (
     <form onSubmit={submit} className="space-y-4 p-4">
-      <p>ఒక నెలలో ఉద్యోగం, వాహనం కలిపి మొత్తం మూడు పోస్టులు. · Three total job/vehicle posts per month.</p>
-      <p className="text-sm">నెలకు మూడు పోస్టులు ఉచితం; తరువాత ఒక్కో పోస్టుకు ₹49. ఉచిత ప్రకటనలు ఐదు గంటల తరువాత కనిపిస్తాయి. చెల్లింపు ఆమోదం ఉంటే కొత్త ప్రకటన వెంటనే.</p>
       {!isJob && <div className={`flex items-center gap-3 rounded-xl border p-3 text-foreground ${opt.tone}`}>
         <opt.icon className="size-7" />
         <div><p className="text-lg font-bold">{search.service ? kind === 'seeker' ? 'సర్వీస్ కావాలి' : 'నేను సర్వీస్ ఇస్తాను' : opt.te}</p></div>
@@ -268,13 +261,14 @@ function NewPost() {
           {kind === "business" && field("goods_type", "సరుకు రకం", "Goods type", { placeholder: "e.g. Rice bags, Cement" })}
         </>
       )}
+      {isJob && field('contact_phone', 'మొబైల్ నంబర్', 'Mobile number', { inputMode: 'numeric', maxLength: 10 })}
+      <label className="flex items-start gap-2 text-base"><input type="checkbox" checked={f['show_contact'] === 'yes'} disabled={busy} onChange={event => setF(prev => ({ ...prev, show_contact: event.target.checked ? 'yes' : '' }))} />{isJob ? 'ఈ ప్రకటనలో నా నంబర్ అందరికీ చూపించడానికి అనుమతిస్తున్నాను' : 'ఈ ప్రకటనలో నా నంబర్, డ్రైవర్ పేరు చందా ఉన్నవారికి చూపించడానికి అనుమతిస్తున్నాను'}</label>
       <div className="space-y-1">
         <Label className="text-base">వివరాలు · Details (optional)</Label>
         <Textarea value={f["description"] ?? ""} onChange={set("description")} maxLength={500} className="text-base" />
       </div>
       {contentError && <p role="alert" className="break-words border border-destructive bg-card p-3 text-destructive">{contentError}</p>}
-      {paymentHeld&&<p role="status">చెల్లింపు పరిశీలనలో ఉంది</p>}
-      <Button type="submit" variant="secondary" size="xl" className="w-full" disabled={busy || paymentHeld}>
+      <Button type="submit" variant="secondary" size="xl" className="w-full" disabled={busy}>
         {busy ? "..." : "పోస్ట్ చేయండి · Post"}
       </Button>
     </form>

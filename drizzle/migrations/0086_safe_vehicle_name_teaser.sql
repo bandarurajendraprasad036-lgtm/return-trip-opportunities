@@ -1,0 +1,1 @@
+GRANT SELECT(vehicle_name) ON public.posts TO anon,authenticated;

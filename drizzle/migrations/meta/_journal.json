@@ -596,6 +596,20 @@
       "when": 1794650183901,
       "tag": "0084_open_free_work_chat_without_bell",
       "breakpoints": true
+    },
+    {
+      "idx": 85,
+      "version": "7",
+      "when": 1794669953771,
+      "tag": "0085_free_posting_vehicle_only_details",
+      "breakpoints": true
+    },
+    {
+      "idx": 86,
+      "version": "7",
+      "when": 1794670134732,
+      "tag": "0086_safe_vehicle_name_teaser",
+      "breakpoints": true
     }
   ]
 }
