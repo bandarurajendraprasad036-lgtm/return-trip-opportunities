@@ -82,9 +82,8 @@ export function FreeWorkBox({ section, area }: { section: FreeWorkSection; area:
   </div>)}</div>;
   return <div className="min-w-0 space-y-2" data-free-work={section}>
     <Button className="h-auto min-h-16 w-full whitespace-normal px-2" aria-expanded={expanded} onClick={() => setExpanded(value => !value)}>{FREE_WORK_LABELS[section]}</Button>
-    <Button variant="outline" className="h-auto min-h-14 w-full whitespace-normal px-2 text-sm" onClick={() => setExpanded(true)}>ఈ {FREE_WORK_LABELS[section]} గంట కొట్టిన వారి లిస్ట్</Button>
     <Dialog open={expanded} onOpenChange={setExpanded}><DialogContent aria-describedby={undefined} className="inset-0! left-0! top-0! h-dvh! max-h-dvh! w-full! max-w-none! translate-x-0! translate-y-0! overflow-y-auto rounded-none! bg-royal! text-on-royal content-start px-4 py-5 sm:left-1/2! sm:max-w-[480px]! sm:translate-x-[-50%]! [&>button]:hidden">
-      <div className="flex items-start justify-between gap-2"><DialogTitle className="min-w-0 break-words leading-normal tracking-normal">{FREE_WORK_LABELS[section]}</DialogTitle><DialogClose asChild><Button variant="outline" className="shrink-0">వెనక్కి</Button></DialogClose></div>
+      <div className="flex items-start justify-between gap-2"><DialogTitle className="min-w-0 break-words leading-normal tracking-normal">{FREE_WORK_LABELS[section]}</DialogTitle></div>
       <div className="space-y-3">
       {!me && <Button asChild variant="outline" className="h-auto w-full whitespace-normal"><Link to="/auth">ప్రవేశించండి</Link></Button>}
       {!service && categoryForm}
@@ -95,6 +94,7 @@ export function FreeWorkBox({ section, area }: { section: FreeWorkSection; area:
       <div aria-live="polite">{isPending ? <p>వస్తున్నాయి</p> : isError ? <p role="alert">జాబితా రాలేదు</p> : rows.length ? rows.map(renderRow) : <p className="break-words text-sm">ఇంకా నమోదులు లేవు</p>}</div>
       <section className="space-y-3 border-t border-border pt-3"><h3 className="font-bold">గంట కొట్టిన వారి లిస్ట్</h3>{service && categoryChips(true)}<div aria-live="polite">{interests.map(renderRow)}</div></section>
       {notices.length > 0 && <div aria-live="polite"><p className="font-bold">నా నోటిఫికేషన్లు</p>{notices.map(notice => <p key={notice.id} className="break-words border-b border-border py-2 text-sm">{notice.message}</p>)}</div>}
+      <DialogClose asChild><Button variant="outline" className="h-auto min-h-14 w-full text-lg">వెనక్కి</Button></DialogClose>
       </div>
     </DialogContent></Dialog>
   </div>;
