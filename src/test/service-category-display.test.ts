@@ -15,4 +15,11 @@ describe('service category rules', () => {
     expect(serviceCategoryCount(rows, 'ప్లంబర్')).toBe(1);
     expect(serviceCategoryCount(rows, 'ఎలక్ట్రీషియన్')).toBe(0);
   });
+});describe('bell list grouping', () => {
+  it('puts each real person once under their category, in category order', async () => {
+    const { groupRingersByCategory } = await import('@/lib/service-category-display');
+    const rows = [{ id: '1', source: 'interest', category: 'electrician' }, { id: '2', source: 'entry', category: 'plumber' }, { id: '2', source: 'entry', category: 'plumber' }];
+    const groups = groupRingersByCategory(rows, ['ప్లంబర్', 'ఎలక్ట్రీషియన్', 'డ్రైవర్']);
+    expect(groups.map(g => [g.category, g.rows.length])).toEqual([['ప్లంబర్', 1], ['ఎలక్ట్రీషియన్', 1]]);
+  });
 });

@@ -1,0 +1,7 @@
+CREATE OR REPLACE FUNCTION public.open_free_work_chat(_id text,_source text,_section text) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ DECLARE target uuid;BEGIN IF auth.uid() IS NULL OR NOT public.account_allowed(auth.uid()) THEN RAISE EXCEPTION 'SIGN_IN_REQUIRED';END IF;
+IF _source='interest' THEN SELECT user_id INTO target FROM public.free_work_interests WHERE id::text=_id AND section=_section;
+ELSE IF NOT EXISTS(SELECT 1 FROM public.list_free_work(_section) WHERE id=_id AND source=_source) THEN RAISE EXCEPTION 'ENTRY_UNAVAILABLE';END IF;
+IF _source='entry' THEN SELECT user_id INTO target FROM public.free_work_entries WHERE id::text=_id;ELSIF _source='post' THEN SELECT user_id INTO target FROM public.posts WHERE id::text=_id;ELSIF _source='provider' THEN SELECT user_id INTO target FROM public.service_profiles WHERE user_id::text=_id AND published;END IF;END IF;
+IF target IS NULL OR NOT public.account_allowed(target) THEN RAISE EXCEPTION 'ENTRY_UNAVAILABLE';END IF;IF target=auth.uid() THEN RETURN NULL;END IF;
+INSERT INTO public.free_work_pairs(member_id,owner_id) VALUES(auth.uid(),target) ON CONFLICT DO NOTHING;RETURN target;END $$;
+REVOKE ALL ON FUNCTION public.open_free_work_chat(text,text,text) FROM PUBLIC,anon;GRANT EXECUTE ON FUNCTION public.open_free_work_chat(text,text,text) TO authenticated;

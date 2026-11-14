@@ -2785,6 +2785,10 @@ export type Database = {
         Args: { _id: string; _source: string }
         Returns: string
       }
+      open_free_work_chat: {
+        Args: { _id: string; _section: string; _source: string }
+        Returns: string
+      }
       open_service_chat: { Args: { _other: string }; Returns: boolean }
       open_vehicle_chat: { Args: { _post: string }; Returns: string }
       open_vehicle_demand_chat: { Args: { _demand: string }; Returns: string }

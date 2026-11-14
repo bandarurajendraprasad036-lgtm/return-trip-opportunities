@@ -4,11 +4,17 @@ import { z } from 'zod';
 import { FREE_WORK_SECTIONS } from './free-work';
 
 export const freeWorkAction = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ section: z.enum(FREE_WORK_SECTIONS), action: z.enum(['join', 'ring', 'category']), category: z.string().trim().max(40).default(''), area: z.string().trim().max(80).default(''), id: z.string().max(100).default(''), source: z.enum(['entry', 'post', 'provider', 'interest']).default('entry') }).parse(input))
+  .inputValidator((input: unknown) => z.object({ section: z.enum(FREE_WORK_SECTIONS), action: z.enum(['join', 'ring', 'category', 'chat']), category: z.string().trim().max(40).default(''), area: z.string().trim().max(80).default(''), id: z.string().max(100).default(''), source: z.enum(['entry', 'post', 'provider', 'interest']).default('entry') }).parse(input))
   .handler(async ({ data, context }) => {
     const allowed = await context.supabase.rpc('account_allowed', { _uid: context.userId });
     if (allowed.error || !allowed.data) throw new Error('SIGN_IN_REQUIRED');
     let target: string | null = null;
+    if (data.action === 'chat') {
+      // Opening a chat only creates the private pair; it never rings a bell or sends a notice.
+      const opened = await context.supabase.rpc('open_free_work_chat', { _id: data.id, _source: data.source, _section: data.section });
+      if (opened.error) throw opened.error;
+      return { target: opened.data };
+    }
     if (data.action === 'join' || data.action === 'category') {
       const saved = await context.supabase.rpc('join_free_work', { _section: data.section, _category: data.category, _area: data.area });
       if (saved.error) throw saved.error;

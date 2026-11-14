@@ -589,6 +589,13 @@
       "when": 1794643792312,
       "tag": "0083_category_bells_in_same_home_box",
       "breakpoints": true
+    },
+    {
+      "idx": 84,
+      "version": "7",
+      "when": 1794650183901,
+      "tag": "0084_open_free_work_chat_without_bell",
+      "breakpoints": true
     }
   ]
 }

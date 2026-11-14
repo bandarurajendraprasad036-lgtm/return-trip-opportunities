@@ -26,3 +26,20 @@ export function resolveServiceCategory(input: string, names: readonly string[]) 
 export function serviceCategoryCount(rows: readonly { id: string; source: string; category: string }[], category: string) {
   return new Set(rows.filter(row => freeWorkCategory(row.category) === freeWorkCategory(category)).map(row => `${row.source}:${row.id}`)).size;
 }
+
+/** Groups real listed people under the category names, keeping each person once and the given category order. */
+export function groupRingersByCategory<T extends { id: string; source: string; category: string }>(rows: readonly T[], names: readonly string[]) {
+  const seen = new Set<string>();
+  const groups = new Map<string, T[]>();
+  for (const row of rows) {
+    const key = `${row.source}:${row.id}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const category = freeWorkCategory(row.category);
+    groups.set(category, [...(groups.get(category) ?? []), row]);
+  }
+  const ordered = names.map(name => ({ category: name, rows: groups.get(freeWorkCategory(name)) ?? [] }));
+  const known = new Set(names.map(name => freeWorkCategory(name)));
+  const extra = [...groups.entries()].filter(([key]) => !known.has(key)).map(([, list]) => ({ category: freeWorkLabel(list[0]?.category ?? ''), rows: list }));
+  return [...ordered, ...extra].filter(group => group.rows.length > 0);
+}
