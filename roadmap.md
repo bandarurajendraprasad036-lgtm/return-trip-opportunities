@@ -227,3 +227,5 @@
 - [ ] 7 km nearby alerts with admin-editable km — waits for database approval
 - [x] (done Nov 11 second pass) weekly winner, OK-join counting, vehicle details, 7 km admin setting
 - [x] Nov 14: automatic Prime receipt check (name+UTR), pending for admin otherwise, hide ₹100 box for paid users
+
+- [x] Nov14 19:00 IST: restored second "గంట కొట్టిన వాళ్ళు" home box under each of four work/service buttons, free (no ₹100), with bell + chat.

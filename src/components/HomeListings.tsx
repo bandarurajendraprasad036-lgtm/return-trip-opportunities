@@ -98,10 +98,11 @@ export function HomeListings({ today, settings }: { today: string; settings: Hom
     {settings.showJobs && <section className="home-market-section" aria-label="పని కావాలి / పని ఇస్తాను">
       <div className="home-job-columns">
         {([{ kind: 'seeker', te: 'పని కావాలి', sub: '(వర్కర్స్)', display: 'పని కోసం అప్లై చేసిన వాళ్ళు' }, { kind: 'employer', te: 'పని ఇస్తాను', sub: '(ఓనర్స్)', display: 'పని ఇచ్చే వాళ్ళు' }] as const).map(section => {
-          return <FreeWorkBox key={section.kind} section={section.kind === 'seeker' ? 'work-wanted' : 'work-offered'} area={workArea} />;
+          const free = section.kind === 'seeker' ? 'work-wanted' : 'work-offered';
+          return <div key={section.kind} className="min-w-0 space-y-2"><FreeWorkBox section={free} area={workArea} /><BellBoardLink section={free} /></div>;
         })}
       </div>
     </section>}
-    {settings.showServices && <section className="home-market-section" aria-label="సర్వీస్ ప్రొవైడర్లు"><div className="grid grid-cols-2 gap-2"><FreeWorkBox section="service-providers" area={workArea} /><FreeWorkBox section="service-wanted" area={workArea} /></div></section>}
+    {settings.showServices && <section className="home-market-section" aria-label="సర్వీస్ ప్రొవైడర్లు"><div className="grid grid-cols-2 gap-2"><div className="min-w-0 space-y-2"><FreeWorkBox section="service-providers" area={workArea} /><BellBoardLink section="service-providers" /></div><div className="min-w-0 space-y-2"><FreeWorkBox section="service-wanted" area={workArea} /><BellBoardLink section="service-wanted" /></div></div></section>}
   </>;
 }
