@@ -51,5 +51,27 @@ export async function saveLocalPaymentEvidence(input: {
   const key = localPaymentKey(input.ownerId, input.reference);
   try { storage.setItem(key, JSON.stringify(evidence)); }
   catch { await fallback(key, evidence); }
+  window.dispatchEvent(new Event('gayatri-local-payment-saved'));
   return evidence;
+}
+
+export async function hasLocalPaymentEvidence(ownerId: string, storage: Pick<Storage, 'length' | 'key' | 'getItem'> = localStorage): Promise<boolean> {
+  const matches = (row: Partial<LocalPaymentEvidence>) => row.ownerId === ownerId && row.beneficiary === ownerId && row.status === 'local-only' && /^\d{12}$/.test(row.reference ?? '') && !!row.photo;
+  for (let index = 0; index < storage.length; index++) {
+    const key = storage.key(index);
+    if (!key?.startsWith(`gayatri-local-payment:${ownerId}:`)) continue;
+    try { if (matches(JSON.parse(storage.getItem(key) ?? '{}'))) return true; } catch { /* Ignore incomplete local records. */ }
+  }
+  if (typeof indexedDB === 'undefined') return false;
+  return new Promise(resolve => {
+    const request = indexedDB.open('gayatri-local-payments', 1);
+    request.onupgradeneeded = () => request.result.createObjectStore('evidence');
+    request.onerror = () => resolve(false);
+    request.onsuccess = () => {
+      const db = request.result;
+      const read = db.transaction('evidence', 'readonly').objectStore('evidence').getAll();
+      read.onsuccess = () => { resolve((read.result as LocalPaymentEvidence[]).some(matches)); db.close(); };
+      read.onerror = () => { resolve(false); db.close(); };
+    };
+  });
 }

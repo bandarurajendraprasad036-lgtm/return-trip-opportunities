@@ -3,8 +3,9 @@ import { vehiclePageRows, vehicleDisplay, VEHICLE_CATALOG } from '@/lib/vehicle-
 import type { Post } from '@/components/PostCard';
 const rows=[{id:'local',module:'vehicle',status:'active',vehicle_type:'Lorry',from_place:'A',to_place:'A'}, {id:'return',module:'vehicle',status:'active',vehicle_type:'Lorry',from_place:'A',to_place:'B',trip_date:'2026-12-01'}, {id:'car',module:'vehicle',status:'active',vehicle_type:'Car',from_place:'A',to_place:'B'}] as Post[];
 describe('vehicle category pages', () => {
-  it('shows free types but never actual listing details when unpaid even with cached rows', () => {
-    expect(vehicleDisplay(false, true, false, 3)).toEqual({ showCatalog: true, showListings: false });
+  it('shows anonymous vehicle listings without paid access', () => {
+    expect(vehicleDisplay(false, true, false, 3)).toEqual({ showCatalog: false, showListings: true });
+    expect(vehicleDisplay(false, false, false, 0)).toEqual({ showCatalog: true, showListings: true });
   });
   it('paid access shows real listings and uses types only when no result matches', () => {
     expect(vehicleDisplay(true, false, false, 1)).toEqual({ showCatalog: false, showListings: true });

@@ -13,6 +13,7 @@ import { AddCategoryBox, useAddedCategories } from '@/components/AddCategoryBox'
 import { categoryNames } from '@/lib/discovery-categories';
 import { JOB_CATEGORIES } from '@/lib/jobs';
 import { useMasterArea, matchesArea } from '@/lib/master-area';
+import { WorkAreaInput } from '@/components/WorkAreaInput';
 
 type Kind = 'seeker' | 'employer';
 const TITLE: Record<Kind, string> = { seeker: 'పని కావాలి — పని కోసం అప్లై చేసిన వాళ్ళు', employer: 'పని ఇస్తాను — పని ఇచ్చే వాళ్ళు' };
@@ -41,7 +42,7 @@ function WorkPage() {
   const rows = workListings(posts, area, kind).filter(post => !area.trim() || matchesArea(post.location, area)).filter(post => !selected || (post.skill ?? '').trim().toLowerCase() === selected.toLowerCase());
   return <section className="space-y-4 py-3">
     <h1 className="text-2xl font-bold">{TITLE[kind]}</h1>
-    <div><label htmlFor="work-page-area" className="mb-2 block font-bold">ప్రాంతం</label><IndiaPlaceInput id="work-page-area" value={area} onChange={setArea} maxLength={80} placeholder="మీ ప్రాంతం పేరు" /></div>
+    <WorkAreaInput id="work-page-area" value={area} onChange={setArea} />
     <div className="flex flex-wrap gap-2"><Button variant={selected ? 'outline' : 'default'} onClick={() => setSelected('')}>అన్ని పనులు</Button>{categoryNames([], categories).map(name => <Button key={name} variant={selected === name ? 'default' : 'outline'} className="h-auto min-h-12 whitespace-normal" onClick={() => setSelected(name)}><span translate="no">{name}</span></Button>)}</div>
     <AddCategoryBox label="కేటగిరి చేర్చండి" section={section} />
 

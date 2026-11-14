@@ -17,6 +17,7 @@ import { ServiceDirectory } from '@/components/ServiceDirectory';
 import { requireHomeBell, useHomeBellRung } from '@/lib/home-bell';
 import { BellBoardLink } from '@/components/BellBoardLink';
 import { useMasterArea } from '@/lib/master-area';
+import { WorkAreaInput } from '@/components/WorkAreaInput';
 
 const sections: { key: HomeVehicleSection; te: string; en: string; className: string }[] = [
   { key: 'local', te: 'స్థానిక సరకు వాహనాలు', en: 'Local Goods Vehicle', className: 'vehicle-choice-local' },
@@ -90,6 +91,7 @@ export function HomeListings({ today, settings }: { today: string; settings: Hom
         <div className="home-display-list">{status()}{vehicleRows.map(post => <PostCard key={post.id} post={post} meId={me?.id} compact hideDate={vehicleSection === 'local'} />)}{examples(vehicleSection, vehicleRows.length)}</div>
       </section>}
     </section>
+    {(settings.showJobs || settings.showServices) && <div className="py-3"><WorkAreaInput id="home-work-service-area" value={workArea} onChange={setWorkArea} /></div>}
     {settings.showJobs && <section className="home-market-section" aria-labelledby="job-location-heading">
       <h2 id="job-location-heading" className="home-section-title">పనులు</h2>
       <div className="home-job-columns">

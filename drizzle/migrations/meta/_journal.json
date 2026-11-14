@@ -526,6 +526,13 @@
       "when": 1794584128908,
       "tag": "0074_payment_photo_reference_without_ocr",
       "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "7",
+      "when": 1794633809768,
+      "tag": "0075_free_anonymous_vehicle_lists_silent_paid_chat",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { MessageCircle, Bell } from "lucide-react";
+import { MessageCircle, Bell, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MapPin, IndianRupee, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -56,6 +56,18 @@ export function PostCard({
       setDetails(data as PostDetails); setDetailsOpen(true);
     } finally { setDetailsBusy(false); }
   };
+  const openVehicle = async (chat: boolean) => {
+    if (post.user_id === meId || sending) return;
+    setSending(true);
+    try {
+      if (!await checkAccess()) return;
+      if (chat) {
+        const result = await supabase.rpc('open_vehicle_chat', { _post: post.id });
+        if (result.error) { toast.error('సంభాషణ ప్రారంభం కాలేదు'); return; }
+        if (result.data) await nav({ to: '/chat/$userId', params: { userId: result.data }, search: { post: post.id } });
+      } else { await openDetails(); }
+    } finally { setSending(false); }
+  };
   const contact = () => { void ring(); };
   const ring = async () => {
     if (sending) return;
@@ -73,17 +85,17 @@ export function PostCard({
   return <article className={compact ? "home-post-row" : "space-y-2 rounded-lg border bg-card p-3"}>
     <div className="flex items-start justify-between gap-3">
       <div className="min-w-0 flex-1 space-y-1">
-        <h3 className="break-words text-lg font-bold">{isJob ? post.skill || post.title : vehicleTypeLabel(post.vehicle_type) || 'వాహనం · Vehicle'}</h3>
+        <h3 className="break-words text-lg font-bold">{isJob ? post.skill || post.title : <Button variant="ghost" className="h-auto w-full justify-start whitespace-normal p-0 text-left text-lg font-bold" disabled={sending} onClick={()=>void openVehicle(false)}>{vehicleTypeLabel(post.vehicle_type) || 'వాహనం · Vehicle'}</Button>}</h3>
         <p className="flex min-w-0 items-start gap-1 text-sm"><MapPin className="size-4 shrink-0" /><span translate="no" className="min-w-0 whitespace-normal break-words">{isJob ? post.location : `${post.from_place || '…'} → ${post.to_place || '…'}`}</span></p>
         {!anonymousWork && (post.salary || (isJob && compact)) && <p translate="no" className="flex items-start gap-1 break-words text-sm font-semibold"><IndianRupee className="size-4 shrink-0" />{post.salary || 'జీతం ఇవ్వలేదు'}</p>}
       </div>
-      {jobIsVisible(post) && (post.module === 'vehicle' ? <VehicleDemandBell postId={post.id} /> : <Button type="button" variant="outline" size="icon" disabled={sending} className="shrink-0" onClick={contact} aria-label="గంట · Bell"><Bell /></Button>)}
+      {jobIsVisible(post) && (post.module === 'vehicle' ? <div className="flex shrink-0 gap-2"><Button variant="outline" size="icon" aria-label="చాట్" title="చాట్" disabled={sending} onClick={()=>void openVehicle(true)}><MessageCircle /></Button><VehicleDemandBell postId={post.id} /></div> : <Button type="button" variant="outline" size="icon" disabled={sending} className="shrink-0" onClick={contact} aria-label="గంట · Bell"><Bell /></Button>)}
     </div>
     {anonymousWork && <Button variant="outline" onClick={contact} disabled={sending}><MessageCircle />చాట్</Button>}
     {isJob && compact && !anonymousWork && <p className="break-words text-xs text-muted-foreground">పేరు: దాచబడింది · మొబైల్ నంబరు: దాచబడింది · ఫోటో: దాచబడింది · షాప్ పేరు: దాచబడింది</p>}
     
-    <Dialog open={detailsOpen} onOpenChange={open => { setDetailsOpen(open); if (!open) setDetails(null); }}><DialogContent className="max-h-[85svh] overflow-y-auto"><DialogTitle>ప్రకటన వివరాలు · Post details</DialogTitle><DialogDescription>{isJob ? post.skill || 'ఉద్యోగం · Job' : vehicleTypeLabel(post.vehicle_type)}</DialogDescription><p translate="no" className="break-words">{isJob ? post.location : `${post.from_place || '…'} → ${post.to_place || '…'}`}</p>{post.salary && <p translate="no">{post.salary}</p>}{details?.description && <p translate="no" className="whitespace-pre-wrap break-words">{details.description}</p>}{details?.trip_date && <p translate="no">{details.trip_date}</p>}{details?.capacity_tons != null && <p>{details.capacity_tons} టన్నులు · tons</p>}</DialogContent></Dialog>
-    <BellPaymentNotice open={upgradeOpen} onOpenChange={setUpgradeOpen} />
+    <Dialog open={detailsOpen} onOpenChange={open => { setDetailsOpen(open); if (!open) setDetails(null); }}><DialogContent className="max-h-[85svh] overflow-y-auto"><DialogTitle>ప్రకటన వివరాలు · Post details</DialogTitle><DialogDescription>{isJob ? post.skill || 'ఉద్యోగం · Job' : vehicleTypeLabel(post.vehicle_type)}</DialogDescription><p translate="no" className="break-words">{isJob ? post.location : `${post.from_place || '…'} → ${post.to_place || '…'}`}</p>{post.salary && <p translate="no">{post.salary}</p>}{details?.description && <p translate="no" className="whitespace-pre-wrap break-words">{details.description}</p>}{details?.trip_date && <p translate="no">{details.trip_date}</p>}{details?.capacity_tons != null && <p>{details.capacity_tons} టన్నులు · tons</p>}{!isJob && details?.contact_phone && /^[6-9]\d{9}$/.test(details.contact_phone) && <Button asChild><a href={`tel:+91${details.contact_phone}`}><Phone /><span translate="no">{details.contact_phone}</span></a></Button>}</DialogContent></Dialog>
+    {isJob ? <BellPaymentNotice open={upgradeOpen} onOpenChange={setUpgradeOpen} /> : <Dialog open={upgradeOpen} onOpenChange={setUpgradeOpen}><DialogContent><DialogTitle>₹100 పే చేయండి</DialogTitle><DialogDescription>₹100 పే చేయండి - ఇందులో ఉన్న వ్యక్తులతో చాట్ చేయవచ్చు మరియు మొబైల్ నెంబర్ తీసుకోవచ్చు, మీరు వాళ్లతో మాట్లాడుకోవచ్చు</DialogDescription><Button onClick={()=>void nav({to:'/dashboard'})}>₹100 చెల్లింపు</Button></DialogContent></Dialog>}
     {actions && meId === post.user_id && <div className="flex flex-wrap gap-2">{actions}</div>}
     {!isJob && !compact && <ResponsibilityNotice />}
   </article>;

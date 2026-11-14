@@ -13,6 +13,7 @@ import { SERVICE_CATEGORIES, serviceLabel } from '@/lib/service-categories';
 import { useMasterArea } from '@/lib/master-area';
 import { AddCategoryBox, useAddedCategories } from '@/components/AddCategoryBox';
 import { categoryNames } from '@/lib/discovery-categories';
+import { WorkAreaInput } from '@/components/WorkAreaInput';
 
 export const Route = createFileRoute('/services')({
   validateSearch: (search: Record<string, unknown>): { view: 'providers' | 'requests'; area: string } => ({ view: search['view'] === 'requests' ? 'requests' : 'providers', area: typeof search['area'] === 'string' ? search['area'].slice(0, 80) : '' }),
@@ -58,7 +59,7 @@ function ServicesPage() {
   };
   return <section className="space-y-4 py-3">
     <h1 className="text-2xl font-bold">{view === 'providers' ? 'నేను సర్వీస్ ప్రొవైడర్ ను' : 'నీడ్ సర్వీస్ ప్రొవైడర్స్'}</h1>
-    <div><label htmlFor="service-page-area" className="mb-2 block font-bold">ప్రాంతం</label><IndiaPlaceInput id="service-page-area" value={area} onChange={setArea} maxLength={80} placeholder="మీ ప్రాంతం పేరు" /></div>
+    <WorkAreaInput id="service-page-area" value={area} onChange={setArea} />
     {view === 'providers' ? <>
       <div className="divide-y divide-border">{names.map(name => <div key={name} className="flex min-h-16 items-center justify-between gap-3 py-3"><span className="text-lg font-bold" translate="no">{serviceLabel(name)}</span><Button variant="outline" size="icon" aria-label="గంట" disabled={busy} onClick={() => void ring(name)}><Bell /></Button></div>)}</div>
       

@@ -9,7 +9,7 @@ export const VEHICLE_CATALOG: Record<VehiclePageKind, string[]> = {
   cars: ['ఇన్నోవా · Innova', 'స్విఫ్ట్ డిజైర్ · Swift Dzire', 'ఎర్టిగా · Ertiga', 'బొలెరో · Bolero'],
 };
 export function vehicleDisplay(paid: boolean, loading: boolean, failed: boolean, rowCount: number) {
-  return { showCatalog: !paid || (!loading && !failed && rowCount === 0), showListings: paid };
+  return { showCatalog: !loading && !failed && rowCount === 0, showListings: true };
 }
 export function vehiclePageRows(posts: Post[], kind: VehiclePageKind, from = '', to = '', date = '') {
   const norm = (v: string | null | undefined) => v?.trim().toLocaleLowerCase() || '';

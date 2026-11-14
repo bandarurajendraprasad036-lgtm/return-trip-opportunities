@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { localPaymentKey, saveLocalPaymentEvidence } from '@/lib/local-payment-evidence';
+import { hasLocalPaymentEvidence, localPaymentKey, saveLocalPaymentEvidence } from '@/lib/local-payment-evidence';
 
 const input = () => ({ ownerId: 'owner-one', reference: '123456789012', amount: 100, image: new File(['test photo'], 'photo.png', { type: 'image/png' }) });
 describe('phone-only payment evidence', () => {
@@ -18,6 +18,11 @@ describe('phone-only payment evidence', () => {
   it('rejects eleven digits', async () => {
     await expect(saveLocalPaymentEvidence({ ...input(), reference: '12345678901' })).rejects.toThrow('INVALID_LOCAL_EVIDENCE');
     expect(localStorage.length).toBe(0);
+  });
+  it('remembers completed local evidence only for its owner across reads', async () => {
+    await saveLocalPaymentEvidence(input());
+    expect(await hasLocalPaymentEvidence('owner-one')).toBe(true);
+    expect(await hasLocalPaymentEvidence('owner-two')).toBe(false);
   });
   it('requires a nonempty photo', async () => {
     await expect(saveLocalPaymentEvidence({ ...input(), image: new File([], 'empty.png') })).rejects.toThrow('INVALID_LOCAL_EVIDENCE');

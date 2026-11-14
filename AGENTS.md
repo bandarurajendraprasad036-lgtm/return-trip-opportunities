@@ -50,16 +50,16 @@
 - Historical payment records remain read/review compatible; new direct-referral receipts use an admin-authorized atomic cash-prize ledger to prevent client awards and duplicate receipts.
 - Payment forms save account-scoped photo/reference evidence in localStorage (IndexedDB on quota failure), never upload or grant paid access; server receipts/review remain separate to avoid false admin delivery or cash claims.
 - Sharing evidence uses owner-checked server hashing with atomic digest registration, admin-only short-lived signing and existing managed dispatch cleanup; review decisions notify the owner transactionally.
-- Chat attachments use authenticated server validation, private storage and participant-checked short-lived signing; post conversations require bell-created pair rows, backfilled only for historical owner/member conversations to preserve privacy.
+- Chat attachments remain private and participant-checked; vehicle chat creates a paid pair without bell events so opening chat never notifies an owner.
 - Listing cards/details stay anonymous; confirmed full-price bells create exact-owner pairs, and current full-price eligibility gates ordinary chat writes while admin evidence/support stays accessible.
 - Direct-referral campaign ranks count only new campaign join edges, enforce one inviter and no cycles, and expose only owner-scoped stats; cash awards never imply payout.
 - Confirmed receipts atomically credit only the eligible direct inviter; historical invitee ledgers remain read-only evidence, new accounts keep unique codes, and remaining-slot reads expose aggregates only.
 - Paid alert eligibility is enforced by receipt-linked periods at database insertion/read and every screen/device delivery path, never by editable profile flags; post usage persists separately from deletable posts to prevent quota bypass.
 - Daily competition notices reuse the managed dispatcher and an atomic per-user/day ledger; public photo signing accepts only publication-and-competition-consent-checked paths to prevent private image disclosure.
-- Vehicle choices use one category-aware route: static types are public, actual listings stay paid and area/date-filtered; requests are not bookings.
+- Vehicle choices share free anonymous area/date-filtered lists; contact reads stay paid and owner-consented so private profiles are never exposed.
 - Personalized sharing artwork renders existing owner referral identity and same-origin product links through canvas; private profile photos never enter it, and published photos require explicit owner consent after the configured trial.
 - Provider contact batches stay owner/admin private; authenticated atomic submission and admin review determine the discounted price rather than client assertions.
 - Posts and new service publication share a locked durable usage ledger; extra-post receipt consumption survives deletions to prevent quota bypass.
-- Use one hydrated area preference across discovery; anonymous boards filter exact areas, work/service reads are free, vehicle reads and chat are paid, preserving private identity.
+- Discovery shares one hydrated area preference; work/service area inputs append a separator only on place selection to preserve multi-word names.
 - New service demand/offer posts reuse the protected job-post path with a service discriminator; keep historical opted-in directory entries separate to preserve identity/privacy and publication evidence.
 - Referral joins count only via confirm_referral_join (code + own mobile + OK); weekly winners come from select_weekly_winners (SQL cron Sunday night IST) requiring 70% paid joins and a consented published photo.

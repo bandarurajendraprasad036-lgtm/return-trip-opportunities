@@ -30,18 +30,17 @@ function Vehicles() {
   const [date, setDate] = useState('');
   const [carMode, setCarMode] = useState<'advance' | 'return'>('advance');
   const instant = search.category === 'goods';
-  const { data: posts = [], isError, isPending, refetch } = useQuery({ queryKey: ['vehicle-page-posts',me?.id,paid], enabled:paid, queryFn: async () => { const result = await supabase.from('posts').select(POST_LIST_COLUMNS).eq('module','vehicle').eq('status','active').order('created_at',{ ascending: false }); if (result.error) throw result.error; return result.data as Post[]; } });
+  const { data: posts = [], isError, isPending, refetch } = useQuery({ queryKey: ['vehicle-page-posts',me?.id], queryFn: async () => { const result = await supabase.from('posts').select(POST_LIST_COLUMNS).eq('module','vehicle').eq('status','active').order('created_at',{ ascending: false }); if (result.error) throw result.error; return result.data as Post[]; } });
   const rows = vehiclePageRows(posts, search.category, area || search.from, search.to, instant ? '' : date).filter(p => matchesArea(p.from_place, area || search.from)).filter(p => search.category !== 'cars' || carMode === 'advance' || (p.from_place ?? '').trim().toLowerCase() !== (p.to_place ?? '').trim().toLowerCase());
   const display = vehicleDisplay(paid, isPending, isError, rows.length);
   return <div className="space-y-3 p-4"><h2 className="text-xl font-bold">{search.category === 'cars' ? 'స్థానిక కార్ల బుకింగ్ · Local cars booking' : search.category === 'returns' ? 'తిరిగి & ముందస్తు సరకు వాహనాలు · Return & advance goods' : 'స్థానిక సరకు వాహన బుకింగ్ · Local goods booking'}</h2>
     {(search.from || search.to) && <p>{search.from} → {search.to}</p>}
     {search.category === 'cars' && <div className="grid grid-cols-2 gap-2"><Button variant={carMode === 'advance' ? 'default' : 'outline'} aria-pressed={carMode === 'advance'} className="h-auto min-h-12 whitespace-normal" onClick={() => setCarMode('advance')}>ముందస్తు కార్లు · Advance cars</Button><Button variant={carMode === 'return' ? 'default' : 'outline'} aria-pressed={carMode === 'return'} className="h-auto min-h-12 whitespace-normal" onClick={() => setCarMode('return')}>ముందస్తు + తిరుగు కార్లు · Advance + return cars</Button></div>}
     {instant ? <p className="text-muted-foreground">ఇప్పటికప్పుడు బుక్ చేసే వాహనాలు · Instant booking vehicles</p> : <><Label htmlFor="vehicle-date">వాహన తేదీ · Vehicle date</Label><Input id="vehicle-date" type="date" value={date} onChange={e => setDate(e.target.value)} /><Button variant="ghost" onClick={() => setDate('')}>అన్ని తేదీలు · All dates</Button></>}
-    {!paid && <div className="space-y-2"><p>₹100 పే చేసి వాహనాల వివరాలు చూడండి</p><Button asChild><Link to="/dashboard">₹100 చెల్లింపు</Link></Button></div>}
-    {paid && isPending && <p role="status">వస్తున్నాయి · Loading</p>}{paid && isError && <Button onClick={() => void refetch()}>మళ్లీ చూడండి · Retry</Button>}
+    {isPending && <p role="status">వస్తున్నాయి · Loading</p>}{isError && <Button onClick={() => void refetch()}>మళ్లీ చూడండి · Retry</Button>}
     <p translate="no" className="text-sm">{area}</p>
     {(display.showCatalog || categories.length > 0) && <ul className="space-y-2">{categoryNames(display.showCatalog ? VEHICLE_CATALOG[search.category] : [], categories).map(name => <li key={name} className="flex items-center justify-between gap-3 rounded-lg border bg-card p-3"><div className="min-w-0"><p className="text-lg font-bold" translate="no">{name}</p><p className="text-sm text-muted-foreground">{paid ? 'వాహన రకం మాత్రమే; ఈ ఎంపికకు నమోదైన వాహనం లేదు · Category, not an available listing' : 'వాహన రకం మాత్రమే'}</p></div><VehicleDemandBell category={search.category} from={area || search.from} to={search.to} vehicle={name} /></li>)}</ul>}
-    {display.showListings && rows.map(post => <PostCard key={post.id} post={post} meId={me?.id} />)}
+    {rows.map(post => <PostCard key={post.id} post={post} meId={me?.id} />)}
     <AddCategoryBox label="కేటగిరి చేర్చండి" section={search.category} />
   </div>;
 }

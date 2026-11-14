@@ -2586,6 +2586,7 @@ export type Database = {
         Returns: string
       }
       open_service_chat: { Args: { _other: string }; Returns: boolean }
+      open_vehicle_chat: { Args: { _post: string }; Returns: string }
       open_vehicle_demand_chat: { Args: { _demand: string }; Returns: string }
       paid_alert_ready: { Args: { _user: string }; Returns: boolean }
       post_alert_eligible: { Args: { _user: string }; Returns: boolean }
