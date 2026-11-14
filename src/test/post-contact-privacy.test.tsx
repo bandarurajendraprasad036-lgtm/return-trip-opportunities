@@ -8,7 +8,7 @@ vi.mock('@/integrations/supabase/client',()=>({supabase:{rpc:vi.fn(async()=>({da
 vi.mock('@/components/ResponsibilityNotice',()=>({ResponsibilityNotice:()=>null}));
 vi.mock('@/lib/use-account-program',()=>({useAccountProgram:()=>({data:{completed_at:'2026-11-07'}})}));
 vi.mock('@/lib/session',()=>({useMe:()=>({data:{id:'member',profile:{bell_activated_at:'2026-11-10T04:00:00Z'}}})}));
-vi.mock('@tanstack/react-query',()=>({useQueryClient:()=>({invalidateQueries:vi.fn()})}));
+vi.mock('@tanstack/react-query',()=>({useQueryClient:()=>({invalidateQueries:vi.fn()}),useQuery:(o:{queryKey?:unknown[]})=>({data:o?.queryKey?.[0]==='payment-scanner-image'?'':undefined})}));
 vi.mock('@/components/ProfileRequest',()=>({ProfileRequest:()=>null}));
 vi.mock('@/components/BellPaymentNotice',()=>({BellPaymentNotice:()=>null}));
 vi.mock('sonner',()=>({toast:{info:vi.fn(),success:vi.fn(),error:vi.fn()}}));
