@@ -48,7 +48,7 @@
 - Vehicle contact surfaces reuse the shared responsibility notice; compact bells show it before interest submission without implying a confirmed booking.
 - Search examples are separate presentation-only objects without post or user IDs; their bells never call interest or booking APIs.
 - Historical payment records remain read/review compatible; new direct-referral receipts use an admin-authorized atomic cash-prize ledger to prevent client awards and duplicate receipts.
-- Payment forms save account-scoped photo/reference evidence in localStorage (IndexedDB on quota failure), never upload or grant paid access; server receipts/review remain separate to avoid false admin delivery or cash claims.
+- Prime payment evidence goes through the authenticated submitPrimePayment server upload (local copy is backup only); AI receipt reading auto-confirms only exact payee+UTR+amount, otherwise the request stays pending for admin with provisional access revoked, never rejected.
 - Sharing evidence uses owner-checked server hashing with atomic digest registration, admin-only short-lived signing and existing managed dispatch cleanup; review decisions notify the owner transactionally.
 - Chat attachments remain private and participant-checked; vehicle chat creates a paid pair without bell events so opening chat never notifies an owner.
 - Listing cards/details stay anonymous; confirmed full-price bells create exact-owner pairs, and current full-price eligibility gates ordinary chat writes while admin evidence/support stays accessible.

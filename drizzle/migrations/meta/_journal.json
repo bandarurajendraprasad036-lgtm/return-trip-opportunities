@@ -533,6 +533,20 @@
       "when": 1794633809768,
       "tag": "0075_free_anonymous_vehicle_lists_silent_paid_chat",
       "breakpoints": true
+    },
+    {
+      "idx": 76,
+      "version": "7",
+      "when": 1794639410851,
+      "tag": "0076_auto_confirm_matched_prime_payment",
+      "breakpoints": true
+    },
+    {
+      "idx": 77,
+      "version": "7",
+      "when": 1794639688478,
+      "tag": "0077_support_admin_for_server_payment_checks",
+      "breakpoints": true
     }
   ]
 }

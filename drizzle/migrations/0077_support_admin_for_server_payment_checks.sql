@@ -1,0 +1,1 @@
+CREATE OR REPLACE FUNCTION public.support_admin_id() RETURNS uuid LANGUAGE sql STABLE SECURITY DEFINER SET search_path TO 'public' AS $function$ SELECT user_id FROM public.user_roles WHERE role = 'admin' AND (auth.uid() IS NOT NULL OR auth.role() = 'service_role') ORDER BY id LIMIT 1 $function$;

@@ -2435,6 +2435,10 @@ export type Database = {
         Returns: number
       }
       apply_referral: { Args: { _code: string }; Returns: boolean }
+      auto_confirm_membership_evidence: {
+        Args: { _id: string }
+        Returns: undefined
+      }
       block_confirmed_content: {
         Args: { _reason: string; _user: string }
         Returns: undefined
@@ -2512,6 +2516,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      hold_membership_evidence_for_admin: {
+        Args: { _id: string }
+        Returns: undefined
       }
       is_goods_post: {
         Args: { _post: Database["public"]["Tables"]["posts"]["Row"] }

@@ -223,3 +223,4 @@
 - [ ] Vehicle name/number/driver name/mobile display — waits for database approval
 - [ ] 7 km nearby alerts with admin-editable km — waits for database approval
 - [x] (done Nov 11 second pass) weekly winner, OK-join counting, vehicle details, 7 km admin setting
+- [x] Nov 14: automatic Prime receipt check (name+UTR), pending for admin otherwise, hide ₹100 box for paid users
