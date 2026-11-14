@@ -547,6 +547,13 @@
       "when": 1794639688478,
       "tag": "0077_support_admin_for_server_payment_checks",
       "breakpoints": true
+    },
+    {
+      "idx": 78,
+      "version": "7",
+      "when": 1794640353633,
+      "tag": "0078_admin_only_unrestricted_posts_and_campaign",
+      "breakpoints": true
     }
   ]
 }
