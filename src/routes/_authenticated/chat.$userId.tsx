@@ -15,6 +15,7 @@ import { sendChatEntry, viewChatImage, deleteChatEntry } from '@/lib/chat-upload
 import { CHAT_IMAGE_LIMIT, chatEntrySchema } from '@/lib/chat-rules';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { hidePaymentEvidence } from '@/lib/payment-status';
+import { toast } from 'sonner';
 
 export const Route = createFileRoute("/_authenticated/chat/$userId")({
   validateSearch: (search: Record<string, unknown>): { post?: string | undefined } => ({ post: typeof search["post"] === "string" && z.string().uuid().safeParse(search["post"]).success ? search["post"] : undefined }),
@@ -126,6 +127,7 @@ function Chat() {
         <div className="flex-1">
           <p className="font-bold">{userId === adminId ? 'అడ్మిన్ తో చాట్ చేయండి / Chat with Admin' : 'సభ్యుడు · Member'}</p>
         </div>
+        {me?.isAdmin && userId !== me.id && <Button size="sm" onClick={async()=>{const r=await supabase.rpc('admin_membership_access',{_user:userId,_enable:true});if(r.error)toast.error('ప్రైమ్ ఇవ్వలేదు');else{toast.success('ప్రైమ్ ఆన్ చేశాం - గంట, చాట్ తెరుచుకున్నాయి');}}}>Give Prime</Button>}
       </div>
       {contextPost && <section className="space-y-1 border-b bg-muted px-3 py-3 text-sm" aria-label="ప్రయాణ వివరాలు · Route details"><p className="font-bold">{contextPost.title}</p>{contextPost.module === "vehicle" ? <><p>{contextPost.from_place} → {contextPost.to_place}</p><p>{contextPost.vehicle_type} {contextPost.capacity_tons != null && `· ${contextPost.capacity_tons} టన్నులు · tons`} · {contextPost.trip_date}</p></> : <p>{contextPost.location}</p>}</section>}
       <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-3">
