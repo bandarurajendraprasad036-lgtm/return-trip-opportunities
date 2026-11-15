@@ -1,12 +1,31 @@
 export type PermissionStatus = NotificationPermission | 'unsupported' | 'open-in-new-tab' | 'failed';
+const PERMISSION_KEY = 'gayatri-notification-permission';
+const DENIED_NOTICE_KEY = 'gayatri-notification-denied-notice';
+let permissionRequest: Promise<PermissionStatus> | undefined;
+function rememberPermission(permission: PermissionStatus) {
+  try { localStorage.setItem(PERMISSION_KEY, permission); } catch { /* Browser permission remains authoritative. */ }
+  return permission;
+}
+export function shouldShowDeniedNotice() {
+  try {
+    if (localStorage.getItem(DENIED_NOTICE_KEY) === '1') return false;
+    localStorage.setItem(DENIED_NOTICE_KEY, '1');
+  } catch { /* Storage may be unavailable. */ }
+  return true;
+}
 export function browserPermission(): PermissionStatus {
   if (typeof window === 'undefined' || typeof Notification === 'undefined') return 'unsupported';
   return Notification.permission;
 }
 export async function requestBrowserPermission(): Promise<PermissionStatus> {
-  if (browserPermission() === 'unsupported') return 'unsupported';
+  const current = browserPermission();
+  if (current !== 'default') return rememberPermission(current);
   if (window.top !== window.self) return 'open-in-new-tab';
-  try { return await Notification.requestPermission(); } catch { return 'failed'; }
+  if (permissionRequest) return permissionRequest;
+  permissionRequest = (async () => {
+    try { return rememberPermission(await Notification.requestPermission()); } catch { return 'failed' as const; }
+  })();
+  try { return await permissionRequest; } finally { permissionRequest = undefined; }
 }
 export const permissionHelp: Record<PermissionStatus, string> = {
   granted: 'ఫోన్ సూచనలకు అనుమతి ఉంది · Phone notifications allowed',

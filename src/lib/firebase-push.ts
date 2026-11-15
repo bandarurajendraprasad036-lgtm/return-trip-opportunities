@@ -1,4 +1,5 @@
 import { bellMuted } from './bell';
+import { requestBrowserPermission } from './browser-notifications';
 
 export type PushStatus = 'registered' | 'not-configured' | 'unsupported' | 'open-in-new-tab' | 'denied' | 'failed' | 'idle';
 export function pushDeviceId() {
@@ -14,7 +15,7 @@ export async function enablePush(): Promise<{ status: PushStatus; token?: string
   if (!('Notification' in window) || !('serviceWorker' in navigator)) return { status: 'unsupported' };
   if (window.top !== window.self) return { status: 'open-in-new-tab' };
   try {
-    const permission = Notification.permission === 'granted' ? 'granted' : await Notification.requestPermission();
+    const permission = await requestBrowserPermission();
     if (permission !== 'granted') return { status: 'denied' };
     const { getMessaging, getToken, isSupported } = await import('firebase/messaging');
     if (!(await isSupported())) return { status: 'unsupported' };

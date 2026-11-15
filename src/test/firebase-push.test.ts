@@ -12,7 +12,9 @@ it('does not treat denied permission as registration', async () => {
   vi.stubEnv('VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_WEB_API_KEY', 'public-test');
   vi.stubEnv('VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_PROJECT_ID', 'test');
   vi.stubEnv('VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_VAPID_KEY', 'public-test');
-  vi.stubGlobal('Notification', { permission: 'denied', requestPermission: vi.fn().mockResolvedValue('denied') });
+  const requestPermission=vi.fn().mockResolvedValue('denied');
+  vi.stubGlobal('Notification', { permission: 'denied', requestPermission });
   Object.defineProperty(navigator, 'serviceWorker', { configurable: true, value: {} });
   expect((await enablePush()).status).toBe('denied');
+  expect(requestPermission).not.toHaveBeenCalled();
 });

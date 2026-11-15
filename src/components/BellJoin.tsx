@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
@@ -15,15 +15,17 @@ import { referralLink } from '@/lib/account-program';
 import { supabase } from '@/integrations/supabase/client';
 import { shareReferralWithImage } from '@/lib/share-referral';
 import { markHomeBellRung } from '@/lib/home-bell';
+import { requestBrowserPermission, shouldShowDeniedNotice } from '@/lib/browser-notifications';
 type InstallEvent=Event&{prompt:()=>Promise<void>};
 export function BellJoin({children}:{children?:React.ReactNode}) {
  const {data:me,isPending,isError,refetch}=useMe();const qc=useQueryClient();const register=useServerFn(registerPushDevice);
  const [install,setInstall]=useState<InstallEvent|null>(null);const [installed,setInstalled]=useState(false);const [open,setOpen]=useState(false);const [touched,setTouched]=useState(false);
+ const activating=useRef(false);
  useEffect(()=>{setInstalled(localStorage.getItem('gayatri-installed-confirmed')==='1'||matchMedia('(display-mode: standalone)').matches);setTouched(localStorage.getItem('gayatri-home-bell-touched')==='1');const h=(e:Event)=>{e.preventDefault();setInstall(e as InstallEvent);};const done=()=>{localStorage.setItem('gayatri-installed-confirmed','1');setInstalled(true);setInstall(null);};window.addEventListener('beforeinstallprompt',h);window.addEventListener('appinstalled',done);return()=>{window.removeEventListener('beforeinstallprompt',h);window.removeEventListener('appinstalled',done);};},[]);
  useEffect(()=>{if(me&&window.location.hash==='#bell-referral'){setOpen(true);markHomeBellRung();setTouched(true);window.history.replaceState(window.history.state,'',window.location.pathname+window.location.search);}},[me]);
  const joined=!!me;const code=me?.profile?.referral_code??'';
  const share=()=>{if(code)void shareReferralWithImage(`మీ రిఫరల్ కోడ్: ${code}\n${referralLink(code)}`);};
- const activate=async()=>{if(!me)return;try{const result=await enablePush();const saved=await supabase.from('notification_preferences').upsert({user_id:me.id,enabled:true});if(saved.error)throw saved.error;if(result.status==='registered'&&result.token)await register({data:{id:pushDeviceId(),token:result.token,sound:deviceSound()}});await markAccountBellActivated(me.id);await supabase.rpc('ensure_my_referral_code');await qc.invalidateQueries({queryKey:['me']});}catch{toast.error('నోటిఫికేషన్ ఆన్ కాలేదు. మళ్లీ గంట కొట్టండి');}};
+ const activate=async()=>{if(!me||activating.current)return;activating.current=true;try{const permission=await requestBrowserPermission();if(permission==='denied'){if(shouldShowDeniedNotice())toast.info('మీ బ్రౌజర్ సెట్టింగ్స్ లో నోటిఫికేషన్ ఆన్ చేయండి');return;}if(permission==='granted')toast.success('నోటిఫికేషన్ ఆన్ అయింది');else return;const result=await enablePush();const saved=await supabase.from('notification_preferences').upsert({user_id:me.id,enabled:true});if(saved.error)throw saved.error;if(result.status==='registered'&&result.token)await register({data:{id:pushDeviceId(),token:result.token,sound:deviceSound()}});await markAccountBellActivated(me.id);await supabase.rpc('ensure_my_referral_code');await qc.invalidateQueries({queryKey:['me']});}catch{toast.error('ఫోన్ సూచనల నమోదు పూర్తి కాలేదు');}finally{activating.current=false;}};
  const click=async()=>{setOpen(true);if(!installed&&install){try{await install.prompt();}catch{toast.info('మీ బ్రౌజర్ లో డౌన్లోడ్ ఎంచుకోండి');}setInstall(null);}markHomeBellRung();setTouched(true);if(me)void activate();};
  return <><Button type="button" variant="ghost" onClick={()=>void click()} aria-label="గంట కొట్టండి · Ring the bell" className={children?'home-temple-trigger':'home-bell mx-auto grid size-20 place-items-center text-gold'}>{children??<Bell className="size-16"/>}</Button><p className="text-center text-2xl font-extrabold text-gold">ఏది కావాలన్నా గంట కొట్టు</p><p className="text-center text-lg font-bold">గంట కొట్టండి - నోటిఫికేషన్ ఆన్ అవుతుంది</p>
  {!installed&&<Button variant="ghost" className="unfinished-action w-full whitespace-normal" onClick={()=>void click()}>⬇️ డౌన్లోడ్ చేయండి - గంట కొట్టండి</Button>}
