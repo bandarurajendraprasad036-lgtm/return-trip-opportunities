@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogTitle, DialogClose } from '@/components/ui
 import { useMe } from '@/lib/session';
 import { useAddedCategories } from './AddCategoryBox';
 import { addDiscoveryCategory } from '@/lib/discovery-category.functions';
-import { freeWorkAction } from '@/lib/free-work.functions';
+import { freeWorkClientAction } from '@/lib/free-work-client';
 import { FREE_WORK_LABELS, freeWorkNames, type FreeWorkSection } from '@/lib/free-work';
 import { resolveServiceCategory } from '@/lib/service-category-display';
 
@@ -26,7 +26,7 @@ export function FreeWorkBox({ section, area }: { section: FreeWorkSection; area:
   const qc = useQueryClient();
   const nav = useNavigate();
   const add = useServerFn(addDiscoveryCategory);
-  const act = useServerFn(freeWorkAction);
+  const act = freeWorkClientAction;
   const names = freeWorkNames(categories);
   const openCategory = (category: string) => { setExpanded(false); void nav({ to: '/bell-board', search: { section, category } }); };
   const refresh = async () => { await Promise.all([qc.invalidateQueries({ queryKey: ['free-work'] }), qc.invalidateQueries({ queryKey: ['free-work-interests'] })]); };

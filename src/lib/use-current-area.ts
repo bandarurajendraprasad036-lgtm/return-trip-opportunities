@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useServerFn } from '@tanstack/react-start';
 import { resolveCurrentArea } from './current-area.functions';
+import { lookupNearestPlace } from './nearest-place';
 import { shouldResolveArea, type AreaResult, type PositionPoint } from './current-area';
 
 export function useCurrentArea(userId?: string) {
@@ -34,7 +35,7 @@ export function useCurrentArea(userId?: string) {
       previous = point; lastLookup = now; busy = true; setLocating(true);
       try {
         const hit = cached.find(item => !shouldResolveArea(item.point, point, 60000));
-        const result = hit ? hit.area : await resolveRef.current({ data: point });
+        const result = hit ? hit.area : await resolveRef.current({ data: point }).catch(() => null).then(found => found?.area ? found : lookupNearestPlace(point).then(near => near ?? found));
         if (disposed) return;
         if (!hit) cached = [...cached.slice(-19), { point, area: result }];
         setArea(result);

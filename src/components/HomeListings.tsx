@@ -17,7 +17,7 @@ import type { HomeSettings } from '@/lib/home-settings';
 import { ServiceDirectory } from '@/components/ServiceDirectory';
 import { requireHomeBell, useHomeBellRung } from '@/lib/home-bell';
 import { BellBoardLink } from '@/components/BellBoardLink';
-import { useMasterArea } from '@/lib/master-area';
+import { rememberAreaIfEmpty, useMasterArea } from '@/lib/master-area';
 import { WorkAreaInput } from '@/components/WorkAreaInput';
 import { canOpenWorkArea } from '@/lib/work-area';
 import { FreeWorkBox } from '@/components/FreeWorkBox';
@@ -43,6 +43,7 @@ export function HomeListings({ today, settings }: { today: string; settings: Hom
   useEffect(() => {
     if (workArea.trim()) { setFrom(workArea); setFromEdited(true); setRoute({ from: '', to: '' }); setVehicleSection(null); }
   }, [workArea]);
+  useEffect(() => { if (actualArea) rememberAreaIfEmpty(actualArea); }, [actualArea]);
   useEffect(() => {
     if (!fromEdited) setFrom(actualArea || settings.fromLocation);
   }, [actualArea, fromEdited, settings.fromLocation]);

@@ -17,3 +17,8 @@ export function useMasterArea(fallback = '') {
   };
   return [area, setArea] as const;
 }
+// Fill the shared village/ward preference only when the person has not chosen one yet.
+export function rememberAreaIfEmpty(value: string) {
+  const next = value.trim().slice(0, 80); if (!next || typeof window === 'undefined' || localStorage.getItem(KEY)?.trim()) return;
+  localStorage.setItem(KEY, next); window.dispatchEvent(new Event(EVENT));
+}

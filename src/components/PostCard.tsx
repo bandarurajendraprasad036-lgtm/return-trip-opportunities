@@ -7,8 +7,7 @@ import { Button } from "@/components/ui/button";
 import type { Database } from "@/integrations/supabase/types";
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useServerFn } from '@tanstack/react-start';
-import { freeWorkAction } from '@/lib/free-work.functions';
+import { freeWorkClientAction } from '@/lib/free-work-client';
 import { ResponsibilityNotice } from '@/components/ResponsibilityNotice';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { jobIsVisible } from '@/lib/post-publication';
@@ -36,7 +35,7 @@ export function PostCard({
   anonymousWork?: boolean;
 }) {
   const isJob = post.module === "job";
-  const workAction = useServerFn(freeWorkAction);
+  const workAction = freeWorkClientAction;
   const section = post.service_type === 'service' ? post.kind === 'seeker' ? 'service-wanted' : 'service-providers' : post.kind === 'seeker' ? 'work-wanted' : 'work-offered';
   const nav = useNavigate();
   const [detailsOpen, setDetailsOpen] = useState(false);
