@@ -1,0 +1,10 @@
+CREATE OR REPLACE FUNCTION public.ring_vehicle_demand(_post uuid DEFAULT NULL,_category text DEFAULT NULL,_from text DEFAULT NULL,_to text DEFAULT NULL,_vehicle text DEFAULT NULL,_name_consent boolean DEFAULT false) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ DECLARE caller uuid:=auth.uid(); p public.posts; target uuid; cat text; f text; t text; v text; BEGIN
+IF caller IS NULL OR NOT public.account_allowed(caller) THEN RAISE EXCEPTION 'SIGN_IN_REQUIRED'; END IF;
+IF NOT public.has_paid_bell(caller) THEN RAISE EXCEPTION 'PAID_BELL_REQUIRED'; END IF;
+IF _post IS NOT NULL THEN SELECT * INTO p FROM public.posts WHERE id=_post AND module='vehicle'; IF p.id IS NULL THEN RAISE EXCEPTION 'POST_UNAVAILABLE'; END IF; target:=public.ring_post(_post); f:=coalesce(p.from_place,'');t:=coalesce(p.to_place,'');v:=coalesce(p.vehicle_type,'');cat:=CASE WHEN lower(v) IN ('car','innova','swift dzire','ertiga','bolero','suv','sedan','hatchback','taxi') THEN 'cars' WHEN lower(trim(f))=lower(trim(t)) THEN 'goods' ELSE 'returns' END;
+ELSE cat:=_category;f:=trim(coalesce(_from,''));t:=trim(coalesce(_to,''));v:=trim(coalesce(_vehicle,'')); END IF;
+IF cat IS NULL OR cat NOT IN ('goods','returns','cars') OR f='' OR t='' OR v='' OR length(f)>80 OR length(t)>80 OR length(v)>100 THEN RAISE EXCEPTION 'VEHICLE_ROUTE_REQUIRED'; END IF;
+INSERT INTO public.vehicle_bell_demands(user_id,post_id,category,display_name,from_place,to_place,vehicle_type) VALUES(caller,_post,cat,'',f,t,v) ON CONFLICT DO NOTHING; RETURN target; END $$;
+REVOKE ALL ON FUNCTION public.ring_vehicle_demand(uuid,text,text,text,text,boolean) FROM PUBLIC,anon;
+GRANT EXECUTE ON FUNCTION public.ring_vehicle_demand(uuid,text,text,text,text,boolean) TO authenticated;
+COMMENT ON COLUMN public.vehicle_bell_demands.display_name IS 'DEPRECATED: new anonymous bell records use an empty string; historical identity is never exposed by list reads.';

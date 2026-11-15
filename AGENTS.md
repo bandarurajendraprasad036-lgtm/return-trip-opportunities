@@ -51,7 +51,7 @@
 - Prime evidence uses authenticated server upload and a server-derived screenshot digest as its retry identity (never a fabricated bank reference); local copy is backup only, and new access is atomically revoked until admin approval. Admin scanner lives in app_settings because public buckets are blocked.
 - Sharing evidence uses owner-checked server hashing with atomic digest registration, admin-only short-lived signing and existing managed dispatch cleanup; review decisions notify the owner transactionally.
 - Chat attachments remain private and participant-checked; vehicle chat creates a paid pair without bell events so opening chat never notifies an owner.
-- Homepage work/service boxes open isolated full-height dialogs; service chips count anonymous projected rows and share existing free exact-target bells/pairs, preserving paid vehicles and private contacts.
+- Work/service dialogs link to anonymous free boards without legacy paid loader reads; vehicle bells store no new names and reuse existing private pairs.
 - Direct-referral campaign ranks count only new campaign join edges, enforce one inviter and no cycles, and expose only owner-scoped stats; cash awards never imply payout.
 - Confirmed receipts atomically credit only the eligible direct inviter; historical invitee ledgers remain read-only evidence, new accounts keep unique codes, and remaining-slot reads expose aggregates only.
 - Paid alert eligibility is enforced by receipt-linked periods at database insertion/read and every screen/device delivery path, never by editable profile flags; post usage persists separately from deletable posts to prevent quota bypass.

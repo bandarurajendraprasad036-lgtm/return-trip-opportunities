@@ -60,11 +60,12 @@ export function FreeWorkBox({ section, area }: { section: FreeWorkSection; area:
     <Dialog open={expanded} onOpenChange={setExpanded}><DialogContent aria-describedby={undefined} className="inset-0! left-0! top-0! h-dvh! max-h-dvh! w-full! max-w-none! translate-x-0! translate-y-0! overflow-y-auto rounded-none! bg-royal! text-on-royal content-start px-4 py-5 sm:left-1/2! sm:max-w-[480px]! sm:translate-x-[-50%]! [&>button]:hidden">
       <DialogTitle className="min-w-0 break-words leading-normal tracking-normal">{FREE_WORK_LABELS[section]}</DialogTitle>
       <div className="space-y-4">
+      <Button asChild variant="outline" className="h-auto min-h-14 w-full whitespace-normal"><Link to="/bell-board" search={{ section }}><Bell />గంట కొట్టిన వాళ్ళు</Link></Button>
       {!me && <Button asChild variant="outline" className="h-auto w-full whitespace-normal"><Link to="/auth">ప్రవేశించండి</Link></Button>}
       <section className="space-y-2 rounded-md border border-primary p-3" data-box="categories">
         <h3 className="font-bold">కేటగిరీలు</h3>
         <div className="flex flex-wrap gap-2">{names.map(category => <div key={category} className="flex max-w-full items-center rounded-md border border-primary bg-card">
-          <Button variant="ghost" aria-pressed={selected === category} className="h-auto min-h-11 min-w-0 whitespace-normal px-2 text-left text-sm" onClick={() => openCategory(category)}><span translate="no" className="break-words">{category}</span></Button>
+          <Button variant="ghost" aria-pressed={selected === category} className="h-auto min-h-12 min-w-0 whitespace-normal px-3 text-left text-lg" onClick={() => openCategory(category)}><span translate="no" className="break-words">{category}</span></Button>
           <Button variant="ghost" size="icon" className="size-11 shrink-0 border-l border-border" title={`${category} గంట`} aria-label={`${category} గంట`} disabled={busy} onClick={() => { setSelected(category); void action('category', category).then(ok => { if (ok) openCategory(category); }); }}><Bell className="size-4" /></Button>
         </div>)}</div>
       </section>

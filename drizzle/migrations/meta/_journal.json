@@ -624,6 +624,13 @@
       "when": 1794702562138,
       "tag": "0088_screenshot_only_membership_evidence",
       "breakpoints": true
+    },
+    {
+      "idx": 89,
+      "version": "7",
+      "when": 1794714271238,
+      "tag": "0089_anonymous_vehicle_bell_without_name_consent",
+      "breakpoints": true
     }
   ]
 }

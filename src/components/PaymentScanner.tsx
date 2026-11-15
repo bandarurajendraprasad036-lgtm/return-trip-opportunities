@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { useQuery } from '@tanstack/react-query';
-import { Plus } from 'lucide-react';
+import { Bell, Plus } from 'lucide-react';
 import { paymentDestination } from '@/lib/payment-destination';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,6 @@ export function PaymentScanner({amount=100,onPaid}:{amount?:number;onPaid?:()=>v
     <h3 className="text-center text-3xl font-extrabold leading-snug">మీరు మెంబర్‌షిప్ పొందాలి అంటే స్కాన్ చేయండి</h3>
     <p className="text-center text-2xl font-bold">₹{amount} స్కాన్ చేయండి</p>
     <div className="mx-auto aspect-square w-full max-w-80 overflow-hidden bg-scanner-paper">{image&&<img src={image} alt="చెల్లింపు స్కానర్" className="h-full w-full object-contain"/>}</div>
-    {onPaid&&<div className="flex flex-col items-center gap-1"><Button type="button" size="icon" className="size-16 rounded-full" aria-label="పేమెంట్ స్క్రీన్ షాట్ జత చేయండి" onClick={onPaid}><Plus className="size-9"/></Button><span className="text-center">పేమెంట్ చేసిన తర్వాత + నొక్కి స్క్రీన్ షాట్ జత చేయండి</span></div>}
+    {onPaid&&<div className="flex flex-col items-center gap-2 border border-primary p-3"><div className="flex items-center justify-center gap-4"><Button type="button" variant="outline" size="icon" className="size-16" aria-label="చెల్లింపు చిత్రం జతచేసే పెట్టె తెరవండి" onClick={onPaid}><Bell className="size-8"/></Button><Button type="button" size="icon" className="size-16" aria-label="పేమెంట్ స్క్రీన్ షాట్ జత చేయండి" onClick={onPaid}><Plus className="size-9"/></Button></div><span className="text-center">పేమెంట్ చేసిన తర్వాత + నొక్కి స్క్రీన్ షాట్ జత చేయండి</span></div>}
   </section>;
 }

@@ -5,7 +5,7 @@ import { saveLocalPaymentEvidence } from '@/lib/local-payment-evidence';
 import { useMe } from '@/lib/session';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Bell, Plus } from 'lucide-react';
 import { useServerFn } from '@tanstack/react-start';
 import { useQueryClient } from '@tanstack/react-query';
 import { submitPrimePayment } from '@/lib/prime-payment.functions';
@@ -27,7 +27,7 @@ export function MembershipEvidenceForm({ amount = 100, beneficiary }: { amount?:
       const form=new FormData();form.set('image',image);form.set('amount',String(amount));if(beneficiary)form.set('beneficiary',beneficiary);
       status=(await send({data:form})).status;
     } catch (error) {
-      setFeedback(error instanceof Error&&error.message.includes('REFERENCE_ALREADY_USED')?'ఈ ఫోటో ఇప్పటికే పంపారు. అడ్మిన్ తో చాట్ చేయండి.':'ఇంటర్నెట్ సరిగా లేదు. కొద్దిసేపు ఆగి మళ్లీ నొక్కండి.');setBusy(false);return;
+      setFeedback(error instanceof Error&&error.message.includes('REFERENCE_ALREADY_USED')?'ఈ ఫోటో ఇప్పటికే పంపారు.':'ఇంటర్నెట్ సరిగా లేదు. కొద్దిసేపు ఆగి మళ్లీ నొక్కండి.');setBusy(false);return;
     }
     setImage(null);if(fileInput.current)fileInput.current.value='';
     await qc.invalidateQueries();
@@ -35,7 +35,7 @@ export function MembershipEvidenceForm({ amount = 100, beneficiary }: { amount?:
     await navigate({to:'/post/new'});
     setBusy(false);
   }}>
-    <div className="flex min-w-0 items-center gap-3"><Button type="button" variant="outline" size="icon" className="size-12 shrink-0" aria-label="స్క్రీన్ షాట్ జత చేయండి" title="స్క్రీన్ షాట్ జత చేయండి" disabled={busy} onClick={()=>fileInput.current?.click()}><Plus className="size-7"/></Button><span className="min-w-0 break-all" translate={image?'no':undefined}>{image?image.name:'పేమెంట్ స్క్రీన్ షాట్ జత చేయండి'}</span></div>
+    <div className="flex min-w-0 flex-wrap items-center gap-3"><Button type="button" variant="outline" size="icon" className="size-12 shrink-0" aria-label="చెల్లింపు చిత్రం ఎంచుకోండి" disabled={busy} onClick={()=>fileInput.current?.click()}><Bell className="size-7"/></Button><Button type="button" variant="outline" size="icon" className="size-12 shrink-0" aria-label="స్క్రీన్ షాట్ జత చేయండి" title="స్క్రీన్ షాట్ జత చేయండి" disabled={busy} onClick={()=>fileInput.current?.click()}><Plus className="size-7"/></Button><span className="min-w-0 break-all" translate={image?'no':undefined}>{image?image.name:'పేమెంట్ స్క్రీన్ షాట్ జత చేయండి'}</span></div>
     <Input ref={fileInput} id="membership-screenshot" className="hidden" aria-label="పేమెంట్ స్క్రీన్ షాట్" type="file" accept="image/png,image/jpeg,image/webp" required disabled={busy} onChange={e=>{
       const file=e.target.files?.[0];setImage(null);setFeedback('');
       if(!file)return;
