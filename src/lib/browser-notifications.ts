@@ -6,6 +6,11 @@ function rememberPermission(permission: PermissionStatus) {
   try { localStorage.setItem(PERMISSION_KEY, permission); } catch { /* Browser permission remains authoritative. */ }
   return permission;
 }
+export const BELL_STATUS_KEY = 'gayatri-bell-status';
+export const BELL_STATUS_TOAST = 'gayatri-bell-status';
+export function rememberBellStatus(status: 'granted' | 'denied') {
+  try { localStorage.setItem(BELL_STATUS_KEY, status); } catch { /* Browser permission remains authoritative. */ }
+}
 export function shouldShowDeniedNotice() {
   try {
     if (localStorage.getItem(DENIED_NOTICE_KEY) === '1') return false;
