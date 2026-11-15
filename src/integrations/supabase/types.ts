@@ -2345,18 +2345,21 @@ export type Database = {
       }
       vehicle_demand_chat_pairs: {
         Row: {
+          board_rang_at: string | null
           created_at: string
           demand_id: string
           member_id: string
           owner_id: string
         }
         Insert: {
+          board_rang_at?: string | null
           created_at?: string
           demand_id: string
           member_id: string
           owner_id: string
         }
         Update: {
+          board_rang_at?: string | null
           created_at?: string
           demand_id?: string
           member_id?: string
@@ -2909,6 +2912,7 @@ export type Database = {
       }
       ring_post: { Args: { _post_id: string }; Returns: string }
       ring_service: { Args: { _owner: string }; Returns: string }
+      ring_vehicle_board: { Args: { _demand: string }; Returns: string }
       ring_vehicle_demand: {
         Args: {
           _category?: string

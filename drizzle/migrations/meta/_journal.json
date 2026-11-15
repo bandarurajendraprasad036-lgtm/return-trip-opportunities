@@ -631,6 +631,20 @@
       "when": 1794714271238,
       "tag": "0089_anonymous_vehicle_bell_without_name_consent",
       "breakpoints": true
+    },
+    {
+      "idx": 90,
+      "version": "7",
+      "when": 1794722199347,
+      "tag": "0090_vehicle_board_bell_opens_private_chat",
+      "breakpoints": true
+    },
+    {
+      "idx": 91,
+      "version": "7",
+      "when": 1794722312396,
+      "tag": "0091_track_explicit_vehicle_board_bell",
+      "breakpoints": true
     }
   ]
 }

@@ -15,6 +15,28 @@ CREATE TABLE notices(user_id uuid);CREATE FUNCTION ring_post(uuid) RETURNS uuid 
 CREATE TABLE service_request_pairs(member_id uuid,owner_id uuid);CREATE TABLE service_chat_pairs(member_id uuid,owner_id uuid);CREATE TABLE messages(sender_id uuid,receiver_id uuid,post_id uuid);CREATE TABLE post_chat_pairs(post_id uuid,member_id uuid,owner_id uuid);
 SELECT set_config('test.user','${a}',false);`);await db.exec(readFileSync('drizzle/migrations/0062_durable_paid_vehicle_bell_demands.sql','utf8'));await db.exec(readFileSync('drizzle/migrations/0089_anonymous_vehicle_bell_without_name_consent.sql','utf8'));},30000);
 afterAll(async()=>{await db.close();});
+it('vehicle board bells open exact private chat once, while self and unpaid bells do nothing',async()=>{
+await db.exec(`CREATE TABLE notifications(user_id uuid,message text); ALTER TABLE messages ADD COLUMN body text;`);
+await db.exec(readFileSync('drizzle/migrations/0090_vehicle_board_bell_opens_private_chat.sql','utf8'));
+await db.exec(readFileSync('drizzle/migrations/0091_track_explicit_vehicle_board_bell.sql','utf8'));
+await db.exec(`SELECT set_config('test.user','${a}',false)`);
+await db.query(`SELECT ring_vehicle_demand(NULL,'returns','Test village','Destination','Pickup',false)`);
+const row=(await db.query<{id:string}>(`SELECT id FROM vehicle_bell_demands WHERE from_place='Test village'`)).rows[0];
+if(!row) throw new Error('Missing fixture');
+expect((await db.query<{target:string|null}>(`SELECT ring_vehicle_board('${row.id}') target`)).rows[0]?.target).toBeNull();
+expect((await db.query('SELECT * FROM notifications')).rows).toHaveLength(0);
+await db.exec(`SELECT set_config('test.user','${c}',false)`);
+await expect(db.query(`SELECT ring_vehicle_board('${row.id}')`)).rejects.toThrow('PAID_BELL_REQUIRED');
+await db.exec(`SELECT set_config('test.user','${b}',false)`);
+await db.query(`SELECT open_vehicle_demand_chat('${row.id}')`);
+expect((await db.query('SELECT * FROM notifications')).rows).toHaveLength(0);
+expect((await db.query<{target:string}>(`SELECT ring_vehicle_board('${row.id}') target`)).rows[0]?.target).toBe(a);
+await db.query(`SELECT ring_vehicle_board('${row.id}')`);
+expect((await db.query('SELECT user_id FROM notifications')).rows).toEqual([{user_id:a}]);
+expect((await db.query('SELECT sender_id,receiver_id FROM messages')).rows).toEqual([{sender_id:b,receiver_id:a}]);
+expect((await db.query<{ok:boolean}>(`SELECT can_post_chat(NULL,'${a}') ok`)).rows[0]?.ok).toBe(true);
+await db.exec(`SELECT set_config('test.user','${a}',false); DELETE FROM vehicle_demand_chat_pairs WHERE demand_id='${row.id}'; DELETE FROM vehicle_bell_demands WHERE id='${row.id}'; DELETE FROM messages; DELETE FROM notifications;`);
+});
 it('rings without name consent and never copies the profile name',async()=>{await db.query(`SELECT ring_vehicle_demand(NULL,'goods','A','A','Lorry',false)`);expect((await db.query(`SELECT display_name FROM vehicle_bell_demands`)).rows).toEqual([{display_name:''}]);});
 it('rings even when the account name is blank',async()=>{await db.exec(`UPDATE profiles SET full_name='' WHERE id='${a}'`);await db.query(`SELECT ring_vehicle_demand(NULL,'cars','C','D','Car',false)`);expect((await db.query(`SELECT display_name FROM vehicle_bell_demands WHERE from_place='C'`)).rows).toEqual([{display_name:''}]);await db.exec(`UPDATE profiles SET full_name='Member' WHERE id='${a}'`);});
 it('keeps goods, return and car requests in three distinct sections',async()=>{for(const [cat,to,v] of [['goods','A','Lorry'],['returns','B','Eicher'],['cars','B','Car']])await db.query(`SELECT ring_vehicle_demand(NULL,'${cat}','A','${to}','${v}',true)`);expect((await db.query(`SELECT DISTINCT category FROM list_vehicle_bell_demands() ORDER BY category`)).rows).toEqual([{category:'cars'},{category:'goods'},{category:'returns'}]);});
