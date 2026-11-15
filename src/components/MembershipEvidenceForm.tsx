@@ -1,47 +1,51 @@
-import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import { useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { Plus } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { saveLocalPaymentEvidence } from '@/lib/local-payment-evidence';
 import { useMe } from '@/lib/session';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Bell, Plus } from 'lucide-react';
-import { useServerFn } from '@tanstack/react-start';
-import { useQueryClient } from '@tanstack/react-query';
-import { submitPrimePayment } from '@/lib/prime-payment.functions';
+import { uploadMembershipScreenshot } from '@/lib/membership-payment-client';
 
 export function MembershipEvidenceForm({ amount = 100, beneficiary }: { amount?: number; beneficiary?: string }) {
-  const [image, setImage] = useState<File | null>(null); const [busy, setBusy] = useState(false);
-  const [feedback,setFeedback]=useState(''); const fileInput=useRef<HTMLInputElement>(null);
-  const formRef=useRef<HTMLFormElement>(null); const navigate=useNavigate();
-  useEffect(()=>{const frame=requestAnimationFrame(()=>{formRef.current?.scrollIntoView({block:'start',behavior:'instant'});formRef.current?.focus({preventScroll:true});});return()=>cancelAnimationFrame(frame);},[]);
-  const {data:me}=useMe();const send=useServerFn(submitPrimePayment);const qc=useQueryClient();
-  return <form ref={formRef} tabIndex={-1} aria-label="చెల్లింపు వివరాలు" noValidate className="space-y-3 rounded-lg border border-primary p-3 scroll-mt-24" onSubmit={async event => {
-    event.preventDefault(); if (busy) return;
-    if (!image) {setFeedback('స్క్రీన్ షాట్ జత చేయండి');return;}
-    setBusy(true);setFeedback('');
-    if(!me?.id){setBusy(false);return;}
-    try { await saveLocalPaymentEvidence({ownerId:me.id,image,amount,beneficiary}); } catch { /* phone copy is only a backup */ }
-    let status:'approved'|'pending';
+  const [image, setImage] = useState<File | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [feedback, setFeedback] = useState('');
+  const fileInput = useRef<HTMLInputElement>(null);
+  const { data: me } = useMe();
+  const queryClient = useQueryClient();
+
+  return <form aria-label="చెల్లింపు ఫోటో పంపే పెట్టె" noValidate className="space-y-3 rounded-lg border-2 border-primary p-3" onSubmit={async event => {
+    event.preventDefault();
+    if (busy) return;
+    if (!image) { setFeedback('స్క్రీన్ షాట్ జత చేయండి'); return; }
+    if (!me?.id) return;
+    setBusy(true);
+    setFeedback('');
+    try { await saveLocalPaymentEvidence({ ownerId: me.id, image, amount, beneficiary }); } catch { /* Phone copy is only a backup. */ }
     try {
-      const form=new FormData();form.set('image',image);form.set('amount',String(amount));if(beneficiary)form.set('beneficiary',beneficiary);
-      status=(await send({data:form})).status;
+      await uploadMembershipScreenshot({ userId: me.id, image, amount, beneficiary });
     } catch (error) {
-      setFeedback(error instanceof Error&&error.message.includes('REFERENCE_ALREADY_USED')?'ఈ ఫోటో ఇప్పటికే పంపారు.':'ఇంటర్నెట్ సరిగా లేదు. కొద్దిసేపు ఆగి మళ్లీ నొక్కండి.');setBusy(false);return;
+      setFeedback(error instanceof Error ? error.message : 'చిత్రం పంపలేకపోయాం. మళ్లీ ప్రయత్నించండి');
+      setBusy(false);
+      return;
     }
-    setImage(null);if(fileInput.current)fileInput.current.value='';
-    await qc.invalidateQueries();
-    void status;toast.success('మీ వివరాలు అందాయి. అడ్మిన్ చెక్ చేసి ఆమోదిస్తారు');
-    await navigate({to:'/post/new'});
+    setImage(null);
+    if (fileInput.current) fileInput.current.value = '';
+    await queryClient.invalidateQueries();
+    toast.success('మీ చెల్లింపు ఫోటో అందింది. అడ్మిన్ చెక్ చేసి ఆమోదిస్తారు');
     setBusy(false);
   }}>
-    <div className="flex min-w-0 flex-wrap items-center gap-3"><Button type="button" variant="outline" size="icon" className="size-12 shrink-0" aria-label="చెల్లింపు చిత్రం ఎంచుకోండి" disabled={busy} onClick={()=>fileInput.current?.click()}><Bell className="size-7"/></Button><Button type="button" variant="outline" size="icon" className="size-12 shrink-0" aria-label="స్క్రీన్ షాట్ జత చేయండి" title="స్క్రీన్ షాట్ జత చేయండి" disabled={busy} onClick={()=>fileInput.current?.click()}><Plus className="size-7"/></Button><span className="min-w-0 break-all" translate={image?'no':undefined}>{image?image.name:'పేమెంట్ స్క్రీన్ షాట్ జత చేయండి'}</span></div>
-    <Input ref={fileInput} id="membership-screenshot" className="hidden" aria-label="పేమెంట్ స్క్రీన్ షాట్" type="file" accept="image/png,image/jpeg,image/webp" required disabled={busy} onChange={e=>{
-      const file=e.target.files?.[0];setImage(null);setFeedback('');
-      if(!file)return;
-      setImage(file);
-    }}/>
-    {feedback&&<p role="status">{feedback}</p>}
-    <Button type="submit" className="w-full" disabled={busy || !me?.id || !image}>{busy?'వివరాలు పంపుతున్నాం':'చెల్లింపు వివరాలు పంపండి'}</Button>
+    <div className="flex min-w-0 items-center gap-3">
+      <Button type="button" variant="outline" size="icon" className="size-16 shrink-0" aria-label="పేమెంట్ స్క్రీన్ షాట్ జత చేయండి" title="పేమెంట్ స్క్రీన్ షాట్ జత చేయండి" disabled={busy} onClick={() => fileInput.current?.click()}><Plus className="size-9" /></Button>
+      <span className="min-w-0 break-words text-lg" translate={image ? 'no' : undefined}>{image ? image.name : 'పేమెంట్ చేసిన తర్వాత + నొక్కి స్క్రీన్ షాట్ జత చేయండి'}</span>
+    </div>
+    <Input ref={fileInput} id={beneficiary ? `membership-screenshot-${beneficiary}` : 'membership-screenshot'} className="hidden" aria-label="పేమెంట్ స్క్రీన్ షాట్" type="file" accept="image/png,image/jpeg,image/webp" required disabled={busy} onChange={event => {
+      setImage(event.target.files?.[0] ?? null);
+      setFeedback('');
+    }} />
+    {feedback && <p role="status">{feedback}</p>}
+    <Button type="submit" className="min-h-14 w-full text-lg" disabled={busy || !me?.id || !image}>{busy ? 'ఫోటో పంపుతున్నాం…' : 'అడ్మిన్‌కు ఫోటో పంపండి'}</Button>
   </form>;
 }

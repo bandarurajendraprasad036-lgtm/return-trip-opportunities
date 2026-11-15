@@ -49,7 +49,7 @@
 - Vehicle contact surfaces reuse the shared responsibility notice; compact bells show it before interest submission without implying a confirmed booking.
 - Search examples are separate presentation-only objects without post or user IDs; their bells never call interest or booking APIs.
 - Historical payment records remain read/review compatible; new direct-referral receipts use an admin-authorized atomic cash-prize ledger to prevent client awards and duplicate receipts.
-- Prime evidence uses authenticated server upload and a server-derived screenshot digest as its retry identity (never a fabricated bank reference); local copy is backup only, and new access is atomically revoked until admin approval. Admin scanner lives in app_settings because public buckets are blocked.
+- Prime evidence uses an owner-scoped private browser upload and an atomic self-authorizing submission RPC with a screenshot digest retry identity; local copy is backup only, and new access stays revoked until admin approval. Admin scanner lives in app_settings because public buckets are blocked.
 - Sharing evidence uses owner-checked server hashing with atomic digest registration, admin-only short-lived signing and existing managed dispatch cleanup; review decisions notify the owner transactionally.
 - Chat attachments remain participant-private; plain vehicle chat is silent, while explicit board bells atomically create the paid pair and one exact-owner interest notice before opening chat.
 - Bell boards and free work actions call self-authorizing RPCs from the browser and the area fallback uses static near-place tiles, because the external custom-domain host lacks server env; vehicle bells store no names.

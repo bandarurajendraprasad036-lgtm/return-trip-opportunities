@@ -645,6 +645,20 @@
       "when": 1794722312396,
       "tag": "0091_track_explicit_vehicle_board_bell",
       "breakpoints": true
+    },
+    {
+      "idx": 92,
+      "version": "7",
+      "when": 1794744540377,
+      "tag": "0092_atomic_admin_reviewed_membership_screenshot",
+      "breakpoints": true
+    },
+    {
+      "idx": 93,
+      "version": "7",
+      "when": 1794744733024,
+      "tag": "0093_allow_owner_membership_image_upload",
+      "breakpoints": true
     }
   ]
 }

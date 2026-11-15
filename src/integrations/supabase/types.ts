@@ -2983,6 +2983,15 @@ export type Database = {
         Args: { a_lat: number; a_lng: number; b_lat: number; b_lng: number }
         Returns: number
       }
+      submit_membership_screenshot: {
+        Args: {
+          _amount: number
+          _beneficiary: string
+          _path: string
+          _reference: string
+        }
+        Returns: string
+      }
       submit_post_evidence: {
         Args: { _paths: string[]; _post: string; _purpose: string }
         Returns: string
