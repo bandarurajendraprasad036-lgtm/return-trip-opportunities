@@ -63,3 +63,4 @@
 - Discovery shares one hydrated area preference; work/service area inputs append a separator only on place selection to preserve multi-word names.
 - New service demand/offer posts reuse the protected job-post path with a service discriminator; keep historical opted-in directory entries separate to preserve identity/privacy and publication evidence.
 - Referral joins count only via confirm_referral_join (code + own mobile + OK); weekly winners come from select_weekly_winners (SQL cron Sunday night IST) requiring 70% paid joins and a consented published photo.
+- Admin overview uses role-checked RLS reads with full pagination and receipt-deduplicated approved subscription totals; booking metrics and live driver state stay unavailable without authoritative records, so bell requests never become orders.

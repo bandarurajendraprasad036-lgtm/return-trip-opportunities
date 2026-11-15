@@ -19,6 +19,7 @@ import { AdminMessages } from '@/components/AdminMessages';
 import { AdminPrime99 } from '@/components/AdminPrime99';
 import { AdminReferralEligibility } from '@/components/AdminReferralEligibility';
 import { ProviderContacts } from '@/components/ProviderContacts';
+import { AdminOverview, adminOverviewQuery } from '@/components/AdminOverview';
 
 export const Route = createFileRoute("/_authenticated/admin")({
   beforeLoad: async () => {
@@ -26,6 +27,9 @@ export const Route = createFileRoute("/_authenticated/admin")({
     const { data: admin } = user ? await supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' }) : { data: false };
     if (!user || !admin) throw redirect({ to: '/admin-login', replace: true });
   },
+  loader: ({ context }) => context.queryClient.ensureQueryData(adminOverviewQuery),
+  errorComponent: () => <div role="alert" className="space-y-3 p-4"><p>నిర్వాహకుల వివరాలు రాలేదు. అనుమతి ఉన్న ఖాతాతో మళ్లీ తెరవండి.</p><Button asChild variant="outline"><Link to="/admin-login">నిర్వాహక ప్రవేశం</Link></Button></div>,
+  notFoundComponent: () => <p className="p-4">నిర్వాహకుల పేజీ కనిపించలేదు.</p>,
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
@@ -99,11 +103,11 @@ function Admin() {
     <div className="space-y-4 p-4">
       <div className="flex items-center justify-between gap-3"><h2 className="text-2xl font-bold">అడ్మిన్ డాష్‌బోర్డ్ <span className="text-base font-normal text-muted-foreground">Admin</span></h2><Button asChild variant="outline"><Link to="/admin-settings">సెట్టింగులు · Settings</Link></Button></div>
       <AdminNewPaymentAlert />
+      <AdminOverview />
       <AdminMessages />
       <AdminPrime99 />
       <ProviderContacts admin />
       <AdminReferralEligibility />
-      <section className="rounded-xl border bg-card p-3"><h3 className="text-xl font-bold">బుకింగులు · Bookings</h3><p>ఇంకా నిర్ధారించిన బుకింగ్ నమోదులు లేవు. అందుబాటు అభ్యర్థనలు లేదా గంట సంభాషణలు బుకింగులు కావు. · No confirmed booking records; requests and bell chats are not bookings.</p></section>
       <AdminReferralCash />
       <AdminDevotional />
       <AdminPayments />
