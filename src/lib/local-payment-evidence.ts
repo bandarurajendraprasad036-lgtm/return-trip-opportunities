@@ -39,16 +39,17 @@ function saveLargeEvidence(key: string, evidence: LocalPaymentEvidence): Promise
 }
 
 export async function saveLocalPaymentEvidence(input: {
-  ownerId: string; reference: string; image: File; amount: number; beneficiary?: string | undefined;
+  ownerId: string; reference?: string; image: File; amount: number; beneficiary?: string | undefined;
 }, storage: Pick<Storage, 'setItem'> = localStorage, fallback = saveLargeEvidence) {
-  if (!input.ownerId || !/^\d{12}$/.test(input.reference) || input.image.size === 0) throw new Error('INVALID_LOCAL_EVIDENCE');
+  const reference = input.reference ?? `photo:${crypto.randomUUID()}`;
+  if (!input.ownerId || !/^(\d{12}|photo:[0-9a-f-]{36})$/.test(reference) || input.image.size === 0) throw new Error('INVALID_LOCAL_EVIDENCE');
   const evidence: LocalPaymentEvidence = {
     ownerId: input.ownerId, beneficiary: input.beneficiary ?? input.ownerId,
-    reference: input.reference, amount: input.amount,
+    reference, amount: input.amount,
     photo: await photoData(input.image), photoName: input.image.name,
     savedAt: new Date().toISOString(), status: 'local-only',
   };
-  const key = localPaymentKey(input.ownerId, input.reference);
+  const key = localPaymentKey(input.ownerId, reference);
   try { storage.setItem(key, JSON.stringify(evidence)); }
   catch { await fallback(key, evidence); }
   window.dispatchEvent(new Event('gayatri-local-payment-saved'));
@@ -56,7 +57,7 @@ export async function saveLocalPaymentEvidence(input: {
 }
 
 export async function hasLocalPaymentEvidence(ownerId: string, storage: Pick<Storage, 'length' | 'key' | 'getItem'> = localStorage): Promise<boolean> {
-  const matches = (row: Partial<LocalPaymentEvidence>) => row.ownerId === ownerId && row.beneficiary === ownerId && row.status === 'local-only' && /^\d{12}$/.test(row.reference ?? '') && !!row.photo;
+  const matches = (row: Partial<LocalPaymentEvidence>) => row.ownerId === ownerId && row.beneficiary === ownerId && row.status === 'local-only' && /^(\d{12}|photo:[0-9a-f-]{36})$/.test(row.reference ?? '') && !!row.photo;
   for (let index = 0; index < storage.length; index++) {
     const key = storage.key(index);
     if (!key?.startsWith(`gayatri-local-payment:${ownerId}:`)) continue;

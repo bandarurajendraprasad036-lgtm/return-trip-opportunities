@@ -4,6 +4,13 @@ import { hasLocalPaymentEvidence, localPaymentKey, saveLocalPaymentEvidence } fr
 const input = () => ({ ownerId: 'owner-one', reference: '123456789012', amount: 100, image: new File(['test photo'], 'photo.png', { type: 'image/png' }) });
 describe('phone-only payment evidence', () => {
   beforeEach(() => localStorage.clear());
+  it('saves screenshot-only evidence without a supplied transaction number', async () => {
+    const evidence = await saveLocalPaymentEvidence({ ownerId: 'owner-one', amount: 100, image: input().image });
+    expect(evidence.amount).toBe(100);
+    expect(evidence.reference.startsWith('photo:')).toBe(true);
+    expect(await hasLocalPaymentEvidence('owner-one')).toBe(true);
+    expect(await hasLocalPaymentEvidence('owner-two')).toBe(false);
+  });
   it('persists the photo and twelve-digit number without making a network request', async () => {
     const network = vi.spyOn(globalThis, 'fetch');
     const evidence = await saveLocalPaymentEvidence(input());
