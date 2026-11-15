@@ -4,9 +4,9 @@ import { LogIn } from "lucide-react";
 import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { googleAuthHelp } from "@/lib/google-auth-errors";
-import { takeAuthReturn } from '@/lib/auth-navigation';
+import { rememberAuthReturn, takeAuthReturn } from '@/lib/auth-navigation';
 
-export function GoogleSignIn({ destination = '/feed', redirectPath = '/' }: { destination?: '/feed' | '/admin-login'; redirectPath?: '/' | '/admin-login' }) {
+export function GoogleSignIn({ destination = '/feed', redirectPath = '/', returnTo }: { destination?: '/feed' | '/admin-login'; redirectPath?: '/' | '/admin-login'; returnTo?: string }) {
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -20,6 +20,7 @@ export function GoogleSignIn({ destination = '/feed', redirectPath = '/' }: { de
     setError("");
     setBusy(true);
     try {
+      if (returnTo) rememberAuthReturn(returnTo);
       sessionStorage.setItem('gayatri-auth-destination', redirectPath === '/admin-login' ? '/admin-login' : destination);
       const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}/auth/callback` });
       if (result.error) { setError(googleAuthHelp(result.error.message)); return; }

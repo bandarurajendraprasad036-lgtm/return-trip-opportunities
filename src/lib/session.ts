@@ -5,7 +5,8 @@ export function useMe() {
   return useQuery({
     queryKey: ["me"],
     queryFn: async () => {
-      const { data } = await supabase.auth.getUser();
+      const { data, error } = await supabase.auth.getUser();
+      if (error && error.name !== 'AuthSessionMissingError') throw error;
       const user = data.user;
       if (!user) return null;
       const blocked = await supabase.from('account_blocks').select('reason').eq('user_id',user.id).maybeSingle();
