@@ -4,7 +4,6 @@ import { useState } from "react";
 import { MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/session";
-import { AdminChatButton } from "@/components/AdminChatButton";
 import { replyGroupKey } from "@/lib/vehicle-experience";
 import { Button } from "@/components/ui/button";
 import { hidePaymentEvidence } from '@/lib/payment-status';
@@ -57,7 +56,6 @@ function Chats() {
   return (
     <div className="space-y-2 p-4">
       <h2 className="text-2xl font-bold">చాట్స్ <span className="text-base font-normal text-muted-foreground">Chats</span></h2>
-      <AdminChatButton />
       {isPending && <p className="text-sm text-muted-foreground">సమాధానాలు తెస్తున్నాం · Loading replies</p>}
       {isError && <Button variant="outline" onClick={() => refetch()}>మళ్లీ ప్రయత్నించండి · Retry</Button>}
       {!isPending && !isError && data.length === 0 && (

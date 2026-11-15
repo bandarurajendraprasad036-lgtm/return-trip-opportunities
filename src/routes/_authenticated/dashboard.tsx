@@ -4,7 +4,6 @@ import { Inbox, Briefcase, Image, LogOut, PlusCircle, Sparkles, Users } from "lu
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useMe } from "@/lib/session";
-import { AdminChatButton } from "@/components/AdminChatButton";
 import { InstallButton } from "@/components/AppHelpers";
 import { ReferralVip } from '@/components/ReferralVip';
 import { AccountProfile } from '@/components/AccountProfile';
@@ -79,7 +78,6 @@ function Dashboard() {
         <Link to="/ai-match" className={tile}><Sparkles className="size-7 text-primary" />AI మ్యాచ్ · AI Match</Link>
         <Link to="/service-profile" className={tile}><Image className="size-7 text-primary" />నా ఫోటోలు · My photos</Link>
       </div>
-      <AdminChatButton />
       <AccountProfile />
       <Prime99Payment />
       <SharingImage />
