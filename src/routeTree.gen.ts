@@ -30,6 +30,7 @@ import { Route as AuthenticatedServiceProfileRouteImport } from './routes/_authe
 import { Route as AuthenticatedVehicleDemandsRouteImport } from './routes/_authenticated/vehicle-demands'
 import { Route as AuthCallbackRouteImport } from './routes/auth_.callback'
 import { Route as ProfileUserIdRouteImport } from './routes/profile.$userId'
+import { Route as Char126oauthInitiateRouteImport } from './routes/~oauth.initiate'
 import { Route as AuthenticatedChatUserIdRouteImport } from './routes/_authenticated/chat.$userId'
 import { Route as AuthenticatedPostNewRouteImport } from './routes/_authenticated/post.new'
 import { Route as ApiPublicPushDispatchRouteImport } from './routes/api/public/push-dispatch'
@@ -142,6 +143,11 @@ const ProfileUserIdRoute = ProfileUserIdRouteImport.update({
   path: '/profile/$userId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char126oauthInitiateRoute = Char126oauthInitiateRouteImport.update({
+  id: '/~oauth/initiate',
+  path: '/~oauth/initiate',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedChatUserIdRoute = AuthenticatedChatUserIdRouteImport.update({
   id: '/chat/$userId',
   path: '/chat/$userId',
@@ -179,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/vehicle-demands': typeof AuthenticatedVehicleDemandsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/profile/$userId': typeof ProfileUserIdRoute
+  '/~oauth/initiate': typeof Char126oauthInitiateRoute
   '/chat/$userId': typeof AuthenticatedChatUserIdRoute
   '/post/new': typeof AuthenticatedPostNewRoute
   '/api/public/push-dispatch': typeof ApiPublicPushDispatchRoute
@@ -204,6 +211,7 @@ export interface FileRoutesByTo {
   '/vehicle-demands': typeof AuthenticatedVehicleDemandsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/profile/$userId': typeof ProfileUserIdRoute
+  '/~oauth/initiate': typeof Char126oauthInitiateRoute
   '/chat/$userId': typeof AuthenticatedChatUserIdRoute
   '/post/new': typeof AuthenticatedPostNewRoute
   '/api/public/push-dispatch': typeof ApiPublicPushDispatchRoute
@@ -231,6 +239,7 @@ export interface FileRoutesById {
   '/_authenticated/vehicle-demands': typeof AuthenticatedVehicleDemandsRoute
   '/auth_/callback': typeof AuthCallbackRoute
   '/profile/$userId': typeof ProfileUserIdRoute
+  '/~oauth/initiate': typeof Char126oauthInitiateRoute
   '/_authenticated/chat/$userId': typeof AuthenticatedChatUserIdRoute
   '/_authenticated/post/new': typeof AuthenticatedPostNewRoute
   '/api/public/push-dispatch': typeof ApiPublicPushDispatchRoute
@@ -258,6 +267,7 @@ export interface FileRouteTypes {
     | '/vehicle-demands'
     | '/auth/callback'
     | '/profile/$userId'
+    | '/~oauth/initiate'
     | '/chat/$userId'
     | '/post/new'
     | '/api/public/push-dispatch'
@@ -283,6 +293,7 @@ export interface FileRouteTypes {
     | '/vehicle-demands'
     | '/auth/callback'
     | '/profile/$userId'
+    | '/~oauth/initiate'
     | '/chat/$userId'
     | '/post/new'
     | '/api/public/push-dispatch'
@@ -309,6 +320,7 @@ export interface FileRouteTypes {
     | '/_authenticated/vehicle-demands'
     | '/auth_/callback'
     | '/profile/$userId'
+    | '/~oauth/initiate'
     | '/_authenticated/chat/$userId'
     | '/_authenticated/post/new'
     | '/api/public/push-dispatch'
@@ -326,6 +338,7 @@ export interface RootRouteChildren {
   WorkRoute: typeof WorkRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   ProfileUserIdRoute: typeof ProfileUserIdRoute
+  Char126oauthInitiateRoute: typeof Char126oauthInitiateRoute
   ApiPublicPushDispatchRoute: typeof ApiPublicPushDispatchRoute
 }
 
@@ -478,6 +491,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileUserIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/~oauth/initiate': {
+      id: '/~oauth/initiate'
+      path: '/~oauth/initiate'
+      fullPath: '/~oauth/initiate'
+      preLoaderRoute: typeof Char126oauthInitiateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/chat/$userId': {
       id: '/_authenticated/chat/$userId'
       path: '/chat/$userId'
@@ -547,6 +567,7 @@ const rootRouteChildren: RootRouteChildren = {
   WorkRoute: WorkRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   ProfileUserIdRoute: ProfileUserIdRoute,
+  Char126oauthInitiateRoute: Char126oauthInitiateRoute,
   ApiPublicPushDispatchRoute: ApiPublicPushDispatchRoute,
 }
 export const routeTree = rootRouteImport

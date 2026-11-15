@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { supabase } from '@/integrations/supabase/client';
+import { takeAuthReturn } from '@/lib/auth-navigation';
 
 // Public return page for Google sign-in; navigates only after the session exists.
 export const Route = createFileRoute('/auth_/callback')({
@@ -22,7 +23,7 @@ function Callback() {
     let done = false;
     const stored = sessionStorage.getItem('gayatri-auth-destination');
     const to = stored === '/admin-login' ? '/admin-login' : '/feed';
-    const go = () => { if (done) return; done = true; sessionStorage.removeItem('gayatri-auth-destination'); void navigate({ to, replace: true }); };
+    const go = () => { if (done) return; done = true; sessionStorage.removeItem('gayatri-auth-destination'); void navigate({ href: takeAuthReturn(to), replace: true }); };
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => { if (session) go(); });
     void supabase.auth.getSession().then(({ data }) => { if (data.session) go(); });
     const timer = setTimeout(() => { if (!done) setFailed(true); }, 12000);

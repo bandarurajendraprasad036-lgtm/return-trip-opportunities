@@ -4,6 +4,7 @@ import { LogIn } from "lucide-react";
 import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { googleAuthHelp } from "@/lib/google-auth-errors";
+import { takeAuthReturn } from '@/lib/auth-navigation';
 
 export function GoogleSignIn({ destination = '/feed', redirectPath = '/' }: { destination?: '/feed' | '/admin-login'; redirectPath?: '/' | '/admin-login' }) {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ export function GoogleSignIn({ destination = '/feed', redirectPath = '/' }: { de
       const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}/auth/callback` });
       if (result.error) { setError(googleAuthHelp(result.error.message)); return; }
       if (result.redirected) return;
-      await navigate({ to: destination });
+      await navigate({ href: takeAuthReturn(destination) });
     } catch (reason) { setError(googleAuthHelp(reason instanceof Error ? reason.message : "")); }
     finally { setBusy(false); }
   }}><LogIn className="size-5 shrink-0" /><span className="min-w-0"><span className="block">{busy ? "తెరుస్తున్నాము…" : error ? "మళ్లీ గూగుల్‌తో ప్రయత్నించండి" : "గూగుల్‌తో కొనసాగండి"}</span><span className="block text-sm">Continue with Google</span></span></Button>{error && <p role="alert" className="break-words text-base text-destructive">{error}</p>}</div>;
