@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { MessageCircle, Bell, Phone, UserRound, LockKeyhole } from "lucide-react";
+import { MessageCircle, Bell, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MapPin, IndianRupee, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import { VehicleDemandBell } from '@/components/VehicleDemandBell';
 import { VEHICLE_DEMAND_SECTIONS } from '@/lib/vehicle-demand';
 import type { VehiclePageKind } from '@/lib/vehicle-page';
 import { BellPaymentNotice } from '@/components/BellPaymentNotice';
+import { PrivateBellDisplay } from '@/components/PrivateBellDisplay';
 
 export type Post = Database["public"]["Tables"]["posts"]["Row"];
 
@@ -114,7 +115,7 @@ export function PostCard({
     {!isJob && <Button variant="outline" className="h-auto min-h-11 w-full whitespace-normal" onClick={()=>{setSelectedCategory(null);setChoicesOpen(true);}} disabled={sending}><Info />వాహన వివరాలు చూడండి</Button>}
     {!isJob && <Dialog open={choicesOpen} onOpenChange={setChoicesOpen}><DialogContent className="max-h-[85svh] overflow-y-auto" aria-describedby={undefined}><DialogTitle>వాహన వివరాలు</DialogTitle>
       {(Object.keys(VEHICLE_DEMAND_SECTIONS) as VehiclePageKind[]).map(kind => <Button key={kind} variant={selectedCategory === kind ? 'default' : 'outline'} className="h-auto w-full whitespace-normal text-left" onClick={() => setSelectedCategory(kind)}><Bell />{VEHICLE_DEMAND_SECTIONS[kind]}</Button>)}
-      {selectedCategory && <div className="space-y-3 border-t pt-3"><p translate="no" className="break-all font-bold">గుర్తింపు: {post.id}</p><Button variant="outline" className="h-auto w-full justify-start gap-4 whitespace-normal p-3" disabled={sending} onClick={() => { setChoicesOpen(false); void openVehicle(false); }} aria-label="దాచిన వాహన యజమాని వివరాలు చూడండి"><span className="grid size-16 shrink-0 place-items-center rounded-md border bg-royal text-on-royal"><UserRound className="size-10 blur-sm" /></span><span className="space-y-2 text-left"><span className="block select-none blur-sm" aria-hidden="true">పేరు దాచబడింది</span><span className="block select-none blur-sm" aria-hidden="true">మొబైల్ నంబరు దాచబడింది</span><span className="flex items-center gap-2"><LockKeyhole />పూర్తి వివరాలు</span></span></Button><div className="flex flex-wrap gap-2"><Button variant="outline" asChild><a href={`/bell-board?section=${selectedCategory}`}>గంట కొట్టిన వాళ్ళ జాబితా</a></Button><VehicleDemandBell postId={post.id} category={selectedCategory} /></div></div>}
+      {selectedCategory && <div className="space-y-3 border-t pt-3"><p translate="no" className="break-all font-bold">గుర్తింపు: {post.id}</p><PrivateBellDisplay /><div className="flex flex-wrap gap-2"><Button variant="outline" disabled={sending} onClick={() => { setChoicesOpen(false); void openVehicle(true); }}><MessageCircle />చాట్</Button><Button variant="outline" asChild><a href={`/bell-board?section=${selectedCategory}`}>గంట కొట్టిన వాళ్ళ జాబితా</a></Button><VehicleDemandBell postId={post.id} category={selectedCategory} /></div></div>}
     </DialogContent></Dialog>}
     
     <Dialog open={detailsOpen} onOpenChange={open => { setDetailsOpen(open); if (!open) setDetails(null); }}><DialogContent className="max-h-[85svh] overflow-y-auto"><DialogTitle>ప్రకటన వివరాలు · Post details</DialogTitle><DialogDescription>{isJob ? post.skill || 'ఉద్యోగం · Job' : vehicleTypeLabel(post.vehicle_type)}</DialogDescription><p translate="no" className="break-words">{isJob ? post.location : `${post.from_place || '…'} → ${post.to_place || '…'}`}</p>{post.salary && <p translate="no">{post.salary}</p>}{details?.description && <p translate="no" className="whitespace-pre-wrap break-words">{details.description}</p>}{details?.trip_date && <p translate="no">{details.trip_date}</p>}{details?.capacity_tons != null && <p>{details.capacity_tons} టన్నులు · tons</p>}{details?.public_photo && <img src={details.public_photo} alt="ప్రకటన ఫోటో" className="max-h-64 w-full object-contain" />}{details?.public_brand && <p translate="no">{details.public_brand}</p>}{details?.vehicle_name && <p translate="no">{details.vehicle_name}</p>}{details?.vehicle_number && <p translate="no">{details.vehicle_number}</p>}{details?.driver_name && <p translate="no">{details.driver_name}</p>}{details?.contact_phone && /^[6-9]\d{9}$/.test(details.contact_phone) && <Button asChild><a href={`tel:+91${details.contact_phone}`}><Phone /><span translate="no">{details.contact_phone}</span></a></Button>}</DialogContent></Dialog>

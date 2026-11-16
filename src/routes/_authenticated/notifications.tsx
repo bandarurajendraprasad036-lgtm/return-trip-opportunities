@@ -14,6 +14,7 @@ import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { MessageCircle } from "lucide-react";
 import { freeWorkLabel } from "@/lib/free-work";
+import { PrivateBellDisplay } from '@/components/PrivateBellDisplay';
 
 // A bell notice opens the ringer's work and area (never private identity) with a chat button.
 function BellNoticeDetails({ notice }: { notice: { ringer: string; category: string; area: string } }) {
@@ -101,11 +102,12 @@ function Notifications() {
       {(prime?.alerts_ready || data.length > 0) && (["job", "vehicle", "other"] as const).map((section) => { const items = data.filter((n) => (n.post?.module === "job" || n.post?.module === "vehicle" ? n.post.module : "other") === section); if (!items.length) return null; return <section key={section} className="space-y-2"><h3 className="border-b pt-2 text-xl font-bold">{section === "job" ? "ఉద్యోగ అలర్ట్స్ · Job alerts" : section === "vehicle" ? "వాహన అలర్ట్స్ · Vehicle alerts" : "ఇతర అలర్ట్స్ · Other alerts"}</h3>{items.map((n) => (
         <div key={n.id} className={`space-y-2 rounded-xl p-2 ${n.is_read ? "" : "bg-secondary/30"}`}>
           <p className="flex items-start gap-2 px-1 font-semibold">
-            <Inbox className="mt-0.5 size-5 shrink-0 text-vehicle" />{n.message}
+            <Inbox className="mt-0.5 size-5 shrink-0 text-vehicle" />{n.post?.module === 'vehicle' ? `${n.post.from_place || '…'} → ${n.post.to_place || '…'}` : n.message}
           </p>
           <p className="px-1 text-xs text-muted-foreground">{new Date(n.created_at).toLocaleString("en-IN")}</p>
-          {n.post && <PostCard post={n.post} meId={me?.id} highlight />}
-          {bells.find(b => b.notification_id === n.id) && <BellNoticeDetails notice={bells.find(b => b.notification_id === n.id)!} />}
+          {(n.vehicle_bell || n.post?.module === 'vehicle' || n.message.includes(' → ')) && <PrivateBellDisplay />}
+          {n.post && n.post.module !== 'vehicle' && <PostCard post={n.post} meId={me?.id} highlight />}
+          {(() => { const bell = bells.find(b => b.notification_id === n.id); return bell ? <BellNoticeDetails notice={bell} /> : null; })()}
         </div>
       ))}</section>; })}
     </div>

@@ -1013,6 +1013,7 @@ export type Database = {
           message: string
           post_id: string | null
           user_id: string
+          vehicle_bell: boolean
         }
         Insert: {
           created_at?: string
@@ -1022,6 +1023,7 @@ export type Database = {
           message: string
           post_id?: string | null
           user_id: string
+          vehicle_bell?: boolean
         }
         Update: {
           created_at?: string
@@ -1031,6 +1033,7 @@ export type Database = {
           message?: string
           post_id?: string | null
           user_id?: string
+          vehicle_bell?: boolean
         }
         Relationships: [
           {
@@ -3247,6 +3250,10 @@ export type Database = {
       support_admin_id: { Args: never; Returns: string }
       vehicle_alert_context: {
         Args: { _target: string; _user: string }
+        Returns: string
+      }
+      vehicle_bell_route: {
+        Args: { _from: string; _to: string }
         Returns: string
       }
       vehicle_public_details: { Args: { _post: string }; Returns: Json }

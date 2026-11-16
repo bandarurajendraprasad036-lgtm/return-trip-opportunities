@@ -708,6 +708,13 @@
       "when": 1794816806396,
       "tag": "0100_additional_verified_phone_recipients",
       "breakpoints": true
+    },
+    {
+      "idx": 101,
+      "version": "7",
+      "when": 1794820298521,
+      "tag": "0101_route_only_vehicle_bells_no_paid_identity",
+      "breakpoints": true
     }
   ]
 }

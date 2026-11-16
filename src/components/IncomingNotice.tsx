@@ -6,9 +6,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { playBell } from '@/lib/bell';
 import { useBellSound } from '@/lib/use-bell-sound';
 import { pushPolicy } from '@/lib/push-rules';
+import { PrivateBellDisplay } from '@/components/PrivateBellDisplay';
 
 export function IncomingNotice({ userId }: { userId: string }) {
-  const [notice, setNotice] = useState<{ body: string; sender?: string | undefined; post?: string | undefined; payment?: boolean; id?: string } | null>(null);
+  const [notice, setNotice] = useState<{ body: string; sender?: string | undefined; post?: string | undefined; payment?: boolean; id?: string; vehicleBell?: boolean } | null>(null);
   const { muted, change } = useBellSound();
   useEffect(() => {
     let active = true;
@@ -20,8 +21,8 @@ export function IncomingNotice({ userId }: { userId: string }) {
       if (active && (free?.data === true || (!eligibility.error && (eligibility.data as { alerts_ready?: boolean })?.alerts_ready))) setNotice(next);
     };
     const channel = supabase.channel(`screen-notice-${userId}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` }, payload => { void receive({ body: String(payload.new["message"] ?? "నోటిఫికేషన్"), id: String(payload.new['id']) }); })
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.${userId}` }, payload => { void receive({ body: String(payload.new["body"] ?? "కొత్త సమాధానం · New reply"), sender: String(payload.new["sender_id"]), payment: payload.new['needs_admin'] === true, post: typeof payload.new["post_id"] === "string" ? payload.new["post_id"] : undefined }); })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` }, payload => { void receive({ body: String(payload.new["message"] ?? "నోటిఫికేషన్"), id: String(payload.new['id']), vehicleBell: payload.new['vehicle_bell'] === true || String(payload.new['message']).includes(' → ') }); })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.${userId}` }, payload => { if (payload.new['body'] === 'హాయ్ · Hi') return; void receive({ body: 'కొత్త సమాధానం', sender: String(payload.new["sender_id"]), payment: payload.new['needs_admin'] === true, post: typeof payload.new["post_id"] === "string" ? payload.new["post_id"] : undefined }); })
       .subscribe();
     return () => { active = false; setNotice(null); void supabase.removeChannel(channel); };
   }, [userId]);
@@ -31,6 +32,7 @@ export function IncomingNotice({ userId }: { userId: string }) {
   return <aside role="status" className="fixed inset-x-3 top-3 z-50 mx-auto max-w-md rounded-lg border border-secondary bg-card p-3 shadow-card">
     <div className="flex items-center gap-2"><Inbox className="size-5 shrink-0 text-primary" /><p className="min-w-0 flex-1 text-sm font-bold">నోటిఫికేషన్</p><Button variant="ghost" size="icon" aria-label="మూసివేయండి · Dismiss" onClick={() => setNotice(null)}><X /></Button></div>
     <p className="line-clamp-3 break-words py-2 text-sm">{notice.body}</p>
+    {notice.vehicleBell && <PrivateBellDisplay />}
     <Button asChild size="sm" onClick={() => setNotice(null)}>{notice.sender ? <Link to="/chat/$userId" params={{ userId: notice.sender }} search={{ post: notice.post }}>సమాధానం చూడండి · View reply</Link> : <Link to="/notifications">నోటిఫికేషన్ చూడండి</Link>}</Button>
   </aside>;
 }
