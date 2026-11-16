@@ -8,6 +8,7 @@ import { PhoneNumberChange } from '@/components/PhoneNumberChange';
 import { Button } from '@/components/ui/button';
 import { useRouterState } from '@tanstack/react-router';
 import { PROFILE_ACCESS_MESSAGE } from '@/lib/profile-access';
+import { Prime99Payment } from '@/components/Prime99Payment';
 
 export function useProfileAccess() {
   const [hydrated, setHydrated] = useState(false);
@@ -22,10 +23,9 @@ export function useProfileAccess() {
 }
 export function TopProfileBox() {
   const { me, ready, loading } = useProfileAccess();
-  const [editing, setEditing] = useState(false);
   return <section id="top-profile-box" className="space-y-3 border-y bg-background px-4 py-4 text-foreground" aria-label="పైన ప్రొఫైల్ బాక్స్">
-    <div className="flex items-center justify-between gap-2"><h2 className="text-xl font-bold">నా ప్రొఫైల్</h2>{ready && <Button variant="outline" onClick={() => setEditing(value => !value)}>వివరాలు చూడండి</Button>}</div>
-    {loading ? <p role="status">మీ వివరాలు చూస్తున్నాం…</p> : ready && !editing ? <p role="status">మీ ప్రొఫైల్ సిద్ధంగా ఉంది.</p> : <>
+    <h2 className="text-xl font-bold">{ready ? 'పేమెంట్ చేయండి / చందా పొందండి' : 'మీ పూర్తి వివరాలు'}</h2>
+    {loading ? <p role="status">మీ వివరాలు చూస్తున్నాం…</p> : ready ? <Prime99Payment /> : <>
       <p className="text-lg">{PROFILE_ACCESS_MESSAGE}</p>
       {me ? <><AccountProfile completionOnly /><PhoneNumberChange currentPhone={me.profile?.phone ?? ''} verificationRequired /></> : <PhoneSignIn />}
     </>}

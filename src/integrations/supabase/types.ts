@@ -2844,6 +2844,10 @@ export type Database = {
       open_vehicle_demand_chat: { Args: { _demand: string }; Returns: string }
       paid_alert_ready: { Args: { _user: string }; Returns: boolean }
       post_alert_eligible: { Args: { _user: string }; Returns: boolean }
+      post_listing_visible: {
+        Args: { _at?: string; p: Database["public"]["Tables"]["posts"]["Row"] }
+        Returns: boolean
+      }
       posts_match_area: {
         Args: {
           a: Database["public"]["Tables"]["posts"]["Row"]
