@@ -1006,6 +1006,8 @@ export type Database = {
       }
       notifications: {
         Row: {
+          bell_actor: string | null
+          bell_demand: string | null
           created_at: string
           id: string
           is_read: boolean
@@ -1016,6 +1018,8 @@ export type Database = {
           vehicle_bell: boolean
         }
         Insert: {
+          bell_actor?: string | null
+          bell_demand?: string | null
           created_at?: string
           id?: string
           is_read?: boolean
@@ -1026,6 +1030,8 @@ export type Database = {
           vehicle_bell?: boolean
         }
         Update: {
+          bell_actor?: string | null
+          bell_demand?: string | null
           created_at?: string
           id?: string
           is_read?: boolean
@@ -2777,6 +2783,10 @@ export type Database = {
       auto_confirm_membership_evidence: {
         Args: { _id: string }
         Returns: undefined
+      }
+      bell_route_within_radius: {
+        Args: { _actor: string; _demand: string; _post: string }
+        Returns: boolean
       }
       block_confirmed_content: {
         Args: { _reason: string; _user: string }

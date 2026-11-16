@@ -715,6 +715,13 @@
       "when": 1794820298521,
       "tag": "0101_route_only_vehicle_bells_no_paid_identity",
       "breakpoints": true
+    },
+    {
+      "idx": 102,
+      "version": "7",
+      "when": 1794821010895,
+      "tag": "0102_vehicle_phone_bell_radius_gate",
+      "breakpoints": true
     }
   ]
 }

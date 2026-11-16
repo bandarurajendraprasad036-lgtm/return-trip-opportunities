@@ -47,6 +47,7 @@
 - The large devotional bell is the sole home bell trigger; date-based bundled engraved variants preserve gold artwork without a separate portrait overlay.
 - Firebase messaging uses a separate non-caching worker scope, owner-scoped device registration and a service-only durable delivery queue dispatched by a managed authenticated schedule; pushes contain no private job/message data and provider acceptance is never a delivery receipt.
 - Phone push payloads project only vehicle endpoints or database-normalized board routes; inbox read state must not cancel an already eligible queued phone alert, because in-app reading is not phone delivery.
+- Selected vehicle phone delivery rechecks the bell actor's consented saved endpoints against vehicle or board endpoints at the bounded radius; missing coordinates fail closed rather than infer proximity.
 - Homepage uses one submitted From/To search for all vehicle and job sections, without map or directions controls; actual location may prefill an unedited From field, never replace manual entry or infer proximity.
 - Vehicle contact surfaces reuse the shared responsibility notice; compact bells show it before interest submission without implying a confirmed booking.
 - Search examples are separate presentation-only objects without post or user IDs; their bells never call interest or booking APIs.
