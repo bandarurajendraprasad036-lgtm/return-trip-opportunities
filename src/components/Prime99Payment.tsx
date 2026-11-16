@@ -5,7 +5,7 @@ import { usePrime99 } from '@/lib/prime99';
 import { PaymentScanner } from '@/components/PaymentScanner';
 import { MembershipEvidenceForm } from '@/components/MembershipEvidenceForm';
 
-export function Prime99Payment(_props: { bellPayment?: boolean }) {
+export function Prime99Payment({ compact = false }: { bellPayment?: boolean; compact?: boolean }) {
   const { data: me } = useMe();
   const { data: prime } = usePrime99(me?.id);
   const request = useQuery({
@@ -20,6 +20,7 @@ export function Prime99Payment(_props: { bellPayment?: boolean }) {
     },
   });
 
+  if (compact) return <section className="space-y-3 profile-copy"><PaymentScanner amount={100} compact /><MembershipEvidenceForm amount={100} /></section>;
   if (!me) return null;
   const completed = !!prime?.active;
   const waiting = !completed && request.data === 'pending';
