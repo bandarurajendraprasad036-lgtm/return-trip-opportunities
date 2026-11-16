@@ -20,7 +20,7 @@ import { PrivateBellDisplay } from '@/components/PrivateBellDisplay';
 function BellNoticeDetails({ notice }: { notice: { ringer: string; category: string; area: string } }) {
   const [open, setOpen] = useState(false); const nav = useNavigate();
   if (!open) return <Button className="h-auto min-h-12 w-full whitespace-normal" onClick={() => setOpen(true)}>గంట కొట్టిన వారి వివరాలు చూడండి</Button>;
-  return <div className="space-y-2 rounded-lg border border-primary p-3"><p translate="no" className="break-words font-bold">{freeWorkLabel(notice.category)}</p><p translate="no" className="break-words">{notice.area}</p><Button className="h-auto min-h-12 w-full" onClick={() => void nav({ to: "/chat/$userId", params: { userId: notice.ringer }, search: { post: undefined } })}><MessageCircle />Chat</Button></div>;
+  return <div className="space-y-2 rounded-lg border border-primary p-3"><PrivateBellDisplay /><p translate="no" className="break-words font-bold">{freeWorkLabel(notice.category)}</p><p translate="no" className="break-words">{notice.area}</p><Button className="h-auto min-h-12 w-full" onClick={() => void nav({ to: "/chat/$userId", params: { userId: notice.ringer }, search: { post: undefined } })}><MessageCircle />Chat</Button></div>;
 }
 
 export const Route = createFileRoute("/_authenticated/notifications")({

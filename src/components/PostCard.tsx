@@ -18,6 +18,7 @@ import { VEHICLE_DEMAND_SECTIONS } from '@/lib/vehicle-demand';
 import type { VehiclePageKind } from '@/lib/vehicle-page';
 import { BellPaymentNotice } from '@/components/BellPaymentNotice';
 import { PrivateBellDisplay } from '@/components/PrivateBellDisplay';
+import { anonymousPostDetails } from '@/lib/display-privacy';
 
 export type Post = Database["public"]["Tables"]["posts"]["Row"];
 
@@ -66,7 +67,7 @@ export function PostCard({
     try {
       const { data, error } = await supabase.rpc('get_post_details', { _post: post.id });
       if (error) { if (error.message.includes('PAID_BELL_REQUIRED') || error.message.includes('GOODS_MEMBERSHIP_REQUIRED')) setUpgradeOpen(true); else toast.error('వివరాలు రాలేదు'); return; }
-      setDetails(data as PostDetails); setDetailsOpen(true);
+      setDetails(data ? anonymousPostDetails(data as PostDetails) : null); setDetailsOpen(true);
     } finally { setDetailsBusy(false); }
   };
   const openVehicle = async (chat: boolean) => {
@@ -109,8 +110,9 @@ export function PostCard({
       </div>
       {jobIsVisible(post) && (post.module === 'vehicle' ? <div className="flex shrink-0 gap-2"><Button variant="outline" size="icon" aria-label="చాట్" title="చాట్" disabled={sending} onClick={()=>void openVehicle(true)}><MessageCircle /></Button><VehicleDemandBell postId={post.id} /></div> : <Button type="button" variant="outline" size="icon" disabled={sending} className="shrink-0" onClick={contact} aria-label="గంట · Bell"><Bell /></Button>)}
     </div>
+    <PrivateBellDisplay />
     {anonymousWork && <Button variant="outline" onClick={contact} disabled={sending}><MessageCircle />చాట్</Button>}
-    {isJob && <Button variant="outline" onClick={()=>void openDetails()} disabled={detailsBusy}><Info />వివరాలు / ఫోన్ నంబర్</Button>}
+    {isJob && <Button variant="outline" onClick={()=>void openDetails()} disabled={detailsBusy}><Info />వివరాలు</Button>}
     {!isJob && !hideDate && post.trip_date && <p translate="no" className="text-sm">{post.trip_date}</p>}
     {!isJob && <Button variant="outline" className="h-auto min-h-11 w-full whitespace-normal" onClick={()=>{setSelectedCategory(null);setChoicesOpen(true);}} disabled={sending}><Info />వాహన వివరాలు చూడండి</Button>}
     {!isJob && <Dialog open={choicesOpen} onOpenChange={setChoicesOpen}><DialogContent className="max-h-[85svh] overflow-y-auto" aria-describedby={undefined}><DialogTitle>వాహన వివరాలు</DialogTitle>

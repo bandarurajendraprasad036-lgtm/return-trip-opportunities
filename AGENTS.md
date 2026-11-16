@@ -63,6 +63,7 @@
 - Daily competition notices reuse the managed dispatcher and an atomic per-user/day ledger; public photo signing accepts only publication-and-competition-consent-checked paths to prevent private image disclosure.
 - Vehicle choices share free anonymous area/date-filtered lists; ordinary detail reads never expose vehicle identity, even with paid access, because subscription authorizes only chat/bell; owner/admin records remain private.
 - Vehicle interest notices are normalized to actual endpoints before notification guards run; screen notices use non-data identity placeholders and never preview chat bodies, preventing identity leaks and duplicate bell greetings.
+- Discovery details allowlist structured fields before rendering, and conversation lists never fetch names or preview messages; explicit synthetic-mask CSS keeps public identity hidden independently of utility generation.
 - Personalized sharing artwork renders existing owner referral identity and same-origin product links through canvas; private profile photos never enter it, and published photos require explicit owner consent after the configured trial.
 - Provider contact batches stay owner/admin private; authenticated atomic submission and admin review determine the discounted price rather than client assertions.
 - Posting records usage without payment gates; consented contact reads use the gated details RPC, never private profile fallbacks.

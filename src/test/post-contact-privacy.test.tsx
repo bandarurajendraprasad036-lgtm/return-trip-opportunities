@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { PostCard, type Post } from '@/components/PostCard';
 import { supabase } from '@/integrations/supabase/client';
 vi.mock('@tanstack/react-router',()=>({useNavigate:()=>vi.fn()}));
-vi.mock('@/integrations/supabase/client',()=>({supabase:{rpc:vi.fn(async()=>({data:{description:'Work details'},error:null}))}}));
+vi.mock('@/integrations/supabase/client',()=>({supabase:{auth:{getUser:vi.fn(async()=>({data:{user:{id:'member'}}}))},rpc:vi.fn(async()=>({data:{description:'Work details'},error:null}))}}));
 vi.mock('@/components/ResponsibilityNotice',()=>({ResponsibilityNotice:()=>null}));
 vi.mock('@/lib/use-account-program',()=>({useAccountProgram:()=>({data:{completed_at:'2026-11-07'}})}));
 vi.mock('@/lib/session',()=>({useMe:()=>({data:{id:'member',profile:{bell_activated_at:'2026-11-10T04:00:00Z'}}})}));
@@ -21,12 +21,12 @@ describe('post contact disclosure',()=>{
     fireEvent.click(screen.getByRole('button',{name:'గంట · Bell'}));
     expect(supabase.rpc).not.toHaveBeenCalled();expect(toast.info).not.toHaveBeenCalled();expect(toast.success).not.toHaveBeenCalled();
   });
-  it('dispatches a paid bell to the selected post without success banners',async()=>{
+  it('dispatches a work bell to the selected post without success banners',async()=>{
     vi.mocked(supabase.rpc).mockReset();vi.mocked(toast.info).mockClear();vi.mocked(toast.success).mockClear();
     vi.mocked(supabase.rpc).mockResolvedValueOnce({data:true,error:null} as never).mockResolvedValueOnce({data:'owner',error:null} as never);
     render(<PostCard post={post} meId="member" />);
     fireEvent.click(screen.getByRole('button',{name:'గంట · Bell'}));
-    await waitFor(()=>expect(supabase.rpc).toHaveBeenCalledWith('ring_post',{_post_id:'post'}));
+    await waitFor(()=>expect(supabase.rpc).toHaveBeenCalledWith('ring_free_work',{_id:'post',_source:'post',_section:'work-offered'}));
     expect(toast.info).not.toHaveBeenCalled();expect(toast.success).not.toHaveBeenCalled();
   });
   it('keeps contact and photo hidden in display-only listings even with sharing enabled',async()=>{
@@ -42,6 +42,18 @@ describe('post contact disclosure',()=>{
     render(<PostCard post={{...post,show_contact:false}} meId="member" />);
     expect(screen.queryByText('9876543210')).toBeNull();
     expect(screen.queryByText('Consented name')).toBeNull();
+  });
+  it('strips identity from opened discovery details even when the response contains it',async()=>{
+    vi.mocked(supabase.rpc).mockReset();
+    vi.mocked(supabase.rpc).mockResolvedValueOnce({data:{driver_name:'Private owner',contact_phone:'9876543210',public_photo:'https://example.com/private.jpg',public_brand:'Private brand',description:'Private owner 9876543210',capacity_tons:4},error:null} as never);
+    render(<PostCard post={post} meId="member" />);
+    fireEvent.click(screen.getByRole('button',{name:'వివరాలు'}));
+    await screen.findByRole('dialog');
+    expect(screen.queryByText('Private owner')).toBeNull();
+    expect(screen.queryByText('9876543210')).toBeNull();
+    expect(screen.queryByText('Private brand')).toBeNull();
+    expect(document.querySelector('img')).toBeNull();
+    expect(document.querySelector('a[href^="tel:"]')).toBeNull();
   });
   it('never requests interest or broadcasts from a display-only vehicle listing',async()=>{
     vi.mocked(supabase.rpc).mockClear();

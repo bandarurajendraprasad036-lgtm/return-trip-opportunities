@@ -5,6 +5,10 @@
 
 .route-point-marker { color: var(--primary); font-size: 24px; }
 
+/* Only synthetic shapes enter these masks, never an actual identity. */
+.private-identity-mask { display: block; filter: blur(6px); user-select: none; pointer-events: none; }
+.private-bell-display { min-height: 2.5rem; }
+
 @custom-variant dark (&:is(.dark *));
 
 /*
