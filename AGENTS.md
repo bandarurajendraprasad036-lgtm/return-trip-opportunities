@@ -17,6 +17,7 @@
 - Keep the synthetic phone-email domain unchanged during rebrands because existing account credentials depend on it.
 - Job drafting composes structured seeker inputs into the existing authenticated drafting call; preserve one inference path and do not invent missing facts.
 - Phone installation uses generateSW through vite-plugin-pwa for the explicitly requested offline public pages; register only through the guarded wrapper and never cache private data or OAuth.
+- Mount the existing installation action outside profile gates; use actual standalone state rather than historical storage to prevent stale flags blocking reinstall help.
 - Public entry has no OAuth; retain protected historical admin recovery and server-validated roles to avoid lockout.
 - Post inserts require a valid profile mobile through a database trigger; the same rule is checked in the form.
 - Membership submissions reuse the existing review_membership RPC; the WhatsApp button opens a manual send, never claims verified receipt or automatic delivery.

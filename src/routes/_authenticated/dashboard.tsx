@@ -78,6 +78,7 @@ function Dashboard() {
         <Link to="/ai-match" className={tile}><Sparkles className="size-7 text-primary" />AI మ్యాచ్ · AI Match</Link>
         <Link to="/service-profile" className={tile}><Image className="size-7 text-primary" />నా ఫోటోలు · My photos</Link>
       </div>
+      <InstallButton />
       <AccountProfile />
       <Prime99Payment />
       <SharingImage />

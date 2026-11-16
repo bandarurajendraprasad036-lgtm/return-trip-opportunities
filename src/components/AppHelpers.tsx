@@ -9,14 +9,14 @@ import { pushPolicy } from '@/lib/push-rules';
 
 type InstallEvent = Event & { prompt: () => Promise<void> };
 
-/** "Add to Home screen" button — appears only when the browser allows installing. */
+/** Always available installation action with browser prompt or platform help. */
 export function InstallButton({ compact = false, remind = false }: { compact?: boolean; remind?: boolean }) {
   const [evt, setEvt] = useState<InstallEvent | null>(null);
   const [installed, setInstalled] = useState(false);
   const [help, setHelp] = useState(false);
   const [ios, setIos] = useState(false);
   useEffect(() => {
-    setInstalled(window.localStorage.getItem('gayatri-installed-confirmed') === '1' || window.matchMedia("(display-mode: standalone)").matches || ("standalone" in navigator && navigator.standalone === true));
+    setInstalled(window.matchMedia("(display-mode: standalone)").matches || ("standalone" in navigator && navigator.standalone === true));
     setIos(/iPad|iPhone|iPod/.test(navigator.userAgent));
     const h = (e: Event) => { e.preventDefault(); setEvt(e as InstallEvent); };
     const done = () => { window.localStorage.setItem('gayatri-installed-confirmed', '1'); setInstalled(true); setEvt(null); };
@@ -26,12 +26,12 @@ export function InstallButton({ compact = false, remind = false }: { compact?: b
   }, []);
   return (
     <>
-      <Button variant="outline" aria-label={installed ? 'ఫోన్ తెరపై ఉంది · Installed' : 'దిగుమతి · Install app'} title={installed ? 'ఫోన్ తెరపై ఉంది · Installed' : 'దిగుమతి · Install app'} className={`${compact ? 'gold-ring shrink-0 p-0' : 'h-auto min-h-14 w-full whitespace-normal border-2 border-secondary px-3 py-3'} ${remind && homeActionPending('install', installed) ? 'unfinished-action' : ''}`} onClick={async () => {
+      <Button variant="outline" aria-label={installed ? 'ఫోన్‌లో ఉంది' : 'ఫోన్‌లో పెట్టుకోండి'} title={installed ? 'ఫోన్‌లో ఉంది' : 'ఫోన్‌లో పెట్టుకోండి'} className={`${compact ? 'gold-ring shrink-0 p-0' : 'h-auto min-h-14 w-full whitespace-normal border-2 border-secondary px-3 py-3'} ${remind && homeActionPending('install', installed) ? 'unfinished-action' : ''}`} onClick={async () => {
         if (installed) { toast.info('ఈ ఫోన్‌లో ఇప్పటికే జోడించబడింది'); return; }
         if (!evt) { setHelp(true); return; }
         try { await evt.prompt(); } catch { setHelp(true); } finally { setEvt(null); }
       }}>
-        <Download className="size-5 shrink-0" />{!compact && <span className="min-w-0"><span className="block">ఫోన్ తెరపై జోడించు</span><span className="block text-sm">Add to Home screen</span></span>}
+        <Download className="size-5 shrink-0" />{!compact && <span className="min-w-0">{installed ? 'ఫోన్‌లో ఉంది' : 'ఫోన్‌లో పెట్టుకోండి'}</span>}
       </Button>
       <Dialog open={help} onOpenChange={setHelp}>
         <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-sm">
