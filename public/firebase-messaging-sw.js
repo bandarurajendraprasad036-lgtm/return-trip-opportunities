@@ -15,7 +15,7 @@ firebase.initializeApp(Object.fromEntries(new URL(self.location).searchParams));
 firebase.messaging().onBackgroundMessage(payload => {
   const data = payload.data || {};
   return self.registration.showNotification('గాయత్రి వన్ · Gayatri One', {
-    body: 'కొత్త సమాచారం వచ్చింది · New alert received', icon: '/icon-192.png',
+    body: data.body || 'గాయత్రి వన్‌లో కొత్త నోటిఫికేషన్ ఉంది', icon: '/icon-192.png',
     tag: data.id || 'gayatri-alert', silent: data.silent === 'true', data: { path: '/notifications' },
   });
 });

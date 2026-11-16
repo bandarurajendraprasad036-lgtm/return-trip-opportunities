@@ -1,4 +1,5 @@
 import { pushFailure, pushPolicy } from './push-rules';
+import { phoneNoticeData } from './phone-notice';
 
 export async function dispatchPush() {
   const {cleanupExpiredEvidence}=await import('./evidence-cleanup.server');
@@ -27,21 +28,24 @@ export async function dispatchPush() {
     const [device, prefs, notice, eligibility] = await Promise.all([
       db.from('push_devices').select('token,sound_enabled').eq('id', row.device_id).maybeSingle(),
       db.from('notification_preferences').select('*').eq('user_id', row.user_id).maybeSingle(),
-      db.from('notifications').select('id,is_read').eq('id', row.notification_id).maybeSingle(),
+      db.from('notifications').select('id,is_read,message,vehicle_bell,post_id').eq('id', row.notification_id).maybeSingle(),
       db.rpc('notification_delivery_allowed', { _user: row.user_id, _notice: row.notification_id }),
     ]);
     if (device.error || prefs.error || notice.error || eligibility.error) throw device.error ?? prefs.error ?? notice.error ?? eligibility.error;
     const policy = pushPolicy(new Date(), prefs.data, device.data?.sound_enabled ?? false);
-    if (!eligibility.data || !device.data || !notice.data || notice.data.is_read || !policy.allowed) {
+    if (!eligibility.data || !device.data || !notice.data || !policy.allowed) {
       const skipped = await db.from('push_deliveries').update({ status: 'skipped', updated_at: new Date().toISOString() }).eq('id', row.id);
       if (skipped.error) throw skipped.error;
       continue;
     }
+    const route = notice.data.post_id ? await db.from('posts').select('module,from_place,to_place').eq('id', notice.data.post_id).maybeSingle() : null;
+    if (route?.error) throw route.error;
+    const safeData = phoneNoticeData(notice.data, route?.data?.module === 'vehicle' ? route.data : null);
     let status = 503, body = '';
     try {
       const response = await fetch('https://connector-gateway.lovable.dev/firebase_messaging/v1/projects/_/messages:send', {
         method: 'POST', headers: { Authorization: `Bearer ${key}`, 'X-Connection-Api-Key': connection, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: { token: device.data.token, data: { id: row.notification_id, silent: String(policy.silent) }, webpush: { headers: { TTL: '300', Urgency: 'high' } } } }),
+        body: JSON.stringify({ message: { token: device.data.token, data: { ...safeData, silent: String(policy.silent) }, webpush: { headers: { TTL: '300', Urgency: 'high' } } } }),
       });
       status = response.status;
       if (!response.ok) { body = await response.text(); console.error(`FCM send failed [${status}]: ${body.replaceAll(device.data.token, '[device]')}`); }
