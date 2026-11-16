@@ -14,7 +14,7 @@ export function AdminPasswordLogin() {
   const [error, setError] = useState('');
   const qc = useQueryClient(); const navigate = useNavigate();
   return <section className="space-y-3 border-y py-4"><h2 className="text-xl font-bold">పాస్‌వర్డ్ తో అడ్మిన్ ప్రవేశం</h2>
-    <p>మీ అడ్మిన్ ఖాతా ఈమెయిల్ లేదా పాత మొబైల్ నంబర్, ఆ ఖాతా పాస్‌వర్డ్ ఇవ్వండి. పాస్‌వర్డ్ లేకపోతే కింద గూగుల్ తో ప్రవేశించండి.</p>
+    <p>మీ పాత నిర్వాహక ఖాతా ఈమెయిల్ లేదా మొబైల్ నంబరు, ఆ ఖాతా రహస్య పదం ఇవ్వండి.</p>
     <form className="space-y-3" onSubmit={async event => {
       event.preventDefault(); if (busy) return; setBusy(true); setError('');
       try {

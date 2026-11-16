@@ -9,7 +9,7 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Phone login uses a synthetic email derived from the 10-digit phone (`phoneToEmail` in src/lib/match.ts) with password auth and auto-confirm — avoids SMS provider setup.
+- Number-only entry binds admin-approved requests to random device secrets; never resolve an account from a phone claim.
 - Automatic work/service alerts use receipt-gated opposite-demand exact-area and normalized-occupation matching, with a private durable out-of-hours queue; selected listing bells remain exact-owner only to prevent unrelated recipients.
 - First user to sign up becomes admin (handle_new_user trigger); roles live in user_roles.
 - Use the shared Brand component for the bilingual wordmark so headers stay consistent.
@@ -17,7 +17,7 @@
 - Keep the synthetic phone-email domain unchanged during rebrands because existing account credentials depend on it.
 - Job drafting composes structured seeker inputs into the existing authenticated drafting call; preserve one inference path and do not invent missing facts.
 - Phone installation uses generateSW through vite-plugin-pwa for the explicitly requested offline public pages; register only through the guarded wrapper and never cache private data or OAuth.
-- Public sign-in stays Google; admin entry also accepts existing password credentials and validates roles server-side to prevent privilege escalation.
+- Public entry has no OAuth; retain protected historical admin recovery and server-validated roles to avoid lockout.
 - Post inserts require a valid profile mobile through a database trigger; the same rule is checked in the form.
 - Membership submissions reuse the existing review_membership RPC; the WhatsApp button opens a manual send, never claims verified receipt or automatic delivery.
 - Shareable services use an opt-in service_profiles record separate from private profiles; photos stay in private storage and are signed only after checking publication, while reviewer and viewer identities remain private.

@@ -989,6 +989,39 @@ export type Database = {
           },
         ]
       }
+      phone_entry_requests: {
+        Row: {
+          account_id: string | null
+          created_at: string
+          device_hash: string
+          id: string
+          phone: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+        }
+        Insert: {
+          account_id?: string | null
+          created_at?: string
+          device_hash: string
+          id?: string
+          phone: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Update: {
+          account_id?: string | null
+          created_at?: string
+          device_hash?: string
+          id?: string
+          phone?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       post_bell_interests: {
         Row: {
           area: string
@@ -2872,6 +2905,10 @@ export type Database = {
         Returns: string
       }
       request_own_bell_notice: { Args: { _device: string }; Returns: string }
+      request_phone_entry: {
+        Args: { _hash: string; _phone: string }
+        Returns: string
+      }
       request_service: {
         Args: { _area: string; _service: string }
         Returns: string
@@ -2884,6 +2921,10 @@ export type Database = {
       }
       review_membership_evidence: {
         Args: { _approve: boolean; _id: string }
+        Returns: undefined
+      }
+      review_phone_entry: {
+        Args: { _account?: string; _approve: boolean; _id: string }
         Returns: undefined
       }
       review_post_evidence: {

@@ -659,6 +659,13 @@
       "when": 1794744733024,
       "tag": "0093_allow_owner_membership_image_upload",
       "breakpoints": true
+    },
+    {
+      "idx": 94,
+      "version": "7",
+      "when": 1794797966263,
+      "tag": "0094_admin_reviewed_phone_device_entry",
+      "breakpoints": true
     }
   ]
 }

@@ -20,6 +20,7 @@ import { AdminPrime99 } from '@/components/AdminPrime99';
 import { AdminReferralEligibility } from '@/components/AdminReferralEligibility';
 import { ProviderContacts } from '@/components/ProviderContacts';
 import { AdminOverview, adminOverviewQuery } from '@/components/AdminOverview';
+import { AdminPhoneEntries } from '@/components/AdminPhoneEntries';
 
 export const Route = createFileRoute("/_authenticated/admin")({
   beforeLoad: async () => {
@@ -104,6 +105,7 @@ function Admin() {
       <div className="flex items-center justify-between gap-3"><h2 className="text-2xl font-bold">అడ్మిన్ డాష్‌బోర్డ్ <span className="text-base font-normal text-muted-foreground">Admin</span></h2><Button asChild variant="outline"><Link to="/admin-settings">సెట్టింగులు · Settings</Link></Button></div>
       <AdminNewPaymentAlert />
       <AdminOverview />
+      <AdminPhoneEntries />
       <AdminMessages />
       <AdminPrime99 />
       <ProviderContacts admin />
