@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { IndianRupee, Plus } from 'lucide-react';
+import { ScanLine, Plus, UserRound } from 'lucide-react';
 import { useMe } from '@/lib/session';
 import { supabase } from '@/integrations/supabase/client';
 import { AccountProfile } from '@/components/AccountProfile';
@@ -35,12 +35,13 @@ export function TopProfileBox({ compact = false }: { compact?: boolean }) {
     </>}
   </section>;
 
-  const open = selected ?? (!loading && !ready ? 'profile' : null);
+  const open = selected;
   return <section id="top-profile-box" className="space-y-3 border-y bg-background px-3 py-3 text-foreground" aria-label="చెల్లింపు మరియు ప్రొఫైల్">
     <div className="grid grid-cols-2 gap-3">
-      <Button type="button" variant={open === 'payment' ? 'default' : 'outline'} className="h-auto min-h-14 whitespace-normal text-lg" aria-expanded={open === 'payment'} aria-controls="home-payment-details" onClick={() => setSelected(open === 'payment' ? null : 'payment')}><IndianRupee />పేమెంట్</Button>
-      <Button type="button" variant={open === 'profile' ? 'default' : 'outline'} className="h-auto min-h-14 whitespace-normal text-lg" aria-expanded={open === 'profile'} aria-controls="home-profile-details" onClick={() => setSelected(open === 'profile' ? null : 'profile')}><Plus />ప్రొఫైల్</Button>
+      <Button type="button" variant={open === 'payment' ? 'default' : 'outline'} className="h-auto min-h-24 flex-col gap-1 whitespace-normal py-3 text-lg" aria-expanded={open === 'payment'} aria-controls="home-payment-details" onClick={() => setSelected(open === 'payment' ? null : 'payment')}><ScanLine className="size-6" /><span>స్కానర్</span><span className="text-base">నింపండి</span></Button>
+      <Button type="button" variant={open === 'profile' ? 'default' : 'outline'} className="h-auto min-h-24 flex-col gap-1 whitespace-normal py-3 text-lg" aria-expanded={open === 'profile'} aria-controls="home-profile-details" onClick={() => setSelected(open === 'profile' ? null : 'profile')}><UserRound className="size-6" /><span>మీ వివరాలు</span><span className="text-base">నింపండి</span></Button>
     </div>
+    {open !== 'payment' && <Button type="button" variant="outline" className="h-auto min-h-20 w-full justify-start gap-3 whitespace-normal border-2 border-primary px-3 py-3 text-left text-lg" aria-controls="home-payment-details" onClick={() => setSelected('payment')}><Plus className="size-9 shrink-0" /><span className="min-w-0 break-words">మీ పేమెంట్ స్కానర్ స్క్రీన్ షాట్ అటాచ్ చేయండి</span></Button>}
     {open === 'payment' && <div id="home-payment-details">{loading ? <p role="status">మీ వివరాలు చూస్తున్నాం…</p> : me ? <Prime99Payment /> : <PhoneSignIn />}</div>}
     {open === 'profile' && <div id="home-profile-details">
       {loading ? <p role="status">మీ వివరాలు చూస్తున్నాం…</p> : me ? <>

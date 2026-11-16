@@ -43,7 +43,7 @@ export function MembershipEvidenceForm({ amount = 100, beneficiary, recipientId 
   }}>
     <div className="flex min-w-0 items-center gap-3">
       <Button type="button" variant="outline" size="icon" className="size-16 shrink-0" aria-label="పేమెంట్ స్క్రీన్ షాట్ జత చేయండి" title="పేమెంట్ స్క్రీన్ షాట్ జత చేయండి" disabled={busy} onClick={() => fileInput.current?.click()}><Plus className="size-9" /></Button>
-      <span className="min-w-0 break-words text-lg" translate={image ? 'no' : undefined}>{image ? image.name : 'మీరు స్క్రీన్ షాట్ ను జత చేయండి'}</span>
+      <span className="min-w-0 break-words text-lg" translate={image ? 'no' : undefined}>{image ? image.name : 'మీ పేమెంట్ స్కానర్ స్క్రీన్ షాట్ అటాచ్ చేయండి'}</span>
     </div>
     <Input ref={fileInput} id={recipientId ? `additional-recipient-screenshot-${recipientId}` : beneficiary ? `membership-screenshot-${beneficiary}` : 'membership-screenshot'} className="hidden" aria-label="పేమెంట్ స్క్రీన్ షాట్" type="file" accept="image/png,image/jpeg,image/webp" required disabled={busy} onChange={event => {
       setImage(event.target.files?.[0] ?? null);
