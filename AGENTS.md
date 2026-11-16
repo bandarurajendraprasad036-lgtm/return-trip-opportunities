@@ -9,7 +9,7 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Number-only entry binds admin-approved requests to random device secrets; never resolve an account from a phone claim.
+- Public SMS entry uses existing-account-only Auth OTP; legacy device-review records remain intact. Profile access requires owner-account verified phone, never a phone claim, to prevent duplicate accounts and identity theft.
 - Automatic work/service alerts use receipt-gated opposite-demand exact-area and normalized-occupation matching, with a private durable out-of-hours queue; selected listing bells remain exact-owner only to prevent unrelated recipients.
 - First user to sign up becomes admin (handle_new_user trigger); roles live in user_roles.
 - Use the shared Brand component for the bilingual wordmark so headers stay consistent.
@@ -49,7 +49,8 @@
 - Vehicle contact surfaces reuse the shared responsibility notice; compact bells show it before interest submission without implying a confirmed booking.
 - Search examples are separate presentation-only objects without post or user IDs; their bells never call interest or booking APIs.
 - Historical payment records remain read/review compatible; new direct-referral receipts use an admin-authorized atomic cash-prize ledger to prevent client awards and duplicate receipts.
-- Prime evidence uses an owner-scoped private browser upload and an atomic self-authorizing submission RPC with a screenshot digest retry identity; local copy is backup only, and new access stays revoked until admin approval. Admin scanner lives in app_settings because public buckets are blocked.
+- Prime screenshots use private owner uploads and atomic pending registration; approval uses each request's stored duration to preserve historical expiry. Admin scanner stays in app_settings.
+- Profile gates reuse owner records and verified auth phone; admin/recovery bypass them. Recovery verifies new-password sign-in before success.
 - Sharing evidence uses owner-checked server hashing with atomic digest registration, admin-only short-lived signing and existing managed dispatch cleanup; review decisions notify the owner transactionally.
 - Chat attachments remain participant-private; plain vehicle chat is silent, while explicit board bells atomically create the paid pair and one exact-owner interest notice before opening chat.
 - Bell boards and free work actions call self-authorizing RPCs from the browser and the area fallback uses static near-place tiles, because the external custom-domain host lacks server env; vehicle bells store no names.

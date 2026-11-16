@@ -19,7 +19,7 @@ import { markAccountBellActivated } from '@/lib/bell-activation';
 import { BilingualLabel } from '@/components/BilingualLabel';
 import { PROFILE_NEEDS, PROFILE_OCCUPATIONS, TECHNICIAN_WORKS, FINAL_PROFILE_PARAGRAPHS } from '@/lib/november-profile';
 
-export function AccountProfile() {
+export function AccountProfile({ completionOnly = false }: { completionOnly?: boolean }) {
   const { data: me } = useMe();
   const { data: program, isLoading, isError } = useAccountProgram(me?.id);
   const qc = useQueryClient();
@@ -79,7 +79,7 @@ export function AccountProfile() {
         event.preventDefault();
         if (busy || !me) return;
         const mobile = me.profile?.phone ?? '';
-        if (!hasValidMobile(mobile)) { toast.error('ముందుగా మొబైల్ నంబరు కోడ్‌తో ధృవీకరించండి · Verify your mobile first'); return; }
+        if (!completionOnly && !hasValidMobile(mobile)) { toast.error('ముందుగా మొబైల్ నంబరు కోడ్‌తో ధృవీకరించండి · Verify your mobile first'); return; }
         const savedCategory = vehicleProfile ? vehicleCategory(vehicleType, tons) : category.trim();
         if (!savedCategory) { toast.error(vehicleProfile ? 'వాహనం, సరైన టన్నులు ఇవ్వండి · Check vehicle and tons' : 'వర్గం ఇవ్వండి · Enter category'); return; }
         setBusy(true);
@@ -102,6 +102,7 @@ export function AccountProfile() {
           }
           await qc.invalidateQueries();
           toast.success('మీ వివరాలు భద్రపడ్డాయి · Profile saved');
+          if (completionOnly) return;
           const paid = await supabase.rpc('has_paid_bell', { _user: me.id });
           if (paid.data) { await supabase.from('notification_preferences').upsert({ user_id: me.id, enabled: true }); await markAccountBellActivated(me.id); }
           else setSubscribeOpen(true);
@@ -114,7 +115,7 @@ export function AccountProfile() {
             <Label htmlFor="account-name">మీ పేరు · Your name</Label>
             <Input id="account-name" value={name} onChange={event => setName(event.target.value)} required maxLength={80} />
           </div>
-          <PhoneNumberChange currentPhone={me?.profile?.phone ?? ''} />
+          {!completionOnly && <PhoneNumberChange currentPhone={me?.profile?.phone ?? ''} />}
           <div className="space-y-1">
             <Label htmlFor="account-area">మీ ఊరు · Your place</Label>
             <IndiaPlaceInput id="account-area" value={location} onChange={setLocation} maxLength={80} placeholder="మీ ఊరి పేరు రాయండి" />
@@ -160,7 +161,6 @@ export function AccountProfile() {
       </form>
       {isError && <p role="alert">వివరాలు రాలేదు · Profile unavailable</p>}
     </section>
-    <SavedVehicleRoutes />
-    <ProviderContacts />
+    {!completionOnly && <><SavedVehicleRoutes /><ProviderContacts /></>}
   </>;
 }

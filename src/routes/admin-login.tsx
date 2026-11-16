@@ -3,7 +3,6 @@ import { ClientOnly, createFileRoute, Link, useNavigate } from '@tanstack/react-
 import { useQueryClient } from '@tanstack/react-query';
 import { ShieldCheck } from 'lucide-react';
 import { Brand } from '@/components/Brand';
-import { PhoneSignIn } from '@/components/PhoneSignIn';
 import { DesignFooter } from '@/components/DesignFooter';
 import { Button } from '@/components/ui/button';
 import { useMe } from '@/lib/session';
@@ -37,7 +36,7 @@ function AdminLogin() {
       <ClientOnly fallback={<p role="status">అనుమతి చూస్తున్నాం · Checking access</p>}>
       {isLoading && <p role="status">అనుమతి చూస్తున్నాం · Checking access</p>}
       {!isLoading && me && !me.isAdmin && <section className="space-y-3 rounded-xl border p-4" role="alert"><h2 className="text-xl font-bold">అడ్మిన్ అనుమతి లేదు · Admin access required</h2><p>ఈ ఖాతాతో అడ్మిన్ డాష్‌బోర్డు తెరవలేరు. అడ్మిన్ ఖాతాకు మారండి.</p><Button variant="outline" className="w-full" onClick={async () => { await clearAccountSession(queryClient); await navigate({ to: '/admin-login', replace: true }); }}>ఖాతా మార్చండి · Switch account</Button></section>}
-      {!me && <><PhoneSignIn destination="/admin-login" /><details><summary className="cursor-pointer py-3 text-primary">పాత నిర్వాహక ఖాతా రక్షిత ప్రవేశం</summary><AdminPasswordLogin /></details></>}
+      {!me && <AdminPasswordLogin />}
       </ClientOnly>
       <Link to="/" className="block py-3 text-center text-primary underline">ముఖపు పేజీ · Home</Link>
     </main>

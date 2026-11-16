@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-export function PhoneNumberChange({ currentPhone }: { currentPhone: string }) {
+export function PhoneNumberChange({ currentPhone, verificationRequired = false }: { currentPhone: string; verificationRequired?: boolean }) {
   const queryClient = useQueryClient();
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
@@ -20,15 +20,22 @@ export function PhoneNumberChange({ currentPhone }: { currentPhone: string }) {
 
   const request = async () => {
     if (!hasValidMobile(phone) || busy) { setError('సరైన 10 అంకెల కొత్త నంబరు ఇవ్వండి · Enter a valid new mobile'); return; }
-    if (phone === currentPhone) { setError('ఇది ఇప్పటికే మీ నంబరు · This is already your number'); return; }
+    if (!verificationRequired && phone === currentPhone) { setError('ఇది ఇప్పటికే మీ నంబరు · This is already your number'); return; }
     setBusy(true); setError('');
     try {
+      const identity = await supabase.auth.getUser();
+      if (identity.error || !identity.data.user) throw new Error('SESSION_REQUIRED');
+      if (verificationRequired && identity.data.user.phone === fullPhone && identity.data.user.phone_confirmed_at) {
+        const saved = await supabase.from('profiles').update({ phone }).eq('id', identity.data.user.id);
+        if (saved.error) throw saved.error;
+        await queryClient.invalidateQueries(); toast.success('మీ ఖాతా నంబరు ఇప్పటికే నిర్ధారించబడింది.'); return;
+      }
       const { error: updateError } = await supabase.auth.updateUser({ phone: fullPhone });
       if (updateError) throw updateError;
       setSent(true);
       toast.success('నంబరు మార్పు కోడ్ అభ్యర్థన అంగీకరించబడింది · Phone-change code requested');
     } catch {
-      setError('నంబరు మార్పు కోడ్ పంపలేకపోయాం. వేరు నంబరు ప్రయత్నించండి · Could not request phone-change code');
+      setError('నిర్ధారణ కోడ్ పంపలేకపోయాం. ఫోన్ సందేశ సదుపాయం సిద్ధంగా లేకపోతే నిర్వాహకులు ముందుగా దాన్ని ఆన్ చేయాలి.');
     } finally { setBusy(false); }
   };
   const verify = async () => {
@@ -39,6 +46,7 @@ export function PhoneNumberChange({ currentPhone }: { currentPhone: string }) {
       if (verifyError) throw verifyError;
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Sign-in required');
+      if (user.phone !== fullPhone || !user.phone_confirmed_at) throw new Error('PHONE_NOT_VERIFIED');
       const { error: profileError } = await supabase.from('profiles').update({ phone }).eq('id', user.id);
       if (profileError) throw profileError;
       await queryClient.invalidateQueries();
@@ -51,7 +59,7 @@ export function PhoneNumberChange({ currentPhone }: { currentPhone: string }) {
 
   return <div className="space-y-2 rounded-lg border p-3">
     <p className="text-sm">ప్రస్తుత నంబరు · Current: <strong>{currentPhone || 'ఇంకా లేదు · Not set'}</strong></p>
-    <Label htmlFor="profile-new-phone">కొత్త నంబరుకు మార్చండి · Change number</Label>
+    <Label htmlFor="profile-new-phone">{verificationRequired ? 'చివరగా మీ మొబైల్ నంబరు నిర్ధారించండి' : 'కొత్త నంబరుకు మార్చండి · Change number'}</Label>
     <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
       <Input id="profile-new-phone" type="tel" inputMode="numeric" autoComplete="off" value={phone} onChange={event => { setPhone(event.target.value.replace(/\D/g, '').slice(0, 10)); setSent(false); setCode(''); setError(''); }} disabled={busy} maxLength={10} pattern="[6-9][0-9]{9}" placeholder="పాత నంబరు తానుగా రాదు" className="h-12 text-base" />
       <Button type="button" variant="outline" onClick={clear} disabled={busy || (!phone && !code)}><X />తుడిచేయండి · Clear</Button>

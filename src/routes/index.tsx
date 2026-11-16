@@ -21,6 +21,7 @@ import { ServiceDirectory } from "@/components/ServiceDirectory";
 import { DEFAULT_HOME_SETTINGS, useHomeSettings } from "@/lib/home-settings";
 import { ReferralBoard } from '@/components/ReferralBoard';
 import { WeeklyWinners } from '@/components/WeeklyWinners';
+import { GuestCategories, TopProfileBox, useProfileAccess } from '@/components/TopProfileBox';
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -40,6 +41,7 @@ export const Route = createFileRoute("/")({
 
 
 function Index() {
+  const { ready: profileReady } = useProfileAccess();
   const { data: homeSettings = DEFAULT_HOME_SETTINGS } = useHomeSettings();
   const [devotional, setDevotional] = useState(0);
   const [day, setDay] = useState("");
@@ -73,24 +75,23 @@ function Index() {
           </div>
         </div>
         <p className="mt-2 text-center font-serif text-4xl font-extrabold text-gold">GAYATRI ONE</p>
-        <BellJoin>
+        <TopProfileBox />
+        {profileReady ? <BellJoin>
           <img key={day} src={[mata, mataGreen, mataIvory][devotional]} alt="గాయత్రి మాత చెక్కిన బంగారు గుడి గంట · Gayatri Mata engraved gold temple bell" className="home-engraved-bell" width={768} height={768} onError={event => { const el = event.currentTarget; const tried = (el.dataset["tried"] ?? "").split("|").filter(Boolean); const next = devotionalFallback(el.src, [mata, mataGreen, mataIvory], devotional, tried); if (next) { el.dataset["tried"] = [...tried, el.src].join("|"); el.src = next; } else el.style.visibility = "hidden"; }} />
-        </BellJoin>
+        </BellJoin> : <img src={[mata, mataGreen, mataIvory][devotional]} alt="గాయత్రి మాత బంగారు గంట" className="home-engraved-bell" width={768} height={768} />}
 
         <p className="text-center text-base opacity-90">మన ఊరు · మన బండి · మన పని</p>
         <DailyWelcome />
       </section>
       <section className="space-y-2 px-4 pb-6 pt-0">
-        <HomeListings today={day} settings={homeSettings} />
+        {profileReady ? <HomeListings today={day} settings={homeSettings} /> : <GuestCategories />}
         {ytId && (
           <div className="overflow-hidden rounded-xl border bg-card shadow-card">
             <p className="p-3 font-bold">🎬 మా గురించి · About us</p>
             <iframe className="aspect-video w-full" src={`https://www.youtube.com/embed/${ytId}`} title="About Gayatri One" allowFullScreen />
           </div>
         )}
-        {homeSettings.showSharing && <SharingImage />}
-        <WeeklyWinners />
-        <ReferralBoard />
+        {profileReady && <>{homeSettings.showSharing && <SharingImage />}<WeeklyWinners /><ReferralBoard /></>}
         <Button asChild variant="secondary" size="xl" className="w-full">
           <Link to="/auth">ప్రారంభించండి · Get Started</Link>
         </Button>

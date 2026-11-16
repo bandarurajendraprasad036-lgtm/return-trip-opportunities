@@ -666,6 +666,20 @@
       "when": 1794797966263,
       "tag": "0094_admin_reviewed_phone_device_entry",
       "breakpoints": true
+    },
+    {
+      "idx": 95,
+      "version": "7",
+      "when": 1794806141120,
+      "tag": "0095_prospective_three_month_vehicle_subscription",
+      "breakpoints": true
+    },
+    {
+      "idx": 96,
+      "version": "7",
+      "when": 1794806205386,
+      "tag": "0096_verified_existing_profile_access",
+      "breakpoints": true
     }
   ]
 }

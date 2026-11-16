@@ -714,6 +714,7 @@ export type Database = {
           status: string
           submitted_at: string
           user_id: string
+          vehicle_plan_months: number
         }
         Insert: {
           amount: number
@@ -727,6 +728,7 @@ export type Database = {
           status?: string
           submitted_at?: string
           user_id: string
+          vehicle_plan_months?: number
         }
         Update: {
           amount?: number
@@ -740,6 +742,7 @@ export type Database = {
           status?: string
           submitted_at?: string
           user_id?: string
+          vehicle_plan_months?: number
         }
         Relationships: [
           {
@@ -2803,6 +2806,7 @@ export type Database = {
       my_payment_verification_pending: { Args: never; Returns: boolean }
       my_post_quota99: { Args: never; Returns: Json }
       my_prime99: { Args: never; Returns: Json }
+      my_profile_access_ready: { Args: never; Returns: boolean }
       my_program_referrals: { Args: never; Returns: Json }
       my_referral_payment_requests: {
         Args: never

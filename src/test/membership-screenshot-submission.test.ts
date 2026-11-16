@@ -57,11 +57,26 @@ it('atomically sends the owned screenshot to admin with access still revoked', a
   expect((await db.query<{ n: number }>(`SELECT count(*)::int n FROM messages WHERE receiver_id='${admin}' AND image_path='${owner}/proof.png' AND needs_admin`)).rows[0]?.n).toBe(1);
 });
 
-it('ordinary users cannot approve and only admin approval activates one month', async () => {
+it('ordinary users cannot approve and historical approval retains one month', async () => {
   await db.exec(`SELECT set_config('test.user','${other}',false);`);
   await expect(db.query(`SELECT review_membership_evidence('${requestId}',true)`)).rejects.toThrow('ADMIN_ONLY');
   await db.exec(`SELECT set_config('test.user','${admin}',false);SELECT set_config('test.role','authenticated',false);`);
   await db.query(`SELECT review_membership_evidence('${requestId}',true)`);
   expect((await db.query<{ active: boolean }>(`SELECT source='confirmed' AND revoked_at IS NULL AND ends_at=starts_at+interval '1 month' active FROM membership_access WHERE request_id='${requestId}'`)).rows).toEqual([{ active: true }]);
   expect((await db.query<{ n: number }>(`SELECT count(*)::int n FROM messages WHERE receiver_id='${owner}' AND body='మీరు అమౌంట్ కట్టారని భావిస్తున్నాము. 24 గంటల్లో మీ సబ్స్క్రైబర్ యాక్టివేషన్ అవుతుంది.'`)).rows[0]?.n).toBe(1);
+});
+
+it('new ₹100 requests unlock exactly three calendar months only after admin approval', async () => {
+  await db.exec(readFileSync('drizzle/migrations/0095_prospective_three_month_vehicle_subscription.sql', 'utf8'));
+  const historical = await db.query<{ months: number }>(`SELECT vehicle_plan_months months FROM membership_requests WHERE id='${requestId}'`);
+  expect(historical.rows).toEqual([{ months: 1 }]);
+  const inserted = await db.query<{ id: string }>(`INSERT INTO membership_requests(payer_id,user_id,amount,reference,message_id) VALUES('${owner}','${owner}',100,'new-plan',gen_random_uuid()) RETURNING id`);
+  const id = inserted.rows[0]?.id;
+  if (!id) throw new Error('request missing');
+  await db.exec(`INSERT INTO membership_access(user_id,request_id,source,revoked_at) VALUES('${owner}','${id}','provisional',now());SELECT set_config('test.user','${other}',false);`);
+  await expect(db.query(`SELECT review_membership_evidence('${id}',true)`)).rejects.toThrow('ADMIN_ONLY');
+  expect((await db.query<{ held: boolean }>(`SELECT revoked_at IS NOT NULL held FROM membership_access WHERE request_id='${id}'`)).rows).toEqual([{ held: true }]);
+  await db.exec(`SELECT set_config('test.user','${admin}',false);SELECT set_config('app.membership_evidence','1',false);`);
+  await db.query(`SELECT review_membership_evidence('${id}',true)`);
+  expect((await db.query<{ active: boolean }>(`SELECT revoked_at IS NULL AND ends_at=starts_at+interval '3 months' active FROM membership_access WHERE request_id='${id}'`)).rows).toEqual([{ active: true }]);
 });

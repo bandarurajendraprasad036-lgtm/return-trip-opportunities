@@ -14,7 +14,7 @@ export function rememberAuthReturn(href: string) {
   if (safe) sessionStorage.setItem(RETURN_KEY, safe);
 }
 
-export function takeAuthReturn(fallback: '/feed' | '/admin-login'): string {
+export function takeAuthReturn(fallback: '/' | '/feed' | '/admin-login'): string {
   const saved = sessionStorage.getItem(RETURN_KEY);
   sessionStorage.removeItem(RETURN_KEY);
   return fallback === '/admin-login' ? fallback : safeAuthReturn(saved) ?? fallback;

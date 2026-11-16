@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useServerFn } from '@tanstack/react-start';
 import { useNavigate } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { MessageSquareText, X } from 'lucide-react';
@@ -8,52 +7,46 @@ import { hasValidMobile } from '@/lib/phone';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { phoneDeviceIdentity } from '@/lib/phone-entry';
-import { redeemPhoneEntry } from '@/lib/phone-entry.functions';
 import { rememberAuthReturn, takeAuthReturn } from '@/lib/auth-navigation';
 
 export function PhoneSignIn({ destination = '/dashboard', returnTo }: { destination?: '/dashboard' | '/admin-login'; returnTo?: string }) {
-  const redeem = useServerFn(redeemPhoneEntry);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [phone, setPhone] = useState('');
+  const [code, setCode] = useState('');
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
   const clear = () => {
-    setPhone(''); setSent(false); setMessage(''); setError('');
+    setPhone(''); setCode(''); setSent(false); setMessage(''); setError('');
   };
   const requestCode = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!hasValidMobile(phone) || busy) { setError('సరైన 10 అంకెల మొబైల్ నంబరు ఇవ్వండి · Enter a valid mobile'); return; }
     setBusy(true); setError(''); setMessage('');
     try {
-      const device = await phoneDeviceIdentity();
-      const { error: requestError } = await supabase.rpc('request_phone_entry', { _phone: phone, _hash: device.hash });
+      const { error: requestError } = await supabase.auth.signInWithOtp({ phone: `+91${phone}`, options: { shouldCreateUser: false } });
       if (requestError) throw requestError;
       setSent(true);
       if (returnTo) rememberAuthReturn(returnTo);
-      setMessage('మీ నంబరు పంపారు. నిర్వాహకులు ఫోన్‌లో పరిశీలించి అనుమతిచ్చాక ఇక్కడ ప్రవేశించండి.');
+      setMessage('మీ ఖాతా నంబరుకు నిర్ధారణ కోడ్ అభ్యర్థన పంపాం. అందిన కోడ్ ఇవ్వండి.');
     } catch {
-      setError('అభ్యర్థన పంపలేకపోయాం. మళ్లీ ప్రయత్నించండి.');
+      setError('కోడ్ పంపలేకపోయాం. ఫోన్ సందేశ సదుపాయం ఆన్‌లో ఉండాలి; ఈ నంబరు పాత ఖాతాకు జతై ఉండాలి. కొత్త ఖాతా సృష్టించలేదు.');
     } finally { setBusy(false); }
   };
   const verify = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (busy) return;
+    if (busy || !/^\d{6}$/.test(code)) return;
     setBusy(true); setError('');
     try {
-      const device = await phoneDeviceIdentity();
-      const result = await redeem({ data: { secret: device.secret } });
-      if (!result.session) { setMessage(result.status === 'rejected' ? 'మీ అభ్యర్థనకు అనుమతి ఇవ్వలేదు.' : 'నిర్వాహకుల పరిశీలన ఇంకా పూర్తికాలేదు.'); return; }
-      const saved = await supabase.auth.setSession(result.session);
-      if (saved.error) throw saved.error;
+      const result = await supabase.auth.verifyOtp({ phone: `+91${phone}`, token: code, type: 'sms' });
+      if (result.error || !result.data.session) throw result.error ?? new Error('SESSION_REQUIRED');
       await queryClient.invalidateQueries();
-      await navigate({ href: takeAuthReturn(destination === '/admin-login' ? '/admin-login' : '/feed'), replace: true });
+      await navigate({ href: takeAuthReturn(destination === '/admin-login' ? '/admin-login' : '/'), replace: true });
     } catch {
-      setError('ప్రవేశం తెరవలేదు. మీ అనుమతిని మళ్లీ చూడండి.');
+      setError('కోడ్ సరికాలేదు లేదా గడువు ముగిసింది. మళ్లీ కోడ్ పొందండి.');
     } finally { setBusy(false); }
   };
 
@@ -67,7 +60,8 @@ export function PhoneSignIn({ destination = '/dashboard', returnTo }: { destinat
           <Button type="button" variant="outline" onClick={clear} disabled={busy || !phone}><X />తుడిచేయండి</Button>
         </div>
       </div>
-      <Button type="submit" className="w-full" disabled={busy || !hasValidMobile(phone)}><MessageSquareText />{busy ? 'వేచి ఉండండి…' : sent ? 'అనుమతి చూసి ప్రవేశించండి' : 'నంబరు పంపండి'}</Button>
+      {sent && <><Label htmlFor="login-code">ఫోన్‌కు వచ్చిన కోడ్</Label><Input id="login-code" inputMode="numeric" autoComplete="one-time-code" value={code} onChange={event => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))} maxLength={6} required disabled={busy} /></>}
+      <Button type="submit" className="w-full" disabled={busy || !hasValidMobile(phone) || (sent && !/^\d{6}$/.test(code))}><MessageSquareText />{busy ? 'వేచి ఉండండి…' : sent ? 'కోడ్ నిర్ధారించి ప్రవేశించండి' : 'నిర్ధారణ కోడ్ పొందండి'}</Button>
       {message && <p role="status" className="text-sm">{message}</p>}
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
     </form>

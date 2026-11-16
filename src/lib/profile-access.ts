@@ -1,0 +1,4 @@
+export function profileFieldsComplete(profile: { full_name?: string; location?: string; phone?: string } | null | undefined, program: { occupation?: string; category?: string; member_kind?: string } | null | undefined) {
+  return Boolean(profile?.full_name?.trim() && profile.location?.trim() && /^[6-9]\d{9}$/.test(profile.phone ?? '') && program?.occupation?.trim() && program.category?.trim() && program.member_kind?.trim());
+}
+export const PROFILE_ACCESS_MESSAGE = 'పైన ఉన్న ప్రొఫైల్ బాక్స్ ఫిలప్ చేయండి. మీ పూర్తి వివరాలు ఇవ్వండి. మీరు వెహికల్ లో ఉన్నారా? షాప్ ఓనరా? లేక ఇంకేంటి? అనేది పూర్తి వివరాలు ఇస్తేనే మీకు దీనికి సంబంధించిన పూర్తి సమాచారం దొరుకుతుంది.';
