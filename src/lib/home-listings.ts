@@ -16,7 +16,7 @@ export function vehicleSection(post: Post, today: string): VehicleSection {
 export function homeVehicles(posts: Post[], from: string, to: string, today: string, section: VehicleSection) {
   const start = normalized(from), end = normalized(to);
   if (!start && !end) return [];
-  return posts.filter(post => post.status === 'active' && post.module === 'vehicle'
+  return posts.filter(post => jobIsVisible(post) && post.module === 'vehicle'
     && (!start || normalized(post.from_place).includes(start))
     && (!end || normalized(post.to_place).includes(end))
     && vehicleSection(post, today) === section);
@@ -33,7 +33,7 @@ export function homeJobs(posts: Post[], location: string, kind: 'seeker' | 'empl
 export function homeLocalVehicles(posts: Post[], area: string) {
   const terms = normalized(area).split(/[\s,]+/).filter(Boolean);
   if (!terms.length) return [];
-  return posts.filter(post => post.status === 'active' && post.module === 'vehicle' && terms.every(term =>
+  return posts.filter(post => jobIsVisible(post) && post.module === 'vehicle' && terms.every(term =>
     normalized([post.from_place, post.to_place, post.location, post.district, post.state].filter(Boolean).join(' ')).includes(term)));
 }
 

@@ -18,6 +18,7 @@ import { SubscribeAfterProfile } from '@/components/SubscribeAfterProfile';
 import { markAccountBellActivated } from '@/lib/bell-activation';
 import { BilingualLabel } from '@/components/BilingualLabel';
 import { PROFILE_NEEDS, PROFILE_OCCUPATIONS, TECHNICIAN_WORKS, FINAL_PROFILE_PARAGRAPHS } from '@/lib/november-profile';
+import { Plus } from 'lucide-react';
 
 export function AccountProfile({ completionOnly = false }: { completionOnly?: boolean }) {
   const { data: me } = useMe();
@@ -35,6 +36,7 @@ export function AccountProfile({ completionOnly = false }: { completionOnly?: bo
   const [subscribeOpen, setSubscribeOpen] = useState(false);
   const [interest, setInterest] = useState('');
   const [changeProfession, setChangeProfession] = useState(false);
+  const [customProfession, setCustomProfession] = useState(false);
   useEffect(() => {
     const value = sessionStorage.getItem('gayatri-interest') || '';
     setInterest(value);
@@ -131,7 +133,8 @@ export function AccountProfile({ completionOnly = false }: { completionOnly?: bo
           </div>
           <div className="space-y-1">
             <Label htmlFor="account-work"><BilingualLabel te="మీరు ఏం చేస్తారు?" en="What Do You Do?" /></Label>
-            <select id="account-work" value={occupation} onChange={event => setOccupation(event.target.value)} required className="h-12 w-full rounded-md border bg-card px-3"><option value="">ఎంచుకోండి</option>{occupation && !PROFILE_OCCUPATIONS.some(item => item.value === occupation) && <option translate="no" value={occupation}>{occupation}</option>}{PROFILE_OCCUPATIONS.map(item => <option translate="no" key={item.value} value={item.value}>{item.te} / {item.en}</option>)}</select>
+            <div className="flex gap-2"><select id="account-work" value={occupation} onChange={event => setOccupation(event.target.value)} required className="h-12 min-w-0 flex-1 rounded-md border bg-card px-3"><option value="">ఎంచుకోండి</option>{occupation && !PROFILE_OCCUPATIONS.some(item => item.value === occupation) && <option translate="no" value={occupation}>{occupation}</option>}{PROFILE_OCCUPATIONS.map(item => <option translate="no" key={item.value} value={item.value}>{item.te} / {item.en}</option>)}</select><Button type="button" variant="outline" size="icon" aria-label="మీ వృత్తి రాయండి" title="మీ వృత్తి రాయండి" onClick={() => setCustomProfession(value => !value)}><Plus /></Button></div>
+            {customProfession && <Input aria-label="సొంత వృత్తి" translate="no" value={PROFILE_OCCUPATIONS.some(item => item.value === occupation) ? '' : occupation} onChange={event => { setOccupation(event.target.value); if (kind === 'service') setCategory(event.target.value); }} placeholder="మీరు ఏంటి అనేది రాయండి - ఉదా: Electrician, Plumber" maxLength={100} className="placeholder:text-muted-foreground" />}
           </div>
           {!vehicleProfile && <div className="space-y-1">
             <Label htmlFor="account-category"><BilingualLabel te="ఏ వాహనం / ఏ పని?" en="Which Vehicle / Work?" /></Label>
@@ -157,10 +160,12 @@ export function AccountProfile({ completionOnly = false }: { completionOnly?: bo
           <input type="checkbox" checked={publicService} onChange={event => setPublicService(event.target.checked)} />
           నా పని, ఊరు, వర్గం సేవల జాబితాలో అందరికీ చూపించండి; వ్యక్తిగత పేరు, నంబరు, ఫోటో జోడించవద్దు · Publish my service, town and category only
         </label>}
+        {kind === 'service' && <Button type="button" variant="outline" className="min-h-12 w-full whitespace-normal" disabled={busy || !location.trim() || !category.trim()} onClick={async () => { setBusy(true); try { const result = await supabase.rpc('apply_service_priority', { _area: location.trim(), _category: category.trim() }); if (result.error) { if (result.error.message.includes('PAID_BELL_REQUIRED')) setSubscribeOpen(true); else toast.error('ముందుగా సేవా వివరాలు భద్రపరచండి'); return; } await qc.invalidateQueries({ queryKey: ['service-priority'] }); toast.success('మీ దరఖాస్తు నమోదైంది; ఈ ప్రాంతంలో మొదటి పది అర్హమైన దరఖాస్తులకే ప్రత్యేక స్థానం'); } finally { setBusy(false); } }}>నేను సర్వీస్ పాయింట్ లో ఉన్నాను</Button>}
         <Button type="submit" disabled={busy || isLoading || isError || !location.trim()} className="min-h-12 w-full">వివరాలు భద్రపరచండి · Save profile</Button>
       </form>
       {isError && <p role="alert">వివరాలు రాలేదు · Profile unavailable</p>}
     </section>
-    {!completionOnly && <><SavedVehicleRoutes /><ProviderContacts /></>}
+    {vehicleProfile && <SavedVehicleRoutes owner={kind === 'owner'} />}
+    {!completionOnly && <ProviderContacts />}
   </>;
 }

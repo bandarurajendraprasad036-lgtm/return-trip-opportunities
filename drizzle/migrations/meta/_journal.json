@@ -687,6 +687,20 @@
       "when": 1794810261883,
       "tag": "0097_monthly_access_and_non_destructive_listing_expiry",
       "breakpoints": true
+    },
+    {
+      "idx": 98,
+      "version": "7",
+      "when": 1794810729545,
+      "tag": "0098_admin_vehicle_read_and_service_priority",
+      "breakpoints": true
+    },
+    {
+      "idx": 99,
+      "version": "7",
+      "when": 1794810951236,
+      "tag": "0099_complete_listing_expiry_and_priority_period",
+      "breakpoints": true
     }
   ]
 }

@@ -2027,6 +2027,35 @@ export type Database = {
           },
         ]
       }
+      service_priority_applications: {
+        Row: {
+          applied_at: string
+          area: string
+          category: string
+          user_id: string
+        }
+        Insert: {
+          applied_at?: string
+          area: string
+          category: string
+          user_id: string
+        }
+        Update: {
+          applied_at?: string
+          area?: string
+          category?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_priority_applications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_profiles: {
         Row: {
           bio: string
@@ -2626,11 +2655,16 @@ export type Database = {
         Returns: undefined
       }
       admin_referral_eligibility: { Args: never; Returns: Json }
+      admin_vehicle_records: { Args: { _offset?: number }; Returns: Json }
       admin_video_notice: {
         Args: { _message: string; _url: string }
         Returns: number
       }
       apply_referral: { Args: { _code: string }; Returns: boolean }
+      apply_service_priority: {
+        Args: { _area: string; _category: string }
+        Returns: undefined
+      }
       auto_confirm_membership_evidence: {
         Args: { _id: string }
         Returns: undefined
@@ -2766,6 +2800,16 @@ export type Database = {
           source: string
         }[]
       }
+      list_service_priority: {
+        Args: { _area: string; _category?: string }
+        Returns: {
+          area: string
+          category: string
+          id: string
+          priority: number
+          source: string
+        }[]
+      }
       list_vehicle_bell_demands: {
         Args: never
         Returns: {
@@ -2790,6 +2834,7 @@ export type Database = {
         Args: { _entry: string }
         Returns: undefined
       }
+      mark_my_vehicle_booked: { Args: { _post: string }; Returns: undefined }
       my_free_work_bell_notices: {
         Args: never
         Returns: {
@@ -3025,6 +3070,10 @@ export type Database = {
       select_weekly_winners: { Args: never; Returns: number }
       send_referral_reminders: { Args: never; Returns: number }
       service_occupation: { Args: { _value: string }; Returns: string }
+      service_priority_position: {
+        Args: { _area: string; _user: string }
+        Returns: number
+      }
       service_profile_data: { Args: { _id: string }; Returns: Json }
       set_program_reminders: { Args: { _enabled: boolean }; Returns: undefined }
       set_vehicle_available: { Args: { _post: string }; Returns: undefined }

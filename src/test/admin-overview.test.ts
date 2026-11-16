@@ -8,6 +8,11 @@ it('₹100 paid list excludes pending and rejected evidence', () => {
   expect(summarizeAdminPayments(people, [payment('approved')], [], now).paid100).toBe(1);
   expect(summarizeAdminPayments(people, [payment('approved', 99)], [], now).paid100).toBe(0);
 });
+it('remaining subscription days use current unrevoked periods and drop to zero at expiry', () => {
+  const access = { user_id: 'a', starts_at: now.toISOString(), ends_at: '2026-11-16T07:45:00Z', revoked_at: null };
+  expect(summarizeAdminPayments(people, [], [access], now).members[0]?.daysRemaining).toBe(1);
+  expect(summarizeAdminPayments(people, [], [access], new Date(access.ends_at)).members[0]?.daysRemaining).toBe(0);
+});
 it('confirmed revenue excludes unapproved payments and counts a shared receipt once', () => {
   expect(summarizeAdminPayments(people, [payment('approved'), { ...payment('approved'), source: 'prime' }, payment('pending', 500)], [], now).revenue).toBe(100);
 });

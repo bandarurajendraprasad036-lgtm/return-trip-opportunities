@@ -66,8 +66,10 @@ it('ordinary users cannot approve and historical approval retains one month', as
   expect((await db.query<{ n: number }>(`SELECT count(*)::int n FROM messages WHERE receiver_id='${owner}' AND body='మీరు అమౌంట్ కట్టారని భావిస్తున్నాము. 24 గంటల్లో మీ సబ్స్క్రైబర్ యాక్టివేషన్ అవుతుంది.'`)).rows[0]?.n).toBe(1);
 });
 
-it('new ₹100 requests unlock exactly three calendar months only after admin approval', async () => {
+it('new ₹100 requests unlock exactly one month only after admin approval, superseding three months', async () => {
   await db.exec(readFileSync('drizzle/migrations/0095_prospective_three_month_vehicle_subscription.sql', 'utf8'));
+  await db.exec(`CREATE TABLE posts(id uuid,user_id uuid,module text,status text,visible_after timestamptz,job_expires_at timestamptz,created_at timestamptz,vehicle_type text,from_place text,to_place text,trip_date date);CREATE TABLE vehicle_bell_demands(id uuid,user_id uuid,post_id uuid,category text,from_place text,to_place text,vehicle_type text,rang_at timestamptz);CREATE TABLE post_bell_interests(id uuid,user_id uuid,post_id uuid,section text,area text,need text,created_at timestamptz);CREATE TABLE service_requests(id uuid,user_id uuid,area text,service text,created_at timestamptz);`);
+  await db.exec(readFileSync('drizzle/migrations/0097_monthly_access_and_non_destructive_listing_expiry.sql', 'utf8'));
   const historical = await db.query<{ months: number }>(`SELECT vehicle_plan_months months FROM membership_requests WHERE id='${requestId}'`);
   expect(historical.rows).toEqual([{ months: 1 }]);
   const inserted = await db.query<{ id: string }>(`INSERT INTO membership_requests(payer_id,user_id,amount,reference,message_id) VALUES('${owner}','${owner}',100,'new-plan',gen_random_uuid()) RETURNING id`);
@@ -78,5 +80,6 @@ it('new ₹100 requests unlock exactly three calendar months only after admin ap
   expect((await db.query<{ held: boolean }>(`SELECT revoked_at IS NOT NULL held FROM membership_access WHERE request_id='${id}'`)).rows).toEqual([{ held: true }]);
   await db.exec(`SELECT set_config('test.user','${admin}',false);SELECT set_config('app.membership_evidence','1',false);`);
   await db.query(`SELECT review_membership_evidence('${id}',true)`);
-  expect((await db.query<{ active: boolean }>(`SELECT revoked_at IS NULL AND ends_at=starts_at+interval '3 months' active FROM membership_access WHERE request_id='${id}'`)).rows).toEqual([{ active: true }]);
+  expect((await db.query<{ active: boolean }>(`SELECT revoked_at IS NULL AND ends_at=starts_at+interval '1 month' active FROM membership_access WHERE request_id='${id}'`)).rows).toEqual([{ active: true }]);
+  expect((await db.query<{ months: number }>(`SELECT vehicle_plan_months months FROM membership_requests WHERE id='${id}'`)).rows).toEqual([{ months: 1 }]);
 });

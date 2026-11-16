@@ -7,6 +7,7 @@ import { useMe } from '@/lib/session';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { uploadMembershipScreenshot } from '@/lib/membership-payment-client';
+import { useNavigate } from '@tanstack/react-router';
 
 export function MembershipEvidenceForm({ amount = 100, beneficiary }: { amount?: number; beneficiary?: string }) {
   const [image, setImage] = useState<File | null>(null);
@@ -15,6 +16,7 @@ export function MembershipEvidenceForm({ amount = 100, beneficiary }: { amount?:
   const fileInput = useRef<HTMLInputElement>(null);
   const { data: me } = useMe();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   return <form aria-label="చెల్లింపు ఫోటో పంపే పెట్టె" noValidate className="space-y-3 rounded-lg border-2 border-primary p-3" onSubmit={async event => {
     event.preventDefault();
@@ -36,6 +38,7 @@ export function MembershipEvidenceForm({ amount = 100, beneficiary }: { amount?:
     await queryClient.invalidateQueries();
     toast.success('మీ చెల్లింపు ఫోటో అందింది. అడ్మిన్ చెక్ చేసి ఆమోదిస్తారు');
     setBusy(false);
+    await navigate({ to: '/dashboard' });
   }}>
     <div className="flex min-w-0 items-center gap-3">
       <Button type="button" variant="outline" size="icon" className="size-16 shrink-0" aria-label="పేమెంట్ స్క్రీన్ షాట్ జత చేయండి" title="పేమెంట్ స్క్రీన్ షాట్ జత చేయండి" disabled={busy} onClick={() => fileInput.current?.click()}><Plus className="size-9" /></Button>

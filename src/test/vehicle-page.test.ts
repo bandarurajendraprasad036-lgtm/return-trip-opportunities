@@ -1,7 +1,9 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { vehiclePageRows, vehicleDisplay, VEHICLE_CATALOG } from '@/lib/vehicle-page';
 import type { Post } from '@/components/PostCard';
-const rows=[{id:'local',module:'vehicle',status:'active',vehicle_type:'Lorry',from_place:'A',to_place:'A'}, {id:'return',module:'vehicle',status:'active',vehicle_type:'Lorry',from_place:'A',to_place:'B',trip_date:'2026-12-01'}, {id:'car',module:'vehicle',status:'active',vehicle_type:'Car',from_place:'A',to_place:'B'}] as Post[];
+const rows=[{id:'local',module:'vehicle',status:'active',vehicle_type:'Lorry',from_place:'A',to_place:'A',created_at:'2026-11-16T06:00:00Z'}, {id:'return',module:'vehicle',status:'active',vehicle_type:'Lorry',from_place:'A',to_place:'B',trip_date:'2026-12-01'}, {id:'car',module:'vehicle',status:'active',vehicle_type:'Car',from_place:'A',to_place:'B',trip_date:'2026-11-16'}] as unknown as Post[];
+beforeAll(() => { vi.useFakeTimers(); vi.setSystemTime(new Date('2026-11-16T07:00:00Z')); });
+afterAll(() => vi.useRealTimers());
 describe('vehicle category pages', () => {
   it('shows anonymous vehicle listings without paid access', () => {
     expect(vehicleDisplay(false, true, false, 3)).toEqual({ showCatalog: false, showListings: true });

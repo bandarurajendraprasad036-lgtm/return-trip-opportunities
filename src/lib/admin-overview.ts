@@ -1,4 +1,4 @@
-export type AdminPerson = { id: string; full_name: string; phone: string; location: string };
+export type AdminPerson = { id: string; full_name: string; phone: string; location: string; occupation?: string; category?: string; member_kind?: string };
 export type AdminPayment = { user_id: string; reference: string; amount: number; status: string; reviewed_at: string | null; submitted_at: string; source: string };
 export type AdminAccess = { user_id: string; starts_at: string; ends_at: string; revoked_at: string | null };
 
@@ -12,7 +12,7 @@ export function summarizeAdminPayments(people: AdminPerson[], payments: AdminPay
     const paid = records.some(p => p.status === 'approved');
     const active = access.filter(a => a.user_id === person.id && current(a));
     const expires = active.map(a => a.ends_at).sort().at(-1) ?? null;
-    return { ...person, paid, active: active.length > 0, expires, pending: records.some(p => p.status === 'pending'), rejected: records.some(p => p.status === 'rejected') };
+    return { ...person, paid, active: active.length > 0, expires, daysRemaining: expires ? Math.max(0, Math.ceil((Date.parse(expires) - now.getTime()) / 86400000)) : 0, pending: records.some(p => p.status === 'pending'), rejected: records.some(p => p.status === 'rejected') };
   });
   return { members, revenue: receipts.reduce((sum, p) => sum + p.amount, 0), paid100: members.filter(p => p.paid).length, pending100: members.filter(p => p.pending).length, active: members.filter(p => p.active).length };
 }

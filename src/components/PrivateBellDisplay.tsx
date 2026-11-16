@@ -1,0 +1,4 @@
+import { UserRound, LockKeyhole } from 'lucide-react';
+export function PrivateBellDisplay() {
+  return <div aria-label="పేరు ఫోటో మొబైల్ దాచబడ్డాయి" className="flex shrink-0 items-center gap-2"><span className="grid size-10 place-items-center overflow-hidden bg-background"><UserRound aria-hidden className="size-6 text-muted-foreground blur-sm" /></span><span className="flex flex-col gap-1"><span aria-hidden className="h-2 w-10 bg-muted-foreground blur-sm" /><LockKeyhole aria-hidden className="size-3 text-muted-foreground" /></span></div>;
+}
