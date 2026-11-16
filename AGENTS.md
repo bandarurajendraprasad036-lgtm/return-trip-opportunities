@@ -54,7 +54,7 @@
 - Historical payment records remain read/review compatible; new direct-referral receipts use an admin-authorized atomic cash-prize ledger to prevent client awards and duplicate receipts.
 - Prime screenshots use private owner uploads and atomic pending registration; approval uses each request's stored duration to preserve historical expiry. Admin scanner stays in app_settings.
 - Profile gates reuse owner records and verified auth phone; admin/recovery bypass them. Recovery verifies new-password sign-in before success.
-- Compact home controls start collapsed; expanded payment always shows compact scanner and evidence form, independent of membership, without large status copy; uploads remain authenticated.
+- Compact home controls sit below the bell outside account gates and start collapsed for everyone; expanded payment always shows compact scanner and evidence form, independent of membership, without large status copy; uploads remain authenticated.
 - Sharing evidence uses owner-checked server hashing with atomic digest registration, admin-only short-lived signing and existing managed dispatch cleanup; review decisions notify the owner transactionally.
 - Chat attachments remain participant-private; plain vehicle chat is silent, while explicit board bells atomically create the paid pair and one exact-owner interest notice before opening chat.
 - Bell boards and free work actions call self-authorizing RPCs from the browser and the area fallback uses static near-place tiles, because the external custom-domain host lacks server env; vehicle bells store no names.
