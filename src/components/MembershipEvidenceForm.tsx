@@ -6,10 +6,10 @@ import { saveLocalPaymentEvidence } from '@/lib/local-payment-evidence';
 import { useMe } from '@/lib/session';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { uploadMembershipScreenshot } from '@/lib/membership-payment-client';
+import { uploadAdditionalRecipientScreenshot, uploadMembershipScreenshot } from '@/lib/membership-payment-client';
 import { useNavigate } from '@tanstack/react-router';
 
-export function MembershipEvidenceForm({ amount = 100, beneficiary }: { amount?: number; beneficiary?: string }) {
+export function MembershipEvidenceForm({ amount = 100, beneficiary, recipientId }: { amount?: number; beneficiary?: string; recipientId?: string }) {
   const [image, setImage] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState('');
@@ -25,9 +25,10 @@ export function MembershipEvidenceForm({ amount = 100, beneficiary }: { amount?:
     if (!me?.id) return;
     setBusy(true);
     setFeedback('');
-    try { await saveLocalPaymentEvidence({ ownerId: me.id, image, amount, beneficiary }); } catch { /* Phone copy is only a backup. */ }
+    try { await saveLocalPaymentEvidence({ ownerId: me.id, image, amount, beneficiary: beneficiary ?? recipientId }); } catch { /* Phone copy is only a backup. */ }
     try {
-      await uploadMembershipScreenshot({ userId: me.id, image, amount, beneficiary });
+      if (recipientId) await uploadAdditionalRecipientScreenshot({ userId: me.id, image, recipientId });
+      else await uploadMembershipScreenshot({ userId: me.id, image, amount, beneficiary });
     } catch (error) {
       setFeedback(error instanceof Error ? error.message : 'చిత్రం పంపలేకపోయాం. మళ్లీ ప్రయత్నించండి');
       setBusy(false);
@@ -42,9 +43,9 @@ export function MembershipEvidenceForm({ amount = 100, beneficiary }: { amount?:
   }}>
     <div className="flex min-w-0 items-center gap-3">
       <Button type="button" variant="outline" size="icon" className="size-16 shrink-0" aria-label="పేమెంట్ స్క్రీన్ షాట్ జత చేయండి" title="పేమెంట్ స్క్రీన్ షాట్ జత చేయండి" disabled={busy} onClick={() => fileInput.current?.click()}><Plus className="size-9" /></Button>
-      <span className="min-w-0 break-words text-lg" translate={image ? 'no' : undefined}>{image ? image.name : 'పేమెంట్ చేసిన తర్వాత + నొక్కి స్క్రీన్ షాట్ జత చేయండి'}</span>
+      <span className="min-w-0 break-words text-lg" translate={image ? 'no' : undefined}>{image ? image.name : 'మీరు స్క్రీన్ షాట్ ను జత చేయండి'}</span>
     </div>
-    <Input ref={fileInput} id={beneficiary ? `membership-screenshot-${beneficiary}` : 'membership-screenshot'} className="hidden" aria-label="పేమెంట్ స్క్రీన్ షాట్" type="file" accept="image/png,image/jpeg,image/webp" required disabled={busy} onChange={event => {
+    <Input ref={fileInput} id={recipientId ? `additional-recipient-screenshot-${recipientId}` : beneficiary ? `membership-screenshot-${beneficiary}` : 'membership-screenshot'} className="hidden" aria-label="పేమెంట్ స్క్రీన్ షాట్" type="file" accept="image/png,image/jpeg,image/webp" required disabled={busy} onChange={event => {
       setImage(event.target.files?.[0] ?? null);
       setFeedback('');
     }} />

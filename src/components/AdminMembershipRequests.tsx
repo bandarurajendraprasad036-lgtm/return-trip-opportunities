@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { AdminPaymentImageChecks } from '@/components/AdminPaymentImageChecks';
+import { AdminAdditionalRecipientPayments } from '@/components/AdminAdditionalRecipientPayments';
 
 export function AdminMembershipRequests() {
   const queryClient = useQueryClient();
@@ -59,5 +60,6 @@ export function AdminMembershipRequests() {
       </div>
     </article>)}
     <Dialog open={!!image} onOpenChange={open => { if (!open) setImage(''); }}><DialogContent><DialogTitle>పేమెంట్ స్క్రీన్ షాట్</DialogTitle>{image && <img src={image} alt="పేమెంట్ స్క్రీన్ షాట్" className="max-h-[70svh] w-full object-contain" />}</DialogContent></Dialog>
+    <AdminAdditionalRecipientPayments />
   </section>;
 }

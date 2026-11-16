@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { IndianRupee, Plus } from 'lucide-react';
 import { useMe } from '@/lib/session';
 import { supabase } from '@/integrations/supabase/client';
 import { AccountProfile } from '@/components/AccountProfile';
@@ -21,20 +22,41 @@ export function useProfileAccess() {
   } });
   return { me, ready: hydrated && (!!me?.isAdmin || access.data === true), loading: !hydrated || isLoading || (!!me && access.isPending) };
 }
-export function TopProfileBox() {
+
+export function TopProfileBox({ compact = false }: { compact?: boolean }) {
   const { me, ready, loading } = useProfileAccess();
-  return <section id="top-profile-box" className="space-y-3 border-y bg-background px-4 py-4 text-foreground" aria-label="పైన ప్రొఫైల్ బాక్స్">
+  const [selected, setSelected] = useState<'payment' | 'profile' | null>(null);
+
+  if (!compact) return <section id="top-profile-box" className="space-y-3 border-y bg-background px-4 py-4 text-foreground" aria-label="పైన ప్రొఫైల్ బాక్స్">
     <h2 className="text-xl font-bold">{ready ? 'పేమెంట్ చేయండి / చందా పొందండి' : 'మీ పూర్తి వివరాలు'}</h2>
     {loading ? <p role="status">మీ వివరాలు చూస్తున్నాం…</p> : ready ? <Prime99Payment /> : <>
       <p className="text-lg">{PROFILE_ACCESS_MESSAGE}</p>
       {me ? <><AccountProfile completionOnly /><PhoneNumberChange currentPhone={me.profile?.phone ?? ''} verificationRequired /></> : <PhoneSignIn />}
     </>}
   </section>;
+
+  const open = selected ?? (!loading && !ready ? 'profile' : null);
+  return <section id="top-profile-box" className="space-y-3 border-y bg-background px-3 py-3 text-foreground" aria-label="చెల్లింపు మరియు ప్రొఫైల్">
+    <div className="grid grid-cols-2 gap-3">
+      <Button type="button" variant={open === 'payment' ? 'default' : 'outline'} className="h-auto min-h-14 whitespace-normal text-lg" aria-expanded={open === 'payment'} aria-controls="home-payment-details" onClick={() => setSelected(open === 'payment' ? null : 'payment')}><IndianRupee />పేమెంట్</Button>
+      <Button type="button" variant={open === 'profile' ? 'default' : 'outline'} className="h-auto min-h-14 whitespace-normal text-lg" aria-expanded={open === 'profile'} aria-controls="home-profile-details" onClick={() => setSelected(open === 'profile' ? null : 'profile')}><Plus />ప్రొఫైల్</Button>
+    </div>
+    {open === 'payment' && <div id="home-payment-details">{loading ? <p role="status">మీ వివరాలు చూస్తున్నాం…</p> : me ? <Prime99Payment /> : <PhoneSignIn />}</div>}
+    {open === 'profile' && <div id="home-profile-details">
+      {loading ? <p role="status">మీ వివరాలు చూస్తున్నాం…</p> : me ? <>
+        {!ready && <p className="mb-3 text-lg">{PROFILE_ACCESS_MESSAGE}</p>}
+        <AccountProfile completionOnly={!ready} />
+        {!ready && <PhoneNumberChange currentPhone={me.profile?.phone ?? ''} verificationRequired />}
+      </> : <PhoneSignIn />}
+    </div>}
+  </section>;
 }
+
 export function GuestCategories() {
   const [requested, setRequested] = useState(false);
   return <section className="space-y-3 px-4 py-4" aria-label="బయటి వర్గాలు"><div className="grid grid-cols-2 gap-3">{['వాహనాలు', 'ఉద్యోగాలు', 'షాప్', 'వ్యాపారం', 'సేవలు'].map(label => <Button key={label} variant="outline" className="min-h-16 whitespace-normal text-lg" onClick={() => { setRequested(true); document.getElementById('top-profile-box')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>{label}</Button>)}</div>{requested && <p role="alert" className="text-lg">పైన ఉన్న ప్రొఫైల్ బాక్స్ ఫిలప్ చేయండి</p>}</section>;
 }
+
 export function ProfileAccessGate({ children }: { children: React.ReactNode }) {
   const { ready, loading } = useProfileAccess();
   const pathname = useRouterState({ select: state => state.location.pathname });

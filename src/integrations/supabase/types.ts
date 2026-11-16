@@ -90,6 +90,108 @@ export type Database = {
           },
         ]
       }
+      additional_phone_recipients: {
+        Row: {
+          created_at: string
+          id: string
+          owner_consent: boolean
+          owner_id: string
+          phone: string
+          recipient_consent_at: string | null
+          removed_at: string | null
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          owner_consent?: boolean
+          owner_id: string
+          phone: string
+          recipient_consent_at?: string | null
+          removed_at?: string | null
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          owner_consent?: boolean
+          owner_id?: string
+          phone?: string
+          recipient_consent_at?: string | null
+          removed_at?: string | null
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "additional_phone_recipients_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      additional_recipient_payments: {
+        Row: {
+          amount: number
+          id: string
+          message_id: string
+          payer_id: string
+          recipient_id: string
+          reference: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submitted_at: string
+        }
+        Insert: {
+          amount?: number
+          id?: string
+          message_id: string
+          payer_id: string
+          recipient_id: string
+          reference: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+        }
+        Update: {
+          amount?: number
+          id?: string
+          message_id?: string
+          payer_id?: string
+          recipient_id?: string
+          reference?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "additional_recipient_payments_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "additional_recipient_payments_payer_id_fkey"
+            columns: ["payer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "additional_recipient_payments_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "additional_phone_recipients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       app_settings: {
         Row: {
           key: string
@@ -2644,6 +2746,10 @@ export type Database = {
         }
         Returns: string
       }
+      add_additional_phone_recipient: {
+        Args: { _consent: boolean; _phone: string }
+        Returns: string
+      }
       add_discovery_category: {
         Args: { _creator: string; _name: string; _section: string }
         Returns: string
@@ -2720,6 +2826,10 @@ export type Database = {
       confirm_referral_join: {
         Args: { _code: string; _phone: string }
         Returns: boolean
+      }
+      consent_additional_phone_recipient: {
+        Args: { _id: string }
+        Returns: undefined
       }
       consume_post_slot: {
         Args: { _id: string; _user: string }
@@ -2835,6 +2945,27 @@ export type Database = {
         Returns: undefined
       }
       mark_my_vehicle_booked: { Args: { _post: string }; Returns: undefined }
+      my_additional_phone_recipients: {
+        Args: never
+        Returns: {
+          approved_at: string
+          created_at: string
+          id: string
+          payment_status: string
+          phone: string
+          recipient_consent_at: string
+          verified_at: string
+        }[]
+      }
+      my_additional_recipient_requests: {
+        Args: never
+        Returns: {
+          created_at: string
+          id: string
+          owner_id: string
+          phone: string
+        }[]
+      }
       my_free_work_bell_notices: {
         Args: never
         Returns: {
@@ -2968,6 +3099,10 @@ export type Database = {
       }
       request_vehicle_availability: { Args: { _post: string }; Returns: string }
       respond_service_request: { Args: { _request: string }; Returns: string }
+      review_additional_recipient_payment: {
+        Args: { _approve: boolean; _id: string }
+        Returns: undefined
+      }
       review_membership: {
         Args: { _approve: boolean; _id: string; _note?: string }
         Returns: undefined
@@ -3080,6 +3215,10 @@ export type Database = {
       straight_line_km: {
         Args: { a_lat: number; a_lng: number; b_lat: number; b_lng: number }
         Returns: number
+      }
+      submit_additional_recipient_screenshot: {
+        Args: { _path: string; _recipient: string; _reference: string }
+        Returns: string
       }
       submit_membership_screenshot: {
         Args: {

@@ -701,6 +701,13 @@
       "when": 1794810951236,
       "tag": "0099_complete_listing_expiry_and_priority_period",
       "breakpoints": true
+    },
+    {
+      "idx": 100,
+      "version": "7",
+      "when": 1794816806396,
+      "tag": "0100_additional_verified_phone_recipients",
+      "breakpoints": true
     }
   ]
 }

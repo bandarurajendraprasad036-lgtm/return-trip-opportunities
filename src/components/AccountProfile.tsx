@@ -14,6 +14,7 @@ import { isCar, VEHICLE_TYPES } from '@/lib/vehicle-types';
 import { parseVehicleCategory, vehicleCategory } from '@/lib/profile-vehicle';
 import { PhoneNumberChange } from '@/components/PhoneNumberChange';
 import { ProviderContacts } from '@/components/ProviderContacts';
+import { AdditionalPhoneRecipients } from '@/components/AdditionalPhoneRecipients';
 import { SubscribeAfterProfile } from '@/components/SubscribeAfterProfile';
 import { markAccountBellActivated } from '@/lib/bell-activation';
 import { BilingualLabel } from '@/components/BilingualLabel';
@@ -166,6 +167,7 @@ export function AccountProfile({ completionOnly = false }: { completionOnly?: bo
       {isError && <p role="alert">వివరాలు రాలేదు · Profile unavailable</p>}
     </section>
     {vehicleProfile && <SavedVehicleRoutes owner={kind === 'owner'} />}
+    {!completionOnly && <AdditionalPhoneRecipients />}
     {!completionOnly && <ProviderContacts />}
   </>;
 }
