@@ -7,7 +7,22 @@ export const BELL_BOARD_LABELS = {
   'service-providers': 'నా సర్వీస్ కోసం గంట కొట్టిన వాళ్ళు',
   'service-wanted': 'సర్వీస్ కోసం గంట కొట్టిన వాళ్ళు',
 } as const;
+
 export type BellBoardSection = keyof typeof BELL_BOARD_LABELS;
+
 export function bellBoardSection(value: unknown): BellBoardSection {
-  return typeof value === 'string' && value in BELL_BOARD_LABELS ? value as BellBoardSection : 'goods';
+  if (typeof value === 'string' && value in BELL_BOARD_LABELS) {
+    return value as BellBoardSection;
+  }
+  return 'goods';
 }
+
+export const BELL_BOARD_SECTIONS: BellBoardSection[] = [
+  'goods',
+  'returns',
+  'cars',
+  'work-wanted',
+  'work-offered',
+  'service-providers',
+  'service-wanted',
+];
