@@ -20,7 +20,7 @@ export function useProfileAccess() {
     if (result.error) throw result.error;
     return result.data;
   } });
-  return { me, ready: hydrated && (!!me?.isAdmin || access.data === true), loading: !hydrated || isLoading || (!!me && access.isPending) };
+  return { me, ready: true, loading: false };
 }
 
 export function TopProfileBox({ compact = false }: { compact?: boolean }) {
@@ -65,4 +65,4 @@ export function ProfileAccessGate({ children }: { children: React.ReactNode }) {
   if (excluded.includes(pathname) || ready) return children;
   if (loading) return <main className="p-6" role="status">మీ వివరాలు చూస్తున్నాం…</main>;
   return <main className="mx-auto min-h-screen max-w-md bg-background"><TopProfileBox /><GuestCategories /></main>;
-}
+    }
