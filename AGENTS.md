@@ -73,5 +73,5 @@
 - Admin overview uses role-checked reads and a private paginated vehicle RPC because full contact columns are not browser-granted; receipt totals are deduplicated and bells never become bookings.
 - Listing visibility derives deadlines at read time and preserves owner/admin history; service priority uses private explicit applications and current receipt eligibility, never public identity or client awards.
 - Foreground pushes read owner notices by ID; stored eligibility always wins over paid flags.
-- gayatrione.com is an external host without server env: bell boards, free work, admin block/remove (admin_manage_account) and push-device writes are browser RPC/RLS calls; removed-account files are queued for the managed dispatcher. Vehicle bells store no names.
-- Village search: bundled shards from scripts/build-place-shards.py (one row per name+state), no map picker.
+- gayatrione.com host lacks server env: boards, free work, admin block/remove and push-device writes use browser RPC/RLS; vehicle bells store no names.
+- Village search: deduped shards (scripts/build-place-shards.py), no map.
