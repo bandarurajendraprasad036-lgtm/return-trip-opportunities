@@ -74,4 +74,4 @@
 - Listing visibility derives deadlines at read time and preserves owner/admin history; service priority uses private explicit applications and current receipt eligibility, never public identity or client awards.
 - Foreground pushes read owner notices by ID; stored eligibility always wins over paid flags.
 - gayatrione.com host lacks server env: boards, free work, admin block/remove and push-device writes use browser RPC/RLS; vehicle bells store no names.
-- Village search: deduped shards (scripts/build-place-shards.py), no map.
+- Village search: deduped shards (scripts/build-place-shards.py); no map
