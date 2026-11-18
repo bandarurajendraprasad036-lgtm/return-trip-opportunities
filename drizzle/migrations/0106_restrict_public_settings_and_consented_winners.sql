@@ -1,0 +1,6 @@
+ALTER POLICY "settings readable" ON public.app_settings USING (key IN ('home_controls','payment_scanner_image','youtube_url') OR public.has_role(auth.uid(),'admin'));
+CREATE OR REPLACE FUNCTION public.weekly_winner_public_ok(_user uuid,_path text,_created timestamptz) RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT _created >= '2026-11-22 23:00:00+05:30'::timestamptz AND EXISTS(SELECT 1 FROM public.referral_board_consent c JOIN public.service_profiles s ON s.user_id=c.user_id WHERE c.user_id=_user AND c.published AND c.photo_consent AND s.published AND s.photo_path=_path AND _path LIKE _user::text||'/%') $$;
+REVOKE ALL ON FUNCTION public.weekly_winner_public_ok(uuid,text,timestamptz) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.weekly_winner_public_ok(uuid,text,timestamptz) TO anon,authenticated,service_role;
+ALTER POLICY "weekly winners public" ON public.weekly_winners USING (public.weekly_winner_public_ok(user_id,photo_path,created_at) OR public.has_role(auth.uid(),'admin'));
+DROP POLICY IF EXISTS paid_vehicle_display ON public.posts;

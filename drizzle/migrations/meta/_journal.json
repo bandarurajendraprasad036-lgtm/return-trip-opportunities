@@ -743,6 +743,13 @@
       "when": 1794991284248,
       "tag": "0105_durable_main_bell_continuation",
       "breakpoints": true
+    },
+    {
+      "idx": 106,
+      "version": "7",
+      "when": 1794992268900,
+      "tag": "0106_restrict_public_settings_and_consented_winners",
+      "breakpoints": true
     }
   ]
 }

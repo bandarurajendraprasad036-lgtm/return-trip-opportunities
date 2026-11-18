@@ -3333,6 +3333,10 @@ export type Database = {
       vehicle_public_details: { Args: { _post: string }; Returns: Json }
       vip_daily_reconcile: { Args: never; Returns: number }
       weekly_winner_photo_ok: { Args: { _path: string }; Returns: boolean }
+      weekly_winner_public_ok: {
+        Args: { _created: string; _path: string; _user: string }
+        Returns: boolean
+      }
       work_occupation: { Args: { _value: string }; Returns: string }
       work_posts_match: {
         Args: {
