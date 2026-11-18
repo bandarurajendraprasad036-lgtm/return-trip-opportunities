@@ -1,5 +1,5 @@
 import { afterEach, it, expect, vi } from 'vitest';
-import { enablePush } from '@/lib/firebase-push';
+import { enablePush, listenForegroundPush } from '@/lib/firebase-push';
 afterEach(() => { vi.unstubAllGlobals(); vi.unstubAllEnvs(); });
 it('reports missing web configuration without requesting permission', async () => {
   vi.stubEnv('VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_APP_ID', '');
@@ -17,4 +17,13 @@ it('does not treat denied permission as registration', async () => {
   Object.defineProperty(navigator, 'serviceWorker', { configurable: true, value: {} });
   expect((await enablePush()).status).toBe('denied');
   expect(requestPermission).not.toHaveBeenCalled();
+});
+it('foreground listening never requests denied permission', async () => {
+  const requestPermission = vi.fn();
+  vi.stubGlobal('Notification', { permission: 'denied', requestPermission });
+  const receive = vi.fn();
+  const stop = await listenForegroundPush(receive);
+  stop();
+  expect(requestPermission).not.toHaveBeenCalled();
+  expect(receive).not.toHaveBeenCalled();
 });

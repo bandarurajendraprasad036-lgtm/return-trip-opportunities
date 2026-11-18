@@ -73,3 +73,4 @@
 - Referral joins count only via confirm_referral_join (code + own mobile + OK); weekly winners come from select_weekly_winners (SQL cron Sunday night IST) requiring 70% paid joins and a consented published photo.
 - Admin overview uses role-checked reads and a private paginated vehicle RPC because full contact columns are not browser-granted; receipt totals are deduplicated and bells never become bookings.
 - Listing visibility derives deadlines at read time and preserves owner/admin history; service priority uses private explicit applications and current receipt eligibility, never public identity or client awards.
+- Foreground pushes read owner notices by ID; stored eligibility always wins over paid flags.

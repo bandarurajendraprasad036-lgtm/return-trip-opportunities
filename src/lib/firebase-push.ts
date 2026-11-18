@@ -28,3 +28,19 @@ export async function enablePush(): Promise<{ status: PushStatus; token?: string
   } catch { return { status: 'failed' }; }
 }
 export const deviceSound = () => !bellMuted();
+
+// Listening must never request permission or register another device.
+export async function listenForegroundPush(receive: (id: string) => void): Promise<() => void> {
+  if (typeof window === 'undefined' || !('Notification' in window) || Notification.permission !== 'granted') return () => {};
+  const appId = import.meta.env['VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_APP_ID'];
+  const config = { apiKey: import.meta.env['VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_WEB_API_KEY'], projectId: import.meta.env['VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_PROJECT_ID'], appId, messagingSenderId: appId?.split(':')[1] ?? '' };
+  if (!config.apiKey || !config.projectId || !config.appId || !config.messagingSenderId) return () => {};
+  const { getMessaging, isSupported, onMessage } = await import('firebase/messaging');
+  if (!(await isSupported())) return () => {};
+  const { getApps, initializeApp } = await import('firebase/app');
+  const messaging = getMessaging(getApps().find(a => a.name === 'gayatri-push') ?? initializeApp(config, 'gayatri-push'));
+  return onMessage(messaging, payload => {
+    const id = payload.data?.['id'];
+    if (id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) receive(id);
+  });
+}

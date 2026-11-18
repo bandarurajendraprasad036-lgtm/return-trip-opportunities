@@ -7,24 +7,39 @@ import { playBell } from '@/lib/bell';
 import { useBellSound } from '@/lib/use-bell-sound';
 import { pushPolicy } from '@/lib/push-rules';
 import { PrivateBellDisplay } from '@/components/PrivateBellDisplay';
+import { listenForegroundPush } from '@/lib/firebase-push';
+import { screenNoticeAllowed } from '@/lib/screen-notice-rules';
 
 export function IncomingNotice({ userId }: { userId: string }) {
   const [notice, setNotice] = useState<{ body: string; sender?: string | undefined; post?: string | undefined; payment?: boolean; id?: string; vehicleBell?: boolean } | null>(null);
   const { muted, change } = useBellSound();
   useEffect(() => {
     let active = true;
+    let stopPush: (() => void) | undefined;
+    const seen = new Set<string>();
     const receive = async (next: NonNullable<typeof notice>) => {
+      if (next.id && seen.has(next.id)) return;
       const eligibility = await supabase.rpc('my_prime99');
       const free = next.id ? await supabase.rpc('notification_delivery_allowed', { _user: userId, _notice: next.id }) : next.sender ? await supabase.rpc('free_work_chat', { _other: next.sender }) : null;
       const preferences = await supabase.from('notification_preferences').select('enabled,timezone,quiet_start,quiet_end').eq('user_id',userId).maybeSingle();
       if (preferences.error || !pushPolicy(new Date(),preferences.data,false).allowed) return;
-      if (active && (free?.data === true || (!eligibility.error && (eligibility.data as { alerts_ready?: boolean })?.alerts_ready))) setNotice(next);
+      if (active && screenNoticeAllowed(!!next.id, !free?.error && free?.data === true, !eligibility.error && (eligibility.data as { alerts_ready?: boolean })?.alerts_ready === true)) {
+        if (next.id) { if (seen.has(next.id)) return; seen.add(next.id); }
+        setNotice(next);
+      }
     };
+    void listenForegroundPush(id => {
+      // Ignore payload text: read only the authenticated owner's stored notice.
+      void (async () => {
+        const result = await supabase.from('notifications').select('id,message,vehicle_bell').eq('id', id).eq('user_id', userId).maybeSingle();
+        if (active && !result.error && result.data) await receive({ id: result.data.id, body: result.data.message, vehicleBell: result.data.vehicle_bell === true });
+      })().catch(() => {});
+    }).then(stop => { if (active) stopPush = stop; else stop(); }).catch(() => {});
     const channel = supabase.channel(`screen-notice-${userId}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` }, payload => { void receive({ body: String(payload.new["message"] ?? "నోటిఫికేషన్"), id: String(payload.new['id']), vehicleBell: payload.new['vehicle_bell'] === true || String(payload.new['message']).includes(' → ') }); })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.${userId}` }, payload => { if (payload.new['body'] === 'హాయ్ · Hi') return; void receive({ body: 'కొత్త సమాధానం', sender: String(payload.new["sender_id"]), payment: payload.new['needs_admin'] === true, post: typeof payload.new["post_id"] === "string" ? payload.new["post_id"] : undefined }); })
       .subscribe();
-    return () => { active = false; setNotice(null); void supabase.removeChannel(channel); };
+    return () => { active = false; stopPush?.(); setNotice(null); void supabase.removeChannel(channel); };
   }, [userId]);
   useEffect(() => { if (notice) playBell(); }, [notice]);
   const toggleSound=()=>change(muted);
