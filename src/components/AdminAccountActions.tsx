@@ -1,26 +1,26 @@
 import { useState } from 'react';
-import { useServerFn } from '@tanstack/react-start';
 import { useQueryClient } from '@tanstack/react-query';
 import { Ban, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import { manageAdminAccount } from '@/lib/admin-accounts.functions';
+import { supabase } from '@/integrations/supabase/client';
 
 export function AdminAccountActions({ user, name }: { user: string; name: string }) {
   const [action, setAction] = useState<'block' | 'remove' | null>(null);
   const [busy, setBusy] = useState(false);
-  const manage = useServerFn(manageAdminAccount);
   const qc = useQueryClient();
   async function confirm() {
     if (!action || busy) return;
     setBusy(true);
     try {
-      await manage({ data: { user, action, confirmation: true } });
+      // Self-authorizing database action: works on every website address.
+      const result = await supabase.rpc('admin_manage_account', { _user: user, _action: action });
+      if (result.error) throw result.error;
       toast.success(action === 'block' ? 'ఖాతాను నిలిపివేశారు.' : 'ఖాతా, దాని వివరాలు తొలగించారు.');
       setAction(null);
       await qc.invalidateQueries({ queryKey: ['admin-overview'] });
-    } catch { toast.error('చర్య పూర్తి కాలేదు; మళ్లీ ప్రయత్నించండి. నిర్వాహక ఖాతాను మార్చలేరు.'); }
+    } catch (error) { const text = error instanceof Error ? error.message : String((error as { message?: string })?.message ?? ''); toast.error(text.includes('ADMIN_PROTECTED') ? 'ఇది నిర్వాహక ఖాతా; దీన్ని మార్చలేరు.' : text.includes('ACCOUNT_UNAVAILABLE') ? 'ఈ ఖాతా ఇప్పటికే లేదు.' : 'చర్య పూర్తి కాలేదు; మళ్లీ ప్రయత్నించండి.'); }
     finally { setBusy(false); }
   }
   return <><div className="flex flex-wrap gap-2 border-t pt-3"><Button variant="outline" onClick={()=>setAction('block')}><Ban />నిలిపివేయండి</Button><Button variant="destructive" onClick={()=>setAction('remove')}><Trash2 />తొలగించండి</Button></div>

@@ -8,7 +8,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock('@/lib/session', () => ({ useMe: () => ({ data: { id: 'owner', profile: { phone: '9876543210' } } }) }));
 vi.mock('@tanstack/react-query', () => ({ useQueryClient: () => ({ invalidateQueries: vi.fn() }) }));
 vi.mock('@tanstack/react-start', () => ({ useServerFn: () => mocks.register }));
-vi.mock('@/lib/push.functions', () => ({ registerPushDevice: vi.fn() }));
+vi.mock('@/lib/push-client', () => ({ registerPushDevice: (...a: unknown[]) => mocks.register(...a) }));
 vi.mock('@/lib/firebase-push', () => ({ enablePush: mocks.enable, pushDeviceId: () => 'device', deviceSound: () => true }));
 vi.mock('@/integrations/supabase/client', () => ({ supabase: {
   from: () => ({ update: mocks.update }), rpc: mocks.rpc,

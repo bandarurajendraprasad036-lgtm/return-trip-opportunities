@@ -1,16 +1,15 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useServerFn } from '@tanstack/react-start';
 import { Button } from '@/components/ui/button';
 import { useMe } from '@/lib/session';
 import { supabase } from '@/integrations/supabase/client';
-import { registerPushDevice } from '@/lib/push.functions';
+import { registerPushDevice } from '@/lib/push-client';
 import { enablePush, pushDeviceId, deviceSound } from '@/lib/firebase-push';
 
 export function BellPhoneRequest() {
   const { data: me } = useMe();
   const qc = useQueryClient();
-  const register = useServerFn(registerPushDevice);
+  const register = registerPushDevice;
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState('');
   if (!me?.profile) return null;

@@ -3,10 +3,16 @@ export type Coordinates = { latitude: number; longitude: number };
 export function normalizePlace(value: string) {
   return value.trim().toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
-export function placeShard(query: string) {
+const shardKey = (chars: string[], depth: number) => chars.slice(0, depth).map(c => c.codePointAt(0)?.toString(16)).join('-');
+// Shards are built by scripts/build-place-shards.py: 2-letter, 3-letter and (for busy prefixes) 4-letter files.
+export function placeShards(query: string) {
   const chars = Array.from(normalizePlace(query));
-  return chars.length < 2 ? 'top' : chars.slice(0, 2).map(c => c.codePointAt(0)?.toString(16)).join('-');
+  if (chars.length < 2) return ['top'];
+  if (chars.length === 2) return [shardKey(chars, 2)];
+  if (chars.length === 3) return [shardKey(chars, 3)];
+  return [shardKey(chars, 4), shardKey(chars, 3)];
 }
+export function placeShard(query: string) { return placeShards(query)[0]!; }
 export function findPlaces(rows: PlaceRow[], query: string) {
   const q = normalizePlace(query);
   if (!q) return [];

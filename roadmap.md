@@ -274,3 +274,9 @@
 - [x] Nov 14: automatic Prime receipt check (name+UTR), pending for admin otherwise, hide ₹100 box for paid users
 
 - [x] Nov14 19:00 IST: restored second "గంట కొట్టిన వాళ్ళు" home box under each of four work/service buttons, free (no ₹100), with bell + chat.
+
+## Nov 18 bell/village/admin fix
+- [x] Truthful bell message with real count; phone alert sign-up works on gayatrione.com; ringing + vibration on phone alerts
+- [x] Village list: one per name, instant search, no map
+- [x] Admin block/delete real on every address (dry-run verified)
+- [ ] Real two-phone delivery: needs the other person to press "గంట సూచనలు అనుమతించండి" on their phone

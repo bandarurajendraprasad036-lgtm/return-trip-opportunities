@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { useServerFn } from '@tanstack/react-start';
 import { Bell } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,7 @@ import { useMe } from '@/lib/session';
 import { GoogleSignIn } from '@/components/GoogleSignIn';
 import { markAccountBellActivated } from '@/lib/bell-activation';
 import { enablePush,pushDeviceId,deviceSound } from '@/lib/firebase-push';
-import { registerPushDevice } from '@/lib/push.functions';
+import { registerPushDevice } from '@/lib/push-client';
 import { referralLink } from '@/lib/account-program';
 import { supabase } from '@/integrations/supabase/client';
 import { shareReferralWithImage } from '@/lib/share-referral';
@@ -18,7 +17,7 @@ import { markHomeBellRung } from '@/lib/home-bell';
 import { requestBrowserPermission, shouldShowDeniedNotice, rememberBellStatus, BELL_STATUS_TOAST } from '@/lib/browser-notifications';
 type InstallEvent=Event&{prompt:()=>Promise<void>};
 export function BellJoin({children}:{children?:React.ReactNode}) {
- const {data:me,isPending,isError,refetch}=useMe();const qc=useQueryClient();const register=useServerFn(registerPushDevice);
+ const {data:me,isPending,isError,refetch}=useMe();const qc=useQueryClient();const register=registerPushDevice;
  const [install,setInstall]=useState<InstallEvent|null>(null);const [installed,setInstalled]=useState(false);const [open,setOpen]=useState(false);const [touched,setTouched]=useState(false);
  const activating=useRef(false);
  useEffect(()=>{setInstalled(localStorage.getItem('gayatri-installed-confirmed')==='1'||matchMedia('(display-mode: standalone)').matches);setTouched(localStorage.getItem('gayatri-home-bell-touched')==='1');const h=(e:Event)=>{e.preventDefault();setInstall(e as InstallEvent);};const done=()=>{localStorage.setItem('gayatri-installed-confirmed','1');setInstalled(true);setInstall(null);};window.addEventListener('beforeinstallprompt',h);window.addEventListener('appinstalled',done);return()=>{window.removeEventListener('beforeinstallprompt',h);window.removeEventListener('appinstalled',done);};},[]);

@@ -25,7 +25,6 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { JobSuggestionInput } from '@/components/JobSuggestionInput';
 import { generalWorkValue, hasProhibitedJobWords, jobPostIdentity, WORK_SUGGESTIONS } from '@/lib/job-entry';
 import { IndiaPlaceInput } from '@/components/IndiaPlaceInput';
-import { RoutePointPicker } from '@/components/RoutePointPicker';
 import type { Coordinates } from '@/lib/india-places';
 import { PostSubmissionNotice } from '@/components/PostSubmissionNotice';
 
@@ -252,8 +251,7 @@ function NewPost() {
         <>
           <div><Label htmlFor="post-from">నుండి · From</Label><IndiaPlaceInput id="post-from" value={f['from_place'] ?? ''} disabled={busy} maxLength={80} onChange={value => { setF(prev => ({ ...prev, from_place: value })); setFromPoint(null); }} onSelect={setFromPoint} /></div>
           <div><Label htmlFor="post-to">వరకు · To</Label><IndiaPlaceInput id="post-to" value={f['to_place'] ?? ''} disabled={busy} maxLength={80} onChange={value => { setF(prev => ({ ...prev, to_place: value })); setToPoint(null); }} onSelect={setToPoint} /></div>
-          <RoutePointPicker from={fromPoint} to={toPoint} onFrom={setFromPoint} onTo={setToPoint} disabled={busy} />
-          {(!fromPoint || !toPoint) && <p className="text-sm text-muted-foreground">రెండు స్థానాలు ఎంచుకోకపోతే పరిధి సూచనలు రావు; పేరుతో ఉన్న సరిపోలిక కొనసాగుతుంది · Without selected endpoints, approximate radius alerts are unavailable; name matching remains.</p>}
+          {(!fromPoint || !toPoint) && <p className="text-sm text-muted-foreground">రెండు ఊర్లను జాబితా నుండి నొక్కి ఎంచుకోండి; లేకపోతే పరిధి సూచనలు రావు, పేరుతో సరిపోలిక కొనసాగుతుంది · Tap both places from the list for radius alerts; name matching remains.</p>}
           {field("trip_date", "తేదీ", "Date", { type: "date" })}
           <div className="space-y-1"><Label className="text-base">వాహనం రకం · Vehicle type</Label><select aria-label="వాహనం రకం · Vehicle type" value={f["vehicle_type"] ?? ""} onChange={event => setF({ ...f, vehicle_type: event.target.value, capacity_tons: '' })} className="h-12 w-full rounded-md border bg-card px-3 text-lg" required><option value="">ఎంచుకోండి · Choose</option>{VEHICLE_TYPES.map(type => <option key={type.value} value={type.value}>{type.te} · {type.en}</option>)}</select></div>
           {!isCar(f['vehicle_type']) && field("capacity_tons", "బరువు సామర్థ్యం (టన్నులు)", "Capacity (tons)", { type: "number", min: "0.1", max: "100", step: "0.1", required: true })}

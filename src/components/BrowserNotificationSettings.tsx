@@ -4,11 +4,10 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { useBellSound } from '@/lib/use-bell-sound';
 import { browserPermission, permissionHelp, type PermissionStatus } from '@/lib/browser-notifications';
-import { useServerFn } from '@tanstack/react-start';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useMe } from '@/lib/session';
-import { updatePushSound } from '@/lib/push.functions';
+import { updatePushSound } from '@/lib/push-client';
 import { pushDeviceId } from '@/lib/firebase-push';
 import { usePrime99 } from '@/lib/prime99';
 
@@ -16,7 +15,7 @@ export function BrowserNotificationSettings() {
   const { muted, change } = useBellSound();
   const [permission, setPermission] = useState<PermissionStatus>('default');
   const [busy, setBusy] = useState(false);
-  const sound = useServerFn(updatePushSound);
+  const sound = updatePushSound;
   const { data: me } = useMe();
   const { data: prime } = usePrime99(me?.id);
   const { data: delivery, refetch } = useQuery({ queryKey: ['push-device-status', me?.id], enabled: Boolean(me), queryFn: async () => {

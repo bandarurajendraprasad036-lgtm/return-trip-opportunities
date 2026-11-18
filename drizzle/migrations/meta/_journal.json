@@ -771,6 +771,13 @@
       "when": 1794994322624,
       "tag": "0109_safe_shared_bell_pair_trigger",
       "breakpoints": true
+    },
+    {
+      "idx": 110,
+      "version": "7",
+      "when": 1794998340397,
+      "tag": "0110_admin_account_control_rpc",
+      "breakpoints": true
     }
   ]
 }

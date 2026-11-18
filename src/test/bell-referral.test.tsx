@@ -8,7 +8,7 @@ vi.mock('@tanstack/react-start', () => ({ useServerFn: () => vi.fn() }));
 vi.mock('@tanstack/react-router', () => ({ Link: ({ children }: {children: React.ReactNode}) => <a>{children}</a> }));
 vi.mock('@/components/GoogleSignIn', () => ({ GoogleSignIn: (props: unknown) => { state.login(props); return <div data-testid="login"/>; } }));
 vi.mock('@/lib/firebase-push', () => ({ enablePush: async () => ({ status: 'unsupported' }), pushDeviceId: vi.fn(), deviceSound: vi.fn() }));
-vi.mock('@/lib/push.functions', () => ({ registerPushDevice: vi.fn() }));
+vi.mock('@/lib/push-client', () => ({ registerPushDevice: vi.fn() }));
 vi.mock('@/lib/bell-activation', () => ({ markAccountBellActivated: vi.fn() }));
 vi.mock('@/integrations/supabase/client', () => ({ supabase: { from: () => ({ upsert: async () => ({ error: null }) }), rpc: vi.fn() } }));
 vi.mock('@/lib/share-referral', () => ({ shareReferralWithImage: vi.fn() }));

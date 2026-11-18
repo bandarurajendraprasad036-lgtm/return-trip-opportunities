@@ -74,3 +74,5 @@
 - Admin overview uses role-checked reads and a private paginated vehicle RPC because full contact columns are not browser-granted; receipt totals are deduplicated and bells never become bookings.
 - Listing visibility derives deadlines at read time and preserves owner/admin history; service priority uses private explicit applications and current receipt eligibility, never public identity or client awards.
 - Foreground pushes read owner notices by ID; stored eligibility always wins over paid flags.
+- Admin block/remove and phone-device registration also run from the browser (admin_manage_account RPC, RLS-guarded push_devices writes) because gayatrione.com is served by an external host without server env; removed-account files are queued and deleted by the managed dispatcher.
+- Village search uses our own bundled shards rebuilt by scripts/build-place-shards.py (one row per name+state, 2/3/4-letter files) with no map picker, so searches stay small and duplicate-free.

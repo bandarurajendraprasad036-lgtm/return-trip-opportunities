@@ -2443,6 +2443,30 @@ export type Database = {
           },
         ]
       }
+      storage_cleanup_queue: {
+        Row: {
+          bucket: string
+          created_at: string
+          id: string
+          prefix: string
+          processed_at: string | null
+        }
+        Insert: {
+          bucket: string
+          created_at?: string
+          id?: string
+          prefix: string
+          processed_at?: string | null
+        }
+        Update: {
+          bucket?: string
+          created_at?: string
+          id?: string
+          prefix?: string
+          processed_at?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -2826,6 +2850,10 @@ export type Database = {
       }
       admin_broadcast: { Args: { _message: string }; Returns: number }
       admin_evidence_sender: { Args: { _id: string }; Returns: string }
+      admin_manage_account: {
+        Args: { _action: string; _user: string }
+        Returns: string
+      }
       admin_membership_access: {
         Args: { _enable: boolean; _user: string }
         Returns: undefined

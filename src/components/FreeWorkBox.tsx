@@ -39,7 +39,12 @@ export function FreeWorkBox({ section, area }: { section: FreeWorkSection; area:
       const result = await act({ data: { action, section, category, area, id: row?.id ?? '', source: source === 'post' || source === 'provider' || source === 'interest' ? source : 'entry' } });
       await refresh();
       if (action === 'chat') { if (result.target) await nav({ to: '/chat/$userId', params: { userId: result.target }, search: { post: undefined } }); else toast.info('ఇది మీ సొంత నమోదు'); }
-      else toast.success('గంట వెళ్ళింది');
+      else {
+        // Truthful status: a queued notice is not proof that the other phone received it.
+        const count = result.rung ?? 0;
+        if (count === 0) toast.info('మీ గంట నమోదైంది. ఇప్పుడు ఈ ప్రాంతంలో ఈ కేటగిరీకి ఎదుటివారు ఎవరూ లేరు; ఎవరైనా చేరితే వారికి సూచన వెళ్తుంది.', { duration: 9000 });
+        else toast.success(`${count} మందికి సూచన పంపే ఏర్పాటు చేశాం; సుమారు ఒక నిమిషంలో వారి యాప్ నోటిఫికేషన్లలో చేరుతుంది. వారు తమ ఫోన్‌లో "గంట సూచనలు అనుమతించండి" నొక్కి ఉంటేనే ఫోన్‌కు శబ్దంతో వస్తుంది. వారు చూశారో లేదో ఇక్కడ తెలియదు.`, { duration: 12000 });
+      }
       return true;
     } catch { toast.error('కాలేదు; మళ్లీ ప్రయత్నించండి'); return false; }
     finally { setBusy(false); }
