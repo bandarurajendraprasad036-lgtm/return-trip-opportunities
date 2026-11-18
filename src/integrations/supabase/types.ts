@@ -1158,6 +1158,33 @@ export type Database = {
           },
         ]
       }
+      password_reset_requests: {
+        Row: {
+          created_at: string
+          handled_at: string | null
+          handled_by: string | null
+          id: string
+          phone: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          handled_at?: string | null
+          handled_by?: string | null
+          id?: string
+          phone: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          handled_at?: string | null
+          handled_by?: string | null
+          id?: string
+          phone?: string
+          status?: string
+        }
+        Relationships: []
+      }
       payment_image_checks: {
         Row: {
           created_at: string
@@ -2870,6 +2897,7 @@ export type Database = {
     }
     Functions: {
       account_allowed: { Args: { _uid: string }; Returns: boolean }
+      account_id_for_login_phone: { Args: { _phone: string }; Returns: string }
       activate_program_sharing: {
         Args: {
           _hashes: string[]
@@ -3254,6 +3282,7 @@ export type Database = {
         Returns: boolean
       }
       request_own_bell_notice: { Args: { _device: string }; Returns: string }
+      request_password_reset: { Args: { _phone: string }; Returns: undefined }
       request_phone_entry: {
         Args: { _hash: string; _phone: string }
         Returns: string

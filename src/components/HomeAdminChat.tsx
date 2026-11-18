@@ -19,6 +19,12 @@ export function HomeAdminChat() {
     if (!me) { void navigate({ to: '/auth' }); return; }
     input.current?.click();
   };
+  const openChat = async () => {
+    if (!me) { void navigate({ to: '/auth' }); return; }
+    const admin = await supabase.rpc('support_admin_id');
+    if (!admin.error && admin.data && admin.data !== me.id) await navigate({ to: '/chat/$userId', params: { userId: admin.data }, search: { post: undefined } });
+    else await navigate({ to: '/chats' });
+  };
   const upload = async (file: File | undefined) => {
     if (!file || !me || busy) return;
     if (file.size > CHAT_IMAGE_LIMIT || !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
@@ -37,7 +43,7 @@ export function HomeAdminChat() {
     finally { setBusy(false); }
   };
   return <div className="home-quick-box">
-    <Button type="button" variant="ghost" className="h-auto min-h-12 flex-1 whitespace-normal px-1" disabled={busy} onClick={() => void navigate({ to: me ? '/chats' : '/auth' })}>అడ్మిన్‌తో చాట్<span className="block text-xs">Chat with Admin</span></Button>
+    <Button type="button" variant="ghost" className="h-auto min-h-12 flex-1 whitespace-normal px-1" disabled={busy} onClick={() => void openChat()}>అడ్మిన్‌తో చాట్<span className="block text-xs">Chat with Admin</span></Button>
     <Button type="button" variant="outline" size="icon" className="size-12 shrink-0" aria-label="అడ్మిన్‌కు చిత్రం పంపండి · Send image to admin" disabled={busy} onClick={choose}><ImagePlus /></Button>
     <input ref={input} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={event => void upload(event.target.files?.[0])} />
     {status && <p role="status" className="col-span-2 break-words text-xs">{status}</p>}

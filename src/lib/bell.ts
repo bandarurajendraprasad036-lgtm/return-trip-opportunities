@@ -29,3 +29,28 @@ export function playBell() {
     oscillator.start(); oscillator.stop(audio.currentTime + 3.8);
   });
 }
+/** Loud temple-bell strike played on the user's own tap. The tap itself is the consent, so the
+ * evening quiet rule for incoming alerts does not apply. Phone silent switches/volume are controlled
+ * by the phone; a website cannot override them. */
+export function playTapBell() {
+  if (bellMuted()) return;
+  try { audio ??= new AudioContext(); } catch { return; }
+  const ctx = audio;
+  const strike = () => {
+    const out = ctx.createGain(); out.gain.value = 1;
+    let target: AudioNode = ctx.destination;
+    try { const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -18; comp.ratio.value = 6; comp.connect(ctx.destination); target = comp; } catch { /* compressor optional */ }
+    out.connect(target);
+    [440, 880, 1320, 1760, 2640, 3520].forEach((frequency, index) => {
+      const oscillator = ctx.createOscillator(); const gain = ctx.createGain();
+      oscillator.type = index === 0 ? 'triangle' : 'sine';
+      oscillator.frequency.value = frequency;
+      gain.gain.setValueAtTime(0.001, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.9 / (index + 1), ctx.currentTime + 0.008);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 3.5);
+      oscillator.connect(gain); gain.connect(out);
+      oscillator.start(); oscillator.stop(ctx.currentTime + 3.5);
+    });
+  };
+  if (ctx.state === 'running') strike(); else void ctx.resume().then(strike, () => undefined);
+}

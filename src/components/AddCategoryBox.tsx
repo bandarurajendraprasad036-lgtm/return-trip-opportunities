@@ -1,3 +1,4 @@
+import { SIGN_IN_MESSAGE, signedInUserId } from '@/lib/bell-request';
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useServerFn } from '@tanstack/react-start';
@@ -29,7 +30,7 @@ export function AddCategoryBox({ label, section }: { label: string; section: Cat
   const qc = useQueryClient();
   const { data: categories = [] } = useAddedCategories(section);
   const submit = async () => {
-    if (!me) { toast.error('ముందు ప్రవేశించండి'); return; }
+    if (!me && !await signedInUserId()) { toast.error(SIGN_IN_MESSAGE); return; }
     const parsed = categoryInput.safeParse({ section, name });
     if (!parsed.success) { toast.error('రకం పేరు 2 నుంచి 40 అక్షరాల్లో రాయండి'); return; }
     setBusy(true);

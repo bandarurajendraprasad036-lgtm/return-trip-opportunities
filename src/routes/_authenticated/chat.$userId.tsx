@@ -16,6 +16,7 @@ import { CHAT_IMAGE_LIMIT, chatEntrySchema } from '@/lib/chat-rules';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { hidePaymentEvidence } from '@/lib/payment-status';
 import { toast } from 'sonner';
+import { paymentUtr } from '@/lib/november-profile';
 
 export const Route = createFileRoute("/_authenticated/chat/$userId")({
   validateSearch: (search: Record<string, unknown>): { post?: string | undefined } => ({ post: typeof search["post"] === "string" && z.string().uuid().safeParse(search["post"]).success ? search["post"] : undefined }),
@@ -108,7 +109,13 @@ function Chat() {
     setBusy(true); setSendError("");
     try {
       chatEntrySchema.parse({receiver:userId,post:postId || null,body,phone});
-      if (postId || phone || image || userId === adminId) {
+      // Plain text goes straight to the database as the signed-in sender (row security checks the pair),
+      // so chat keeps working even where server helpers are unavailable. Images, phone numbers and
+      // payment references still use the checked server path.
+      const plainText = !phone && !image && !(userId === adminId && paymentUtr(body));
+      const direct = plainText ? await supabase.from('messages').insert({ sender_id: me.id, receiver_id: userId, post_id: postId ?? null, body }) : null;
+      if (direct && !direct.error) { /* saved */ }
+      else if (postId || phone || image || userId === adminId) {
         const form=new FormData();form.set('receiver',userId);form.set('post',postId || '');form.set('body',body);form.set('phone',phone);if(image)form.set('image',image);
         const result = await sendEntry({data:form});
         if (result.provisional) await qc.invalidateQueries({queryKey:['prime99']});
@@ -158,7 +165,7 @@ function Chat() {
       {sendError && <p role="alert" className="px-3 py-2 text-sm text-destructive">{sendError}</p>}
       {chatAllowed===false && <p role="alert" className="px-3 py-2">సంభాషణకు నెలకు ₹100 చెల్లింపు నిర్ధారణతో పాటు ప్రకటన గంట ద్వారా ప్రారంభించిన సంబంధం అవసరం.<Link to="/dashboard" className="block underline">₹100 చెల్లింపు</Link></p>}
       <form onSubmit={send} className="space-y-2 border-t bg-card p-2">
-        <Input type="tel" inputMode="numeric" aria-label="ఫోన్ నంబరు · Phone number" value={phone} onChange={e=>setPhone(e.target.value.replace(/\D/g,''))} maxLength={10} placeholder="ఫోన్ నంబరు · Phone number" disabled={busy || !chatAllowed || contactAllowed !== true} />
+        {userId === adminId ? <p className="text-xs">మీ ప్రొఫైల్ మొబైల్ నంబర్ అడ్మిన్‌కు తెలుస్తుంది; మళ్ళీ ఇవ్వాల్సిన అవసరం లేదు</p> : <Input type="tel" inputMode="numeric" aria-label="ఫోన్ నంబరు · Phone number" value={phone} onChange={e=>setPhone(e.target.value.replace(/\D/g,''))} maxLength={10} placeholder="ఫోన్ నంబరు · Phone number" disabled={busy || !chatAllowed || contactAllowed !== true} />}
         <input ref={fileInput} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>{const file=e.target.files?.[0];if(file && (file.size>CHAT_IMAGE_LIMIT || !['image/jpeg','image/png','image/webp'].includes(file.type))){setSendError('ఐదు మెగాబైట్ల లోపు చిత్రం ఎంచుకోండి · Choose an image under 5MB');e.target.value='';return;}setImage(file || null);setSendError('');}} />
         {image && <div className="flex items-center gap-2 text-sm"><span className="min-w-0 flex-1 truncate">{image.name}</span><Button type="button" variant="ghost" size="icon" aria-label="చిత్రం తీసేయండి · Remove image" onClick={()=>{setImage(null);if(fileInput.current)fileInput.current.value='';}}><X /></Button></div>}
         <div className="flex gap-2"><Button type="button" variant="outline" size="icon" aria-label="పేమెంట్ స్క్రీన్ షాట్ పంపండి" disabled={busy || !chatAllowed} onClick={()=>fileInput.current?.click()}><ImagePlus /></Button><Input value={text} onChange={(e) => setText(e.target.value)} maxLength={1000} placeholder="మెసేజ్ / UTR నంబర్" className="h-12 min-w-0 text-base" disabled={busy || !chatAllowed} /><Button type="submit" disabled={busy || !chatAllowed || (!text.trim() && !phone && !image)} size="icon" className="size-12 shrink-0" aria-label="పంపండి · Send"><Send /></Button></div>

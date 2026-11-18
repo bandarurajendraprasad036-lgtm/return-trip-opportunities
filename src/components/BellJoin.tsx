@@ -16,7 +16,7 @@ import { shareReferralWithImage } from '@/lib/share-referral';
 import { markHomeBellRung } from '@/lib/home-bell';
 import { requestBrowserPermission, shouldShowDeniedNotice, rememberBellStatus, BELL_STATUS_TOAST } from '@/lib/browser-notifications';
 import { bellErrorMessage, requireCompleteProfile, retryBell } from '@/lib/bell-request';
-import { enableBellAudio, playBell } from '@/lib/bell';
+import { playTapBell } from '@/lib/bell';
 import { PROFILE_ACCESS_MESSAGE } from '@/lib/profile-access';
 type InstallEvent=Event&{prompt:()=>Promise<void>};
 export function BellJoin({children}:{children?:React.ReactNode}) {
@@ -32,7 +32,7 @@ export function BellJoin({children}:{children?:React.ReactNode}) {
   rememberBellStatus('granted');toast.success('నోటిఫికేషన్ ఆన్ అయింది',{id:BELL_STATUS_TOAST});
   try{const result=await enablePush();const saved=await supabase.from('notification_preferences').upsert({user_id:me.id,enabled:true});if(saved.error)throw saved.error;if(result.status==='registered'&&result.token)await register({data:{id:pushDeviceId(),token:result.token,sound:deviceSound()}});await markAccountBellActivated(me.id);await supabase.rpc('ensure_my_referral_code');await qc.invalidateQueries({queryKey:['me']});}catch(e){console.warn('bell background registration incomplete',e);}
  }finally{activating.current=false;}};
- const click=async()=>{setOpen(true);if(!installed&&install){try{await install.prompt();}catch{toast.info('మీ బ్రౌజర్ లో డౌన్లోడ్ ఎంచుకోండి');}setInstall(null);}markHomeBellRung();setTouched(true);if(me){enableBellAudio();try{await requireCompleteProfile();void activate();await retryBell(()=>supabase.rpc('ring_my_main_bell'));playBell();}catch(error){toast.error(bellErrorMessage(error));}}};
+ const click=async()=>{playTapBell();setOpen(true);if(!installed&&install){try{await install.prompt();}catch{toast.info('మీ బ్రౌజర్ లో డౌన్లోడ్ ఎంచుకోండి');}setInstall(null);}markHomeBellRung();setTouched(true);if(me){try{await requireCompleteProfile();void activate();await retryBell(()=>supabase.rpc('ring_my_main_bell'));}catch(error){toast.error(bellErrorMessage(error));}}};
  return <><Button type="button" variant="ghost" onClick={()=>void click()} aria-label="గంట కొట్టండి · Ring the bell" className={children?'home-temple-trigger':'home-bell mx-auto grid size-20 place-items-center text-gold'}>{children??<Bell className="size-16"/>}</Button><p className="text-center text-2xl font-extrabold text-gold">ఏది కావాలన్నా గంట కొట్టు</p><p className="text-center text-lg font-bold">గంట కొట్టండి - నోటిఫికేషన్ ఆన్ అవుతుంది</p><p className="text-center text-base">{PROFILE_ACCESS_MESSAGE}</p>
  {!installed&&<Button variant="ghost" className="unfinished-action w-full whitespace-normal" onClick={()=>void click()}>⬇️ డౌన్లోడ్ చేయండి - గంట కొట్టండి</Button>}
  <Dialog open={open} onOpenChange={setOpen}><DialogContent className="max-h-[85svh] overflow-y-auto"><DialogTitle>{joined?'🎉 మీరు ఆల్రెడీ జాయిన్ అయ్యారు!':isPending?'మీ ఖాతా చూస్తున్నాం…':isError?'మీ ఖాతా కనిపించలేదు':'డౌన్లోడ్ / Install'}</DialogTitle><DialogDescription asChild><div className="space-y-3 text-lg">{joined?<><p>ఇప్పుడు మీ వంతు!</p><p>మీ ద్వారా మరి కొంతమందిని జాయిన్ చేయండి!</p><p>మీ రిఫరల్ కోడ్ ద్వారా మరి కొంతమందిని జాయిన్ చేయండి!</p></>:isPending?<p>కొద్దిసేపు ఆగండి…</p>:isError?<p>మళ్లీ మీ ఖాతా చూడండి.</p>:<p>డౌన్లోడ్ / Install ఎంచుకోండి. మీ ఫోన్ అనుమతిస్తే గాయత్రి వన్ ఐకాన్ వస్తుంది.</p>}</div></DialogDescription>

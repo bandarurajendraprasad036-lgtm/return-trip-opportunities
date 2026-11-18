@@ -14,6 +14,7 @@ import { freeWorkClientAction } from '@/lib/free-work-client';
 import { FREE_WORK_LABELS, freeWorkNames, type FreeWorkSection } from '@/lib/free-work';
 import { resolveServiceCategory } from '@/lib/service-category-display';
 import { AdminBellRowAction } from '@/components/AdminBellRowAction';
+import { bellErrorMessage, SIGN_IN_MESSAGE, signedInUserId } from '@/lib/bell-request';
 
 export function FreeWorkBox({ section, area }: { section: FreeWorkSection; area: string }) {
   const [expanded, setExpanded] = useState(false);
@@ -32,7 +33,7 @@ export function FreeWorkBox({ section, area }: { section: FreeWorkSection; area:
   const openCategory = (category: string) => { setExpanded(false); void nav({ to: '/bell-board', search: { section, category } }); };
   const refresh = async () => { await Promise.all([qc.invalidateQueries({ queryKey: ['free-work'] }), qc.invalidateQueries({ queryKey: ['free-work-interests'] })]); };
   const action = async (action: 'category' | 'ring' | 'chat', category = selected, row?: { id: string; source: string }): Promise<boolean> => {
-    if (!me) { toast.error('ముందు ప్రవేశించండి'); return false; }
+    if (!me && !await signedInUserId()) { toast.error(SIGN_IN_MESSAGE); return false; }
     if (action === 'category' && !area.trim().replaceAll('/', '').trim()) { toast.error('మీ ఊరు / వాడ పేరు రాయండి'); return false; }
     setBusy(true);
     try {
@@ -47,14 +48,14 @@ export function FreeWorkBox({ section, area }: { section: FreeWorkSection; area:
         else toast.success(`${count} మందికి సూచన పంపే ఏర్పాటు చేశాం; సుమారు ఒక నిమిషంలో వారి యాప్ నోటిఫికేషన్లలో చేరుతుంది. వారు తమ ఫోన్‌లో "గంట సూచనలు అనుమతించండి" నొక్కి ఉంటేనే ఫోన్‌కు శబ్దంతో వస్తుంది. వారు చూశారో లేదో ఇక్కడ తెలియదు.`, { duration: 12000 });
       }
       return true;
-    } catch { toast.error('కాలేదు; మళ్లీ ప్రయత్నించండి'); return false; }
+    } catch (error) { toast.error(bellErrorMessage(error), { duration: 8000 }); return false; }
     finally { setBusy(false); }
   };
   const saveCategory = async () => {
     if (saving.current || name.trim().length < 2) return;
     const resolved = resolveServiceCategory(name, names);
     if (resolved.exists) { setName(''); setSelected(resolved.name); setCategoryFeedback(`ఈ కేటగిరీ ఆల్రెడీ ఉంది: ${resolved.name}`); return; }
-    if (!me) { toast.error('ముందు ప్రవేశించండి'); return; }
+    if (!me && !await signedInUserId()) { toast.error(SIGN_IN_MESSAGE); return; }
     saving.current = true;
     setBusy(true);
     try { await add({ data: { section, name: resolved.name } }); setSelected(resolved.name); await qc.invalidateQueries({ queryKey: ['discovery-categories', section] }); setName(''); setCategoryFeedback('కొత్త కేటగిరీ చేరింది'); }

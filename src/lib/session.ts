@@ -5,9 +5,14 @@ export function useMe() {
   return useQuery({
     queryKey: ["me"],
     queryFn: async () => {
+      // The locally stored session is the source of sign-in state; a slow/failed revalidation
+      // must never make a signed-in person look signed out.
+      const { data: local } = await supabase.auth.getSession();
+      if (!local.session) return null;
       const { data, error } = await supabase.auth.getUser();
-      if (error && error.name !== 'AuthSessionMissingError') throw error;
-      const user = data.user;
+      if (error && error.name === 'AuthSessionMissingError') return null;
+      if (error && (error as { status?: number }).status === 401) return null;
+      const user = data.user ?? local.session.user;
       if (!user) return null;
       const blocked = await supabase.from('account_blocks').select('reason').eq('user_id',user.id).maybeSingle();
       if(blocked.data) return {id:user.id,profile:null,isAdmin:false,block:blocked.data};

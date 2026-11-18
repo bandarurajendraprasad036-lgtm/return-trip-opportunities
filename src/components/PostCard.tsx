@@ -20,7 +20,8 @@ import { BellPaymentNotice } from '@/components/BellPaymentNotice';
 import { PrivateBellDisplay } from '@/components/PrivateBellDisplay';
 import { anonymousPostDetails } from '@/lib/display-privacy';
 import { AdminBellRowAction } from '@/components/AdminBellRowAction';
-import { bellErrorMessage, requireCompleteProfile, retryBell } from '@/lib/bell-request';
+import { bellErrorMessage, OWN_POST_MESSAGE, requireCompleteProfile, retryBell } from '@/lib/bell-request';
+import { playTapBell } from '@/lib/bell';
 
 export type Post = Database["public"]["Tables"]["posts"]["Row"];
 
@@ -56,7 +57,7 @@ export function PostCard({
   const vehicleUnlocked = access || post.user_id === meId;
   const checkAccess = async () => {
     await requireCompleteProfile();
-    if (isJob) { if (!meId) { toast.error('ముందు ప్రవేశించండి'); return false; } return true; }
+    if (isJob) return true;
     if (vehicleUnlocked) return true;
     if (!meId) { setUpgradeOpen(true); return false; }
     const { data, error } = await supabase.rpc('has_paid_bell', { _user: meId });
@@ -88,9 +89,8 @@ export function PostCard({
   const contact = () => { void ring(); };
   const ring = async () => {
     if (sending) return;
-    if (post.user_id === meId) {
-      return;
-    }
+    if (post.user_id === meId) { toast.info(OWN_POST_MESSAGE, { duration: 7000 }); return; }
+    playTapBell();
     setSending(true);
     try {
     await requireCompleteProfile();
@@ -110,7 +110,7 @@ export function PostCard({
         <p className="flex min-w-0 items-start gap-1 text-sm"><MapPin className="size-4 shrink-0" /><span translate="no" className="min-w-0 whitespace-normal break-words">{isJob ? post.location : `${post.from_place || '…'} → ${post.to_place || '…'}`}</span></p>
         {!anonymousWork && (post.salary || (isJob && compact)) && <p translate="no" className="flex items-start gap-1 break-words text-sm font-semibold"><IndianRupee className="size-4 shrink-0" />{post.salary || 'జీతం ఇవ్వలేదు'}</p>}
       </div>
-      {jobIsVisible(post) && (post.module === 'vehicle' ? <div className="flex shrink-0 gap-2"><Button variant="outline" size="icon" aria-label="చాట్" title="చాట్" disabled={sending} onClick={()=>void openVehicle(true)}><MessageCircle /></Button><VehicleDemandBell postId={post.id} /></div> : <Button type="button" variant="outline" size="icon" disabled={sending} className="shrink-0" onClick={contact} aria-label="గంట · Bell"><Bell /></Button>)}
+      {jobIsVisible(post) && (post.module === 'vehicle' ? <div className="flex shrink-0 gap-2"><Button variant="outline" size="icon" aria-label="చాట్" title="చాట్" disabled={sending} onClick={()=>void openVehicle(true)}><MessageCircle /></Button><VehicleDemandBell postId={post.id} ownerId={post.user_id} postRoute={post} /></div> : <Button type="button" variant="outline" size="icon" disabled={sending} className="shrink-0" onClick={contact} aria-label="గంట · Bell"><Bell /></Button>)}
     </div>
     <PrivateBellDisplay />
     <AdminBellRowAction id={post.id} source="listing" section={isJob ? 'work' : 'vehicle'} />
@@ -120,7 +120,7 @@ export function PostCard({
     {!isJob && <Button variant="outline" className="h-auto min-h-11 w-full whitespace-normal" onClick={()=>{setSelectedCategory(null);setChoicesOpen(true);}} disabled={sending}><Info />వాహన వివరాలు చూడండి</Button>}
     {!isJob && <Dialog open={choicesOpen} onOpenChange={setChoicesOpen}><DialogContent className="max-h-[85svh] overflow-y-auto" aria-describedby={undefined}><DialogTitle>వాహన వివరాలు</DialogTitle>
       {(Object.keys(VEHICLE_DEMAND_SECTIONS) as VehiclePageKind[]).map(kind => <Button key={kind} variant={selectedCategory === kind ? 'default' : 'outline'} className="h-auto w-full whitespace-normal text-left" onClick={() => setSelectedCategory(kind)}><Bell />{VEHICLE_DEMAND_SECTIONS[kind]}</Button>)}
-      {selectedCategory && <div className="space-y-3 border-t pt-3"><p translate="no" className="break-all font-bold">గుర్తింపు: {post.id}</p><PrivateBellDisplay /><div className="flex flex-wrap gap-2"><Button variant="outline" disabled={sending} onClick={() => { setChoicesOpen(false); void openVehicle(true); }}><MessageCircle />చాట్</Button><Button variant="outline" asChild><a href={`/bell-board?section=${selectedCategory}`}>గంట కొట్టిన వాళ్ళ జాబితా</a></Button><VehicleDemandBell postId={post.id} category={selectedCategory} /></div></div>}
+      {selectedCategory && <div className="space-y-3 border-t pt-3"><p translate="no" className="break-all font-bold">గుర్తింపు: {post.id}</p><PrivateBellDisplay /><div className="flex flex-wrap gap-2"><Button variant="outline" disabled={sending} onClick={() => { setChoicesOpen(false); void openVehicle(true); }}><MessageCircle />చాట్</Button><Button variant="outline" asChild><a href={`/bell-board?section=${selectedCategory}`}>గంట కొట్టిన వాళ్ళ జాబితా</a></Button><VehicleDemandBell postId={post.id} ownerId={post.user_id} postRoute={post} category={selectedCategory} /></div></div>}
     </DialogContent></Dialog>}
     
     <Dialog open={detailsOpen} onOpenChange={open => { setDetailsOpen(open); if (!open) setDetails(null); }}><DialogContent className="max-h-[85svh] overflow-y-auto"><DialogTitle>ప్రకటన వివరాలు · Post details</DialogTitle><DialogDescription>{isJob ? post.skill || 'ఉద్యోగం · Job' : vehicleTypeLabel(post.vehicle_type)}</DialogDescription><p translate="no" className="break-words">{isJob ? post.location : `${post.from_place || '…'} → ${post.to_place || '…'}`}</p>{post.salary && <p translate="no">{post.salary}</p>}{details?.description && <p translate="no" className="whitespace-pre-wrap break-words">{details.description}</p>}{details?.trip_date && <p translate="no">{details.trip_date}</p>}{details?.capacity_tons != null && <p>{details.capacity_tons} టన్నులు · tons</p>}{details?.public_photo && <img src={details.public_photo} alt="ప్రకటన ఫోటో" className="max-h-64 w-full object-contain" />}{details?.public_brand && <p translate="no">{details.public_brand}</p>}{details?.vehicle_name && <p translate="no">{details.vehicle_name}</p>}{details?.vehicle_number && <p translate="no">{details.vehicle_number}</p>}{details?.driver_name && <p translate="no">{details.driver_name}</p>}{details?.contact_phone && /^[6-9]\d{9}$/.test(details.contact_phone) && <Button asChild><a href={`tel:+91${details.contact_phone}`}><Phone /><span translate="no">{details.contact_phone}</span></a></Button>}</DialogContent></Dialog>

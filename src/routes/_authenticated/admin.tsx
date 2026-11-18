@@ -21,6 +21,7 @@ import { AdminReferralEligibility } from '@/components/AdminReferralEligibility'
 import { ProviderContacts } from '@/components/ProviderContacts';
 import { AdminOverview, adminOverviewQuery } from '@/components/AdminOverview';
 import { AdminPhoneEntries } from '@/components/AdminPhoneEntries';
+import { AdminPasswordResets } from '@/components/AdminPasswordResets';
 
 export const Route = createFileRoute("/_authenticated/admin")({
   beforeLoad: async () => {
@@ -108,6 +109,7 @@ function Admin() {
       <AdminNewPaymentAlert />
       <AdminOverview />
       <AdminPhoneEntries />
+      <AdminPasswordResets />
       <AdminMessages />
       <AdminPrime99 />
       <ProviderContacts admin />

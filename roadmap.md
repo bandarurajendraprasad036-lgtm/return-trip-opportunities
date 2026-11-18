@@ -285,3 +285,6 @@
 - [x] Village list: one per name, instant search, no map
 - [x] Admin block/delete real on every address (dry-run verified)
 - [ ] Real two-phone delivery: needs the other person to press "గంట సూచనలు అనుమతించండి" on their phone
+- [x] November 18 16:43 eight-point recheck (live-tested with temporary accounts, then removed): accurate bell errors (own post / expired / profile / limit, network only on real transport failure), loud tap bell regardless of evening quiet rule, session-based sign-in checks, phone-login profile readiness (0117), admin chat text direct insert and no repeated number. Live-test each with a temporary account.
+- [x] November 18 16:53 (live-tested): mobile number + password sign-in/sign-up; "పాస్వర్డ్ మర్చిపోయాను?" under password box; admin password reset option. Number-only self reset would let anyone take over an account, so self reset goes to admin approval instead.
+- [ ] Not verifiable here: sound on a phone in silent mode (phone decides), real second-phone receipt, owner vehicle notice needs ₹100 + saved route within 20%. Old phone-code sign-in test file is stale (feature replaced). Not published.
