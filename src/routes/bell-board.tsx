@@ -19,6 +19,7 @@ import { PrivateBellDisplay } from '@/components/PrivateBellDisplay';
 import { AdminBellRowAction } from '@/components/AdminBellRowAction';
 import { BELL_BOARD_REFRESH_MS, bellBoardArea } from '@/lib/bell-board-refresh';
 import { enableBellAudio, playBell } from '@/lib/bell';
+import { bellErrorMessage, requireCompleteProfile, retryBell } from '@/lib/bell-request';
 
 const options = (section: BellBoardSection, area = '') => queryOptions({ queryKey: ['bell-board', section, area], queryFn: () => loadBellBoard(section, area), staleTime: 0, refetchInterval: BELL_BOARD_REFRESH_MS });
 
@@ -55,7 +56,7 @@ function FreeBoard({ section, category = '' }: { section: FreeWorkSection; categ
         if (result.target) await nav({ to: '/chat/$userId', params: { userId: result.target }, search: { post: undefined } });
         else toast.info('ఇది మీ సొంత నమోదు');
       }
-    } catch { toast.error('కాలేదు; మళ్లీ ప్రయత్నించండి'); } finally { setBusy(false); }
+    } catch (error) { toast.error(bellErrorMessage(error)); } finally { setBusy(false); }
   }
 
   return <main className="space-y-4 p-4"><h1 className="break-words text-2xl font-bold">{BELL_BOARD_LABELS[section]}</h1>{category && <div className="flex flex-wrap items-center gap-2"><p translate="no" className="break-words text-xl font-bold">{freeWorkLabel(category)} కోసం గంట కొట్టిన వాళ్ళు</p><Button asChild variant="outline" size="sm"><Link to="/bell-board" search={{ section }}>అన్నీ చూపించు</Link></Button></div>}<IndiaPlaceInput id="bell-board-area" value={area} onChange={setArea} placeholder="మీ ఊరి పేరు / మీ వాడ పేరు" /><Button variant="outline" role="switch" aria-checked={filterArea} onClick={() => setFilterArea(value => !value)}>{filterArea ? "ఎంచుకున్న ఊరు మాత్రమే" : "అన్ని ఊర్లు"}</Button>
@@ -76,7 +77,7 @@ function PaidBoard() {
   const [selected, setSelected] = useState<string | null>(null);
   const [showPay, setShowPay] = useState(false);
 
-  async function ring() { if (busy || !selected) return; enableBellAudio(); setBusy(true); try { const result = await supabase.rpc('ring_vehicle_board', { _demand: selected }); if (result.error) { toast.error('గంట నమోదు కాలేదు'); return; } if (result.data) playBell(); setSelected(null); toast.success('గంట నమోదైంది; అవతలి ఫోన్ చేరిక ఇంకా నిర్ధారించలేదు'); } catch { toast.error('గంట నమోదు కాలేదు'); } finally { setBusy(false); } }
+  async function ring() { if (busy || !selected) return; const demand = selected; enableBellAudio(); setBusy(true); try { await requireCompleteProfile(); const result = await retryBell(() => supabase.rpc('ring_vehicle_board', { _demand: demand })); if (result.data) playBell(); setSelected(null); toast.success('గంట నమోదైంది; అవతలి ఫోన్ చేరిక ఇంకా నిర్ధారించలేదు'); } catch(error) { toast.error(bellErrorMessage(error)); } finally { setBusy(false); } }
 
   async function chat(id: string, source: string) {
     if (!data.paid) { setShowPay(true); return; }
@@ -86,7 +87,7 @@ function PaidBoard() {
 
   function onRowClick() { if (!data.paid) setShowPay(true); }
 
-  return <main className="space-y-4 p-4"><h1 className="break-words text-2xl font-bold">{BELL_BOARD_LABELS[section]}</h1><IndiaPlaceInput id="bell-board-area" value={area} onChange={setArea} placeholder="మీ ఊరి పేరు / మీ వాడ పేరు" /><Button variant="outline" role="switch" aria-checked={filterArea} onClick={() => setFilterArea(value => !value)}>{filterArea ? "ఎంచుకున్న ఊరు మాత్రమే" : "అన్ని ఊర్లు"}</Button>{!data.paid && <><p>₹100 పే చేసి చాట్ చేయండి</p><Button asChild><Link to="/dashboard">₹100 చెల్లింపు</Link></Button></>}{<>{!data.rows.length && <p>ఈ ప్రాంతంలో ఇంకా ఎవరూ గంట కొట్టలేదు</p>}{data.rows.map(row => <article key={`${row.source}-${row.id}`} onClick={onRowClick} className="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3 cursor-pointer"><PrivateBellDisplay /><div className="min-w-0 flex-1 basis-32"><p translate="no" className="break-words">{row.area}</p><p translate="no" className="break-words font-bold">{row.need}</p></div>{row.source === 'vehicle' && <Button variant="outline" size="icon" className="size-11 shrink-0" aria-label="గంట కొట్టండి" title="గంట కొట్టండి" disabled={busy || !data.paid} onClick={(e) => { e.stopPropagation(); if (!data.paid) { setShowPay(true); return; } setSelected(row.id); }}><Bell /></Button>}<Button variant="outline" size="icon" className="size-11 shrink-0" aria-label="చాట్" title="చాట్" disabled={busy || !data.paid} onClick={(e) => { e.stopPropagation(); void chat(row.id, row.source); }}><MessageCircle /></Button><AdminBellRowAction id={row.id} source={row.source} section={section} /></article>)}</>}
+  return <main className="space-y-4 p-4"><h1 className="break-words text-2xl font-bold">{BELL_BOARD_LABELS[section]}</h1><IndiaPlaceInput id="bell-board-area" value={area} onChange={setArea} placeholder="మీ ఊరి పేరు / మీ వాడ పేరు" /><Button variant="outline" role="switch" aria-checked={filterArea} onClick={() => setFilterArea(value => !value)}>{filterArea ? "ఎంచుకున్న ఊరు మాత్రమే" : "అన్ని ఊర్లు"}</Button>{!data.paid && <><p>₹100 పే చేసి చాట్ చేయండి</p><Button asChild><Link to="/dashboard">₹100 చెల్లింపు</Link></Button></>}{<>{!data.rows.length && <p>ఈ ప్రాంతంలో ఇంకా ఎవరూ గంట కొట్టలేదు</p>}{data.rows.map(row => <article key={`${row.source}-${row.id}`} onClick={onRowClick} className="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3 cursor-pointer"><PrivateBellDisplay /><div className="min-w-0 flex-1 basis-32"><p translate="no" className="break-words">{row.area}</p><p translate="no" className="break-words font-bold">{row.need}</p></div>{row.source === 'vehicle' && <Button variant="outline" size="icon" className="size-11 shrink-0" aria-label="గంట కొట్టండి" title="గంట కొట్టండి" disabled={busy} onClick={(e) => { e.stopPropagation(); setSelected(row.id); }}><Bell /></Button>}<Button variant="outline" size="icon" className="size-11 shrink-0" aria-label="చాట్" title="చాట్" disabled={busy || !data.paid} onClick={(e) => { e.stopPropagation(); void chat(row.id, row.source); }}><MessageCircle /></Button><AdminBellRowAction id={row.id} source={row.source} section={section} /></article>)}</>}
 
     {/* Vehicle Touch chesthe Rs.100 Dialog */}
     <Dialog open={showPay} onOpenChange={setShowPay}><DialogContent aria-describedby={undefined}><DialogTitle>₹100 ఫర్ మంత్ పేమెంట్ చేయండి</DialogTitle><p>పేమెంట్ చేస్తే - మీరు వీళ్ళతో చాట్ చేసుకోవచ్చు, బెల్ నోటిఫికేషన్ కూడా తీసుకోవచ్చు.</p><p className="text-sm opacity-70">పేరు / ఫోటో / మొబైల్ నంబర్ ఎప్పుడూ కనబడదు. ఓన్లీ బెల్ + చాట్ మాత్రమే.</p><Button asChild><Link to="/dashboard">₹100 చెల్లింపు</Link></Button></DialogContent></Dialog>

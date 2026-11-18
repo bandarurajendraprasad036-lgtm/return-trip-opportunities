@@ -36,6 +36,7 @@ export function TopProfileBox({ compact = false }: { compact?: boolean }) {
     {open !== 'payment' && <Button type="button" variant="outline" className="h-auto min-h-20 w-full justify-start gap-3 whitespace-normal border-2 border-primary px-3 py-3 text-left text-lg" aria-controls="home-payment-details" onClick={() => setSelected('payment')}><Plus className="size-9 shrink-0" /><span className="min-w-0 break-words"><span className="block">మీ పేమెంట్ స్కానర్ స్క్రీన్ షాట్ అటాచ్ చేయండి</span><span className="mt-1 block text-base">నింపండి</span></span></Button>}
     {open === 'payment' && <div id="home-payment-details"><Prime99Payment compact />{!loading && !me && <PhoneSignIn />}</div>}
     {open === 'profile' && <div id="home-profile-details">
+      <p className="mb-3 text-lg">{PROFILE_ACCESS_MESSAGE}</p>
       {loading ? <p role="status">మీ వివరాలు చూస్తున్నాం…</p> : me ? <>
         {!ready && <p className="mb-3 text-lg">{PROFILE_ACCESS_MESSAGE}</p>}
         <AccountProfile completionOnly={!ready} />

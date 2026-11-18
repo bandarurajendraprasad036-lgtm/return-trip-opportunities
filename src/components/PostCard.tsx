@@ -20,6 +20,7 @@ import { BellPaymentNotice } from '@/components/BellPaymentNotice';
 import { PrivateBellDisplay } from '@/components/PrivateBellDisplay';
 import { anonymousPostDetails } from '@/lib/display-privacy';
 import { AdminBellRowAction } from '@/components/AdminBellRowAction';
+import { bellErrorMessage, requireCompleteProfile, retryBell } from '@/lib/bell-request';
 
 export type Post = Database["public"]["Tables"]["posts"]["Row"];
 
@@ -54,6 +55,7 @@ export function PostCard({
   const { data: access = false } = useQuery({ queryKey: ['vehicle-display-access', meId], enabled: !!meId && !isJob, refetchInterval: 10000, queryFn: async () => { if (!meId) return false; const [paid, admin] = await Promise.all([supabase.rpc('has_paid_bell', { _user: meId }), supabase.rpc('has_role', { _user_id: meId, _role: 'admin' })]); if (paid.error || admin.error) throw paid.error || admin.error; return !!paid.data || !!admin.data; } });
   const vehicleUnlocked = access || post.user_id === meId;
   const checkAccess = async () => {
+    await requireCompleteProfile();
     if (isJob) { if (!meId) { toast.error('ముందు ప్రవేశించండి'); return false; } return true; }
     if (vehicleUnlocked) return true;
     if (!meId) { setUpgradeOpen(true); return false; }
@@ -81,7 +83,7 @@ export function PostCard({
         if (result.error) { toast.error('సంభాషణ ప్రారంభం కాలేదు'); return; }
         if (result.data) await nav({ to: '/chat/$userId', params: { userId: result.data }, search: { post: post.id } });
       } else { await openDetails(); }
-    } finally { setSending(false); }
+    } catch (error) { toast.error(bellErrorMessage(error)); } finally { setSending(false); }
   };
   const contact = () => { void ring(); };
   const ring = async () => {
@@ -91,16 +93,15 @@ export function PostCard({
     }
     setSending(true);
     try {
-    if (!await checkAccess()) return;
+    await requireCompleteProfile();
     if (isJob) {
       const result = await workAction({ data: { action: 'ring', section, id: post.id, source: 'post' } });
       if (result.target) await nav({ to: '/chat/$userId', params: { userId: result.target }, search: { post: undefined } });
       return;
     }
-    const { data, error } = await supabase.rpc("ring_post", { _post_id: post.id });
-    if (error) { if (error.message.includes('PAID_BELL_REQUIRED')) setUpgradeOpen(true); else toast.error("సమాచారం పంపలేకపోయాం · Could not send interest"); return; }
+    const { data } = await retryBell(() => supabase.rpc("ring_post", { _post_id: post.id }));
     if (data) nav({ to: "/chat/$userId", params: { userId: data }, search: { post: post.id } });
-    } catch { toast.error('కాలేదు; మళ్లీ ప్రయత్నించండి'); } finally { setSending(false); }
+    } catch (error) { toast.error(bellErrorMessage(error)); } finally { setSending(false); }
   };
   return <article className={compact ? "home-post-row" : "space-y-2 rounded-lg border bg-card p-3"}>
     <div className="flex items-start justify-between gap-3">

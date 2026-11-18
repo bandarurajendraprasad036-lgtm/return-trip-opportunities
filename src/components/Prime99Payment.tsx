@@ -4,8 +4,11 @@ import { useMe } from '@/lib/session';
 import { usePrime99 } from '@/lib/prime99';
 import { PaymentScanner } from '@/components/PaymentScanner';
 import { MembershipEvidenceForm } from '@/components/MembershipEvidenceForm';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 
 export function Prime99Payment({ compact = false }: { bellPayment?: boolean; compact?: boolean }) {
+  const [amount, setAmount] = useState<49 | 100>(100);
   const { data: me } = useMe();
   const { data: prime } = usePrime99(me?.id);
   const request = useQuery({
@@ -20,15 +23,17 @@ export function Prime99Payment({ compact = false }: { bellPayment?: boolean; com
     },
   });
 
-  if (compact) return <section className="space-y-3 profile-copy"><PaymentScanner amount={100} compact /><MembershipEvidenceForm amount={100} /></section>;
+  const plans = <><p className="text-base">పని / సేవలు మాత్రమే కావాలంటే నెలకు ₹49. వాహనాలతో పాటు అన్ని ఎంపికలు కావాలంటే నెలకు ₹100. నిర్వాహకుల ఆమోదం తర్వాతే ఒక నెల చందా మొదలవుతుంది.</p><div className="grid grid-cols-2 gap-2" role="group" aria-label="నెల చందా ఎంపిక"><Button type="button" variant={amount === 49 ? 'default' : 'outline'} aria-pressed={amount === 49} className="h-auto min-h-14 whitespace-normal" onClick={() => setAmount(49)}>పని / సేవలు ₹49</Button><Button type="button" variant={amount === 100 ? 'default' : 'outline'} aria-pressed={amount === 100} className="h-auto min-h-14 whitespace-normal" onClick={() => setAmount(100)}>అన్ని ఎంపికలు ₹100</Button></div></>;
+  if (compact) return <section className="space-y-3 profile-copy">{plans}<PaymentScanner amount={amount} compact /><MembershipEvidenceForm key={amount} amount={amount} /></section>;
   if (!me) return null;
   const completed = !!prime?.active;
   const waiting = !completed && request.data === 'pending';
   return <section className="space-y-4 border-y py-4 profile-copy">
-    <h2 className="text-center text-2xl font-bold">₹100 — ఒక నెల చాట్ + గంట మాత్రమే</h2>
+    <h2 className="text-center text-2xl font-bold">నెల చందా — పని / సేవలు ₹49 · అన్ని ఎంపికలు ₹100</h2>
+    {plans}
     {!completed && <p className="text-lg">నిర్వాహకులు ఆమోదించినప్పటి నుంచి ఒక నెల చాట్, గంట ఉపయోగించవచ్చు. పేరు, ఫోటో, మొబైల్ నంబరు దాచబడతాయి. నెల ముగిశాక మళ్లీ ₹100 చెల్లించి ఆమోదం పొందాలి.</p>}
     {completed ? <p role="status" className="text-center text-lg font-bold">మీ ప్రైమ్ ఆన్ అయింది{prime.ends_at && ` · ${new Date(prime.ends_at).toLocaleDateString('te-IN')} వరకు`}</p>
       : waiting ? <p role="status" className="text-center text-lg font-bold">మీ చెల్లింపు ఫోటో అందింది. అడ్మిన్ చెక్ చేసి ఆమోదిస్తారు.</p>
-        : <><PaymentScanner amount={100} /><MembershipEvidenceForm key={me.id} amount={100} /></>}
+        : <><PaymentScanner amount={amount} /><MembershipEvidenceForm key={`${me.id}-${amount}`} amount={amount} /></>}
   </section>;
 }

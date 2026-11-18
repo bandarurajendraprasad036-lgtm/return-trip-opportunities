@@ -792,6 +792,34 @@
       "when": 1795003120298,
       "tag": "0112_owner_remove_shared_additions",
       "breakpoints": true
+    },
+    {
+      "idx": 113,
+      "version": "7",
+      "when": 1795006516219,
+      "tag": "0113_scoped_monthly_and_directed_bell_limits",
+      "breakpoints": true
+    },
+    {
+      "idx": 114,
+      "version": "7",
+      "when": 1795006561184,
+      "tag": "0114_strict_typed_reciprocal_saved_route_alerts",
+      "breakpoints": true
+    },
+    {
+      "idx": 115,
+      "version": "7",
+      "when": 1795006661235,
+      "tag": "0115_atomic_typed_routes_and_bell_retry_safety",
+      "breakpoints": true
+    },
+    {
+      "idx": 116,
+      "version": "7",
+      "when": 1795006927244,
+      "tag": "0116_free_bell_registration_without_paid_chat",
+      "breakpoints": true
     }
   ]
 }

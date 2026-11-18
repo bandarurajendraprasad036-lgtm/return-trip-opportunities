@@ -15,6 +15,7 @@ describe('Requested route radius', () => {
     expect(routeRadiusKm(100)).toBe(20);
     expect(routeRadiusKm(250)).toBe(50);
     expect(routeRadiusKm(500)).toBe(100);
+    expect(routeRadiusKm(1000)).toBe(200);
     expect(routeRadiusKm(1400)).toBe(280);
   });
 });

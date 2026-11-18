@@ -1,6 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { FREE_WORK_SECTIONS, type FreeWorkSection } from './free-work';
 import { enableBellAudio, playBell } from './bell';
+import { requireCompleteProfile, retryBell } from './bell-request';
 
 // Browser-side free work actions: each RPC authorizes the signed-in caller itself (RLS/SECURITY DEFINER),
 // so these work on any hosting. Queued notices are delivered by the managed minute dispatcher.
@@ -14,6 +15,7 @@ export async function freeWorkClientAction({ data: input }: { data: FreeWorkInpu
   if (!auth.user) throw new Error('SIGN_IN_REQUIRED');
   const allowed = await supabase.rpc('account_allowed', { _uid: auth.user.id });
   if (allowed.error || !allowed.data) throw new Error('SIGN_IN_REQUIRED');
+  if (data.action !== 'join') await requireCompleteProfile();
   if (data.action === 'chat') {
     // Opening a chat only creates the private pair; it never rings a bell or sends a notice.
     const opened = await supabase.rpc('open_free_work_chat', { _id: data.id, _source: data.source, _section: data.section });
@@ -32,7 +34,7 @@ export async function freeWorkClientAction({ data: input }: { data: FreeWorkInpu
       const rows = await supabase.rpc('list_free_work', { _section: opposite, _area: data.area, _category: data.category });
       if (rows.error) throw rows.error;
       for (const row of (rows.data ?? []).slice(0, 50)) {
-        const result = await supabase.rpc('ring_free_work', { _id: row.id, _source: row.source, _section: opposite });
+        const result = await retryBell(() => supabase.rpc('ring_free_work', { _id: row.id, _source: row.source, _section: opposite }));
         if (result.error) throw result.error;
         target ??= result.data;
         rung++;
@@ -41,7 +43,7 @@ export async function freeWorkClientAction({ data: input }: { data: FreeWorkInpu
     if (data.action === 'category') playBell();
     return { target, rung };
   }
-  const result = await supabase.rpc('ring_free_work', { _id: data.id, _source: data.source, _section: data.section });
+  const result = await retryBell(() => supabase.rpc('ring_free_work', { _id: data.id, _source: data.source, _section: data.section }));
   if (result.error) throw result.error;
   if (result.data) playBell();
   return { target: result.data, rung: 1 };

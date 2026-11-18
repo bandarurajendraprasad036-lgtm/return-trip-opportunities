@@ -393,6 +393,42 @@ export type Database = {
           },
         ]
       }
+      directed_bell_usage: {
+        Row: {
+          last_rang_at: string | null
+          recipient_id: string
+          rings: number
+          sender_id: string
+        }
+        Insert: {
+          last_rang_at?: string | null
+          recipient_id: string
+          rings?: number
+          sender_id: string
+        }
+        Update: {
+          last_rang_at?: string | null
+          recipient_id?: string
+          rings?: number
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "directed_bell_usage_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "directed_bell_usage_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       discovery_categories: {
         Row: {
           created_at: string
@@ -780,6 +816,7 @@ export type Database = {
       membership_access: {
         Row: {
           ends_at: string
+          feature_scope: string
           granted_by: string | null
           id: string
           request_id: string | null
@@ -790,6 +827,7 @@ export type Database = {
         }
         Insert: {
           ends_at?: string
+          feature_scope?: string
           granted_by?: string | null
           id?: string
           request_id?: string | null
@@ -800,6 +838,7 @@ export type Database = {
         }
         Update: {
           ends_at?: string
+          feature_scope?: string
           granted_by?: string | null
           id?: string
           request_id?: string | null
@@ -2938,6 +2977,10 @@ export type Database = {
         Args: { _id: string }
         Returns: undefined
       }
+      consume_directed_bell: {
+        Args: { _target: string; _vehicle: boolean }
+        Returns: undefined
+      }
       consume_post_slot: {
         Args: { _id: string; _user: string }
         Returns: undefined
@@ -2970,6 +3013,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_work_membership: { Args: { _user: string }; Returns: boolean }
       hold_membership_evidence_for_admin: {
         Args: { _id: string }
         Returns: undefined
@@ -3148,6 +3192,7 @@ export type Database = {
         Returns: boolean
       }
       process_program_referral: { Args: { _user: string }; Returns: number }
+      profile_ready_for_actions: { Args: { _user: string }; Returns: boolean }
       public_competition_areas: { Args: never; Returns: Json }
       public_referral_vip_board: { Args: never; Returns: Json }
       public_service_directory: { Args: never; Returns: Json }
@@ -3274,6 +3319,19 @@ export type Database = {
         }
         Returns: string
       }
+      route_endpoints_match: {
+        Args: {
+          _a: number
+          _b: number
+          _c: number
+          _d: number
+          _e: number
+          _f: number
+          _g: number
+          _h: number
+        }
+        Returns: boolean
+      }
       run_main_bell_batch: { Args: { _user: string }; Returns: number }
       save_detailed_vehicle_route: {
         Args: { _from: string; _to: string; _tons: number; _vehicle: string }
@@ -3298,6 +3356,19 @@ export type Database = {
           _service: string
         }
         Returns: undefined
+      }
+      save_typed_vehicle_route_points: {
+        Args: {
+          _from: string
+          _from_lat: number
+          _from_lng: number
+          _to: string
+          _to_lat: number
+          _to_lng: number
+          _tons: number
+          _vehicle: string
+        }
+        Returns: string
       }
       save_vehicle_post_points: {
         Args: {
@@ -3382,6 +3453,7 @@ export type Database = {
         Args: { _created: string; _path: string; _user: string }
         Returns: boolean
       }
+      work_access_internal: { Args: { _user: string }; Returns: boolean }
       work_occupation: { Args: { _value: string }; Returns: string }
       work_posts_match: {
         Args: {
