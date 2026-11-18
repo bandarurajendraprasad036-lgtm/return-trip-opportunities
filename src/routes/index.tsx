@@ -43,7 +43,7 @@ export const Route = createFileRoute("/")({
 
 
 function Index() {
-  const { ready: profileReady } = useProfileAccess();
+  const { ready: profileReady, me } = useProfileAccess();
   const { data: homeSettings = DEFAULT_HOME_SETTINGS } = useHomeSettings();
   const [devotional, setDevotional] = useState(0);
   const [day, setDay] = useState("");
@@ -102,7 +102,7 @@ function Index() {
         <Button asChild variant="ghost" className="w-full">
           <Link to="/feed">ఇప్పటికే అకౌంట్ ఉంది? Open app</Link>
         </Button>
-        <Button asChild variant="outline" className="w-full"><Link to="/admin-login">నిర్వాహక ప్రవేశం · Admin login</Link></Button>
+        {me?.isAdmin === true && <Button asChild variant="outline" className="w-full"><Link to="/admin-login">నిర్వాహక ప్రవేశం · Admin login</Link></Button>}
       </section>
       <div className="px-4 py-3"><AdminChatButton /></div>
       <ResponsibilityNotice />
