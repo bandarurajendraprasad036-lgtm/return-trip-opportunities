@@ -57,7 +57,6 @@
 - Compact home controls sit below the bell outside account gates and start collapsed for everyone; expanded payment always shows compact scanner and evidence form, independent of membership, without large status copy; uploads remain authenticated.
 - Sharing evidence uses owner-checked server hashing with atomic digest registration, admin-only short-lived signing and existing managed dispatch cleanup; review decisions notify the owner transactionally.
 - Chat attachments remain participant-private; plain vehicle chat is silent, while explicit board bells atomically create the paid pair and one exact-owner interest notice before opening chat.
-- Bell boards and free work actions call self-authorizing RPCs from the browser and the area fallback uses static near-place tiles, because the external custom-domain host lacks server env; vehicle bells store no names.
 - Direct-referral campaign ranks count only new campaign join edges, enforce one inviter and no cycles, and expose only owner-scoped stats; cash awards never imply payout.
 - Confirmed receipts atomically credit only the eligible direct inviter; historical invitee ledgers remain read-only evidence, new accounts keep unique codes, and remaining-slot reads expose aggregates only.
 - Paid alert eligibility is enforced by receipt-linked periods at database insertion/read and every screen/device delivery path, never by editable profile flags; post usage persists separately from deletable posts to prevent quota bypass.
@@ -74,5 +73,5 @@
 - Admin overview uses role-checked reads and a private paginated vehicle RPC because full contact columns are not browser-granted; receipt totals are deduplicated and bells never become bookings.
 - Listing visibility derives deadlines at read time and preserves owner/admin history; service priority uses private explicit applications and current receipt eligibility, never public identity or client awards.
 - Foreground pushes read owner notices by ID; stored eligibility always wins over paid flags.
-- Admin block/remove and phone-device registration also run from the browser (admin_manage_account RPC, RLS-guarded push_devices writes) because gayatrione.com is served by an external host without server env; removed-account files are queued and deleted by the managed dispatcher.
-- Village search uses our own bundled shards rebuilt by scripts/build-place-shards.py (one row per name+state, 2/3/4-letter files) with no map picker, so searches stay small and duplicate-free.
+- gayatrione.com is an external host without server env: bell boards, free work, admin block/remove (admin_manage_account) and push-device writes are browser RPC/RLS calls; removed-account files are queued for the managed dispatcher. Vehicle bells store no names.
+- Village search: bundled shards from scripts/build-place-shards.py (one row per name+state), no map picker.
