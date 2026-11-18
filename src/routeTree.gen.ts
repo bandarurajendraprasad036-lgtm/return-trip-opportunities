@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AdminLoginRouteImport } from './routes/admin-login'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BellBoardRouteImport } from './routes/bell-board'
 import { Route as FeedRouteImport } from './routes/feed'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ServicesRouteImport } from './routes/services'
@@ -21,7 +22,6 @@ import { Route as WorkRouteImport } from './routes/work'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin-settings'
 import { Route as AuthenticatedAiMatchRouteImport } from './routes/_authenticated/ai-match'
-import { Route as AuthenticatedBellBoardRouteImport } from './routes/_authenticated/bell-board'
 import { Route as AuthenticatedChatsRouteImport } from './routes/_authenticated/chats'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedMyPostsRouteImport } from './routes/_authenticated/my-posts'
@@ -52,6 +52,11 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BellBoardRoute = BellBoardRouteImport.update({
+  id: '/bell-board',
+  path: '/bell-board',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FeedRoute = FeedRouteImport.update({
@@ -93,11 +98,6 @@ const AuthenticatedAdminSettingsRoute =
 const AuthenticatedAiMatchRoute = AuthenticatedAiMatchRouteImport.update({
   id: '/ai-match',
   path: '/ai-match',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedBellBoardRoute = AuthenticatedBellBoardRouteImport.update({
-  id: '/bell-board',
-  path: '/bell-board',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedChatsRoute = AuthenticatedChatsRouteImport.update({
@@ -168,6 +168,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRoute
+  '/bell-board': typeof BellBoardRoute
   '/feed': typeof FeedRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
@@ -176,7 +177,6 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-settings': typeof AuthenticatedAdminSettingsRoute
   '/ai-match': typeof AuthenticatedAiMatchRoute
-  '/bell-board': typeof AuthenticatedBellBoardRoute
   '/chats': typeof AuthenticatedChatsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/my-posts': typeof AuthenticatedMyPostsRoute
@@ -194,6 +194,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRoute
+  '/bell-board': typeof BellBoardRoute
   '/feed': typeof FeedRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
@@ -202,7 +203,6 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-settings': typeof AuthenticatedAdminSettingsRoute
   '/ai-match': typeof AuthenticatedAiMatchRoute
-  '/bell-board': typeof AuthenticatedBellBoardRoute
   '/chats': typeof AuthenticatedChatsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/my-posts': typeof AuthenticatedMyPostsRoute
@@ -222,6 +222,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRoute
+  '/bell-board': typeof BellBoardRoute
   '/feed': typeof FeedRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
@@ -230,7 +231,6 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/admin-settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/ai-match': typeof AuthenticatedAiMatchRoute
-  '/_authenticated/bell-board': typeof AuthenticatedBellBoardRoute
   '/_authenticated/chats': typeof AuthenticatedChatsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/my-posts': typeof AuthenticatedMyPostsRoute
@@ -250,6 +250,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin-login'
     | '/auth'
+    | '/bell-board'
     | '/feed'
     | '/reset-password'
     | '/services'
@@ -258,7 +259,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-settings'
     | '/ai-match'
-    | '/bell-board'
     | '/chats'
     | '/dashboard'
     | '/my-posts'
@@ -276,6 +276,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin-login'
     | '/auth'
+    | '/bell-board'
     | '/feed'
     | '/reset-password'
     | '/services'
@@ -284,7 +285,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-settings'
     | '/ai-match'
-    | '/bell-board'
     | '/chats'
     | '/dashboard'
     | '/my-posts'
@@ -303,6 +303,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/admin-login'
     | '/auth'
+    | '/bell-board'
     | '/feed'
     | '/reset-password'
     | '/services'
@@ -311,7 +312,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/admin-settings'
     | '/_authenticated/ai-match'
-    | '/_authenticated/bell-board'
     | '/_authenticated/chats'
     | '/_authenticated/dashboard'
     | '/_authenticated/my-posts'
@@ -331,6 +331,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AdminLoginRoute: typeof AdminLoginRoute
   AuthRoute: typeof AuthRoute
+  BellBoardRoute: typeof BellBoardRoute
   FeedRoute: typeof FeedRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ServicesRoute: typeof ServicesRoute
@@ -370,6 +371,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bell-board': {
+      id: '/bell-board'
+      path: '/bell-board'
+      fullPath: '/bell-board'
+      preLoaderRoute: typeof BellBoardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/feed': {
@@ -426,13 +434,6 @@ declare module '@tanstack/react-router' {
       path: '/ai-match'
       fullPath: '/ai-match'
       preLoaderRoute: typeof AuthenticatedAiMatchRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/bell-board': {
-      id: '/_authenticated/bell-board'
-      path: '/bell-board'
-      fullPath: '/bell-board'
-      preLoaderRoute: typeof AuthenticatedBellBoardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/chats': {
@@ -526,7 +527,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAiMatchRoute: typeof AuthenticatedAiMatchRoute
-  AuthenticatedBellBoardRoute: typeof AuthenticatedBellBoardRoute
   AuthenticatedChatsRoute: typeof AuthenticatedChatsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedMyPostsRoute: typeof AuthenticatedMyPostsRoute
@@ -541,7 +541,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAiMatchRoute: AuthenticatedAiMatchRoute,
-  AuthenticatedBellBoardRoute: AuthenticatedBellBoardRoute,
   AuthenticatedChatsRoute: AuthenticatedChatsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedMyPostsRoute: AuthenticatedMyPostsRoute,
@@ -560,6 +559,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AdminLoginRoute: AdminLoginRoute,
   AuthRoute: AuthRoute,
+  BellBoardRoute: BellBoardRoute,
   FeedRoute: FeedRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ServicesRoute: ServicesRoute,

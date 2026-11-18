@@ -1,0 +1,11 @@
+CREATE OR REPLACE FUNCTION public.bell_pair_chat_signal() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ DECLARE caller uuid:=auth.uid(); body_text text:='గంట ద్వారా సంభాషణ ప్రారంభమైంది.'; post uuid; prior_claims text:=current_setting('request.jwt.claims',true); prior_sub text:=current_setting('request.jwt.claim.sub',true); reverse_claims jsonb; row_data jsonb:=to_jsonb(NEW); BEGIN IF caller IS NULL OR caller<>NEW.member_id OR caller=NEW.owner_id OR NOT public.account_allowed(caller) OR NOT public.account_allowed(NEW.owner_id) THEN RETURN NEW; END IF;
+IF TG_TABLE_NAME='vehicle_demand_chat_pairs' THEN IF row_data->>'board_rang_at' IS NULL THEN RETURN NEW; END IF; IF TG_OP='UPDATE' THEN IF to_jsonb(OLD)->>'board_rang_at' IS NOT NULL THEN RETURN NEW; END IF; END IF; END IF;
+IF TG_TABLE_NAME='post_chat_pairs' THEN post:=(row_data->>'post_id')::uuid; SELECT CASE WHEN p.module='vehicle' THEN public.vehicle_bell_route(p.from_place,p.to_place) ELSE 'గంట ద్వారా సంభాషణ ప్రారంభమైంది.' END INTO body_text FROM public.posts p WHERE p.id=post; END IF;
+IF TG_TABLE_NAME='vehicle_demand_chat_pairs' THEN SELECT public.vehicle_bell_route(d.from_place,d.to_place) INTO body_text FROM public.vehicle_bell_demands d WHERE d.id=(row_data->>'demand_id')::uuid; END IF;
+body_text:=coalesce(body_text,'గంట ద్వారా సంభాషణ ప్రారంభమైంది.');
+IF EXISTS(SELECT 1 FROM public.messages m WHERE m.sender_id=caller AND m.receiver_id=NEW.owner_id AND m.post_id IS NOT DISTINCT FROM post AND m.is_auto AND m.body=body_text) THEN RETURN NEW; END IF;
+INSERT INTO public.messages(sender_id,receiver_id,post_id,body,is_auto) VALUES(caller,NEW.owner_id,post,body_text,true);
+reverse_claims:=coalesce(nullif(prior_claims,'')::jsonb,'{}'::jsonb)||jsonb_build_object('sub',NEW.owner_id::text);
+PERFORM set_config('request.jwt.claims',reverse_claims::text,true); PERFORM set_config('request.jwt.claim.sub',NEW.owner_id::text,true);
+INSERT INTO public.messages(sender_id,receiver_id,post_id,body,is_auto) VALUES(NEW.owner_id,caller,post,body_text,true);
+PERFORM set_config('request.jwt.claims',coalesce(prior_claims,''),true); PERFORM set_config('request.jwt.claim.sub',coalesce(prior_sub,''),true); RETURN NEW; END $$;

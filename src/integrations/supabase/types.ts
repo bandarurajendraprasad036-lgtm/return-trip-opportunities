@@ -2831,6 +2831,7 @@ export type Database = {
         Returns: undefined
       }
       admin_referral_eligibility: { Args: never; Returns: Json }
+      admin_remove_account_data: { Args: { _user: string }; Returns: undefined }
       admin_vehicle_records: { Args: { _offset?: number }; Returns: Json }
       admin_video_notice: {
         Args: { _message: string; _url: string }

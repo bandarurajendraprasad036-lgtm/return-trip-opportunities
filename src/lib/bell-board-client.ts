@@ -4,9 +4,7 @@ import type { BellBoardSection } from './bell-board';
 // Browser-side read: has_paid_bell and list_area_bell_board authorize the signed-in caller and return anonymous rows only.
 export async function loadBellBoard(section: BellBoardSection, area: string) {
   const { data: auth } = await supabase.auth.getUser();
-  if (!auth.user) return { paid: false, rows: [] };
-
-  const access = await supabase.rpc('has_paid_bell', { _user: auth.user.id });
+  const access = auth.user ? await supabase.rpc('has_paid_bell', { _user: auth.user.id }) : { data: false, error: null };
   if (access.error) throw access.error;
 
   // చూడటం అందరికీ ఫ్రీ - goods / returns / cars అయినా సరే!

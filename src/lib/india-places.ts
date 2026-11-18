@@ -10,5 +10,12 @@ export function placeShard(query: string) {
 export function findPlaces(rows: PlaceRow[], query: string) {
   const q = normalizePlace(query);
   if (!q) return [];
-  return rows.filter(row => row[6].some(name => normalizePlace(name).startsWith(q))).slice(0, 8);
+  const seen = new Set<string>();
+  return rows.filter(row => {
+    if (!row[6].some(name => normalizePlace(name).startsWith(q))) return false;
+    const key = `${normalizePlace(row[1])}|${normalizePlace(row[3])}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, 8);
 }

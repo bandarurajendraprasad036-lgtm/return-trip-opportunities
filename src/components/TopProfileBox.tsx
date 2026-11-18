@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { ScanLine, Plus, UserRound } from 'lucide-react';
 import { useMe } from '@/lib/session';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,14 +11,7 @@ import { PROFILE_ACCESS_MESSAGE } from '@/lib/profile-access';
 import { Prime99Payment } from '@/components/Prime99Payment';
 
 export function useProfileAccess() {
-  const [hydrated, setHydrated] = useState(false);
-  useEffect(() => setHydrated(true), []);
-  const { data: me, isLoading } = useMe();
-  const access = useQuery({ queryKey: ['profile-access', me?.id], enabled: !!me, queryFn: async () => {
-    const result = await supabase.rpc('my_profile_access_ready');
-    if (result.error) throw result.error;
-    return result.data;
-  } });
+  const { data: me } = useMe();
   return { me, ready: true, loading: false };
 }
 

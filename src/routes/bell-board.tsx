@@ -19,7 +19,7 @@ import { PrivateBellDisplay } from '@/components/PrivateBellDisplay';
 
 const options = (section: BellBoardSection, area = '') => queryOptions({ queryKey: ['bell-board', section, area], queryFn: () => loadBellBoard(section, area), staleTime: 0, refetchInterval: 15000 });
 
-export const Route = createFileRoute('/_authenticated/bell-board')({
+export const Route = createFileRoute('/bell-board')({
   validateSearch: (search: Record<string, unknown>): { section: BellBoardSection; category?: string | undefined } => ({ section: bellBoardSection(search['section']), category: typeof search['category'] === 'string' && search['category'].trim() ? search['category'].trim().slice(0, 60) : undefined }),
   loaderDeps: ({ search }) => ({ section: search.section }),
   loader: ({ context, deps }) => isFree(deps.section) ? undefined : context.queryClient.ensureQueryData(options(deps.section)),
@@ -44,7 +44,7 @@ function FreeBoard({ section, category = '' }: { section: FreeWorkSection; categ
       const result = await act({ data: { action, section, id, source: 'interest', area, category: '' } });
       await qc.invalidateQueries({ queryKey: ['free-work-interests'] });
       if (action === 'ring') {
-        toast.success('గంట వెళ్ళింది - అవతల వాళ్ళకి వినబడింది, చాట్ వచ్చింది అని వాళ్ళకి తెలుస్తుంది');
+        toast.success('గంట నమోదు అయింది; సంభాషణలో సూచన చేరింది');
       } else {
         if (result.target) await nav({ to: '/chat/$userId', params: { userId: result.target }, search: { post: undefined } });
         else toast.info('ఇది మీ సొంత నమోదు');
@@ -70,7 +70,7 @@ function PaidBoard() {
   const [selected, setSelected] = useState<string | null>(null);
   const [showPay, setShowPay] = useState(false);
 
-  async function ring() { if (busy || !selected) return; setBusy(true); try { const result = await supabase.rpc('ring_vehicle_board', { _demand: selected }); if (result.error) { toast.error('గంట నమోదు కాలేదు'); return; } setSelected(null); toast.success('గంట వెళ్ళింది - అవతల వాళ్ళకి వినబడింది, చాట్ వచ్చింది అని వాళ్ళకి తెలుస్తుంది'); } catch { toast.error('గంట నమోదు కాలేదు'); } finally { setBusy(false); } }
+  async function ring() { if (busy || !selected) return; setBusy(true); try { const result = await supabase.rpc('ring_vehicle_board', { _demand: selected }); if (result.error) { toast.error('గంట నమోదు కాలేదు'); return; } setSelected(null); toast.success('గంట నమోదు అయింది; సంభాషణలో సూచన చేరింది'); } catch { toast.error('గంట నమోదు కాలేదు'); } finally { setBusy(false); } }
 
   async function chat(id: string, source: string) {
     if (!data.paid) { setShowPay(true); return; }
@@ -80,7 +80,7 @@ function PaidBoard() {
 
   function onRowClick() { if (!data.paid) setShowPay(true); }
 
-  return <main className="space-y-4 p-4"><h1 className="break-words text-2xl font-bold">{BELL_BOARD_LABELS[section]}</h1><IndiaPlaceInput id="bell-board-area" value={area} onChange={setArea} placeholder="మీ ఊరి పేరు / మీ వాడ పేరు" />{!data.paid && <><p>₹100 పే చేసి చాట్ చేయండి</p><Button asChild><Link to="/dashboard">₹100 చెల్లింపు</Link></Button></>}{!area.trim() ? <p>మీ ఊరి పేరు / మీ వాడ పేరు రాయండి</p> : <>{!data.rows.length && <p>ఈ ప్రాంతంలో ఇంకా ఎవరూ గంట కొట్టలేదు</p>}{data.rows.map(row => <article key={`${row.source}-${row.id}`} onClick={onRowClick} className="flex items-center gap-2 rounded-lg border bg-card p-3 cursor-pointer"><PrivateBellDisplay /><div className="min-w-0 flex-1"><p translate="no" className="break-words">{row.area}</p><p translate="no" className="break-words font-bold">{row.need}</p><p className="text-xs opacity-70">బాంబే నుండి అనకాపల్లి వరకు వెహికల్ ఉంది - చూడడం ఫ్రీ</p></div>{row.source === 'vehicle' && <Button variant="outline" size="icon" className="size-11 shrink-0" aria-label="గంట కొట్టండి" title="గంట కొట్టండి" disabled={busy || !data.paid} onClick={(e) => { e.stopPropagation(); if (!data.paid) { setShowPay(true); return; } setSelected(row.id); }}><Bell /></Button>}<Button variant="outline" size="icon" className="size-11 shrink-0" aria-label="చాట్" title="చాట్" disabled={busy || !data.paid} onClick={(e) => { e.stopPropagation(); void chat(row.id, row.source); }}><MessageCircle /></Button></article>)}</>}
+  return <main className="space-y-4 p-4"><h1 className="break-words text-2xl font-bold">{BELL_BOARD_LABELS[section]}</h1><IndiaPlaceInput id="bell-board-area" value={area} onChange={setArea} placeholder="మీ ఊరి పేరు / మీ వాడ పేరు" />{!data.paid && <><p>₹100 పే చేసి చాట్ చేయండి</p><Button asChild><Link to="/dashboard">₹100 చెల్లింపు</Link></Button></>}{<>{!data.rows.length && <p>ఈ ప్రాంతంలో ఇంకా ఎవరూ గంట కొట్టలేదు</p>}{data.rows.map(row => <article key={`${row.source}-${row.id}`} onClick={onRowClick} className="flex items-center gap-2 rounded-lg border bg-card p-3 cursor-pointer"><PrivateBellDisplay /><div className="min-w-0 flex-1"><p translate="no" className="break-words">{row.area}</p><p translate="no" className="break-words font-bold">{row.need}</p></div>{row.source === 'vehicle' && <Button variant="outline" size="icon" className="size-11 shrink-0" aria-label="గంట కొట్టండి" title="గంట కొట్టండి" disabled={busy || !data.paid} onClick={(e) => { e.stopPropagation(); if (!data.paid) { setShowPay(true); return; } setSelected(row.id); }}><Bell /></Button>}<Button variant="outline" size="icon" className="size-11 shrink-0" aria-label="చాట్" title="చాట్" disabled={busy || !data.paid} onClick={(e) => { e.stopPropagation(); void chat(row.id, row.source); }}><MessageCircle /></Button></article>)}</>}
 
     {/* Vehicle Touch chesthe Rs.100 Dialog */}
     <Dialog open={showPay} onOpenChange={setShowPay}><DialogContent aria-describedby={undefined}><DialogTitle>₹100 ఫర్ మంత్ పేమెంట్ చేయండి</DialogTitle><p>పేమెంట్ చేస్తే - మీరు వీళ్ళతో చాట్ చేసుకోవచ్చు, బెల్ నోటిఫికేషన్ కూడా తీసుకోవచ్చు.</p><p className="text-sm opacity-70">పేరు / ఫోటో / మొబైల్ నంబర్ ఎప్పుడూ కనబడదు. ఓన్లీ బెల్ + చాట్ మాత్రమే.</p><Button asChild><Link to="/dashboard">₹100 చెల్లింపు</Link></Button></DialogContent></Dialog>
