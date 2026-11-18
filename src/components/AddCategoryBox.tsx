@@ -9,9 +9,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { categoryInput, type CategorySection } from '@/lib/discovery-categories';
 import { addDiscoveryCategory } from '@/lib/discovery-category.functions';
 import { useMe } from '@/lib/session';
+import { BELL_BOARD_REFRESH_MS } from '@/lib/bell-board-refresh';
+import { AdminBellRowAction } from '@/components/AdminBellRowAction';
 
 export function useAddedCategories(section: CategorySection) {
-  return useQuery({ queryKey: ['discovery-categories', section], refetchInterval: 10000, queryFn: async () => {
+  return useQuery({ queryKey: ['discovery-categories', section], refetchInterval: BELL_BOARD_REFRESH_MS, queryFn: async () => {
     const result = await supabase.from('discovery_categories').select('id,name').eq('section', section).order('created_at');
     if (result.error) throw result.error;
     return result.data;
@@ -25,6 +27,7 @@ export function AddCategoryBox({ label, section }: { label: string; section: Cat
   const { data: me } = useMe();
   const save = useServerFn(addDiscoveryCategory);
   const qc = useQueryClient();
+  const { data: categories = [] } = useAddedCategories(section);
   const submit = async () => {
     if (!me) { toast.error('ముందు ప్రవేశించండి'); return; }
     const parsed = categoryInput.safeParse({ section, name });
@@ -37,5 +40,6 @@ export function AddCategoryBox({ label, section }: { label: string; section: Cat
   return <div className="space-y-3 border-2 border-dashed border-primary p-3 rounded-lg">
     <Button variant="ghost" className="h-auto min-h-12 w-full justify-start whitespace-normal text-left text-lg font-bold text-primary" aria-expanded={open} onClick={() => setOpen(value => !value)}><PlusCircle className="size-7 shrink-0" />{label}</Button>
     {open && <form onSubmit={event => { event.preventDefault(); void submit(); }} className="flex items-center gap-2"><Input aria-label="కొత్త రకం పేరు" placeholder="కొత్త రకం పేరు" value={name} onChange={event => setName(event.target.value)} maxLength={40} translate="no" disabled={busy} className="min-w-0 flex-1" /><Button type="submit" size="icon" aria-label="రకం చేర్చండి" disabled={busy || name.trim().length < 2}><PlusCircle /></Button></form>}
+    {open && categories.map(row => <div key={row.id} className="flex items-center gap-2"><span translate="no" className="min-w-0 flex-1 break-words">{row.name}</span><AdminBellRowAction id={row.id} source="category" section={section} /></div>)}
   </div>;
 }

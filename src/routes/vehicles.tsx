@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { VehicleDemandBell } from '@/components/VehicleDemandBell';
 import { useMasterArea, matchesArea } from '@/lib/master-area';
+import { BELL_BOARD_REFRESH_MS } from '@/lib/bell-board-refresh';
 
 export const Route = createFileRoute('/vehicles')({
   validateSearch: (s: Record<string, unknown>): { category: VehiclePageKind; from: string; to: string } => ({ category: s['category'] === 'cars' || s['category'] === 'returns' ? s['category'] : 'goods', from: typeof s['from'] === 'string' ? s['from'].slice(0,80) : '', to: typeof s['to'] === 'string' ? s['to'].slice(0,80) : '' }),
@@ -30,7 +31,7 @@ function Vehicles() {
   const [date, setDate] = useState('');
   const [carMode, setCarMode] = useState<'advance' | 'return'>('advance');
   const instant = search.category === 'goods';
-  const { data: posts = [], isError, isPending, refetch } = useQuery({ queryKey: ['vehicle-page-posts',me?.id], queryFn: async () => { const result = await supabase.from('posts').select(POST_LIST_COLUMNS).eq('module','vehicle').eq('status','active').order('created_at',{ ascending: false }); if (result.error) throw result.error; return result.data as Post[]; } });
+  const { data: posts = [], isError, isPending, refetch } = useQuery({ queryKey: ['vehicle-page-posts',me?.id], refetchInterval: BELL_BOARD_REFRESH_MS, queryFn: async () => { const result = await supabase.from('posts').select(POST_LIST_COLUMNS).eq('module','vehicle').eq('status','active').order('created_at',{ ascending: false }); if (result.error) throw result.error; return result.data as Post[]; } });
   const rows = vehiclePageRows(posts, search.category, area || search.from, search.to, instant ? '' : date).filter(p => matchesArea(p.from_place, area || search.from)).filter(p => search.category !== 'cars' || carMode === 'advance' || (p.from_place ?? '').trim().toLowerCase() !== (p.to_place ?? '').trim().toLowerCase());
   const display = vehicleDisplay(paid, isPending, isError, rows.length);
   return <div className="space-y-3 p-4"><h2 className="text-xl font-bold">{search.category === 'cars' ? 'స్థానిక కార్ల బుకింగ్ · Local cars booking' : search.category === 'returns' ? 'తిరిగి & ముందస్తు సరకు వాహనాలు · Return & advance goods' : 'స్థానిక సరకు వాహన బుకింగ్ · Local goods booking'}</h2>

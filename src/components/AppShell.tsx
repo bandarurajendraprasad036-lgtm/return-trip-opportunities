@@ -7,7 +7,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/session";
 import { MessagePhoneNotices } from "@/components/AppHelpers";
 import { DesignFooter } from "@/components/DesignFooter";
-import { IncomingNotice } from "@/components/IncomingNotice";
 import { ResponsibilityNotice } from "@/components/ResponsibilityNotice";
 import { LanguageButton } from '@/components/LanguageButton';
 import { AdminChatButton } from '@/components/AdminChatButton';
@@ -60,7 +59,6 @@ export function AppShell({ children, hideTopActions = false }: { children: React
         <div className="flex shrink-0 items-center gap-1"><LanguageButton />{!hideTopActions && <Link to="/chats" className="grid size-11 shrink-0 place-items-center rounded-md bg-primary text-primary-foreground" aria-label="సందేశాలు · Messages"><MessageCircle className="size-5" /><ClientOnly>{unread > 0 && <span className="sr-only">{unread}</span>}</ClientOnly></Link>}</div>
       </header>
       <main className="flex-1 pb-24">{children}{!vehicleSurface && !conversationSurface && <div className="px-3 py-3"><AdminChatButton /></div>}<ResponsibilityNotice /><DesignFooter /></main>
-      {me && <IncomingNotice userId={me.id} />}
       {me && <MessagePhoneNotices userId={me.id} />}
       <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-md border-t bg-card">
         <Link to="/feed" className={tab} activeProps={active}>

@@ -20,6 +20,9 @@ import { PushSoundSync } from '@/components/PushSoundSync';
 import {AccountBlockGate} from '@/components/AccountBlockGate';
 import { restoreLanguage } from '@/lib/language';
 import { ProfileAccessGate } from '@/components/TopProfileBox';
+import { useMe } from '@/lib/session';
+import { IncomingNotice } from '@/components/IncomingNotice';
+import { installBellAudioUnlock } from '@/lib/bell';
 
 function NotFoundComponent() {
   return (
@@ -133,6 +136,7 @@ function RootComponent() {
   const router = useRouter();
   useEffect(() => { void setupOfflineSupport().catch(() => {}); }, []);
   useEffect(() => { restoreLanguage(); }, []);
+  useEffect(() => installBellAudioUnlock(), []);
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
@@ -147,7 +151,12 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <AccountBlockGate><ProfileAccessGate><Outlet /></ProfileAccessGate><PushSoundSync /><Referral /></AccountBlockGate>
+      <AccountIncomingNotice />
       <Toaster position="top-center" richColors />
     </QueryClientProvider>
   );
+}
+function AccountIncomingNotice() {
+  const { data: me } = useMe();
+  return me ? <IncomingNotice key={me.id} userId={me.id} /> : null;
 }

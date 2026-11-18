@@ -9,6 +9,7 @@ import { pushPolicy } from '@/lib/push-rules';
 import { PrivateBellDisplay } from '@/components/PrivateBellDisplay';
 import { listenForegroundPush } from '@/lib/firebase-push';
 import { screenNoticeAllowed } from '@/lib/screen-notice-rules';
+import { BELL_BOARD_REFRESH_MS } from '@/lib/bell-board-refresh';
 
 export function IncomingNotice({ userId }: { userId: string }) {
   const [notice, setNotice] = useState<{ body: string; sender?: string | undefined; post?: string | undefined; payment?: boolean; id?: string; vehicleBell?: boolean } | null>(null);
@@ -17,6 +18,8 @@ export function IncomingNotice({ userId }: { userId: string }) {
     let active = true;
     let stopPush: (() => void) | undefined;
     const seen = new Set<string>();
+    const startedAt = new Date().toISOString();
+    let polling = false;
     const receive = async (next: NonNullable<typeof notice>) => {
       if (next.id && seen.has(next.id)) return;
       const eligibility = await supabase.rpc('my_prime99');
@@ -37,9 +40,25 @@ export function IncomingNotice({ userId }: { userId: string }) {
     }).then(stop => { if (active) stopPush = stop; else stop(); }).catch(() => {});
     const channel = supabase.channel(`screen-notice-${userId}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` }, payload => { void receive({ body: String(payload.new["message"] ?? "నోటిఫికేషన్"), id: String(payload.new['id']), vehicleBell: payload.new['vehicle_bell'] === true || String(payload.new['message']).includes(' → ') }); })
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.${userId}` }, payload => { if (payload.new['body'] === 'హాయ్ · Hi') return; void receive({ body: 'కొత్త సమాధానం', sender: String(payload.new["sender_id"]), payment: payload.new['needs_admin'] === true, post: typeof payload.new["post_id"] === "string" ? payload.new["post_id"] : undefined }); })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.${userId}` }, payload => { if (payload.new['body'] === 'హాయ్ · Hi') return; const key = `message:${payload.new['id']}`; if (seen.has(key)) return; seen.add(key); void receive({ body: 'కొత్త సమాధానం', sender: String(payload.new["sender_id"]), payment: payload.new['needs_admin'] === true, post: typeof payload.new["post_id"] === "string" ? payload.new["post_id"] : undefined }); })
       .subscribe();
-    return () => { active = false; stopPush?.(); setNotice(null); void supabase.removeChannel(channel); };
+    // Realtime can be unavailable on another host/device. Read only owner-visible
+    // new rows as a fallback; never replay historical notices after refresh.
+    const timer = window.setInterval(() => {
+      if (!active || polling || document.visibilityState !== 'visible') return;
+      polling = true;
+      void (async () => {
+        const notices = await supabase.from('notifications').select('id,message,vehicle_bell').eq('user_id',userId).gt('created_at',startedAt).order('created_at').limit(100);
+        for (const row of notices.data ?? []) { if (!active) return; await receive({ id: row.id, body: row.message, vehicleBell: row.vehicle_bell }); }
+        const messages = await supabase.from('messages').select('id,sender_id,post_id,needs_admin').eq('receiver_id',userId).gt('created_at',startedAt).order('created_at').limit(100);
+        for (const row of messages.data ?? []) {
+          const key = `message:${row.id}`;
+          if (!active || seen.has(key)) continue; seen.add(key);
+          await receive({ body: 'కొత్త సమాధానం', sender: row.sender_id, post: row.post_id ?? undefined, payment: row.needs_admin });
+        }
+      })().catch(() => {}).finally(() => { polling = false; });
+    }, BELL_BOARD_REFRESH_MS);
+    return () => { active = false; clearInterval(timer); stopPush?.(); setNotice(null); void supabase.removeChannel(channel); };
   }, [userId]);
   useEffect(() => { if (notice) playBell(); }, [notice]);
   const toggleSound=()=>change(muted);

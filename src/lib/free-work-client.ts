@@ -1,11 +1,13 @@
 import { supabase } from '@/integrations/supabase/client';
 import { FREE_WORK_SECTIONS, type FreeWorkSection } from './free-work';
+import { enableBellAudio, playBell } from './bell';
 
 // Browser-side free work actions: each RPC authorizes the signed-in caller itself (RLS/SECURITY DEFINER),
 // so these work on any hosting. Queued notices are delivered by the managed minute dispatcher.
 export type FreeWorkInput = { section: FreeWorkSection; action: 'join' | 'ring' | 'category' | 'chat'; category?: string; area?: string; id?: string; source?: 'entry' | 'post' | 'provider' | 'interest' };
 const OPPOSITE: Record<FreeWorkSection, FreeWorkSection> = { 'work-wanted': 'work-offered', 'work-offered': 'work-wanted', 'service-providers': 'service-wanted', 'service-wanted': 'service-providers' };
 export async function freeWorkClientAction({ data: input }: { data: FreeWorkInput }): Promise<{ target: string | null; rung?: number }> {
+  if (input.action === 'ring' || input.action === 'category') enableBellAudio();
   if (!(FREE_WORK_SECTIONS as readonly string[]).includes(input.section)) throw new Error('INVALID_SECTION');
   const data = { section: input.section, action: input.action, category: (input.category ?? '').trim().slice(0, 40), area: (input.area ?? '').trim().slice(0, 80), id: (input.id ?? '').slice(0, 100), source: input.source ?? 'entry' };
   const { data: auth } = await supabase.auth.getUser();
@@ -36,9 +38,11 @@ export async function freeWorkClientAction({ data: input }: { data: FreeWorkInpu
         rung++;
       }
     }
+    if (data.action === 'category') playBell();
     return { target, rung };
   }
   const result = await supabase.rpc('ring_free_work', { _id: data.id, _source: data.source, _section: data.section });
   if (result.error) throw result.error;
+  if (result.data) playBell();
   return { target: result.data, rung: 1 };
 }

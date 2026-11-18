@@ -14,6 +14,7 @@ import { categoryNames } from '@/lib/discovery-categories';
 import { JOB_CATEGORIES } from '@/lib/jobs';
 import { useMasterArea, matchesArea } from '@/lib/master-area';
 import { WorkAreaInput } from '@/components/WorkAreaInput';
+import { BELL_BOARD_REFRESH_MS } from '@/lib/bell-board-refresh';
 
 type Kind = 'seeker' | 'employer';
 const TITLE: Record<Kind, string> = { seeker: 'పని కావాలి — పని కోసం అప్లై చేసిన వాళ్ళు', employer: 'పని ఇస్తాను — పని ఇచ్చే వాళ్ళు' };
@@ -33,6 +34,7 @@ function WorkPage() {
   const { data: me } = useMe();
   const { data: posts = [], isLoading, isError } = useQuery({
     queryKey: ['posts'],
+    refetchInterval: BELL_BOARD_REFRESH_MS,
     queryFn: async () => {
       const { data, error } = await supabase.from('posts').select(POST_LIST_COLUMNS).eq('status', 'active').order('created_at', { ascending: false }).limit(200);
       if (error) throw error;

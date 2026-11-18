@@ -19,6 +19,7 @@ import type { VehiclePageKind } from '@/lib/vehicle-page';
 import { BellPaymentNotice } from '@/components/BellPaymentNotice';
 import { PrivateBellDisplay } from '@/components/PrivateBellDisplay';
 import { anonymousPostDetails } from '@/lib/display-privacy';
+import { AdminBellRowAction } from '@/components/AdminBellRowAction';
 
 export type Post = Database["public"]["Tables"]["posts"]["Row"];
 
@@ -111,6 +112,7 @@ export function PostCard({
       {jobIsVisible(post) && (post.module === 'vehicle' ? <div className="flex shrink-0 gap-2"><Button variant="outline" size="icon" aria-label="చాట్" title="చాట్" disabled={sending} onClick={()=>void openVehicle(true)}><MessageCircle /></Button><VehicleDemandBell postId={post.id} /></div> : <Button type="button" variant="outline" size="icon" disabled={sending} className="shrink-0" onClick={contact} aria-label="గంట · Bell"><Bell /></Button>)}
     </div>
     <PrivateBellDisplay />
+    <AdminBellRowAction id={post.id} source="listing" section={isJob ? 'work' : 'vehicle'} />
     {anonymousWork && <Button variant="outline" onClick={contact} disabled={sending}><MessageCircle />చాట్</Button>}
     {isJob && <Button variant="outline" onClick={()=>void openDetails()} disabled={detailsBusy}><Info />వివరాలు</Button>}
     {!isJob && !hideDate && post.trip_date && <p translate="no" className="text-sm">{post.trip_date}</p>}

@@ -1,9 +1,18 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, renderHook } from '@testing-library/react';
-import { bellMuted, playBell, setBellMuted } from '@/lib/bell';
+import { bellMuted, playBell, setBellMuted, installBellAudioUnlock } from '@/lib/bell';
 import { useBellSound } from '@/lib/use-bell-sound';
 afterEach(() => { cleanup(); localStorage.clear(); vi.restoreAllMocks(); });
 describe('sound-only preference', () => {
+  it('user interaction unlocks audio without a separate hidden settings step', () => {
+    const resume = vi.fn();
+    const create = vi.fn(function () { return { resume, state: 'suspended' }; });
+    vi.stubGlobal('AudioContext', create);
+    const stop = installBellAudioUnlock();
+    window.dispatchEvent(new Event('pointerdown'));
+    expect(create).toHaveBeenCalledOnce(); expect(resume).toHaveBeenCalledOnce();
+    stop(); vi.unstubAllGlobals();
+  });
   it('defaults on and persists off across remounts', () => {
     expect(bellMuted()).toBe(false);
     const first = renderHook(() => useBellSound());

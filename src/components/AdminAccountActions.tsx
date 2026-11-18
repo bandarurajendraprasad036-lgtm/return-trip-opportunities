@@ -17,9 +17,10 @@ export function AdminAccountActions({ user, name }: { user: string; name: string
       // Self-authorizing database action: works on every website address.
       const result = await supabase.rpc('admin_manage_account', { _user: user, _action: action });
       if (result.error) throw result.error;
+      if (result.data !== action) throw new Error('ACTION_NOT_CONFIRMED');
       toast.success(action === 'block' ? 'ఖాతాను నిలిపివేశారు.' : 'ఖాతా, దాని వివరాలు తొలగించారు.');
       setAction(null);
-      await qc.invalidateQueries({ queryKey: ['admin-overview'] });
+      await qc.invalidateQueries();
     } catch (error) { const text = error instanceof Error ? error.message : String((error as { message?: string })?.message ?? ''); toast.error(text.includes('ADMIN_PROTECTED') ? 'ఇది నిర్వాహక ఖాతా; దీన్ని మార్చలేరు.' : text.includes('ACCOUNT_UNAVAILABLE') ? 'ఈ ఖాతా ఇప్పటికే లేదు.' : 'చర్య పూర్తి కాలేదు; మళ్లీ ప్రయత్నించండి.'); }
     finally { setBusy(false); }
   }

@@ -7,7 +7,14 @@ export function setBellMuted(muted: boolean) {
   window.dispatchEvent(new Event(BELL_PREFERENCE_EVENT));
 }
 export function enableBellAudio() {
+  if (bellMuted()) return;
   try { audio ??= new AudioContext(); void audio.resume(); } catch { /* Browser may not support audio. */ }
+}
+export function installBellAudioUnlock() {
+  const unlock = () => enableBellAudio();
+  window.addEventListener('pointerdown', unlock);
+  window.addEventListener('keydown', unlock);
+  return () => { window.removeEventListener('pointerdown', unlock); window.removeEventListener('keydown', unlock); };
 }
 export function playBell() {
   if (!audio || audio.state !== 'running' || bellMuted() || isBellNight(new Date())) return;

@@ -13,6 +13,7 @@ import { addDiscoveryCategory } from '@/lib/discovery-category.functions';
 import { freeWorkClientAction } from '@/lib/free-work-client';
 import { FREE_WORK_LABELS, freeWorkNames, type FreeWorkSection } from '@/lib/free-work';
 import { resolveServiceCategory } from '@/lib/service-category-display';
+import { AdminBellRowAction } from '@/components/AdminBellRowAction';
 
 export function FreeWorkBox({ section, area }: { section: FreeWorkSection; area: string }) {
   const [expanded, setExpanded] = useState(false);
@@ -72,6 +73,7 @@ export function FreeWorkBox({ section, area }: { section: FreeWorkSection; area:
         <div className="flex flex-wrap gap-2">{names.map(category => <div key={category} className="flex max-w-full items-center rounded-md border border-primary bg-card">
           <Button variant="ghost" aria-pressed={selected === category} className="h-auto min-h-12 min-w-0 whitespace-normal px-3 text-left text-lg" onClick={() => openCategory(category)}><span translate="no" className="break-words">{category}</span></Button>
           <Button variant="ghost" size="icon" className="size-11 shrink-0 border-l border-border" title={`${category} గంట`} aria-label={`${category} గంట`} disabled={busy} onClick={() => { setSelected(category); void action('category', category).then(ok => { if (ok) openCategory(category); }); }}><Bell className="size-4" /></Button>
+          {categories.filter(row => row.name === category).map(row => <AdminBellRowAction key={row.id} id={row.id} source="category" section={section} />)}
         </div>)}</div>
       </section>
       <form onSubmit={event => { event.preventDefault(); void saveCategory(); }} className="space-y-2 rounded-md border border-primary p-3" data-box="new-category">

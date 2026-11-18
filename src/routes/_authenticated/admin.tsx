@@ -86,9 +86,11 @@ function Admin() {
   ] as const;
 
   const del = async (id: string) => {
-    if (!confirm("Delete this post?")) return;
-    await supabase.from("posts").delete().eq("id", id);
-    qc.invalidateQueries();
+    if (!confirm("ఈ ప్రకటన తొలగించాలా?")) return;
+    const result = await supabase.from("posts").delete().eq("id", id).select('id');
+    if (result.error || !result.data?.some(row => row.id === id)) { toast.error('ప్రకటన తొలగించలేదు; మళ్లీ ప్రయత్నించండి.'); return; }
+    toast.success('ప్రకటన తొలగించారు.');
+    await qc.invalidateQueries();
   };
 
   const saveYt = async () => {

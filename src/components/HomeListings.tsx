@@ -21,6 +21,7 @@ import { rememberAreaIfEmpty, useMasterArea } from '@/lib/master-area';
 import { WorkAreaInput } from '@/components/WorkAreaInput';
 import { canOpenWorkArea } from '@/lib/work-area';
 import { FreeWorkBox } from '@/components/FreeWorkBox';
+import { BELL_BOARD_REFRESH_MS } from '@/lib/bell-board-refresh';
 
 const sections: { key: HomeVehicleSection; te: string; en: string; className: string }[] = [
   { key: 'local', te: 'స్థానిక సరకు వాహనాలు', en: 'Local Goods Vehicle', className: 'vehicle-choice-local' },
@@ -55,6 +56,7 @@ export function HomeListings({ today, settings }: { today: string; settings: Hom
   const vehiclesUnlocked = Boolean(route.from && route.to);
   const { data: posts = [], isLoading, isError } = useQuery({
     queryKey: ['posts'],
+    refetchInterval: BELL_BOARD_REFRESH_MS,
     queryFn: async () => {
       const { data, error } = await supabase.from('posts').select(POST_LIST_COLUMNS).eq('status', 'active').order('created_at', { ascending: false }).limit(200);
       if (error) throw error;

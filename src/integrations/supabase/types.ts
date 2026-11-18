@@ -2860,6 +2860,10 @@ export type Database = {
       }
       admin_referral_eligibility: { Args: never; Returns: Json }
       admin_remove_account_data: { Args: { _user: string }; Returns: undefined }
+      admin_remove_bell_row: {
+        Args: { _id: string; _section: string; _source: string }
+        Returns: boolean
+      }
       admin_vehicle_records: { Args: { _offset?: number }; Returns: Json }
       admin_video_notice: {
         Args: { _message: string; _url: string }
@@ -3081,6 +3085,14 @@ export type Database = {
         }[]
       }
       my_goods_membership: { Args: never; Returns: boolean }
+      my_manageable_additions: {
+        Args: never
+        Returns: {
+          id: string
+          section: string
+          source: string
+        }[]
+      }
       my_membership_price: { Args: never; Returns: number }
       my_notification_quota: { Args: never; Returns: Json }
       my_payment_verification_pending: { Args: never; Returns: boolean }
@@ -3191,6 +3203,10 @@ export type Database = {
           _user: string
         }
         Returns: string
+      }
+      remove_my_addition: {
+        Args: { _id: string; _section: string; _source: string }
+        Returns: boolean
       }
       request_own_bell_notice: { Args: { _device: string }; Returns: string }
       request_phone_entry: {
