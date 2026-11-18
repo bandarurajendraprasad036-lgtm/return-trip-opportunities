@@ -716,6 +716,32 @@ export type Database = {
           },
         ]
       }
+      main_bell_actions: {
+        Row: {
+          source: string
+          target_id: string
+          user_id: string
+        }
+        Insert: {
+          source: string
+          target_id: string
+          user_id: string
+        }
+        Update: {
+          source?: string
+          target_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "main_bell_actions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       membership_access: {
         Row: {
           ends_at: string
@@ -3152,6 +3178,7 @@ export type Database = {
         Args: { _id: string; _section: string; _source: string }
         Returns: string
       }
+      ring_my_main_bell: { Args: never; Returns: number }
       ring_post: { Args: { _post_id: string }; Returns: string }
       ring_service: { Args: { _owner: string }; Returns: string }
       ring_vehicle_board: { Args: { _demand: string }; Returns: string }

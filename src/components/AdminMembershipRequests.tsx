@@ -11,6 +11,7 @@ export function AdminMembershipRequests() {
   const queryClient = useQueryClient();
   const [image, setImage] = useState('');
   const [busy, setBusy] = useState(false);
+  const [imageLoading, setImageLoading] = useState(false);
   const { data, isError, isPending } = useQuery({ queryKey: ['admin-membership-requests'], refetchInterval: 10000, queryFn: async () => {
     const [requests, people] = await Promise.all([
       supabase.from('membership_requests').select('*').order('submitted_at', { ascending: false }),
@@ -30,11 +31,16 @@ export function AdminMembershipRequests() {
   };
 
   const showImage = async (messageId: string) => {
+    if (imageLoading) return;
+    setImageLoading(true);
+    try {
     const message = await supabase.from('messages').select('image_path').eq('id', messageId).maybeSingle();
     if (message.error || !message.data?.image_path) { toast.error('చిత్రం రాలేదు'); return; }
     const signed = await supabase.storage.from('chat-images').createSignedUrl(message.data.image_path, 60);
     if (signed.error || !signed.data?.signedUrl) { toast.error('చిత్రం తెరవలేకపోయాం'); return; }
     setImage(signed.data.signedUrl);
+    } catch { toast.error('చిత్రం తెరవలేకపోయాం'); }
+    finally { setImageLoading(false); }
   };
 
   return <section id="admin-pending-payments" className="space-y-3 border-y py-4 scroll-mt-20">
@@ -48,7 +54,7 @@ export function AdminMembershipRequests() {
       <p translate="no">₹{request.amount} · {request.reference.startsWith('screenshot:') ? 'ఫోటో ఆధారం' : request.reference}</p>
       <p>{new Date(request.submitted_at).toLocaleString('te-IN')} · {request.status === 'pending' ? 'అడ్మిన్ పరిశీలన కోసం వెయిటింగ్' : request.status === 'approved' ? 'చెల్లింపు ఆమోదించాం' : 'చెల్లింపు తిరస్కరించాం'}</p>
       <div className="flex flex-wrap gap-2">
-        <Button variant="outline" onClick={() => void showImage(request.message_id)}>స్క్రీన్ షాట్ చూడండి</Button>
+        <Button variant="outline" disabled={imageLoading} onClick={() => void showImage(request.message_id)}>{imageLoading ? 'చిత్రం వస్తోంది…' : 'స్క్రీన్ షాట్ చూడండి'}</Button>
         {request.status === 'pending' && <><Button disabled={busy} onClick={() => void action(request.id, true)}>ఆమోదించండి</Button><Button variant="outline" disabled={busy} onClick={() => void action(request.id, false)}>తిరస్కరించండి</Button></>}
         <Button variant="outline" disabled={busy} onClick={async () => {
           setBusy(true);
