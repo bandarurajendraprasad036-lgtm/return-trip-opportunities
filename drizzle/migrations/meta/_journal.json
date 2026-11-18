@@ -736,6 +736,13 @@
       "when": 1794981708978,
       "tag": "0104_bounded_exact_area_main_bell",
       "breakpoints": true
+    },
+    {
+      "idx": 105,
+      "version": "7",
+      "when": 1794991284248,
+      "tag": "0105_durable_main_bell_continuation",
+      "breakpoints": true
     }
   ]
 }

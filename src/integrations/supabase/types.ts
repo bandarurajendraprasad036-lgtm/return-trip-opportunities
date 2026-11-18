@@ -742,6 +742,41 @@ export type Database = {
           },
         ]
       }
+      main_bell_runs: {
+        Row: {
+          attempts: number
+          available_at: string
+          completed_at: string | null
+          last_error: string | null
+          requested_at: string
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          available_at?: string
+          completed_at?: string | null
+          last_error?: string | null
+          requested_at?: string
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          available_at?: string
+          completed_at?: string | null
+          last_error?: string | null
+          requested_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "main_bell_runs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       membership_access: {
         Row: {
           ends_at: string
@@ -2877,6 +2912,7 @@ export type Database = {
       dispatch_approximate_route_alerts: { Args: never; Returns: number }
       dispatch_daily_referral_board: { Args: never; Returns: number }
       dispatch_free_work_notices: { Args: never; Returns: number }
+      dispatch_main_bell_runs: { Args: never; Returns: number }
       dispatch_program_requests: { Args: never; Returns: number }
       dispatch_vehicle_availability: { Args: never; Returns: number }
       dispatch_visible_post_matches: { Args: never; Returns: number }
@@ -3193,6 +3229,7 @@ export type Database = {
         }
         Returns: string
       }
+      run_main_bell_batch: { Args: { _user: string }; Returns: number }
       save_detailed_vehicle_route: {
         Args: { _from: string; _to: string; _tons: number; _vehicle: string }
         Returns: string
