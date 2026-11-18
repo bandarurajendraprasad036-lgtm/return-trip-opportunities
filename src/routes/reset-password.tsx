@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { saveRecoveredPassword } from '@/lib/admin-auth';
+import { useMe } from '@/lib/session';
 
 export const Route = createFileRoute('/reset-password')({
   head: () => ({ meta: [
@@ -20,6 +21,7 @@ export const Route = createFileRoute('/reset-password')({
 
 function ResetPassword() {
   const navigate = useNavigate();
+  const { data: me } = useMe();
   const [ready, setReady] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
@@ -64,6 +66,6 @@ function ResetPassword() {
       <Button type="submit" className="w-full" disabled={busy || password.length < 6}>పాస్‌వర్డ్ మార్చండి</Button>
     </form>}
     {message && <p role="status">{message}</p>}
-    <Button variant="outline" onClick={() => void navigate({ to: '/admin-login', replace: true })}>అడ్మిన్ ప్రవేశం</Button>
+    {me?.isAdmin === true && <Button variant="outline" onClick={() => void navigate({ to: '/admin-login', replace: true })}>అడ్మిన్ ప్రవేశం</Button>}
   </main>;
 }
