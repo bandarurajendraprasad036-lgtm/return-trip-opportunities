@@ -192,6 +192,38 @@ export type Database = {
           },
         ]
       }
+      admin_activity_notices: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_activity_notices_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       app_settings: {
         Row: {
           key: string
@@ -3096,6 +3128,7 @@ export type Database = {
         Args: { _creator: string; _name: string; _section: string }
         Returns: string
       }
+      admin_activity_overview: { Args: never; Returns: Json }
       admin_broadcast: { Args: { _message: string }; Returns: number }
       admin_evidence_sender: { Args: { _id: string }; Returns: string }
       admin_manage_account: {

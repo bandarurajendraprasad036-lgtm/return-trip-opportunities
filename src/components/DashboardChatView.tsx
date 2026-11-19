@@ -31,6 +31,7 @@ export function DashboardChat({ userId, postId }: { userId: string; postId?: str
   const bottom = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState(false);
   const [sendError, setSendError] = useState("");
+  const [phoneConsent,setPhoneConsent] = useState(false);
   const [phone,setPhone] = useState('');
   const [image,setImage] = useState<File | null>(null);
   const [imageUrl,setImageUrl] = useState('');
@@ -160,7 +161,8 @@ export function DashboardChat({ userId, postId }: { userId: string; postId?: str
       {chatAllowed===false && <Button variant="outline" className="mx-3 h-auto whitespace-normal" onClick={() => setPaymentOpen(true)}>మూడు నెలల చందా ₹100 — ఇప్పుడే చెల్లించండి</Button>}
       <BellPaymentNotice open={paymentOpen} onOpenChange={setPaymentOpen} />
       <form onSubmit={send} className="space-y-2 border-t bg-card p-2">
-        {userId !== adminId && <Input type="tel" inputMode="numeric" aria-label="ఫోన్ నంబరు · Phone number" value={phone} onChange={e=>setPhone(e.target.value.replace(/\D/g,''))} maxLength={10} placeholder="ఫోన్ నంబరు · Phone number" disabled={busy || !chatAllowed || contactAllowed !== true} />}
+        {userId === adminId && <label className="flex items-center gap-2"><input type="checkbox" checked={phoneConsent} onChange={e=>{setPhoneConsent(e.target.checked);setPhone('');}} />నా సంఖ్యను నిర్వాహకుడికి పంపేందుకు అంగీకరిస్తున్నాను</label>}
+        {(userId !== adminId || phoneConsent) && <Input type="tel" inputMode="numeric" aria-label="ఫోన్ నంబరు · Phone number" value={phone} onChange={e=>setPhone(e.target.value.replace(/\D/g,''))} maxLength={10} placeholder="ఫోన్ నంబరు · Phone number" disabled={busy || !chatAllowed || (userId !== adminId && contactAllowed !== true)} />}
         <input ref={fileInput} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>{const file=e.target.files?.[0];if(file && (file.size>CHAT_IMAGE_LIMIT || !['image/jpeg','image/png','image/webp'].includes(file.type))){setSendError('ఐదు మెగాబైట్ల లోపు చిత్రం ఎంచుకోండి · Choose an image under 5MB');e.target.value='';return;}setImage(file || null);setSendError('');}} />
         {image && <div className="flex items-center gap-2 text-sm"><span className="min-w-0 flex-1 truncate">{image.name}</span><Button type="button" variant="ghost" size="icon" aria-label="చిత్రం తీసేయండి · Remove image" onClick={()=>{setImage(null);if(fileInput.current)fileInput.current.value='';}}><X /></Button></div>}
         <div className="flex gap-2"><Button type="button" variant="outline" size="icon" aria-label="ఫోటో లేదా స్క్రీన్ షాట్ జత చేయండి" title="ఫోటో లేదా స్క్రీన్ షాట్ జత చేయండి" disabled={busy || !chatAllowed} onClick={()=>fileInput.current?.click()}><Plus /></Button><Input value={text} onChange={(e) => setText(e.target.value)} maxLength={1000} placeholder="సందేశం రాయండి" className="h-12 min-w-0 text-base" disabled={busy || !chatAllowed} /><Button type="submit" disabled={busy || !chatAllowed || (!text.trim() && !phone && !image)} size="icon" className="size-12 shrink-0" aria-label="పంపండి · Send"><Send /></Button></div>

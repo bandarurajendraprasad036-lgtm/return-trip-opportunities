@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { hasValidMobile } from '@/lib/phone';
 import { loginEmailForPhone, passwordPairError } from '@/lib/phone-password';
 import { takeAuthReturn } from '@/lib/auth-navigation';
+import { accountDashboard } from '@/lib/admin-navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,7 +25,15 @@ export function PhonePasswordAuth() {
   const [forgotPhone, setForgotPhone] = useState('');
   const [forgotDone, setForgotDone] = useState('');
 
-  const finish = async () => { await qc.invalidateQueries(); await navigate({ href: takeAuthReturn('/'), replace: true }); };
+  const finish = async () => {
+    await qc.invalidateQueries();
+    const identity=await supabase.auth.getUser();
+    if(!identity.data.user)throw new Error('SIGN_IN_REQUIRED');
+    const role=await supabase.rpc('has_role',{_user_id:identity.data.user.id,_role:'admin'});
+    if(role.error)throw role.error;
+    if(role.data){takeAuthReturn('/');await navigate({to:accountDashboard(true),search:{},replace:true});}
+    else await navigate({ href: takeAuthReturn('/'), replace: true });
+  };
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (busy) return;

@@ -64,9 +64,9 @@ export function DashboardNotifications() {
 
   return (
     <div className="space-y-3 p-4">
-      <h2 className="text-2xl font-bold">మ్యాచ్ అలర్ట్స్ <span className="text-base font-normal text-muted-foreground">Match alerts</span></h2>
-      {!prime?.alerts_ready && data.length === 0 && <div className="space-y-2"><p>సూచనలకు ఆమోదించిన ₹100 సభ్యత్వ చెల్లింపు, మూడు రోజుల గడువు, ప్రధాన గంట ఎంపిక అవసరం. అర్హమైన నంబర్ల తగ్గింపు ₹49.</p><Button asChild variant="outline"><Link to="/dashboard">నా చెల్లింపు స్థితి · Payment status</Link></Button></div>}
-      {capped && (
+      <h2 className="text-2xl font-bold">{me?.isAdmin ? 'నిర్వాహక సూచనలు' : 'కొత్త సూచనలు'}</h2>
+      {!me?.isAdmin && !prime?.alerts_ready && data.length === 0 && <div className="space-y-2"><p>సాధారణ సూచనలకు ఆమోదించిన ₹100 / మూడు నెలల చందా అవసరం.</p><Button asChild variant="outline"><Link to="/dashboard">నా చెల్లింపు స్థితి</Link></Button></div>}
+      {!me?.isAdmin && capped && (
         <div className="rounded-xl border-2 border-secondary bg-secondary/20 p-4">
           <p className="font-bold">⚠️ ఈ రోజు {FREE_DAILY_ALERTS} అలర్ట్స్ పూర్తయ్యాయి</p>
           <p className="text-sm">రోజుకు గరిష్టం ఐదు; మీ సమాచార ఎంపికలు, నిశ్శబ్ద సమయం వర్తిస్తాయి. · Maximum five daily, preferences and quiet hours apply.</p>
@@ -78,10 +78,10 @@ export function DashboardNotifications() {
           లోడ్ కాలేదు — మళ్ళీ ప్రయత్నించండి · Tap to retry
         </Button>
       )}
-      {me && prime?.alerts_ready && !isLoading && !isError && data.length === 0 && (
+      {me && (me.isAdmin || prime?.alerts_ready) && !isLoading && !isError && data.length === 0 && (
         <div className="rounded-xl border border-dashed bg-card p-8 text-center text-muted-foreground">
           <Inbox className="mx-auto mb-2 size-10" />
-          ఇంకా మ్యాచ్‌లు లేవు. పోస్ట్ చేయండి!<br />No matches yet. <Link to="/post/new" className="text-primary underline">Create a post</Link>
+          ఇంకా కొత్త సూచనలు లేవు.
         </div>
       )}
       {prime?.alerts_ready && <ReferralBoard />}

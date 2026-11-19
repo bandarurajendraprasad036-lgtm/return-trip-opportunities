@@ -35,11 +35,10 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
     post: z.string().uuid().safeParse(s['post']).success ? String(s['post']) : undefined,
   }),
   beforeLoad: async ({ search }) => {
-    if (search.view) return;
     const identity = await supabase.auth.getUser();
     if (!identity.data.user) return;
     const role = await supabase.rpc('has_role', { _user_id: identity.data.user.id, _role: 'admin' });
-    if (!role.error && role.data) throw redirect({ to: '/admin' });
+    if (!role.error && role.data) throw redirect({ to: '/admin', search: {view:search.view==='chat'?'chat':search.view==='notifications'?'notifications':undefined,peer:search.peer} });
   },
   head: () => ({
     meta: [

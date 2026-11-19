@@ -42,9 +42,9 @@ function MyPosts() {
   const refresh = () => qc.invalidateQueries();
   const close = async (id: string) => {
     const post = data.find(post => post.id === id);
-    const result = post?.module === 'vehicle' ? await supabase.rpc('mark_my_vehicle_booked', { _post: id }) : await supabase.from("posts").update({ status: "closed" }).eq("id", id);
+    const result = await supabase.from("posts").update({ status: "closed" }).eq("id", id).eq('user_id',me?.id ?? '');
     if (result.error) { toast.error('ముగింపు నమోదు కాలేదు'); return; }
-    toast.success(post?.module === 'vehicle' ? 'వాహనం బుక్ అయిందని మీరు నిర్ధారించారు; ప్రకటన దాచాం' : 'పూర్తయింది');
+    toast.success('ప్రకటన మూసివేశారు');
     refresh();
   };
   const del = async (id: string) => {
@@ -80,11 +80,10 @@ function MyPosts() {
             actions={
               <>
                 {jobIsVisible(p) ? (
-                  <Button variant="outline" className="flex-1" onClick={() => { if (p.module !== 'vehicle' || window.confirm('ఈ వాహనం బుక్ అయిందని నిర్ధారిస్తున్నారా? ప్రకటన దాచబడుతుంది; పాత నమోదు ఉంటుంది.')) void close(p.id); }}><CheckCircle2 />{p.module === 'vehicle' ? 'బుక్ అయింది' : 'పూర్తి'}</Button>
+                  <Button variant="outline" className="flex-1" onClick={() => void close(p.id)}><CheckCircle2 />ప్రకటన మూసివేయండి</Button>
                 ) : (
                   <span className="flex-1 self-center text-sm font-semibold text-muted-foreground">{p.status === 'active' ? p.visible_after&&Date.parse(p.visible_after)>Date.now()?'ప్రచురణ కోసం వేచి ఉంది · Awaiting publication':'గడువు ముగిసింది · Expired' : 'మూసివేయబడింది · Closed'}</span>
                 )}
-                <Button variant="destructive" className="flex-1" onClick={() => del(p.id)}><Trash2 />తొలగించు</Button>
               </>
             }
           />

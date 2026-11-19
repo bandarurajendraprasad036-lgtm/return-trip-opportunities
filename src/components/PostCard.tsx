@@ -24,6 +24,7 @@ import { AdminBellRowAction } from '@/components/AdminBellRowAction';
 import { bellErrorMessage, requireCompleteProfile, retryBell } from '@/lib/bell-request';
 import { playTapBell } from '@/lib/bell';
 import { IncomingBellList } from '@/components/IncomingBellList';
+import { DeleteOwnPost } from '@/components/DeleteOwnPost';
 
 export type Post = Database["public"]["Tables"]["posts"]["Row"];
 
@@ -129,7 +130,8 @@ export function PostCard({
     
     <Dialog open={detailsOpen} onOpenChange={open => { setDetailsOpen(open); if (!open) setDetails(null); }}><DialogContent className="max-h-[85svh] overflow-y-auto"><DialogTitle>ప్రకటన వివరాలు · Post details</DialogTitle><DialogDescription>{isJob ? post.skill || 'ఉద్యోగం · Job' : vehicleTypeLabel(post.vehicle_type)}</DialogDescription><p translate="no" className="break-words">{isJob ? post.location : `${post.from_place || '…'} → ${post.to_place || '…'}`}</p>{post.salary && <p translate="no">{post.salary}</p>}{details?.description && <p translate="no" className="whitespace-pre-wrap break-words">{details.description}</p>}{details?.trip_date && <p translate="no">{details.trip_date}</p>}{details?.capacity_tons != null && <p>{details.capacity_tons} టన్నులు · tons</p>}{details?.public_photo && <img src={details.public_photo} alt="ప్రకటన ఫోటో" className="max-h-64 w-full object-contain" />}{details?.public_brand && <p translate="no">{details.public_brand}</p>}{details?.vehicle_name && <p translate="no">{details.vehicle_name}</p>}{details?.vehicle_number && <p translate="no">{details.vehicle_number}</p>}{details?.driver_name && <p translate="no">{details.driver_name}</p>}{details?.contact_phone && /^[6-9]\d{9}$/.test(details.contact_phone) && <Button asChild><a href={`tel:+91${details.contact_phone}`}><Phone /><span translate="no">{details.contact_phone}</span></a></Button>}</DialogContent></Dialog>
     {!isJob && <BellPaymentNotice open={upgradeOpen} onOpenChange={setUpgradeOpen} />}
-    {actions && meId === post.user_id && <div className="flex flex-wrap gap-2">{actions}</div>}
+    {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
+    {meId === post.user_id && <DeleteOwnPost id={post.id} owner={post.user_id} />}
     <ResponsibilityNotice />
   </article>;
 }

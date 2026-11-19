@@ -20,10 +20,11 @@ export function AppShell({ children, hideTopActions = false }: { children: React
   const qc = useQueryClient();
   const { data: unread = 0 } = useQuery({
     queryKey: ["unread", me?.id],
+    refetchInterval: me?.isAdmin ? 3000 : false,
     enabled: !!me,
     queryFn: async () => {
       const { count } = await supabase
-        .from("notifications")
+        .from(me?.isAdmin ? 'admin_activity_notices' : "notifications")
         .select("id", { count: "exact", head: true })
         .eq("is_read", false);
       return count ?? 0;
@@ -57,7 +58,7 @@ export function AppShell({ children, hideTopActions = false }: { children: React
         <Link to="/feed" className="min-w-0 font-display text-lg font-extrabold leading-none">
           <Brand />
         </Link>
-        <div className="flex shrink-0 items-center gap-1"><LanguageButton />{!hideTopActions && <Button asChild variant="outline" size="icon" aria-label="మా గురించి" title="మా గురించి"><Link to="/about"><Info className="size-5" /></Link></Button>}{me && <Button asChild data-subscription-exempt variant="outline" size="icon" className="relative" aria-label="నా పేజీలో తెలియజేతలు"><Link to="/dashboard" search={{ view: 'notifications' }}><Bell className="size-5" /><ClientOnly>{unread > 0 && <span className="absolute -right-1 -top-1 rounded-full bg-primary px-1 text-xs text-primary-foreground">{unread}</span>}</ClientOnly></Link></Button>}</div>
+        <div className="flex shrink-0 items-center gap-1"><LanguageButton />{!hideTopActions && <Button asChild variant="outline" size="icon" aria-label="మా గురించి" title="మా గురించి"><Link to="/about"><Info className="size-5" /></Link></Button>}{me && <Button asChild data-subscription-exempt variant="outline" size="icon" className="relative" aria-label="నా పేజీలో తెలియజేతలు"><Link to={me.isAdmin ? "/admin" : "/dashboard"} search={{ view: 'notifications' }}><Bell className="size-5" /><ClientOnly>{unread > 0 && <span className="absolute -right-1 -top-1 rounded-full bg-primary px-1 text-xs text-primary-foreground">{unread}</span>}</ClientOnly></Link></Button>}</div>
       </header>
       <main className="flex-1 pb-24">{location.pathname === '/dashboard' && !location.searchStr.includes('view=chat') && <div className="px-4 pt-4"><AdminChatButton /></div>}{children}<ResponsibilityNotice /><DesignFooter /></main>
       {me && <MessagePhoneNotices userId={me.id} />}
@@ -72,9 +73,9 @@ export function AppShell({ children, hideTopActions = false }: { children: React
           </span>
           పోస్ట్ Post
         </Link>
-        <Link to="/dashboard" className={tab} activeProps={active}>
+        <Link to={me?.isAdmin ? "/admin" : "/dashboard"} className={tab} activeProps={active}>
           <User className="size-6" />
-          నా పేజీ
+          {me?.isAdmin ? "నిర్వాహక పేజీ" : "నా పేజీ"}
         </Link>
       </nav>
     </div>

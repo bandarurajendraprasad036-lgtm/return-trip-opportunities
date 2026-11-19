@@ -1,0 +1,1 @@
+export function accountDashboard(isAdmin: boolean) { return isAdmin ? '/admin' as const : '/dashboard' as const; }

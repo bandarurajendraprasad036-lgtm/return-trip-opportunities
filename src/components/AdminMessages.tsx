@@ -19,7 +19,7 @@ export function AdminMessages() {
     queryKey: ['admin-messages', me?.id],
     enabled: !!me?.isAdmin,
     queryFn: async () => {
-      const result = await supabase.from('messages').select('*').order('created_at', { ascending: false }).limit(300);
+      const result = await supabase.from('messages').select('*').or(`sender_id.eq.${me?.id},receiver_id.eq.${me?.id}`).order('created_at', { ascending: false }).limit(300);
       if (result.error) throw result.error;
       const ids = [...new Set((result.data ?? []).flatMap(message => [message.sender_id, message.receiver_id]))];
       const people = ids.length ? await supabase.from('profiles').select('id,full_name,phone').in('id', ids) : { data: [], error: null };
@@ -32,7 +32,7 @@ export function AdminMessages() {
     return profile ? `${profile.full_name || 'పేరు లేదు'} · ${profile.phone || 'నంబరు లేదు'}` : 'సభ్యుడు · Member';
   };
   return <section className="space-y-3 rounded-xl border bg-card p-3" aria-labelledby="admin-messages-title">
-    <h3 id="admin-messages-title" className="text-xl font-bold">అన్ని సంభాషణలు, చిత్రాలు · All chats and images</h3>
+    <h3 id="admin-messages-title" className="text-xl font-bold">మీకు వచ్చిన సంభాషణలు, చిత్రాలు</h3>
     {isPending && <p role="status">సంభాషణలు వస్తున్నాయి · Loading chats</p>}
     {isError && <div role="alert" className="space-y-2"><p>సంభాషణలు రాలేదు · Could not load chats</p><Button variant="outline" onClick={() => void refetch()}>మళ్లీ ప్రయత్నించండి · Retry</Button></div>}
     {!isPending && !isError && data?.messages.length === 0 && <p>ఇంకా సంభాషణలు లేవు · No chats yet</p>}

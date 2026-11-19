@@ -911,6 +911,27 @@
       "when": 1795104814986,
       "tag": "0129_disable_group_booking_information_only",
       "breakpoints": true
+    },
+    {
+      "idx": 130,
+      "version": "7",
+      "when": 1795105704175,
+      "tag": "0130_admin_activity_overview_and_notices",
+      "breakpoints": true
+    },
+    {
+      "idx": 131,
+      "version": "7",
+      "when": 1795105728450,
+      "tag": "0131_safe_admin_activity_trigger",
+      "breakpoints": true
+    },
+    {
+      "idx": 132,
+      "version": "7",
+      "when": 1795106086653,
+      "tag": "0132_private_admin_activity_inbox",
+      "breakpoints": true
     }
   ]
 }
