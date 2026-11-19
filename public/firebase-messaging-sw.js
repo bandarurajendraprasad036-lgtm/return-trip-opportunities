@@ -2,7 +2,7 @@
 self.addEventListener('notificationclick', event => {
   event.notification.close();
   event.waitUntil((async () => {
-    const url = new URL('/notifications', self.location.origin).href;
+    const url = new URL('/dashboard?view=notifications', self.location.origin).href;
     const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
     const client = windows.find(item => new URL(item.url).origin === self.location.origin);
     if (client) { await client.navigate(url); await client.focus(); }
@@ -16,6 +16,6 @@ firebase.messaging().onBackgroundMessage(payload => {
   const data = payload.data || {};
   return self.registration.showNotification('గాయత్రి వన్ · Gayatri One', {
     body: data.body || 'గాయత్రి వన్‌లో కొత్త నోటిఫికేషన్ ఉంది', icon: '/icon-192.png',
-    tag: data.id || 'gayatri-alert', renotify: true, requireInteraction: true, vibrate: data.silent === 'true' ? [] : [400, 150, 400, 150, 400], silent: data.silent === 'true', data: { path: '/notifications' },
+    tag: data.id || 'gayatri-alert', renotify: true, requireInteraction: true, vibrate: data.silent === 'true' ? [] : [400, 150, 400, 150, 400], silent: data.silent === 'true', data: { path: '/dashboard?view=notifications' },
   });
 });

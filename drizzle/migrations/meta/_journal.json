@@ -897,6 +897,20 @@
       "when": 1795086691131,
       "tag": "0127_private_membership_image_admin_review_access",
       "breakpoints": true
+    },
+    {
+      "idx": 128,
+      "version": "7",
+      "when": 1795104559660,
+      "tag": "0128_dashboard_private_five_person_groups",
+      "breakpoints": true
+    },
+    {
+      "idx": 129,
+      "version": "7",
+      "when": 1795104814986,
+      "tag": "0129_disable_group_booking_information_only",
+      "breakpoints": true
     }
   ]
 }

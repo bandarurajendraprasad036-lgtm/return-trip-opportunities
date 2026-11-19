@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, render } from '@testing-library/react';
-import { Route } from '@/routes/_authenticated/chat.$userId';
+import { DashboardChat } from '@/components/DashboardChatView';
 
 vi.mock('@tanstack/react-router', () => ({
   createFileRoute: () => (options: Record<string, unknown>) => ({
@@ -23,9 +23,7 @@ describe('chat lifecycle', () => {
     // Embedded previews can supply a scrolling adapter with a non-void result.
     const scroll = vi.fn(() => ({ scrolled: true }));
     Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', { configurable: true, value: scroll });
-    const Chat = Route.options.component;
-    if (!Chat) throw new Error('Chat component missing');
-    const view = render(<Chat />);
+    const view = render(<DashboardChat userId="recipient" />);
     expect(scroll).toHaveBeenCalledOnce();
     expect(() => view.unmount()).not.toThrow();
   });

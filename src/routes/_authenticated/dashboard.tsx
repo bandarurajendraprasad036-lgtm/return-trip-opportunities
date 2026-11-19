@@ -17,11 +17,25 @@ import mataGreen from '@/assets/gayatri-mata-green.jpg';
 import mataIvory from '@/assets/gayatri-mata-ivory.jpg';
 import { clearAccountSession } from '@/lib/sign-out';
 import { Prime99Payment } from '@/components/Prime99Payment';
+import { DashboardChat } from '@/components/DashboardChatView';
+import { DashboardChats } from '@/components/DashboardChatsView';
+import { DashboardNotifications } from '@/components/DashboardNotificationsView';
+import { CallManager } from '@/components/CallManager';
+import { CommunicationSettings } from '@/components/CommunicationSettings';
+import { IncomingBellList } from '@/components/IncomingBellList';
+import { z } from 'zod';
+import { DashboardGroups } from '@/components/DashboardGroups';
 
 const MATA_IMAGES = [mataGold, mataGreen, mataIvory];
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  beforeLoad: async () => {
+  validateSearch: (s: Record<string, unknown>): { view?: 'chat' | 'chats' | 'notifications' | undefined; peer?: string | undefined; post?: string | undefined } => ({
+    view: s['view'] === 'chat' || s['view'] === 'chats' || s['view'] === 'notifications' ? s['view'] : undefined,
+    peer: z.string().uuid().safeParse(s['peer']).success ? String(s['peer']) : undefined,
+    post: z.string().uuid().safeParse(s['post']).success ? String(s['post']) : undefined,
+  }),
+  beforeLoad: async ({ search }) => {
+    if (search.view) return;
     const identity = await supabase.auth.getUser();
     if (!identity.data.user) return;
     const role = await supabase.rpc('has_role', { _user_id: identity.data.user.id, _role: 'admin' });
@@ -41,6 +55,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 function Dashboard() {
+  const { view, peer, post } = Route.useSearch();
   const qc = useQueryClient();
   const navigate = useNavigate();
   const { data: me } = useMe();
@@ -62,8 +77,13 @@ function Dashboard() {
 
   const mataImage = MATA_IMAGES[dailyDevotionalIndex(new Date(), MATA_IMAGES.length)];
 
+  if (view) return <><CallManager /><div className="border-b p-3"><Button asChild variant="outline" data-subscription-exempt><Link to="/dashboard" search={{}}>నా పేజీ</Link></Button></div>{view === 'chat' && peer ? <DashboardChat key={`${peer}-${post}`} userId={peer} postId={post} /> : view === 'notifications' ? <DashboardNotifications /> : <DashboardChats />}</>;
+
   return (
     <div className="space-y-4 p-4">
+      <CallManager />
+      <DashboardGroups />
+      <Button asChild variant="outline" size="icon" aria-label="సంభాషణలు తెరవండి" data-subscription-exempt><Link to="/dashboard" search={{ view: 'chats' }}><PlusCircle /></Link></Button>
       <div className="overflow-hidden rounded-xl border-2 border-primary shadow-card">
         <img src={mataImage} alt="గాయత్రీ అమ్మవారు · Gayatri Mata" className="h-40 w-full object-cover object-top" />
       </div>
@@ -87,7 +107,7 @@ function Dashboard() {
         <Link to="/service-profile" className={tile}><Image className="size-7 text-primary" />నా ఫోటోలు · My photos</Link>
         <Link to="/chats" className={tile}><MessageCircle className="size-7 text-primary" />నా సంభాషణలు</Link>
       </div>
-      <section className="space-y-3 border-y py-4"><h2 className="text-xl font-bold">గంట కొట్టిన వాళ్ళు</h2><div className="grid gap-2">{BELL_BOARD_SECTIONS.map(section => <Button key={section} asChild variant="outline" className="h-auto min-h-12 justify-start whitespace-normal text-left"><Link to="/bell-board" search={{ section }}><Bell className="shrink-0" /><span>{BELL_BOARD_LABELS[section]}</span></Link></Button>)}</div></section>
+      <section className="space-y-3 border-y py-4"><h2 className="text-xl font-bold">గంట కొట్టిన వాళ్ళు</h2>{BELL_BOARD_SECTIONS.map(section => <details key={section}><summary className="cursor-pointer py-3 text-lg font-bold">{BELL_BOARD_LABELS[section]}</summary><IncomingBellList section={section} /></details>)}</section>
       <section className="space-y-3 border-b pb-4"><h2 className="text-xl font-bold">నిర్వాహకుల వీడియోలు</h2><AboutVideos /></section>
       <InstallButton />
       <AccountProfile />
@@ -95,6 +115,7 @@ function Dashboard() {
       <SharingImage />
       <ReferralVip />
       <NotificationSettings />
+      <CommunicationSettings />
 
     </div>
   );

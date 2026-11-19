@@ -5,6 +5,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { useMe } from '@/lib/session';
 import { playBell, stopBell, enableBellAudio } from '@/lib/bell';
+import { readCommunicationChoices } from '@/lib/dashboard-communications';
+import { toast } from 'sonner';
 
 type Signal = { type: 'offer' | 'answer' | 'ice' | 'end'; from: string; video?: boolean; sdp?: RTCSessionDescriptionInit; ice?: RTCIceCandidateInit };
 const ICE = [{ urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] }];
@@ -26,7 +28,7 @@ export function CallManager() {
   const send = async (to: string, s: Omit<Signal, 'from'>) => {
     if (!me) return;
     let ch = channels.current.get(to);
-    if (!ch) { ch = supabase.channel(`call-${to}`); channels.current.set(to, ch); await new Promise<void>(r => ch!.subscribe(st => { if (st === 'SUBSCRIBED') r(); })); }
+    if (!ch) { const created = supabase.channel(`call-${to}`); ch = created; channels.current.set(to, created); await new Promise<void>((resolve, reject) => { const timeout = setTimeout(() => reject(new Error('CALL_UNAVAILABLE')), 10000); created.subscribe(st => { if (st === 'SUBSCRIBED') { clearTimeout(timeout); resolve(); } else if (st === 'CHANNEL_ERROR' || st === 'TIMED_OUT') { clearTimeout(timeout); reject(new Error('CALL_UNAVAILABLE')); } }); }); }
     await ch.send({ type: 'broadcast', event: 'signal', payload: { ...s, from: me.id } });
   };
   const cleanup = () => {
@@ -44,10 +46,10 @@ export function CallManager() {
   };
   const end = () => { if (peer.current) void send(peer.current, { type: 'end' }); cleanup(); };
   const answer = async () => {
-    const offer = pendingOffer.current; if (!offer) return; stopBell();
+    const offer = pendingOffer.current; if (!offer?.sdp) return; stopBell();
     try {
       const conn = await connect(offer.from, !!offer.video);
-      await conn.setRemoteDescription(offer.sdp!); const a = await conn.createAnswer(); await conn.setLocalDescription(a);
+      await conn.setRemoteDescription(offer.sdp); const a = await conn.createAnswer(); await conn.setLocalDescription(a);
       await send(offer.from, { type: 'answer', sdp: a }); setState('live');
     } catch { end(); }
   };
@@ -56,21 +58,26 @@ export function CallManager() {
     if (!me) return;
     const ch = supabase.channel(`call-${me.id}`).on('broadcast', { event: 'signal' }, async ({ payload }) => {
       const s = payload as Signal;
-      if (s.type === 'offer') { if (pc.current) { void send(s.from, { type: 'end' }); return; } pendingOffer.current = s; peer.current = s.from; setVideo(!!s.video); setState('ringing'); enableBellAudio(); playBell(); }
+      if (!s || typeof s.from !== 'string' || s.from === me.id) return;
+      if (s.type === 'offer') { if (!s.sdp) return; const allowed = await supabase.rpc('can_post_chat', { _other: s.from }); const choices = readCommunicationChoices(me.id); if (allowed.error || allowed.data !== true || !(s.video ? choices.video : choices.voice)) return; if (pc.current) { void send(s.from, { type: 'end' }); return; } pendingOffer.current = s; peer.current = s.from; setVideo(!!s.video); setState('ringing'); enableBellAudio(); if (choices.bell) playBell(); }
       else if (s.from !== peer.current) return;
-      else if (s.type === 'answer' && pc.current) { await pc.current.setRemoteDescription(s.sdp!); setState('live'); }
+      else if (s.type === 'answer' && pc.current && s.sdp) { await pc.current.setRemoteDescription(s.sdp); setState('live'); }
       else if (s.type === 'ice' && pc.current) { try { await pc.current.addIceCandidate(s.ice); } catch { /* late candidate */ } }
       else if (s.type === 'end') cleanup();
     }).subscribe();
     const start = async (e: Event) => {
       const { peer: to, video: v } = (e as CustomEvent<{ peer: string; video: boolean }>).detail;
+      const choices = readCommunicationChoices(me.id);
+      if (!(v ? choices.video : choices.voice)) { toast.error('ఈ పిలుపు ఎంపికను మీ పేజీలో తెరవండి'); return; }
+      const allowed = await supabase.rpc('can_post_chat', { _other: to });
+      if (allowed.error || allowed.data !== true) { toast.error('ఈ సభ్యునితో పిలుపుకు అనుమతి లేదు'); return; }
       if (pc.current) return; setVideo(v); setState('calling');
       try { const conn = await connect(to, v); const o = await conn.createOffer(); await conn.setLocalDescription(o); await send(to, { type: 'offer', video: v, sdp: o }); }
-      catch { cleanup(); }
+      catch { toast.error('పిలుపు కలవలేదు. మైకు అనుమతి, అంతర్జాలం పరిశీలించండి'); cleanup(); }
     };
     window.addEventListener(START_CALL_EVENT, start);
     const list = channels.current;
-    return () => { window.removeEventListener(START_CALL_EVENT, start); supabase.removeChannel(ch); list.forEach(c => supabase.removeChannel(c)); list.clear(); };
+    return () => { window.removeEventListener(START_CALL_EVENT, start); stopBell(); pc.current?.close(); stream.current?.getTracks().forEach(t => t.stop()); supabase.removeChannel(ch); list.forEach(c => supabase.removeChannel(c)); list.clear(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [me?.id]);
 

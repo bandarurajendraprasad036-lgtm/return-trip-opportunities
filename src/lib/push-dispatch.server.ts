@@ -7,6 +7,8 @@ export async function dispatchPush() {
   const key = process.env['LOVABLE_API_KEY']; const connection = process.env['FIREBASE_MESSAGING_API_KEY'];
   if (!key || !connection) throw new Error('Push connection not configured');
   const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
+  const expiredGroups = await db.rpc('cleanup_expired_bell_groups');
+  if (expiredGroups.error) throw expiredGroups.error;
   const { cleanupRemovedAccountFiles } = await import('./storage-cleanup.server');
   await cleanupRemovedAccountFiles(db).catch(error => console.error('removed account file cleanup failed', error));
   const mainBell = await db.rpc('dispatch_main_bell_runs');

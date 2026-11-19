@@ -302,6 +302,152 @@ export type Database = {
           },
         ]
       }
+      bell_group_bookings: {
+        Row: {
+          created_at: string
+          group_id: string
+          id: string
+          requester_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          id?: string
+          requester_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          id?: string
+          requester_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bell_group_bookings_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "bell_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bell_group_bookings_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bell_group_members: {
+        Row: {
+          group_id: string
+          joined_at: string
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          joined_at?: string
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          joined_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bell_group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "bell_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bell_group_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bell_group_messages: {
+        Row: {
+          body: string
+          created_at: string
+          group_id: string
+          id: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          group_id: string
+          id?: string
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          group_id?: string
+          id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bell_group_messages_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "bell_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bell_group_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bell_groups: {
+        Row: {
+          created_at: string
+          entry_key: string
+          expires_at: string
+          id: string
+          owner_id: string
+          section: string
+        }
+        Insert: {
+          created_at?: string
+          entry_key: string
+          expires_at?: string
+          id?: string
+          owner_id: string
+          section: string
+        }
+        Update: {
+          created_at?: string
+          entry_key?: string
+          expires_at?: string
+          id?: string
+          owner_id?: string
+          section?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bell_groups_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_referral_board_notices: {
         Row: {
           day: string
@@ -2937,6 +3083,15 @@ export type Database = {
         Args: { _consent: boolean; _phone: string }
         Returns: string
       }
+      add_bell_group_member: {
+        Args: {
+          _key: string
+          _member: string
+          _owner: string
+          _section: string
+        }
+        Returns: string
+      }
       add_discovery_category: {
         Args: { _creator: string; _name: string; _section: string }
         Returns: string
@@ -3005,6 +3160,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      cleanup_expired_bell_groups: { Args: never; Returns: undefined }
       complete_account_profile: {
         Args: {
           _category: string
@@ -3058,6 +3214,7 @@ export type Database = {
         Args: { _source: string; _user: string }
         Returns: string
       }
+      group_phone_text: { Args: { _body: string }; Returns: boolean }
       has_goods_membership: { Args: { _user?: string }; Returns: boolean }
       has_paid_bell: { Args: { _user: string }; Returns: boolean }
       has_prime99: { Args: { _user: string }; Returns: boolean }
@@ -3073,6 +3230,7 @@ export type Database = {
         Args: { _id: string }
         Returns: undefined
       }
+      in_bell_group: { Args: { _group: string }; Returns: boolean }
       incoming_bell_reply_allowed: {
         Args: { _other: string; _post?: string }
         Returns: boolean
@@ -3175,6 +3333,16 @@ export type Database = {
           id: string
           owner_id: string
           phone: string
+        }[]
+      }
+      my_bell_groups: {
+        Args: never
+        Returns: {
+          expires_at: string
+          id: string
+          is_owner: boolean
+          members: number
+          section: string
         }[]
       }
       my_free_work_bell_notices: {
@@ -3330,6 +3498,7 @@ export type Database = {
         Args: { _id: string; _section: string; _source: string }
         Returns: boolean
       }
+      request_bell_group_booking: { Args: { _group: string }; Returns: string }
       request_own_bell_notice: { Args: { _device: string }; Returns: string }
       request_password_reset: { Args: { _phone: string }; Returns: undefined }
       request_phone_entry: {
@@ -3344,6 +3513,10 @@ export type Database = {
       respond_service_request: { Args: { _request: string }; Returns: string }
       review_additional_recipient_payment: {
         Args: { _approve: boolean; _id: string }
+        Returns: undefined
+      }
+      review_bell_group_booking: {
+        Args: { _accept: boolean; _booking: string }
         Returns: undefined
       }
       review_membership: {
@@ -3474,6 +3647,10 @@ export type Database = {
         Returns: string
       }
       select_weekly_winners: { Args: never; Returns: number }
+      send_bell_group_message: {
+        Args: { _body: string; _group: string }
+        Returns: string
+      }
       send_referral_reminders: { Args: never; Returns: number }
       service_occupation: { Args: { _value: string }; Returns: string }
       service_priority_position: {

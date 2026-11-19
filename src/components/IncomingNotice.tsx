@@ -10,6 +10,7 @@ import { PrivateBellDisplay } from '@/components/PrivateBellDisplay';
 import { listenForegroundPush } from '@/lib/firebase-push';
 import { screenNoticeAllowed } from '@/lib/screen-notice-rules';
 import { BELL_BOARD_REFRESH_MS } from '@/lib/bell-board-refresh';
+import { readCommunicationChoices } from '@/lib/dashboard-communications';
 
 export function IncomingNotice({ userId }: { userId: string }) {
   const [notice, setNotice] = useState<{ body: string; sender?: string | undefined; post?: string | undefined; payment?: boolean; id?: string; vehicleBell?: boolean } | null>(null);
@@ -60,13 +61,13 @@ export function IncomingNotice({ userId }: { userId: string }) {
     }, BELL_BOARD_REFRESH_MS);
     return () => { active = false; clearInterval(timer); stopPush?.(); setNotice(null); void supabase.removeChannel(channel); };
   }, [userId]);
-  useEffect(() => { if (notice) playBell(); }, [notice]);
+  useEffect(() => { if (notice && readCommunicationChoices(userId).bell) playBell(); }, [notice, userId]);
   const toggleSound=()=>change(muted);
   if (!notice) return null;
-  return <aside role="status" className="fixed inset-x-3 top-3 z-50 mx-auto max-w-md rounded-lg border border-secondary bg-card p-3 shadow-card">
+  return <aside role="status" className="fixed right-3 top-3 z-50 w-[min(320px,calc(100%-24px))] rounded-lg border border-secondary bg-card p-3 shadow-card">
     <div className="flex items-center gap-2"><Inbox className="size-5 shrink-0 text-primary" /><p className="min-w-0 flex-1 text-sm font-bold">నోటిఫికేషన్</p><Button variant="ghost" size="icon" aria-label="మూసివేయండి · Dismiss" onClick={() => setNotice(null)}><X /></Button></div>
-    <p className="line-clamp-3 break-words py-2 text-sm">{notice.body}</p>
+    <p className="line-clamp-3 break-words py-2 text-sm">గాయత్రి వన్‌లో కొత్త సమాచారం ఉంది</p>
     {notice.vehicleBell && <PrivateBellDisplay />}
-    <Button asChild size="sm" onClick={() => setNotice(null)}>{notice.sender ? <Link to="/chat/$userId" params={{ userId: notice.sender }} search={{ post: notice.post }}>సమాధానం చూడండి · View reply</Link> : <Link to="/notifications">నోటిఫికేషన్ చూడండి</Link>}</Button>
+    <Button asChild size="sm" onClick={() => setNotice(null)}><Link to="/dashboard" search={{ view: "notifications" }}>నా పేజీలో చూడండి</Link></Button>
   </aside>;
 }

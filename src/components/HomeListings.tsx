@@ -26,7 +26,7 @@ import { BELL_BOARD_REFRESH_MS } from '@/lib/bell-board-refresh';
 const sections: { key: HomeVehicleSection; te: string; en: string; className: string }[] = [
   { key: 'local', te: 'స్థానిక సరకు వాహనాలు', en: 'Local Goods Vehicle', className: 'vehicle-choice-local' },
   { key: 'return', te: 'స్థానిక తిరుగు & ముందస్తు సరకు వాహనాలు', en: 'Local Return & Advance Return Goods Vehicles', className: 'vehicle-choice-return' },
-  { key: 'cars', te: 'స్థానిక కార్ల బుకింగ్', en: 'Local Cars Booking', className: 'vehicle-choice-car' },
+  { key: 'cars', te: 'స్థానిక కార్ల సమాచారం', en: 'Local Car Information', className: 'vehicle-choice-car' },
 ];
 
 export function HomeListings({ today, settings }: { today: string; settings: HomeSettings }) {

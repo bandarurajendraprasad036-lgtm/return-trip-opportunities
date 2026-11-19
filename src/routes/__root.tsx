@@ -1,4 +1,3 @@
-import { CallManager } from '@/components/CallManager';
 import { Referral } from "@/components/Referral";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
@@ -155,7 +154,6 @@ function RootComponent() {
       <AccountBlockGate><ProfileAccessGate><Outlet /></ProfileAccessGate><PushSoundSync /><Referral /></AccountBlockGate>
       <AccountIncomingNotice />
       <SubscriptionActionGate />
-      <CallManager />
       <Toaster position="top-center" richColors />
     </QueryClientProvider>
   );

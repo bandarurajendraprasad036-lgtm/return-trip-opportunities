@@ -2,7 +2,7 @@ import { Brand } from "@/components/Brand";
 import { useEffect, type ReactNode } from "react";
 import { ClientOnly, Link, useLocation } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Inbox, Home, MessageCircle, FilePenLine, User, Info } from "lucide-react";
+import { Bell, Home, FilePenLine, User, Info } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/lib/session";
@@ -57,18 +57,14 @@ export function AppShell({ children, hideTopActions = false }: { children: React
         <Link to="/feed" className="min-w-0 font-display text-lg font-extrabold leading-none">
           <Brand />
         </Link>
-        <div className="flex shrink-0 items-center gap-1"><LanguageButton />{!hideTopActions && <Button asChild variant="outline" size="icon" aria-label="మా గురించి" title="మా గురించి"><Link to="/about"><Info className="size-5" /><ClientOnly>{unread > 0 && <span className="sr-only">{unread}</span>}</ClientOnly></Link></Button>}</div>
+        <div className="flex shrink-0 items-center gap-1"><LanguageButton />{!hideTopActions && <Button asChild variant="outline" size="icon" aria-label="మా గురించి" title="మా గురించి"><Link to="/about"><Info className="size-5" /></Link></Button>}{me && <Button asChild data-subscription-exempt variant="outline" size="icon" className="relative" aria-label="నా పేజీలో తెలియజేతలు"><Link to="/dashboard" search={{ view: 'notifications' }}><Bell className="size-5" /><ClientOnly>{unread > 0 && <span className="absolute -right-1 -top-1 rounded-full bg-primary px-1 text-xs text-primary-foreground">{unread}</span>}</ClientOnly></Link></Button>}</div>
       </header>
-      <main className="flex-1 pb-24">{location.pathname === '/dashboard' && <div className="px-4 pt-4"><AdminChatButton /></div>}{children}{location.pathname !== '/dashboard' && !vehicleSurface && !conversationSurface && <div className="px-3 py-3"><AdminChatButton /></div>}<ResponsibilityNotice /><DesignFooter /></main>
+      <main className="flex-1 pb-24">{location.pathname === '/dashboard' && !location.searchStr.includes('view=chat') && <div className="px-4 pt-4"><AdminChatButton /></div>}{children}<ResponsibilityNotice /><DesignFooter /></main>
       {me && <MessagePhoneNotices userId={me.id} />}
       <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-md border-t bg-card">
         <Link to="/feed" className={tab} activeProps={active}>
           <Home className="size-6" />
           హోమ్ Home
-        </Link>
-        <Link to="/chats" className={tab} activeProps={active}>
-          <MessageCircle className="size-6" />
-          చాట్ Chat
         </Link>
         <Link to="/post/new" className="-mt-5 flex flex-1 flex-col items-center gap-0.5 text-xs font-semibold">
           <span className="grid size-14 place-items-center rounded-full border-4 border-card bg-secondary text-secondary-foreground shadow-card">
@@ -79,10 +75,6 @@ export function AppShell({ children, hideTopActions = false }: { children: React
         <Link to="/dashboard" className={tab} activeProps={active}>
           <User className="size-6" />
           నా పేజీ
-        </Link>
-        <Link to="/notifications" className={tab} activeProps={active}>
-          <Inbox className="size-6" />
-          నోటిఫికేషన్
         </Link>
       </nav>
     </div>

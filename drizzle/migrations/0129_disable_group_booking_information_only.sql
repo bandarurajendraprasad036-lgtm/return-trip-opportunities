@@ -1,0 +1,8 @@
+REVOKE ALL ON FUNCTION public.request_bell_group_booking(uuid) FROM PUBLIC,anon,authenticated,service_role;
+REVOKE ALL ON FUNCTION public.review_bell_group_booking(uuid,boolean) FROM PUBLIC,anon,authenticated,service_role;
+CREATE OR REPLACE FUNCTION public.request_bell_group_booking(_group uuid) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ BEGIN RAISE EXCEPTION 'INFORMATION_ONLY_NO_BOOKING'; END $$;
+CREATE OR REPLACE FUNCTION public.review_bell_group_booking(_booking uuid,_accept boolean) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ BEGIN RAISE EXCEPTION 'INFORMATION_ONLY_NO_BOOKING'; END $$;
+REVOKE ALL ON public.bell_group_bookings FROM authenticated,anon;
+COMMENT ON TABLE public.bell_group_bookings IS 'DEPRECATED: information only; no booking requests or confirmations permitted.';
+CREATE FUNCTION public.cleanup_expired_bell_groups() RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ BEGIN DELETE FROM public.bell_group_messages WHERE group_id IN (SELECT id FROM public.bell_groups WHERE expires_at<=now()); DELETE FROM public.bell_group_members WHERE group_id IN (SELECT id FROM public.bell_groups WHERE expires_at<=now()); END $$;
+REVOKE ALL ON FUNCTION public.cleanup_expired_bell_groups() FROM PUBLIC,anon,authenticated; GRANT EXECUTE ON FUNCTION public.cleanup_expired_bell_groups() TO service_role;

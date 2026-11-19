@@ -2,8 +2,8 @@ import { useLanguage } from '@/lib/language';
 import { ShieldCheck } from "lucide-react";
 
 const statements: Record<string, { label: string; text: string }> = {
-  te: { label: "తెలుగు", text: "మాకు ఈ వ్యక్తులతో ఎలాంటి సంబంధం లేదు. ఏ వాహనం బుక్ చేసుకున్నా, ఏ వ్యాపారస్తులు లేదా ఉద్యోగులు మాట్లాడుకున్నా, కేవలం సమాచారం అందించడం మాత్రమే మా బాధ్యత. బుకింగ్, చెల్లింపు, వ్యక్తుల వివరాలను మీరే నిర్ధారించుకోండి." },
-  en: { label: "English", text: "We are not affiliated with these individuals. Whether you book a vehicle or speak with businesses or workers, our responsibility is only to provide information. Verify people, bookings and payments independently." },
+  te: { label: "తెలుగు", text: "గాయత్రి వన్ కేవలం సమాచారం అందిస్తుంది. వాహన బుకింగ్, ప్రయాణ డబ్బుల లావాదేవీలు, ప్రయాణం లేదా ప్రమాదాలతో మా సంస్థకు సంబంధం లేదు; మేము వాటిని ఏర్పాటు చేయము లేదా నిర్వహించము. సంబంధిత వ్యక్తులతో వివరాలు, భద్రత, చెల్లింపులను మీరే నిర్ధారించుకోండి. ఇక్కడ మాట్లాడటం లేదా గంట కొట్టడం బుకింగ్ కాదు." },
+  en: { label: "English", text: "Gayatri One provides information only. The firm does not arrange or handle vehicle bookings, travel payments, journeys or accidents and is not a party to those arrangements. Verify details, safety and payments with the people concerned. Chatting or ringing a bell is not a booking." },
   hi: { label: "हिन्दी", text: "इन व्यक्तियों से हमारा कोई संबंध नहीं है। वाहन बुक करने या व्यापारियों और कर्मचारियों से बात करने में हमारी जिम्मेदारी केवल जानकारी देना है। व्यक्ति, बुकिंग और भुगतान की पुष्टि स्वयं करें।" },
   ta: { label: "தமிழ்", text: "இந்த நபர்களுடன் எங்களுக்கு எந்தத் தொடர்பும் இல்லை. வாகனம் பதிவு செய்தாலும், வணிகர்கள் அல்லது பணியாளர்களுடன் பேசினாலும் தகவல் வழங்குவது மட்டுமே எங்கள் பொறுப்பு. நபர்கள், முன்பதிவு மற்றும் பணம் செலுத்துதலை நீங்களே உறுதிப்படுத்துங்கள்." },
   kn: { label: "ಕನ್ನಡ", text: "ಈ ವ್ಯಕ್ತಿಗಳೊಂದಿಗೆ ನಮಗೆ ಯಾವುದೇ ಸಂಬಂಧವಿಲ್ಲ. ವಾಹನ ಕಾಯ್ದಿರಿಸಿದರೂ, ವ್ಯಾಪಾರಿಗಳು ಅಥವಾ ಉದ್ಯೋಗಿಗಳೊಂದಿಗೆ ಮಾತನಾಡಿದರೂ ಮಾಹಿತಿ ನೀಡುವುದು ಮಾತ್ರ ನಮ್ಮ ಜವಾಬ್ದಾರಿ. ವ್ಯಕ್ತಿಗಳು, ಬುಕಿಂಗ್ ಮತ್ತು ಪಾವತಿಯನ್ನು ನೀವೇ ಪರಿಶೀಲಿಸಿ." },
@@ -21,7 +21,7 @@ export function ResponsibilityNotice({ prominent = false }: { prominent?: boolea
   const language = useLanguage();
   const statement = statements[language] ?? statements["te"];
   return <section className="space-y-2 border-y bg-muted px-4 py-4" aria-label="బాధ్యత ప్రకటన · Responsibility">
-    <h2 className="flex items-center gap-2 text-base font-bold"><ShieldCheck className="size-5 text-primary" />బాధ్యత · Responsibility</h2>
+    <h2 className="flex items-center gap-2 text-base font-bold"><ShieldCheck className="size-5 text-primary" />సమాచారం మాత్రమే</h2>
     <p translate="no" lang={language} dir={language === "ur" ? "rtl" : undefined} className={prominent ? "text-lg font-bold leading-relaxed" : "text-sm leading-relaxed"}>{statement?.text}</p>
   </section>;
 }
