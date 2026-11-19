@@ -59,7 +59,7 @@ export function AppShell({ children, hideTopActions = false }: { children: React
         </Link>
         <div className="flex shrink-0 items-center gap-1"><LanguageButton />{!hideTopActions && <Button asChild variant="outline" size="icon" aria-label="మా గురించి" title="మా గురించి"><Link to="/about"><Info className="size-5" /><ClientOnly>{unread > 0 && <span className="sr-only">{unread}</span>}</ClientOnly></Link></Button>}</div>
       </header>
-      <main className="flex-1 pb-24">{children}{!vehicleSurface && !conversationSurface && <div className="px-3 py-3"><AdminChatButton /></div>}<ResponsibilityNotice /><DesignFooter /></main>
+      <main className="flex-1 pb-24">{location.pathname === '/dashboard' && <div className="px-4 pt-4"><AdminChatButton /></div>}{children}{location.pathname !== '/dashboard' && !vehicleSurface && !conversationSurface && <div className="px-3 py-3"><AdminChatButton /></div>}<ResponsibilityNotice /><DesignFooter /></main>
       {me && <MessagePhoneNotices userId={me.id} />}
       <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-md border-t bg-card">
         <Link to="/feed" className={tab} activeProps={active}>
