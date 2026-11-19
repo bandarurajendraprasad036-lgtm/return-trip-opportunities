@@ -1,5 +1,11 @@
 import { isBellNight } from '@/lib/bell-rules';
+import { BELL_TONES, validBellTone, type BellTone } from '@/lib/bell-tones';
 let audio: AudioContext | undefined;
+export function bellTone(): BellTone { try { return validBellTone(localStorage.getItem('gayatri-bell-tone')); } catch { return 'temple'; } }
+export function setBellTone(tone: BellTone) {
+  try { localStorage.setItem('gayatri-bell-tone', validBellTone(tone)); } catch { /* Storage may be unavailable. */ }
+  window.dispatchEvent(new Event(BELL_PREFERENCE_EVENT));
+}
 export function bellMuted() { try { return localStorage.getItem('gayatri-notices-muted') === 'yes'; } catch { return false; } }
 export const BELL_PREFERENCE_EVENT = 'gayatri-bell-preference';
 export function setBellMuted(muted: boolean) {
@@ -18,7 +24,7 @@ export function installBellAudioUnlock() {
 }
 export function playBell() {
   if (!audio || audio.state !== 'running' || bellMuted() || isBellNight(new Date())) return;
-  [520, 1040, 1456, 2184, 2912].forEach((frequency, index) => {
+  (BELL_TONES.find(tone => tone.id === bellTone()) ?? BELL_TONES[0]).frequencies.forEach((frequency, index) => {
     if (!audio) return;
     const oscillator = audio.createOscillator(); const gain = audio.createGain();
     oscillator.frequency.value = frequency;
@@ -41,7 +47,7 @@ export function playTapBell() {
     let target: AudioNode = ctx.destination;
     try { const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -18; comp.ratio.value = 6; comp.connect(ctx.destination); target = comp; } catch { /* compressor optional */ }
     out.connect(target);
-    [440, 880, 1320, 1760, 2640, 3520].forEach((frequency, index) => {
+    (BELL_TONES.find(tone => tone.id === bellTone()) ?? BELL_TONES[0]).frequencies.forEach((frequency, index) => {
       const oscillator = ctx.createOscillator(); const gain = ctx.createGain();
       oscillator.type = index === 0 ? 'triangle' : 'sine';
       oscillator.frequency.value = frequency;

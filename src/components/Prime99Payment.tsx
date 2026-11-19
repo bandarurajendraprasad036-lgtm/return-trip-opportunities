@@ -22,6 +22,7 @@ export function Prime99Payment({ compact = false }: { bellPayment?: boolean; com
   });
 
   const plans = <p className="text-base">₹100 — మూడు నెలల చందా మాత్రమే. పని, సేవలు, వాహనాల గంట, సంభాషణ కోసం. నిర్వాహకుల ఆమోదం తర్వాతే మూడు నెలల చందా మొదలవుతుంది.</p>;
+  if (me?.isAdmin) return null;
   if (compact) return <section className="space-y-3 profile-copy">{plans}<PaymentScanner amount={amount} compact /><MembershipEvidenceForm key={amount} amount={amount} /></section>;
   if (!me) return null;
   const completed = !!prime?.active;

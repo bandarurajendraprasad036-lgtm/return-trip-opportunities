@@ -7,6 +7,7 @@ import { hasValidMobile } from '@/lib/phone';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useQuery } from '@tanstack/react-query';
 
 export function PhoneNumberChange({ currentPhone, verificationRequired = false }: { currentPhone: string; verificationRequired?: boolean }) {
   const queryClient = useQueryClient();
@@ -15,6 +16,11 @@ export function PhoneNumberChange({ currentPhone, verificationRequired = false }
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const availability = useQuery({ queryKey: ['phone-change-available'], queryFn: async () => {
+    const result = await supabase.rpc('my_phone_change_available');
+    if (result.error) throw result.error;
+    return result.data;
+  } });
   const fullPhone = `+91${phone}`;
   const clear = () => { setPhone(''); setCode(''); setSent(false); setError(''); };
 
@@ -25,6 +31,8 @@ export function PhoneNumberChange({ currentPhone, verificationRequired = false }
     try {
       const identity = await supabase.auth.getUser();
       if (identity.error || !identity.data.user) throw new Error('SESSION_REQUIRED');
+      const available = await supabase.rpc('check_my_new_mobile', { _phone: phone });
+      if (available.error) throw available.error;
       if (verificationRequired && identity.data.user.phone === fullPhone && identity.data.user.phone_confirmed_at) {
         const saved = await supabase.from('profiles').update({ phone }).eq('id', identity.data.user.id);
         if (saved.error) throw saved.error;
@@ -34,8 +42,9 @@ export function PhoneNumberChange({ currentPhone, verificationRequired = false }
       if (updateError) throw updateError;
       setSent(true);
       toast.success('నంబరు మార్పు కోడ్ అభ్యర్థన అంగీకరించబడింది · Phone-change code requested');
-    } catch {
-      setError('నిర్ధారణ కోడ్ పంపలేకపోయాం. ఫోన్ సందేశ సదుపాయం సిద్ధంగా లేకపోతే నిర్వాహకులు ముందుగా దాన్ని ఆన్ చేయాలి.');
+    } catch (failure) {
+      const message = failure instanceof Error ? failure.message : typeof failure === 'object' && failure && 'message' in failure ? String(failure.message) : '';
+      setError(message.includes('MOBILE_ALREADY_REGISTERED') ? 'ఈ సంఖ్యతో ఇప్పటికే ఖాతా ఉంది. మరో ఖాతా తెరవలేరు.' : message.includes('PHONE_CHANGE_ALREADY_USED') ? 'మీ సంఖ్యను ఇప్పటికే ఒకసారి మార్చారు. మళ్లీ మార్చలేరు.' : 'నిర్ధారణ కోడ్ పంపలేకపోయాం. నిర్వాహకుల సహాయం తీసుకోండి.');
     } finally { setBusy(false); }
   };
   const verify = async () => {
@@ -57,7 +66,9 @@ export function PhoneNumberChange({ currentPhone, verificationRequired = false }
     } finally { setBusy(false); }
   };
 
+  if (availability.data === false) return <p role="status">మీ సంఖ్యను ఇప్పటికే ఒకసారి మార్చారు. మళ్లీ మార్చలేరు.</p>;
   return <div className="space-y-2 rounded-lg border p-3">
+    <p>మీ సంఖ్యను ఒక్కసారి మాత్రమే మార్చవచ్చు; కొత్త సంఖ్య మీదే అని నిర్ధారించాలి.</p>
     <p className="text-sm">ప్రస్తుత నంబరు · Current: <strong>{currentPhone || 'ఇంకా లేదు · Not set'}</strong></p>
     <Label htmlFor="profile-new-phone">{verificationRequired ? 'చివరగా మీ మొబైల్ నంబరు నిర్ధారించండి' : 'కొత్త నంబరుకు మార్చండి · Change number'}</Label>
     <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
@@ -65,7 +76,7 @@ export function PhoneNumberChange({ currentPhone, verificationRequired = false }
       <Button type="button" variant="outline" onClick={clear} disabled={busy || (!phone && !code)}><X />తుడిచేయండి · Clear</Button>
     </div>
     {sent && <><Label htmlFor="profile-phone-code">ధృవీకరణ కోడ్ · Verification code</Label><Input id="profile-phone-code" inputMode="numeric" autoComplete="one-time-code" value={code} onChange={event => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))} maxLength={6} className="h-12 text-base" /></>}
-    <Button type="button" variant="outline" className="w-full" disabled={busy || !hasValidMobile(phone)} onClick={() => void (sent ? verify() : request())}>{busy ? 'వేచి ఉండండి…' : sent ? 'కోడ్ సరిచూసి నంబరు మార్చండి · Verify and change' : 'మార్పు కోడ్ పొందండి · Get change code'}</Button>
+    <Button type="button" variant="outline" className="w-full" disabled={busy || availability.isPending || availability.isError || !hasValidMobile(phone)} onClick={() => void (sent ? verify() : request())}>{busy ? 'వేచి ఉండండి…' : sent ? 'కోడ్ సరిచూసి నంబరు మార్చండి' : 'మార్పు కోడ్ పొందండి'}</Button>
     {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
   </div>;
 }

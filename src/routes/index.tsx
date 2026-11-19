@@ -67,6 +67,7 @@ function Index() {
           <h1 className="flex min-w-0 items-center gap-1 text-sm font-extrabold text-gold"><img src={emblem} alt="" width={28} height={28} className="size-7 shrink-0 object-contain" /><span>గాయత్రి వన్<span className="block text-xs">Gayatri One</span></span></h1>
           <div className="flex shrink-0 items-center gap-2">
             <LanguageButton />
+            {me?.isAdmin === true && <Button asChild variant="outline" className="h-auto min-h-11 px-2"><Link to="/admin">నిర్వాహకులు</Link></Button>}
             <Button asChild variant="outline" className="h-auto min-h-11 gap-1 px-2" aria-label="మా గురించి"><Link to="/about"><Info className="size-5" />గురించి</Link></Button>
           </div>
         </div>
@@ -92,7 +93,6 @@ function Index() {
         <Button asChild variant="ghost" className="w-full">
           <Link to="/feed">ఇప్పటికే అకౌంట్ ఉంది? Open app</Link>
         </Button>
-        {me?.isAdmin === true && <Button asChild variant="outline" className="w-full"><Link to="/admin-login">నిర్వాహక ప్రవేశం · Admin login</Link></Button>}
       </section>
       <div className="px-4 py-3"><AdminChatButton /></div>
       <ResponsibilityNotice />

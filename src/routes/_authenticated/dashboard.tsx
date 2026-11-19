@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, redirect } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Inbox, Briefcase, Image, LogOut, PlusCircle, Sparkles, Users, MessageCircle, Bell } from "lucide-react";
 import { AboutVideos } from '@/components/AboutVideos';
@@ -21,6 +21,12 @@ import { Prime99Payment } from '@/components/Prime99Payment';
 const MATA_IMAGES = [mataGold, mataGreen, mataIvory];
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
+  beforeLoad: async () => {
+    const identity = await supabase.auth.getUser();
+    if (!identity.data.user) return;
+    const role = await supabase.rpc('has_role', { _user_id: identity.data.user.id, _role: 'admin' });
+    if (!role.error && role.data) throw redirect({ to: '/admin' });
+  },
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },

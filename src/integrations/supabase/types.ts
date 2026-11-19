@@ -1568,6 +1568,29 @@ export type Database = {
           },
         ]
       }
+      profile_phone_changes: {
+        Row: {
+          changed_at: string
+          user_id: string
+        }
+        Insert: {
+          changed_at?: string
+          user_id: string
+        }
+        Update: {
+          changed_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_phone_changes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           bell_activated_at: string | null
@@ -2961,6 +2984,7 @@ export type Database = {
         Args: { _other?: string; _post?: string }
         Returns: boolean
       }
+      check_my_new_mobile: { Args: { _phone: string }; Returns: boolean }
       claim_push_deliveries: {
         Args: never
         Returns: {
@@ -3185,6 +3209,7 @@ export type Database = {
       my_membership_price: { Args: never; Returns: number }
       my_notification_quota: { Args: never; Returns: Json }
       my_payment_verification_pending: { Args: never; Returns: boolean }
+      my_phone_change_available: { Args: never; Returns: boolean }
       my_post_quota99: { Args: never; Returns: Json }
       my_prime99: { Args: never; Returns: Json }
       my_profile_access_ready: { Args: never; Returns: boolean }

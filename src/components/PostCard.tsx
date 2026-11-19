@@ -21,8 +21,9 @@ import { BellPaymentNotice } from '@/components/BellPaymentNotice';
 import { PrivateBellDisplay } from '@/components/PrivateBellDisplay';
 import { anonymousPostDetails } from '@/lib/display-privacy';
 import { AdminBellRowAction } from '@/components/AdminBellRowAction';
-import { bellErrorMessage, OWN_POST_MESSAGE, requireCompleteProfile, retryBell } from '@/lib/bell-request';
+import { bellErrorMessage, requireCompleteProfile, retryBell } from '@/lib/bell-request';
 import { playTapBell } from '@/lib/bell';
+import { IncomingBellList } from '@/components/IncomingBellList';
 
 export type Post = Database["public"]["Tables"]["posts"]["Row"];
 
@@ -90,7 +91,7 @@ export function PostCard({
   const contact = () => { void ring(); };
   const ring = async () => {
     if (sending) return;
-    if (post.user_id === meId) { toast.info(OWN_POST_MESSAGE, { duration: 7000 }); return; }
+    if (post.user_id === meId) return;
     playTapBell();
     setSending(true);
     try {
@@ -115,6 +116,7 @@ export function PostCard({
     </div>
     <PrivateBellDisplay />
     {meId === post.user_id && <Button asChild variant="outline" data-subscription-exempt className="h-auto min-h-11 whitespace-normal"><Link to="/bell-board" search={{ section: isJob ? section : vehicleDemandCategory(post), post: post.id }}>గంట కొట్టిన వాళ్ళ జాబితా</Link></Button>}
+    {isJob && meId === post.user_id && <IncomingBellList section={section} post={post.id} />}
     <AdminBellRowAction id={post.id} source="listing" section={isJob ? 'work' : 'vehicle'} />
     {anonymousWork && <Button variant="outline" onClick={contact} disabled={sending}><MessageCircle />చాట్</Button>}
     {isJob && <Button variant="outline" onClick={()=>void openDetails()} disabled={detailsBusy}><Info />వివరాలు</Button>}

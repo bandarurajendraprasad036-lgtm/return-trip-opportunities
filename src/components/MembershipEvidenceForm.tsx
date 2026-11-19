@@ -37,7 +37,7 @@ export function MembershipEvidenceForm({ amount = 100, beneficiary, recipientId 
     setImage(null);
     if (fileInput.current) fileInput.current.value = '';
     await queryClient.invalidateQueries();
-    toast.success('మీ చెల్లింపు ఫోటో అందింది. అడ్మిన్ చెక్ చేసి ఆమోదిస్తారు');
+    toast.success('సమర్పణ అయింది. మీ చెల్లింపు ఫోటో అందింది; నిర్వాహకులు పరిశీలించి ఆమోదిస్తారు');
     setBusy(false);
     await navigate({ to: '/dashboard' });
   }}>

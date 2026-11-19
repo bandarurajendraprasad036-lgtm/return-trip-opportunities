@@ -34,6 +34,13 @@ it('unpaid owner immediately sees job bell under the correct post',async()=>{
 it('unpaid owner sees service bell separately',async()=>{
  expect((await db.query(`SELECT need FROM my_incoming_bells('service-providers')`)).rows).toEqual([{need:'Plumber'}]);
 });
+it('all four work/service sections read only their own post bells',async()=>{
+ for(const section of ['work-wanted','work-offered','service-wanted','service-providers']) {
+  await db.exec(`INSERT INTO free_work_interests VALUES(gen_random_uuid(),'${job}','post','${member}','${section}','Test village','Test work')`);
+  const rows=await db.query<{need:string}>(`SELECT need FROM my_incoming_bells($1,$2) WHERE need='Test work'`,[section,job]);
+  expect(rows.rows).toEqual([{need:'Test work'}]);
+ }
+});
 it('unpaid owner sees vehicle bell and can open its exact participant chat',async()=>{
  expect((await db.query(`SELECT * FROM open_incoming_bell_chat('${vehicle}','vehicle','returns')`)).rows).toEqual([{other_id:member,post_id:vehicle}]);
  expect((await db.query<{ok:boolean}>(`SELECT can_post_chat('${vehicle}','${member}') ok`)).rows[0]?.ok).toBe(true);
