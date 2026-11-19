@@ -1514,6 +1514,7 @@ export type Database = {
           id: string
           payable_amount: number
           payment_purpose: string
+          plan_months: number
           received_at: string | null
           reference: string
           review_note: string
@@ -1530,6 +1531,7 @@ export type Database = {
           id?: string
           payable_amount?: number
           payment_purpose?: string
+          plan_months?: number
           received_at?: string | null
           reference: string
           review_note?: string
@@ -1546,6 +1548,7 @@ export type Database = {
           id?: string
           payable_amount?: number
           payment_purpose?: string
+          plan_months?: number
           received_at?: string | null
           reference?: string
           review_note?: string

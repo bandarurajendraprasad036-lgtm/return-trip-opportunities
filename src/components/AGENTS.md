@@ -1,1 +1,2 @@
 - About video readers and the admin editor share the existing public youtube_url setting and its backward-compatible parser; database role policies remain authoritative for writes, so old videos survive without exposing account data.
+- Subscription forms use the sole current price; approvals read each receipt’s stored calendar-month duration to preserve history.

@@ -51,6 +51,7 @@ export function AdminMembershipRequests() {
     {data && !data.some(request => request.status === 'pending') && <p>పరిశీలించాల్సిన చెల్లింపులు లేవు</p>}
     {data?.map(request => <article className="space-y-2 border-b py-3" key={request.id}>
       <p translate="no">{request.person?.full_name || '—'} · {request.person?.phone || '—'}</p>
+      <p>చందా వ్యవధి: {request.vehicle_plan_months} నెలలు</p>
       <p translate="no">₹{request.amount} · {request.reference.startsWith('screenshot:') ? 'ఫోటో ఆధారం' : request.reference}</p>
       <p>{new Date(request.submitted_at).toLocaleString('te-IN')} · {request.status === 'pending' ? 'అడ్మిన్ పరిశీలన కోసం వెయిటింగ్' : request.status === 'approved' ? 'చెల్లింపు ఆమోదించాం' : 'చెల్లింపు తిరస్కరించాం'}</p>
       <div className="flex flex-wrap gap-2">

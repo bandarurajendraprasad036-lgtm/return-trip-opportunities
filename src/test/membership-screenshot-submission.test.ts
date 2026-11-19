@@ -83,3 +83,36 @@ it('new ₹100 requests unlock exactly one month only after admin approval, supe
   expect((await db.query<{ active: boolean }>(`SELECT revoked_at IS NULL AND ends_at=starts_at+interval '1 month' active FROM membership_access WHERE request_id='${id}'`)).rows).toEqual([{ active: true }]);
   expect((await db.query<{ months: number }>(`SELECT vehicle_plan_months months FROM membership_requests WHERE id='${id}'`)).rows).toEqual([{ months: 1 }]);
 });
+
+
+it('new sole ₹100 plan preserves old expiry and grants three months only on admin approval', async () => {
+  const oldExpiry = (await db.query<{ends_at:string}>(`SELECT ends_at::text FROM membership_access WHERE request_id='${requestId}'`)).rows[0]?.ends_at;
+  await db.exec(`ALTER TABLE membership_access ADD COLUMN feature_scope text DEFAULT 'all';
+    ALTER TABLE prime99_payments ADD COLUMN payable_amount integer,ADD COLUMN payment_purpose text;
+    CREATE TABLE membership_payments(amount integer);
+    CREATE TABLE additional_recipient_payments(amount integer);
+    CREATE FUNCTION review_prime99(uuid,boolean,text) RETURNS void LANGUAGE plpgsql AS $$BEGIN RETURN;END$$;`);
+  await db.exec(`CREATE OR REPLACE FUNCTION my_membership_price() RETURNS integer LANGUAGE sql AS $$SELECT 100$$;
+    CREATE OR REPLACE FUNCTION submit_membership_screenshot(_amount integer,_beneficiary uuid,_reference text,_path text) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+    DECLARE mid uuid; rid uuid; payer uuid:=auth.uid(); BEGIN
+      IF _amount NOT IN(49,80,100) THEN RAISE EXCEPTION 'INVALID_PAYMENT_EVIDENCE'; END IF;
+      IF _path NOT LIKE payer::text||'/%' THEN RAISE EXCEPTION 'IMAGE_REQUIRED'; END IF;
+      PERFORM set_config('app.membership_evidence','1',true);
+      INSERT INTO messages(sender_id,receiver_id,body,image_path,needs_admin,is_auto) VALUES(payer,support_admin_id(),'చెల్లింపు చిత్రం',_path,true,true) RETURNING id INTO mid;
+      rid:=register_membership_evidence(payer,coalesce(_beneficiary,payer),_amount,_reference,mid);
+      PERFORM hold_membership_evidence_for_admin(rid);RETURN rid; END $$;`);
+  await db.exec(readFileSync('drizzle/migrations/0120_sole_hundred_three_month_subscription.sql','utf8'));
+  await db.exec(`SELECT set_config('test.user','${owner}',false);`);
+  for (const amount of [49,80,99,699,1999]) await expect(db.query(`SELECT submit_membership_screenshot($1,NULL,$2,$3)`,[amount,`screenshot:${'c'.repeat(64)}`,`${owner}/proof.png`])).rejects.toThrow('INVALID_PAYMENT_EVIDENCE');
+  await expect(db.exec('INSERT INTO membership_payments VALUES(699)')).rejects.toThrow('RETIRED_PAYMENT_PLAN');
+  await expect(db.exec('INSERT INTO additional_recipient_payments VALUES(80)')).rejects.toThrow('RETIRED_PAYMENT_PLAN');
+  const result=await db.query<{id:string}>(`SELECT submit_membership_screenshot(100,NULL,'screenshot:${'d'.repeat(64)}','${owner}/proof.png') id`);
+  const id=result.rows[0]?.id;if(!id)throw new Error('missing new request');
+  expect((await db.query<{months:number}>(`SELECT vehicle_plan_months months FROM membership_requests WHERE id='${id}'`)).rows[0]?.months).toBe(3);
+  expect((await db.query<{held:boolean}>(`SELECT revoked_at IS NOT NULL held FROM membership_access WHERE request_id='${id}'`)).rows[0]?.held).toBe(true);
+  await expect(db.query(`SELECT review_membership_evidence('${id}',true)`)).rejects.toThrow('ADMIN_ONLY');
+  await db.exec(`SELECT set_config('test.user','${admin}',false);`);await db.query(`SELECT review_membership_evidence('${id}',true)`);
+  expect((await db.query<{active:boolean}>(`SELECT revoked_at IS NULL AND feature_scope='all' AND ends_at=starts_at+interval '3 months' active FROM membership_access WHERE request_id='${id}'`)).rows[0]?.active).toBe(true);
+  expect((await db.query<{ends_at:string}>(`SELECT ends_at::text FROM membership_access WHERE request_id='${requestId}'`)).rows[0]?.ends_at).toBe(oldExpiry);
+  expect((await db.query<{ending:string}>(`SELECT (timestamp '2026-11-19 11:44:00'+interval '3 months')::date::text ending`)).rows[0]?.ending).toBe('2027-02-19');
+});

@@ -26,6 +26,7 @@ export async function uploadMembershipScreenshot(input: {
   beneficiary?: string | undefined;
 }) {
   const { userId, image, amount, beneficiary } = input;
+  if (amount !== 100 || (beneficiary && beneficiary !== userId)) throw new Error("₹100 — మూడు నెలల చందా మాత్రమే అందుబాటులో ఉంది");
   const { reference, path } = await uploadScreenshot(userId, image);
   const saved = await supabase.rpc('submit_membership_screenshot', {
     _amount: amount,

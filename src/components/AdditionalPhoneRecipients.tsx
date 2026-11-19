@@ -5,12 +5,9 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useMe } from '@/lib/session';
 import { hasValidMobile } from '@/lib/phone';
-import { ADDITIONAL_RECIPIENT_AMOUNT } from '@/lib/additional-recipients';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PaymentScanner } from '@/components/PaymentScanner';
-import { MembershipEvidenceForm } from '@/components/MembershipEvidenceForm';
 
 export function AdditionalPhoneRecipients() {
   const { data: me } = useMe();
@@ -18,7 +15,6 @@ export function AdditionalPhoneRecipients() {
   const [phone, setPhone] = useState('');
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [paymentFor, setPaymentFor] = useState('');
 
   const recipients = useQuery({
     queryKey: ['additional-phone-recipients', me?.id],
@@ -73,8 +69,8 @@ export function AdditionalPhoneRecipients() {
   return <section className="space-y-4 border-y py-4" aria-label="అదనపు మొబైల్ నంబర్లు">
     <div>
       <h2 className="text-xl font-bold">అదనపు మొబైల్ నంబర్లు</h2>
-      <p className="text-lg">ఒక్కొక్క అదనపు వ్యక్తికి ₹{ADDITIONAL_RECIPIENT_AMOUNT}. ఎంత మంది అయినా జతచేయవచ్చు.</p>
-      <p>నంబరు యజమాని తన ఖాతాలోకి కోడ్‌తో ప్రవేశించి అనుమతి ఇచ్చిన తర్వాతే చెల్లింపు చేయవచ్చు.</p>
+      <p className="text-lg">పాత అదనపు నంబర్ల వివరాలు అలాగే ఉంటాయి. కొత్త అదనపు నంబరు చందా కొనుగోళ్లు నిలిపివేశాం.</p>
+      <p>ప్రతి వ్యక్తి తన ఖాతాలో ₹100కు మూడు నెలల చందా తీసుకోవచ్చు.</p>
     </div>
     <div className="space-y-2">
       <Label htmlFor="additional-phone">అదనపు మొబైల్ నంబరు</Label>
@@ -93,15 +89,11 @@ export function AdditionalPhoneRecipients() {
 
     {recipients.isError && <Button type="button" variant="outline" onClick={() => void recipients.refetch()}>మళ్లీ ప్రయత్నించండి</Button>}
     {recipients.data?.map(recipient => <article key={recipient.id} className="space-y-3 rounded-lg border p-3">
-      <p className="text-lg font-bold" translate="no">{recipient.phone} · ₹{ADDITIONAL_RECIPIENT_AMOUNT}</p>
+      <p className="text-lg font-bold" translate="no">{recipient.phone}</p>
       {!recipient.verified_at ? <p role="status">నంబరు యజమాని కోడ్‌తో ప్రవేశించి అనుమతి ఇవ్వాలి.</p>
         : recipient.payment_status === 'approved' ? <p role="status">₹80 చెల్లింపు నిర్వాహకులు ఆమోదించారు.</p>
           : recipient.payment_status === 'pending' ? <p role="status">చెల్లింపు ఫోటో నిర్వాహకుల పరిశీలనలో ఉంది.</p>
-            : <>
-              {recipient.payment_status === 'rejected' && <p role="status">చెల్లింపు ఆమోదించలేదు. మళ్లీ ఫోటో పంపవచ్చు.</p>}
-              <Button type="button" variant="outline" className="min-h-12 w-full" aria-expanded={paymentFor === recipient.id} onClick={() => setPaymentFor(current => current === recipient.id ? '' : recipient.id)}>₹80 చెల్లించండి</Button>
-              {paymentFor === recipient.id && <div className="space-y-4"><PaymentScanner amount={80} heading="అదనపు నంబరు కోసం స్కాన్ చేయండి" /><MembershipEvidenceForm amount={80} recipientId={recipient.id} /></div>}
-            </>}
+            : <p>కొత్త అదనపు నంబరు చందా కొనుగోలు అందుబాటులో లేదు.</p>}
     </article>)}
     <p className="text-sm">చెల్లింపు ఆమోదం లేదా సూచన అనుమతి, ఫోన్‌కు సందేశం చేరిందనే హామీ కాదు.</p>
   </section>;

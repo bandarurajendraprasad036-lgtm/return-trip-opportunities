@@ -1,7 +1,7 @@
 export const MEMBERSHIP_AMOUNT = 100;
-export const DISCOUNT_AMOUNT = 80;
-export const EXTRA_POST_AMOUNT = 49;
-export const MEMBERSHIP_MONTHS = 1;
+export const DISCOUNT_AMOUNT = 100;
+export const EXTRA_POST_AMOUNT = 100;
+export const MEMBERSHIP_MONTHS = 3;
 export const ALERT_DELAY_DAYS = 0;
 export const FREE_POSTS = 3;
 export const MIN_PROVIDER_CONTACTS = 20;

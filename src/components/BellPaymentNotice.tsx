@@ -6,5 +6,5 @@ import { PaymentScanner } from '@/components/PaymentScanner';
 
 export function BellPaymentNotice({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   const { data: me } = useMe();
-  return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent className="max-h-[85svh] overflow-y-auto"><DialogTitle>₹100 — ఒక నెల చాట్ + గంట మాత్రమే</DialogTitle>{me ? <Prime99Payment bellPayment /> : <><PaymentScanner /><GoogleSignIn /></>}</DialogContent></Dialog>;
+  return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent className="max-h-[85svh] overflow-y-auto"><DialogTitle>₹100 — మూడు నెలల సంభాషణ + గంట</DialogTitle>{me ? <Prime99Payment bellPayment /> : <><PaymentScanner /><GoogleSignIn /></>}</DialogContent></Dialog>;
 }

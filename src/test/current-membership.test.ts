@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { MEMBERSHIP_AMOUNT, MEMBERSHIP_MONTHS, ALERT_DELAY_DAYS, EXTRA_POST_AMOUNT, DISCOUNT_AMOUNT, FREE_POSTS, validProviderContacts, competitionDisplayOpen, publicationRemaining } from '@/lib/current-membership';
 describe('November twelve confirmed rules', () => {
   it('charges the full 100', () => expect(MEMBERSHIP_AMOUNT).toBe(100));
-  it('lasts one payment anchored month', () => expect(MEMBERSHIP_MONTHS).toBe(1));
+  it('lasts three approval anchored calendar months', () => expect(MEMBERSHIP_MONTHS).toBe(3));
   it('does not delay confirmed bell eligibility', () => expect(ALERT_DELAY_DAYS).toBe(0));
-  it('charges 49 for each additional post', () => expect(EXTRA_POST_AMOUNT).toBe(49));
-  it('uses the reviewed 80 discount', () => expect(DISCOUNT_AMOUNT).toBe(80));
+  it('does not advertise the retired 49 price', () => expect(EXTRA_POST_AMOUNT).toBe(100));
+  it('has no discounted 80 subscription', () => expect(DISCOUNT_AMOUNT).toBe(100));
   it('keeps three free posts', () => expect(FREE_POSTS).toBe(3));
   const contacts = Array.from({ length: 20 }, (_, i) => ({ town: 'Town', service: 'Plumber', mobile: String(9000000000 + i), consent: true }));
   it('requires at least twenty genuine consented distinct contacts', () => { expect(validProviderContacts(contacts)).toBe(true); expect(validProviderContacts(contacts.slice(1))).toBe(false); expect(validProviderContacts(contacts.map((r, i) => i === 0 ? { ...r, consent: false } : r))).toBe(false); expect(validProviderContacts(contacts.map(r => ({ ...r, mobile: '9000000000' })))).toBe(false); });

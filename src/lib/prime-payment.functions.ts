@@ -8,7 +8,7 @@ export type PrimePaymentResult = { status: 'approved' | 'pending' };
 export const submitPrimePayment = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => {
     if (!(input instanceof FormData)) throw new Error('Invalid form');
-    const amount = z.coerce.number().int().refine(v => v === 80 || v === 100).parse(input.get('amount') ?? 100);
+    const amount = z.coerce.number().int().refine(v => v === 100).parse(input.get('amount') ?? 100);
     const beneficiary = z.string().uuid().nullable().parse(input.get('beneficiary') || null);
     const image = input.get('image');
     if (!(image instanceof File) || !image.size || image.size > CHAT_IMAGE_LIMIT) throw new Error('IMAGE_REQUIRED');
