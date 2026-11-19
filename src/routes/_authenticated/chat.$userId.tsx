@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Send, ImagePlus, X, Phone } from "lucide-react";
+import { ArrowLeft, Send, ImagePlus, Plus, X, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,13 +10,13 @@ import { useServerFn } from "@tanstack/react-start";
 import { sendSupportMessage } from "@/lib/support.functions";
 import { z } from "zod";
 import { PostEvidence } from '@/components/PostEvidence';
-import { ProgramEvidence } from '@/components/ProgramEvidence';
 import { sendChatEntry, viewChatImage, deleteChatEntry } from '@/lib/chat-upload.functions';
 import { CHAT_IMAGE_LIMIT, chatEntrySchema } from '@/lib/chat-rules';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { hidePaymentEvidence } from '@/lib/payment-status';
 import { toast } from 'sonner';
 import { paymentUtr } from '@/lib/november-profile';
+import { AboutVideos } from '@/components/AboutVideos';
 
 export const Route = createFileRoute("/_authenticated/chat/$userId")({
   validateSearch: (search: Record<string, unknown>): { post?: string | undefined } => ({ post: typeof search["post"] === "string" && z.string().uuid().safeParse(search["post"]).success ? search["post"] : undefined }),
@@ -141,8 +141,7 @@ function Chat() {
       </div>
       {contextPost && <section className="space-y-1 border-b bg-muted px-3 py-3 text-sm" aria-label="ప్రయాణ వివరాలు · Route details"><p className="font-bold">{contextPost.title}</p>{contextPost.module === "vehicle" ? <><p>{contextPost.from_place} → {contextPost.to_place}</p><p>{contextPost.vehicle_type} {contextPost.capacity_tons != null && `· ${contextPost.capacity_tons} టన్నులు · tons`} · {contextPost.trip_date}</p></> : <p>{contextPost.location}</p>}</section>}
       <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-3">
-        {userId === adminId && <p className="border-b pb-3">₹100 కట్టిన తర్వాత ఇక్కడ మీ UTR నంబర్ + స్క్రీన్ షాట్ పంపండి. రెండూ పంపితే తాత్కాలిక ప్రైమ్ ఆన్ అవుతుంది. మేము చూసి మీ చెల్లింపు నిర్ధారిస్తాం.</p>}
-        {!postId && userId === adminId && <ProgramEvidence />}
+        {userId === adminId && <details className="border-b pb-3"><summary className="cursor-pointer py-2 text-lg font-bold">నిర్వాహకుల వీడియోలు చూడండి</summary><AboutVideos /></details>}
         {postId && (userId === adminId || me?.isAdmin) && <PostEvidence postId={postId} admin={!!me?.isAdmin}/>}
         {msgs.length === 0 && <p className="pt-10 text-center text-muted-foreground">నమస్కారం చెప్పండి 🙏 Say hello</p>}
         {msgs.map((m) => {
@@ -165,10 +164,10 @@ function Chat() {
       {sendError && <p role="alert" className="px-3 py-2 text-sm text-destructive">{sendError}</p>}
       {chatAllowed===false && <p role="alert" className="px-3 py-2">సంభాషణకు నెలకు ₹100 చెల్లింపు నిర్ధారణతో పాటు ప్రకటన గంట ద్వారా ప్రారంభించిన సంబంధం అవసరం.<Link to="/dashboard" className="block underline">₹100 చెల్లింపు</Link></p>}
       <form onSubmit={send} className="space-y-2 border-t bg-card p-2">
-        {userId === adminId ? <p className="text-xs">మీ ప్రొఫైల్ మొబైల్ నంబర్ అడ్మిన్‌కు తెలుస్తుంది; మళ్ళీ ఇవ్వాల్సిన అవసరం లేదు</p> : <Input type="tel" inputMode="numeric" aria-label="ఫోన్ నంబరు · Phone number" value={phone} onChange={e=>setPhone(e.target.value.replace(/\D/g,''))} maxLength={10} placeholder="ఫోన్ నంబరు · Phone number" disabled={busy || !chatAllowed || contactAllowed !== true} />}
+        {userId !== adminId && <Input type="tel" inputMode="numeric" aria-label="ఫోన్ నంబరు · Phone number" value={phone} onChange={e=>setPhone(e.target.value.replace(/\D/g,''))} maxLength={10} placeholder="ఫోన్ నంబరు · Phone number" disabled={busy || !chatAllowed || contactAllowed !== true} />}
         <input ref={fileInput} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>{const file=e.target.files?.[0];if(file && (file.size>CHAT_IMAGE_LIMIT || !['image/jpeg','image/png','image/webp'].includes(file.type))){setSendError('ఐదు మెగాబైట్ల లోపు చిత్రం ఎంచుకోండి · Choose an image under 5MB');e.target.value='';return;}setImage(file || null);setSendError('');}} />
         {image && <div className="flex items-center gap-2 text-sm"><span className="min-w-0 flex-1 truncate">{image.name}</span><Button type="button" variant="ghost" size="icon" aria-label="చిత్రం తీసేయండి · Remove image" onClick={()=>{setImage(null);if(fileInput.current)fileInput.current.value='';}}><X /></Button></div>}
-        <div className="flex gap-2"><Button type="button" variant="outline" size="icon" aria-label="పేమెంట్ స్క్రీన్ షాట్ పంపండి" disabled={busy || !chatAllowed} onClick={()=>fileInput.current?.click()}><ImagePlus /></Button><Input value={text} onChange={(e) => setText(e.target.value)} maxLength={1000} placeholder="మెసేజ్ / UTR నంబర్" className="h-12 min-w-0 text-base" disabled={busy || !chatAllowed} /><Button type="submit" disabled={busy || !chatAllowed || (!text.trim() && !phone && !image)} size="icon" className="size-12 shrink-0" aria-label="పంపండి · Send"><Send /></Button></div>
+        <div className="flex gap-2"><Button type="button" variant="outline" size="icon" aria-label="ఫోటో లేదా స్క్రీన్ షాట్ జత చేయండి" title="ఫోటో లేదా స్క్రీన్ షాట్ జత చేయండి" disabled={busy || !chatAllowed} onClick={()=>fileInput.current?.click()}><Plus /></Button><Input value={text} onChange={(e) => setText(e.target.value)} maxLength={1000} placeholder="సందేశం రాయండి" className="h-12 min-w-0 text-base" disabled={busy || !chatAllowed} /><Button type="submit" disabled={busy || !chatAllowed || (!text.trim() && !phone && !image)} size="icon" className="size-12 shrink-0" aria-label="పంపండి · Send"><Send /></Button></div>
       </form>
       <Dialog open={!!imageUrl} onOpenChange={open=>{if(!open)setImageUrl('');}}><DialogContent><DialogTitle>వ్యక్తిగత చిత్రం · Private image</DialogTitle>{imageUrl && <img src={imageUrl} alt="సంభాషణ చిత్రం · Chat image" className="max-h-[70svh] w-full object-contain" />}</DialogContent></Dialog>
     </div>

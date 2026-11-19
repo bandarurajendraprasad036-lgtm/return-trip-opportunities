@@ -2,11 +2,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { PhoneSignIn } from '@/components/PhoneSignIn';
 
-const mocks = vi.hoisted(() => ({ request: vi.fn(), redeem: vi.fn(), session: vi.fn(), navigate: vi.fn() }));
-vi.mock('@/integrations/supabase/client', () => ({ supabase: { rpc: mocks.request, auth: { setSession: mocks.session } } }));
-vi.mock('@tanstack/react-start', () => ({ useServerFn: () => mocks.redeem }));
-vi.mock('@/lib/phone-entry.functions', () => ({ redeemPhoneEntry: vi.fn() }));
-vi.mock('@/lib/phone-entry', () => ({ phoneDeviceIdentity: async () => ({ secret: 'a'.repeat(64), hash: 'b'.repeat(64) }) }));
+const mocks = vi.hoisted(() => ({ request: vi.fn(), verify: vi.fn(), navigate: vi.fn() }));
+vi.mock('@/integrations/supabase/client', () => ({ supabase: { auth: { signInWithOtp: mocks.request, verifyOtp: mocks.verify } } }));
 vi.mock('@tanstack/react-router', () => ({ useNavigate: () => mocks.navigate }));
 vi.mock('@tanstack/react-query', () => ({ useQueryClient: () => ({ invalidateQueries: vi.fn() }) }));
 
@@ -23,27 +20,24 @@ describe('phone sign-in', () => {
     expect(input).toHaveValue('');
     expect(mocks.request).not.toHaveBeenCalled();
   });
-  it('phone submission and pending approval never open an existing account', async () => {
+  it('requesting a code never creates an account or signs in by number alone', async () => {
     mocks.request.mockResolvedValue({ error: null });
-    mocks.redeem.mockResolvedValue({ status: 'pending', session: null });
     render(<PhoneSignIn />);
     fireEvent.change(screen.getByLabelText('వాట్సాప్ మొబైల్ నంబరు'), { target: { value: '9876543211' } });
-    fireEvent.click(screen.getByRole('button', { name: 'నంబరు పంపండి' }));
-    await waitFor(() => expect(mocks.request).toHaveBeenCalledWith('request_phone_entry', { _phone: '9876543211', _hash: 'b'.repeat(64) }));
-    fireEvent.click(await screen.findByRole('button', { name: 'అనుమతి చూసి ప్రవేశించండి' }));
-    await waitFor(() => expect(mocks.redeem).toHaveBeenCalledWith({ data: { secret: 'a'.repeat(64) } }));
-    expect(mocks.session).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'నిర్ధారణ కోడ్ పొందండి' }));
+    await waitFor(() => expect(mocks.request).toHaveBeenCalledWith({ phone: '+919876543211', options: { shouldCreateUser: false } }));
+    expect(mocks.verify).not.toHaveBeenCalled();
     expect(mocks.navigate).not.toHaveBeenCalled();
   });
-  it('only sets the session returned for an approved device', async () => {
+  it('navigates only after the registered phone code returns a session', async () => {
     mocks.request.mockResolvedValue({ error: null });
-    const session = { access_token: 'test-access', refresh_token: 'test-refresh' };
-    mocks.redeem.mockResolvedValue({ status: 'approved', session });
-    mocks.session.mockResolvedValue({ error: null });
+    mocks.verify.mockResolvedValue({ data: { session: {} }, error: null });
     render(<PhoneSignIn />);
     fireEvent.change(screen.getByLabelText('వాట్సాప్ మొబైల్ నంబరు'), { target: { value: '9876543211' } });
-    fireEvent.click(screen.getByRole('button', { name: 'నంబరు పంపండి' }));
-    fireEvent.click(await screen.findByRole('button', { name: 'అనుమతి చూసి ప్రవేశించండి' }));
-    await waitFor(() => expect(mocks.session).toHaveBeenCalledWith(session));
+    fireEvent.click(screen.getByRole('button', { name: 'నిర్ధారణ కోడ్ పొందండి' }));
+    fireEvent.change(await screen.findByLabelText('ఫోన్‌కు వచ్చిన కోడ్'), { target: { value: '123456' } });
+    fireEvent.click(screen.getByRole('button', { name: 'కోడ్ నిర్ధారించి ప్రవేశించండి' }));
+    await waitFor(() => expect(mocks.verify).toHaveBeenCalledWith({ phone: '+919876543211', token: '123456', type: 'sms' }));
+    await waitFor(() => expect(mocks.navigate).toHaveBeenCalled());
   });
 });

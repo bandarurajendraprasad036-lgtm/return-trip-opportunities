@@ -7,5 +7,11 @@ describe('private chat entry validation', () => {
   it('rejects an invalid mobile', () => expect(chatEntrySchema.safeParse({...entry,phone:'123'}).success).toBe(false));
   it('rejects a fake image despite its image MIME type', () => expect(validChatImage(new TextEncoder().encode('<script>'), 'image/png')).toBe(false));
   it('accepts PNG signature', () => expect(validChatImage(new Uint8Array([137,80,78,71,13,10,26,10]),'image/png')).toBe(true));
+  it('accepts screenshot images but never video uploads', () => {
+    const png = new Uint8Array([137,80,78,71,13,10,26,10]);
+    expect(validChatImage(png, 'image/png')).toBe(true);
+    expect(validChatImage(png, 'video/mp4')).toBe(false);
+    expect(validChatImage(png, 'video/webm')).toBe(false);
+  });
   it('rejects files over five megabytes', () => expect(validChatImage(new Uint8Array(CHAT_IMAGE_LIMIT+1),'image/jpeg')).toBe(false));
 });

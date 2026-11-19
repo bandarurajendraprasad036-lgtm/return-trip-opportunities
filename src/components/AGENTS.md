@@ -1,0 +1,1 @@
+- About video readers and the admin editor share the existing public youtube_url setting and its backward-compatible parser; database role policies remain authoritative for writes, so old videos survive without exposing account data.
