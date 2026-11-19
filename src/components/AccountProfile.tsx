@@ -1,3 +1,4 @@
+import { AdminChatButton } from '@/components/AdminChatButton';
 import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -164,6 +165,7 @@ export function AccountProfile({ completionOnly = false }: { completionOnly?: bo
         {kind === 'service' && <Button type="button" variant="outline" className="min-h-12 w-full whitespace-normal" disabled={busy || !location.trim() || !category.trim()} onClick={async () => { setBusy(true); try { const result = await supabase.rpc('apply_service_priority', { _area: location.trim(), _category: category.trim() }); if (result.error) { if (result.error.message.includes('PAID_BELL_REQUIRED')) setSubscribeOpen(true); else toast.error('ముందుగా సేవా వివరాలు భద్రపరచండి'); return; } await qc.invalidateQueries({ queryKey: ['service-priority'] }); toast.success('మీ దరఖాస్తు నమోదైంది; ఈ ప్రాంతంలో మొదటి పది అర్హమైన దరఖాస్తులకే ప్రత్యేక స్థానం'); } finally { setBusy(false); } }}>నేను సర్వీస్ పాయింట్ లో ఉన్నాను</Button>}
         <Button type="submit" disabled={busy || isLoading || isError || !location.trim()} className="min-h-12 w-full">వివరాలు భద్రపరచండి · Save profile</Button>
       </form>
+      <div data-subscription-exempt><AdminChatButton /></div>
       {isError && <p role="alert">వివరాలు రాలేదు · Profile unavailable</p>}
     </section>
     {vehicleProfile && <SavedVehicleRoutes owner={kind === 'owner'} />}

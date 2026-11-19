@@ -23,6 +23,11 @@ export function Prime99Payment({ compact = false }: { bellPayment?: boolean; com
 
   const plans = <p className="text-base">₹100 — మూడు నెలల చందా మాత్రమే. పని, సేవలు, వాహనాల గంట, సంభాషణ కోసం. నిర్వాహకుల ఆమోదం తర్వాతే మూడు నెలల చందా మొదలవుతుంది.</p>;
   if (me?.isAdmin) return null;
+  const paid = !!prime?.active;
+  // Approved accounts must never see the payment form again, including the compact home box.
+  if (me && prime === undefined) return <p role="status" className="text-center">వివరాలు వస్తున్నాయి…</p>;
+  if (paid) return <p role="status" className="text-center text-lg font-bold">✅ చెల్లింపు పూర్తయింది — మీ చందా ఆన్‌లో ఉంది{prime?.ends_at && ` · ${new Date(prime.ends_at).toLocaleDateString('te-IN')} వరకు`}</p>;
+  if (compact && me && request.data === 'pending') return <p role="status" className="text-center text-lg font-bold">మీ చెల్లింపు ఫోటో అందింది. అడ్మిన్ చెక్ చేసి ఆమోదిస్తారు.</p>;
   if (compact) return <section className="space-y-3 profile-copy">{plans}<PaymentScanner amount={amount} compact /><MembershipEvidenceForm key={amount} amount={amount} /></section>;
   if (!me) return null;
   const completed = !!prime?.active;

@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import { bellMuted, bellTone, setBellTone, BELL_PREFERENCE_EVENT, enableBellAudio, setBellMuted } from '@/lib/bell';
-import type { BellTone } from '@/lib/bell-tones';
+import { bellMuted, bellVolume, setBellVolume, BELL_PREFERENCE_EVENT, enableBellAudio, setBellMuted } from '@/lib/bell';
+import type { BellVolume } from '@/lib/bell-tones';
 
 export function useBellSound() {
   const [muted, setMuted] = useState(false);
-  const [tone, updateTone] = useState<BellTone>('temple');
+  const [volume, updateVolume] = useState<BellVolume>('high');
   useEffect(() => {
-    const sync = () => { setMuted(bellMuted()); updateTone(bellTone()); };
+    const sync = () => { setMuted(bellMuted()); updateVolume(bellVolume()); };
     sync();
     window.addEventListener(BELL_PREFERENCE_EVENT, sync);
     window.addEventListener('storage', sync);
@@ -15,7 +15,7 @@ export function useBellSound() {
       window.removeEventListener('storage', sync);
     };
   }, []);
-  return { muted, tone, selectTone: setBellTone, change: (soundOn: boolean) => {
+  return { muted, volume, selectVolume: setBellVolume, change: (soundOn: boolean) => {
     if (soundOn) enableBellAudio();
     setBellMuted(!soundOn);
   } };
