@@ -24,7 +24,7 @@ export function AdminPasswordLogin() {
         await signInAdministrator(email, password);
         setPassword('');
         await qc.invalidateQueries(); await navigate({ to: '/admin', replace: true });
-      } catch (cause) { setError(adminSignInError(cause)); } finally { setBusy(false); }
+      } catch (cause) { const byPhone = /^[6-9]\d{9}$/.test(identity.trim()); setError(byPhone ? 'మొబైల్ నంబర్‌తో అడ్మిన్ ప్రవేశం కుదరలేదు. మీ అడ్మిన్ ఈమెయిల్ (gmail) రాసి మళ్లీ ప్రయత్నించండి.' : adminSignInError(cause)); } finally { setBusy(false); }
     }}>
       <Label htmlFor="admin-identity">అడ్మిన్ ఈమెయిల్ / మొబైల్ నంబర్</Label><Input id="admin-identity" autoComplete="username" value={identity} onChange={e => setIdentity(e.target.value)} required disabled={busy}/>
       <Label htmlFor="admin-password">పాస్‌వర్డ్</Label><Input id="admin-password" type="password" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} required disabled={busy}/>
