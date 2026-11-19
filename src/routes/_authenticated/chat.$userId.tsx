@@ -54,13 +54,13 @@ function Chat() {
   const showImage = useServerFn(viewChatImage);
   const removeEntry = useServerFn(deleteChatEntry);
   const { data: adminId } = useQuery({ queryKey: ['support-admin-id'], queryFn: async () => { const result = await supabase.rpc('support_admin_id'); if (result.error) throw result.error; return result.data; } });
-  useEffect(() => {
-    if (me && !me.isAdmin && adminId !== undefined && userId !== adminId && subscription && !subscription.bell_active) setPaymentOpen(true);
-  }, [me, adminId, userId, subscription]);
   const {data:chatAllowed} = useQuery({queryKey:['chat-allowed',me?.id,userId,postId],enabled:!!me,queryFn:async()=>{
     const result=await supabase.rpc('can_post_chat',{...(postId ? {_post:postId} : {}),_other:userId});
     if(result.error)throw result.error;return result.data;
   }});
+  useEffect(() => {
+    if (chatAllowed === false && me && !me.isAdmin && adminId !== undefined && userId !== adminId && subscription && !subscription.bell_active) setPaymentOpen(true);
+  }, [chatAllowed, me, adminId, userId, subscription]);
   const { data: contactAllowed } = useQuery({ queryKey: ['service-chat-open', me?.id, userId], enabled: !!me && !!chatAllowed, refetchInterval: 5000, queryFn: async () => {
     const result = await supabase.rpc('open_service_chat', { _other: userId });
     if (result.error) throw result.error;

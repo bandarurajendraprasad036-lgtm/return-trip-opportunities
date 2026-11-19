@@ -20,11 +20,13 @@ import { AdminBellRowAction } from '@/components/AdminBellRowAction';
 import { BELL_BOARD_REFRESH_MS, bellBoardArea } from '@/lib/bell-board-refresh';
 import { playTapBell } from '@/lib/bell';
 import { bellErrorMessage, requireCompleteProfile, retryBell } from '@/lib/bell-request';
+import { IncomingBellList } from '@/components/IncomingBellList';
+import { z } from 'zod';
 
 const options = (section: BellBoardSection, area = '') => queryOptions({ queryKey: ['bell-board', section, area], queryFn: () => loadBellBoard(section, area), staleTime: 0, refetchInterval: BELL_BOARD_REFRESH_MS });
 
 export const Route = createFileRoute('/bell-board')({
-  validateSearch: (search: Record<string, unknown>): { section: BellBoardSection; category?: string | undefined } => ({ section: bellBoardSection(search['section']), category: typeof search['category'] === 'string' && search['category'].trim() ? search['category'].trim().slice(0, 60) : undefined }),
+  validateSearch: (search: Record<string, unknown>): { section: BellBoardSection; category?: string | undefined; post?: string | undefined } => ({ section: bellBoardSection(search['section']), category: typeof search['category'] === 'string' && search['category'].trim() ? search['category'].trim().slice(0, 60) : undefined, post: z.string().uuid().safeParse(search['post']).success ? String(search['post']) : undefined }),
   loaderDeps: ({ search }) => ({ section: search.section }),
   loader: ({ context, deps }) => isFree(deps.section) ? undefined : context.queryClient.ensureQueryData(options(deps.section)),
   head: ({ match }) => { const title = `${BELL_BOARD_LABELS[match.search.section]} — గాయత్రి వన్`; const description = 'పేర్లు, మొబైల్, ఫోటోలు లేని గంటల జాబితా. చెల్లించినవారికి వ్యక్తిగత చాట్.'; return { meta: [{ title }, { name: 'description', content: description }, { property: 'og:title', content: title }, { property: 'og:description', content: description }, { property: 'og:type', content: 'website' }, { name: 'twitter:card', content: 'summary_large_image' }] }; },
@@ -66,8 +68,8 @@ function FreeBoard({ section, category = '' }: { section: FreeWorkSection; categ
 }
 
 function Board() {
-  const { section, category } = Route.useSearch();
-  return isFree(section) ? <FreeBoard key={`${section}-${category ?? ''}`} section={section} category={category ?? ""} /> : <PaidBoard />;
+  const { section, category, post } = Route.useSearch();
+  return <><div className="px-4"><IncomingBellList section={section} post={post} /></div>{isFree(section) ? <FreeBoard key={`${section}-${category ?? ''}`} section={section} category={category ?? ""} /> : <PaidBoard />}</>;
 }
 
 // PAID - Vehicle only: Display = Free + Blur. Touch = Rs.100. Paid = Only Bell + Chat. Peru/Photo/Number eppudu kanabadadu.

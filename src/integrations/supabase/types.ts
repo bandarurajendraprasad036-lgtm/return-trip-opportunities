@@ -3049,6 +3049,10 @@ export type Database = {
         Args: { _id: string }
         Returns: undefined
       }
+      incoming_bell_reply_allowed: {
+        Args: { _other: string; _post?: string }
+        Returns: boolean
+      }
       is_goods_post: {
         Args: { _post: Database["public"]["Tables"]["posts"]["Row"] }
         Returns: boolean
@@ -3160,6 +3164,16 @@ export type Database = {
         }[]
       }
       my_goods_membership: { Args: never; Returns: boolean }
+      my_incoming_bells: {
+        Args: { _post?: string; _section: string }
+        Returns: {
+          area: string
+          id: string
+          need: string
+          post_id: string
+          source: string
+        }[]
+      }
       my_manageable_additions: {
         Args: never
         Returns: {
@@ -3205,6 +3219,13 @@ export type Database = {
       open_free_work_chat: {
         Args: { _id: string; _section: string; _source: string }
         Returns: string
+      }
+      open_incoming_bell_chat: {
+        Args: { _id: string; _section: string; _source: string }
+        Returns: {
+          other_id: string
+          post_id: string
+        }[]
       }
       open_service_chat: { Args: { _other: string }; Returns: boolean }
       open_vehicle_chat: { Args: { _post: string }; Returns: string }

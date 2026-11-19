@@ -1,0 +1,26 @@
+CREATE OR REPLACE FUNCTION public.my_incoming_bells(_section text,_post uuid DEFAULT NULL) RETURNS TABLE(id uuid,source text,post_id uuid,area text,need text) LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$
+ SELECT i.id,'free'::text,CASE WHEN i.source='post' THEN p.id ELSE NULL::uuid END,i.area,i.category FROM public.free_work_interests i LEFT JOIN public.posts p ON i.source='post' AND p.id::text=i.entry_id WHERE auth.uid() IS NOT NULL AND public.account_allowed(auth.uid()) AND i.section=_section AND i.user_id<>auth.uid() AND public.account_allowed(i.user_id) AND (_post IS NULL OR p.id=_post) AND (p.user_id=auth.uid() OR (i.source='entry' AND EXISTS(SELECT 1 FROM public.free_work_entries e WHERE e.id::text=i.entry_id AND e.user_id=auth.uid())) OR (i.source='provider' AND i.entry_id=auth.uid()::text) OR (i.source='interest' AND EXISTS(SELECT 1 FROM public.free_work_interests original WHERE original.id::text=i.entry_id AND original.user_id=auth.uid())))
+ UNION ALL SELECT i.id,'post',p.id,i.area,i.need FROM public.post_bell_interests i JOIN public.posts p ON p.id=i.post_id WHERE p.user_id=auth.uid() AND public.account_allowed(auth.uid()) AND public.account_allowed(i.user_id) AND i.section=_section AND (_post IS NULL OR p.id=_post)
+ UNION ALL SELECT d.id,'vehicle',p.id,d.from_place||' → '||d.to_place,d.vehicle_type FROM public.vehicle_bell_demands d JOIN public.posts p ON p.id=d.post_id WHERE p.user_id=auth.uid() AND public.account_allowed(auth.uid()) AND public.account_allowed(d.user_id) AND d.category=_section AND (_post IS NULL OR p.id=_post)
+ UNION ALL SELECT d.id,'board',NULL::uuid,d.from_place||' → '||d.to_place,d.vehicle_type FROM public.vehicle_bell_demands d JOIN public.vehicle_demand_chat_pairs pair ON pair.demand_id=d.id WHERE pair.owner_id=auth.uid() AND pair.board_rang_at IS NOT NULL AND public.account_allowed(auth.uid()) AND public.account_allowed(pair.member_id) AND d.category=_section AND _post IS NULL;
+$$;
+REVOKE ALL ON FUNCTION public.my_incoming_bells(text,uuid) FROM PUBLIC,anon; GRANT EXECUTE ON FUNCTION public.my_incoming_bells(text,uuid) TO authenticated,service_role;
+CREATE OR REPLACE FUNCTION public.incoming_bell_reply_allowed(_other uuid,_post uuid DEFAULT NULL) RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT auth.uid() IS NOT NULL AND auth.uid()<>_other AND public.account_allowed(auth.uid()) AND public.account_allowed(_other) AND (
+ EXISTS(SELECT 1 FROM public.free_work_pairs pair JOIN public.free_work_interests i ON i.user_id=pair.member_id WHERE pair.owner_id=auth.uid() AND pair.member_id=_other AND (_post IS NULL OR (i.source='post' AND i.entry_id=_post::text)))
+ OR EXISTS(SELECT 1 FROM public.post_chat_pairs pair WHERE pair.owner_id=auth.uid() AND pair.member_id=_other AND (_post IS NULL OR pair.post_id=_post) AND (EXISTS(SELECT 1 FROM public.post_bell_interests i WHERE i.post_id=pair.post_id AND i.user_id=_other) OR EXISTS(SELECT 1 FROM public.vehicle_bell_demands d WHERE d.post_id=pair.post_id AND d.user_id=_other)))
+ OR (_post IS NULL AND EXISTS(SELECT 1 FROM public.vehicle_demand_chat_pairs pair WHERE pair.owner_id=auth.uid() AND pair.member_id=_other AND pair.board_rang_at IS NOT NULL))
+ ); $$;
+REVOKE ALL ON FUNCTION public.incoming_bell_reply_allowed(uuid,uuid) FROM PUBLIC,anon; GRANT EXECUTE ON FUNCTION public.incoming_bell_reply_allowed(uuid,uuid) TO authenticated,service_role;
+CREATE OR REPLACE FUNCTION public.open_incoming_bell_chat(_id uuid,_source text,_section text) RETURNS TABLE(other_id uuid,post_id uuid) LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ DECLARE target uuid; context_post uuid; BEGIN
+ IF auth.uid() IS NULL OR NOT public.account_allowed(auth.uid()) THEN RAISE EXCEPTION 'SIGN_IN_REQUIRED'; END IF;
+ SELECT b.post_id INTO context_post FROM public.my_incoming_bells(_section) b WHERE b.id=_id AND b.source=_source LIMIT 1;
+ IF NOT FOUND THEN RAISE EXCEPTION 'BELL_UNAVAILABLE'; END IF;
+ IF _source='free' THEN SELECT i.user_id INTO target FROM public.free_work_interests i WHERE i.id=_id;
+ ELSIF _source='post' THEN SELECT i.user_id INTO target FROM public.post_bell_interests i WHERE i.id=_id;
+ ELSIF _source='vehicle' THEN SELECT d.user_id INTO target FROM public.vehicle_bell_demands d WHERE d.id=_id;
+ ELSIF _source='board' THEN SELECT pair.member_id INTO target FROM public.vehicle_demand_chat_pairs pair WHERE pair.demand_id=_id AND pair.owner_id=auth.uid() AND pair.board_rang_at IS NOT NULL LIMIT 1; END IF;
+ IF target IS NULL OR NOT public.incoming_bell_reply_allowed(target,context_post) THEN RAISE EXCEPTION 'BELL_UNAVAILABLE'; END IF;
+ RETURN QUERY SELECT target,context_post;
+END $$;
+REVOKE ALL ON FUNCTION public.open_incoming_bell_chat(uuid,text,text) FROM PUBLIC,anon; GRANT EXECUTE ON FUNCTION public.open_incoming_bell_chat(uuid,text,text) TO authenticated,service_role;
+DO $$ DECLARE definition text; BEGIN SELECT pg_get_functiondef('public.can_post_chat(uuid,uuid)'::regprocedure) INTO definition; IF position('WHEN public.incoming_bell_reply_allowed' IN definition)=0 THEN definition:=replace(definition,'WHEN NOT public.has_paid_bell(auth.uid()) THEN false','WHEN public.incoming_bell_reply_allowed(_other,_post) THEN true WHEN NOT public.has_paid_bell(auth.uid()) THEN false'); EXECUTE definition; END IF; END $$;

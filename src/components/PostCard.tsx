@@ -1,4 +1,4 @@
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { MessageCircle, Bell, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,6 +15,7 @@ import { vehicleTypeLabel } from '@/lib/vehicle-types';
 import { type PostDetails } from '@/lib/post-access';
 import { VehicleDemandBell } from '@/components/VehicleDemandBell';
 import { VEHICLE_DEMAND_SECTIONS } from '@/lib/vehicle-demand';
+import { vehicleDemandCategory } from '@/lib/vehicle-demand';
 import type { VehiclePageKind } from '@/lib/vehicle-page';
 import { BellPaymentNotice } from '@/components/BellPaymentNotice';
 import { PrivateBellDisplay } from '@/components/PrivateBellDisplay';
@@ -113,6 +114,7 @@ export function PostCard({
       {jobIsVisible(post) && (post.module === 'vehicle' ? <div className="flex shrink-0 gap-2"><Button variant="outline" size="icon" aria-label="చాట్" title="చాట్" disabled={sending} onClick={()=>void openVehicle(true)}><MessageCircle /></Button><VehicleDemandBell postId={post.id} ownerId={post.user_id} postRoute={post} /></div> : <Button type="button" variant="outline" size="icon" disabled={sending} className="shrink-0" onClick={contact} aria-label="గంట · Bell"><Bell /></Button>)}
     </div>
     <PrivateBellDisplay />
+    {meId === post.user_id && <Button asChild variant="outline" data-subscription-exempt className="h-auto min-h-11 whitespace-normal"><Link to="/bell-board" search={{ section: isJob ? section : vehicleDemandCategory(post), post: post.id }}>గంట కొట్టిన వాళ్ళ జాబితా</Link></Button>}
     <AdminBellRowAction id={post.id} source="listing" section={isJob ? 'work' : 'vehicle'} />
     {anonymousWork && <Button variant="outline" onClick={contact} disabled={sending}><MessageCircle />చాట్</Button>}
     {isJob && <Button variant="outline" onClick={()=>void openDetails()} disabled={detailsBusy}><Info />వివరాలు</Button>}
