@@ -3,7 +3,12 @@ export const DISCOUNT_AMOUNT = 100;
 export const EXTRA_POST_AMOUNT = 100;
 export const MEMBERSHIP_MONTHS = 3;
 export const ALERT_DELAY_DAYS = 0;
-export const FREE_POSTS = 3;
+export const FREE_POSTS = 1;
+export const PAID_POSTS = 5;
+export const VEHICLE_OWNER_POSTS = 10;
+export function subscriptionPostLimit(paid: boolean, kind: string) {
+  return paid ? kind === 'owner' ? VEHICLE_OWNER_POSTS : PAID_POSTS : FREE_POSTS;
+}
 export const MIN_PROVIDER_CONTACTS = 20;
 export type ProviderContactInput = { town: string; service: string; mobile: string; consent: boolean };
 export function validProviderContacts(rows: ProviderContactInput[]) {

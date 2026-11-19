@@ -27,6 +27,7 @@ import { generalWorkValue, hasProhibitedJobWords, jobPostIdentity, WORK_SUGGESTI
 import { IndiaPlaceInput } from '@/components/IndiaPlaceInput';
 import type { Coordinates } from '@/lib/india-places';
 import { PostSubmissionNotice } from '@/components/PostSubmissionNotice';
+import { showSubscriptionNotice } from '@/lib/subscription-access';
 
 function AiJobAd({ kind, onDraft, work }: { kind: "seeker" | "employer"; onDraft: (d: JobAdDraft) => void; work: string }) {
   const run = useServerFn(draftJobAd);
@@ -205,7 +206,12 @@ function NewPost() {
       if (registered.error) toast.error('ప్రకటన భద్రపడింది; పరిధి స్థానాలు భద్రపడలేదు · Post saved; radius coordinates not saved');
     }
     setBusy(false);
-    if (error) { toast.error(error.message.includes("MOBILE_REQUIRED") ? "ప్రకటనకు ముందు మొబైల్ నంబరు ఇవ్వండి" : error.message.includes("BAD_CONTENT") ? "అనుచిత విషయాలు పోస్ట్ చేయకూడదు" : error.message); return; }
+    if (error) {
+      if (error.message.includes('FREE_ONE_POST_LIMIT')) { toast.info('ఉచితంగా ఒక్క ప్రకటన మాత్రమే. మరిన్ని ప్రకటనలకు చందా తీసుకోండి'); showSubscriptionNotice(); }
+      else if (error.message.includes('MONTHLY_POST_LIMIT_')) toast.info(error.message.includes('_10') ? 'ఈ నెల పది ప్రకటనలు పూర్తయ్యాయి. వచ్చే నెల మళ్లీ పెట్టవచ్చు' : 'ఈ నెల ఐదు ప్రకటనలు పూర్తయ్యాయి. వచ్చే నెల మళ్లీ పెట్టవచ్చు');
+      else toast.error(error.message.includes("MOBILE_REQUIRED") ? "ప్రకటనకు ముందు మొబైల్ నంబరు ఇవ్వండి" : error.message.includes("BAD_CONTENT") ? "అనుచిత విషయాలు పోస్ట్ చేయకూడదు" : error.message);
+      return;
+    }
     qc.invalidateQueries();
     if (savedPost) setSubmitted(savedPost.id);
   };

@@ -23,6 +23,7 @@ import { ProfileAccessGate } from '@/components/TopProfileBox';
 import { useMe } from '@/lib/session';
 import { IncomingNotice } from '@/components/IncomingNotice';
 import { installBellAudioUnlock } from '@/lib/bell';
+import { SubscriptionActionGate } from '@/components/SubscriptionActionGate';
 
 function NotFoundComponent() {
   return (
@@ -152,6 +153,7 @@ function RootComponent() {
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <AccountBlockGate><ProfileAccessGate><Outlet /></ProfileAccessGate><PushSoundSync /><Referral /></AccountBlockGate>
       <AccountIncomingNotice />
+      <SubscriptionActionGate />
       <Toaster position="top-center" richColors />
     </QueryClientProvider>
   );

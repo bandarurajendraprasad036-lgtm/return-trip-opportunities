@@ -3469,6 +3469,11 @@ export type Database = {
         }
         Returns: string
       }
+      subscription_post_limit: { Args: { _user: string }; Returns: number }
+      subscription_posts_used: {
+        Args: { _start: string; _user: string }
+        Returns: number
+      }
       support_admin_id: { Args: never; Returns: string }
       vehicle_alert_context: {
         Args: { _target: string; _user: string }

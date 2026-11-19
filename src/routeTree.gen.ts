@@ -16,6 +16,7 @@ import { Route as AdminLoginRouteImport } from './routes/admin-login'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BellBoardRouteImport } from './routes/bell-board'
 import { Route as FeedRouteImport } from './routes/feed'
+import { Route as PaymentRouteImport } from './routes/payment'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as VehiclesRouteImport } from './routes/vehicles'
@@ -68,6 +69,11 @@ const BellBoardRoute = BellBoardRouteImport.update({
 const FeedRoute = FeedRouteImport.update({
   id: '/feed',
   path: '/feed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentRoute = PaymentRouteImport.update({
+  id: '/payment',
+  path: '/payment',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -177,6 +183,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/bell-board': typeof BellBoardRoute
   '/feed': typeof FeedRoute
+  '/payment': typeof PaymentRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/vehicles': typeof VehiclesRoute
@@ -204,6 +211,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/bell-board': typeof BellBoardRoute
   '/feed': typeof FeedRoute
+  '/payment': typeof PaymentRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/vehicles': typeof VehiclesRoute
@@ -233,6 +241,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/bell-board': typeof BellBoardRoute
   '/feed': typeof FeedRoute
+  '/payment': typeof PaymentRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/vehicles': typeof VehiclesRoute
@@ -262,6 +271,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/bell-board'
     | '/feed'
+    | '/payment'
     | '/reset-password'
     | '/services'
     | '/vehicles'
@@ -289,6 +299,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/bell-board'
     | '/feed'
+    | '/payment'
     | '/reset-password'
     | '/services'
     | '/vehicles'
@@ -317,6 +328,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/bell-board'
     | '/feed'
+    | '/payment'
     | '/reset-password'
     | '/services'
     | '/vehicles'
@@ -346,6 +358,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   BellBoardRoute: typeof BellBoardRoute
   FeedRoute: typeof FeedRoute
+  PaymentRoute: typeof PaymentRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ServicesRoute: typeof ServicesRoute
   VehiclesRoute: typeof VehiclesRoute
@@ -405,6 +418,13 @@ declare module '@tanstack/react-router' {
       path: '/feed'
       fullPath: '/feed'
       preLoaderRoute: typeof FeedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment': {
+      id: '/payment'
+      path: '/payment'
+      fullPath: '/payment'
+      preLoaderRoute: typeof PaymentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -582,6 +602,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   BellBoardRoute: BellBoardRoute,
   FeedRoute: FeedRoute,
+  PaymentRoute: PaymentRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ServicesRoute: ServicesRoute,
   VehiclesRoute: VehiclesRoute,

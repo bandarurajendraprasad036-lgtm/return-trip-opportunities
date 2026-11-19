@@ -27,5 +27,5 @@ export function AdminChatButton({ compact = false, labeled = false }: { compact?
     } catch { await navigate({ to: '/chats' }); }
     finally { setBusy(false); }
   };
-  return <Button type="button" variant="outline" className={`${cls} h-auto whitespace-normal`} aria-label="అడ్మిన్ తో చాట్ చేయండి / Chat with Admin" title="అడ్మిన్ తో చాట్ చేయండి / Chat with Admin" aria-busy={busy} disabled={busy} onClick={() => void open()}>{body}</Button>;
+  return <Button data-subscription-exempt type="button" variant="outline" className={`${cls} h-auto whitespace-normal`} aria-label="అడ్మిన్ తో చాట్ చేయండి / Chat with Admin" title="అడ్మిన్ తో చాట్ చేయండి / Chat with Admin" aria-busy={busy} disabled={busy} onClick={() => void open()}>{body}</Button>;
 }

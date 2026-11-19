@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { PROFILE_ACCESS_MESSAGE } from './profile-access';
+import { SUBSCRIPTION_MESSAGE, showSubscriptionNotice } from './subscription-access';
 
 export const BELL_LIMIT_MESSAGE = '3 సార్లు అయ్యింది. ఇంకా కొట్టాలంటే మెంబర్షిప్ తీసుకోండి';
 export const OWN_POST_MESSAGE = 'ఇది మీ సొంత ప్రకటన. మీ గంట మీకే వెళ్ళదు; వేరే వాళ్ళ ప్రకటనకు గంట కొట్టండి';
@@ -21,8 +22,7 @@ export function bellErrorMessage(error: unknown) {
   const message = errorText(error);
   if (message.includes('PROFILE_REQUIRED')) return PROFILE_ACCESS_MESSAGE;
   if (message.includes('BELL_LIMIT_REACHED')) return BELL_LIMIT_MESSAGE;
-  if (message.includes('SERVICE_PLAN_ONLY')) return '₹49 చందా పని / సేవలకు మాత్రమే. వాహన గంట, చాట్ కోసం ₹100 చందా తీసుకోండి';
-  if (message.includes('PAID_BELL_REQUIRED') || message.includes('GOODS_MEMBERSHIP_REQUIRED')) return 'ఈ ఎంపికకు ₹100 నెల చందా అవసరం';
+  if (/SUBSCRIPTION_REQUIRED|PAID_BELL_REQUIRED|GOODS_MEMBERSHIP_REQUIRED|SERVICE_PLAN_ONLY/.test(message)) { showSubscriptionNotice(); return SUBSCRIPTION_MESSAGE; }
   if (message.includes('SIGN_IN_REQUIRED') || message.includes('JWT') || message.includes('AuthSessionMissing')) return SIGN_IN_MESSAGE;
   if (message.includes('OWN_POST')) return OWN_POST_MESSAGE;
   if (message.includes('POST_UNAVAILABLE') || message.includes('ENTRY_UNAVAILABLE')) return 'ఇది మీ సొంత ప్రకటన లేదా ఈ ప్రకటన గడువు ముగిసింది. వేరే ప్రకటనకు గంట కొట్టండి';

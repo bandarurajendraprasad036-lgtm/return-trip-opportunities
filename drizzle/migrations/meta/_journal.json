@@ -855,6 +855,27 @@
       "when": 1795069176460,
       "tag": "0121_current_subscription_owned_image_reference",
       "breakpoints": true
+    },
+    {
+      "idx": 122,
+      "version": "7",
+      "when": 1795072171866,
+      "tag": "0122_final_subscription_bells_chat_and_post_limits",
+      "breakpoints": true
+    },
+    {
+      "idx": 123,
+      "version": "7",
+      "when": 1795072396197,
+      "tag": "0123_receipt_only_subscription_and_remaining_bell_paths",
+      "breakpoints": true
+    },
+    {
+      "idx": 124,
+      "version": "7",
+      "when": 1795072564995,
+      "tag": "0124_include_preserved_post_history_in_subscription_quota",
+      "breakpoints": true
     }
   ]
 }

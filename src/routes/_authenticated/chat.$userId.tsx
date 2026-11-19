@@ -17,6 +17,8 @@ import { hidePaymentEvidence } from '@/lib/payment-status';
 import { toast } from 'sonner';
 import { paymentUtr } from '@/lib/november-profile';
 import { AboutVideos } from '@/components/AboutVideos';
+import { BellPaymentNotice } from '@/components/BellPaymentNotice';
+import { usePrime99 } from '@/lib/prime99';
 
 export const Route = createFileRoute("/_authenticated/chat/$userId")({
   validateSearch: (search: Record<string, unknown>): { post?: string | undefined } => ({ post: typeof search["post"] === "string" && z.string().uuid().safeParse(search["post"]).success ? search["post"] : undefined }),
@@ -37,6 +39,8 @@ function Chat() {
   const { userId } = Route.useParams();
   const { post: postId } = Route.useSearch();
   const { data: me } = useMe();
+  const { data: subscription } = usePrime99(me?.id);
+  const [paymentOpen, setPaymentOpen] = useState(false);
   const qc = useQueryClient();
   const [text, setText] = useState("");
   const bottom = useRef<HTMLDivElement>(null);
@@ -50,6 +54,9 @@ function Chat() {
   const showImage = useServerFn(viewChatImage);
   const removeEntry = useServerFn(deleteChatEntry);
   const { data: adminId } = useQuery({ queryKey: ['support-admin-id'], queryFn: async () => { const result = await supabase.rpc('support_admin_id'); if (result.error) throw result.error; return result.data; } });
+  useEffect(() => {
+    if (me && !me.isAdmin && adminId !== undefined && userId !== adminId && subscription && !subscription.bell_active) setPaymentOpen(true);
+  }, [me, adminId, userId, subscription]);
   const {data:chatAllowed} = useQuery({queryKey:['chat-allowed',me?.id,userId,postId],enabled:!!me,queryFn:async()=>{
     const result=await supabase.rpc('can_post_chat',{...(postId ? {_post:postId} : {}),_other:userId});
     if(result.error)throw result.error;return result.data;
@@ -162,7 +169,8 @@ function Chat() {
         <div ref={bottom} />
       </div>
       {sendError && <p role="alert" className="px-3 py-2 text-sm text-destructive">{sendError}</p>}
-      {chatAllowed===false && <p role="alert" className="px-3 py-2">సంభాషణకు నెలకు ₹100 చెల్లింపు నిర్ధారణతో పాటు ప్రకటన గంట ద్వారా ప్రారంభించిన సంబంధం అవసరం.<Link to="/dashboard" className="block underline">₹100 చెల్లింపు</Link></p>}
+      {chatAllowed===false && <Button variant="outline" className="mx-3 h-auto whitespace-normal" onClick={() => setPaymentOpen(true)}>మూడు నెలల చందా ₹100 — ఇప్పుడే చెల్లించండి</Button>}
+      <BellPaymentNotice open={paymentOpen} onOpenChange={setPaymentOpen} />
       <form onSubmit={send} className="space-y-2 border-t bg-card p-2">
         {userId !== adminId && <Input type="tel" inputMode="numeric" aria-label="ఫోన్ నంబరు · Phone number" value={phone} onChange={e=>setPhone(e.target.value.replace(/\D/g,''))} maxLength={10} placeholder="ఫోన్ నంబరు · Phone number" disabled={busy || !chatAllowed || contactAllowed !== true} />}
         <input ref={fileInput} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>{const file=e.target.files?.[0];if(file && (file.size>CHAT_IMAGE_LIMIT || !['image/jpeg','image/png','image/webp'].includes(file.type))){setSendError('ఐదు మెగాబైట్ల లోపు చిత్రం ఎంచుకోండి · Choose an image under 5MB');e.target.value='';return;}setImage(file || null);setSendError('');}} />

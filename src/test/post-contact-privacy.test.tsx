@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { PostCard, type Post } from '@/components/PostCard';
 import { supabase } from '@/integrations/supabase/client';
 vi.mock('@tanstack/react-router',()=>({useNavigate:()=>vi.fn()}));
-vi.mock('@/integrations/supabase/client',()=>({supabase:{auth:{getUser:vi.fn(async()=>({data:{user:{id:'member'}}}))},rpc:vi.fn(async()=>({data:{description:'Work details'},error:null}))}}));
+vi.mock('@/integrations/supabase/client',()=>({supabase:{auth:{getSession:vi.fn(async()=>({data:{session:{user:{id:'member'}}}})),getUser:vi.fn(async()=>({data:{user:{id:'member'}}}))},rpc:vi.fn(async()=>({data:{description:'Work details'},error:null}))}}));
 vi.mock('@/components/ResponsibilityNotice',()=>({ResponsibilityNotice:()=>null}));
 vi.mock('@/lib/use-account-program',()=>({useAccountProgram:()=>({data:{completed_at:'2026-11-07'}})}));
 vi.mock('@/lib/session',()=>({useMe:()=>({data:{id:'member',profile:{bell_activated_at:'2026-11-10T04:00:00Z'}}})}));
@@ -15,15 +15,15 @@ vi.mock('sonner',()=>({toast:{info:vi.fn(),success:vi.fn(),error:vi.fn()}}));
 afterEach(cleanup);
 describe('post contact disclosure',()=>{
   const post={id:'post',user_id:'owner',module:'job',status:'active',skill:'Driver',title:'Private name',location:'Hyderabad',salary:'15000',show_contact:true,public_brand:'Consented name',public_photo:'https://example.com/private-photo.jpg',contact_phone:'9876543210'} as Post;
-  it('silently ignores an own-post bell without dispatch or banners',()=>{
+  it('own-post bell never dispatches interest',()=>{
     vi.mocked(supabase.rpc).mockClear();vi.mocked(toast.info).mockClear();vi.mocked(toast.success).mockClear();
     render(<PostCard post={post} meId="owner" />);
     fireEvent.click(screen.getByRole('button',{name:'గంట · Bell'}));
-    expect(supabase.rpc).not.toHaveBeenCalled();expect(toast.info).not.toHaveBeenCalled();expect(toast.success).not.toHaveBeenCalled();
+    expect(supabase.rpc).not.toHaveBeenCalled();expect(toast.success).not.toHaveBeenCalled();
   });
   it('dispatches a work bell to the selected post without success banners',async()=>{
     vi.mocked(supabase.rpc).mockReset();vi.mocked(toast.info).mockClear();vi.mocked(toast.success).mockClear();
-    vi.mocked(supabase.rpc).mockResolvedValueOnce({data:true,error:null} as never).mockResolvedValueOnce({data:'owner',error:null} as never);
+    vi.mocked(supabase.rpc).mockImplementation((name)=>Promise.resolve({data:name==='ring_free_work'?'owner':true,error:null}) as never);
     render(<PostCard post={post} meId="member" />);
     fireEvent.click(screen.getByRole('button',{name:'గంట · Bell'}));
     await waitFor(()=>expect(supabase.rpc).toHaveBeenCalledWith('ring_free_work',{_id:'post',_source:'post',_section:'work-offered'}));
