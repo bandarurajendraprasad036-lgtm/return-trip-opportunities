@@ -1,6 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Inbox, Briefcase, Image, LogOut, PlusCircle, Sparkles, Users } from "lucide-react";
+import { Inbox, Briefcase, Image, LogOut, PlusCircle, Sparkles, Users, MessageCircle, Bell } from "lucide-react";
+import { AboutVideos } from '@/components/AboutVideos';
+import { BELL_BOARD_LABELS, BELL_BOARD_SECTIONS } from '@/lib/bell-board';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useMe } from "@/lib/session";
@@ -77,7 +79,10 @@ function Dashboard() {
         <Link to="/post/new" className={tile}><PlusCircle className="size-7 text-primary" />కొత్త పోస్ట్ · New post</Link>
         <Link to="/ai-match" className={tile}><Sparkles className="size-7 text-primary" />AI మ్యాచ్ · AI Match</Link>
         <Link to="/service-profile" className={tile}><Image className="size-7 text-primary" />నా ఫోటోలు · My photos</Link>
+        <Link to="/chats" className={tile}><MessageCircle className="size-7 text-primary" />నా సంభాషణలు</Link>
       </div>
+      <section className="space-y-3 border-y py-4"><h2 className="text-xl font-bold">గంట కొట్టిన వాళ్ళు</h2><div className="grid gap-2">{BELL_BOARD_SECTIONS.map(section => <Button key={section} asChild variant="outline" className="h-auto min-h-12 justify-start whitespace-normal text-left"><Link to="/bell-board" search={{ section }}><Bell className="shrink-0" /><span>{BELL_BOARD_LABELS[section]}</span></Link></Button>)}</div></section>
+      <section className="space-y-3 border-b pb-4"><h2 className="text-xl font-bold">నిర్వాహకుల వీడియోలు</h2><AboutVideos /></section>
       <InstallButton />
       <AccountProfile />
       <Prime99Payment />

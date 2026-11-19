@@ -1,10 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { MessageCircle } from "lucide-react";
+import { Info, LayoutDashboard } from "lucide-react";
 import { LanguageButton } from '@/components/LanguageButton';
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import { AboutVideos } from '@/components/AboutVideos';
 import emblem from "@/assets/gayatri-one-emblem.jpg";
 import mata from "@/assets/gayatri-bell-daily.jpg";
 import mataGreen from "@/assets/gayatri-bell-green-daily.jpg";
@@ -61,11 +60,6 @@ function Index() {
     document.addEventListener('visibilitychange', visible);
     return () => { clearTimeout(timer); document.removeEventListener('visibilitychange', visible); };
   }, []);
-  const { data: video } = useQuery({
-    queryKey: ["setting", "youtube_url"],
-    queryFn: async () => (await supabase.from("app_settings").select("value").eq("key", "youtube_url").maybeSingle()).data?.value ?? "",
-  });
-  const ytId = video?.match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/)?.[1];
   return (
     <div className="mx-auto min-h-screen max-w-[480px] overflow-x-hidden bg-royal">
       <section className="home-devotional bg-royal px-4 pb-6 pt-4 text-on-royal">
@@ -73,7 +67,7 @@ function Index() {
           <h1 className="flex min-w-0 items-center gap-1 text-sm font-extrabold text-gold"><img src={emblem} alt="" width={28} height={28} className="size-7 shrink-0 object-contain" /><span>గాయత్రి వన్<span className="block text-xs">Gayatri One</span></span></h1>
           <div className="flex shrink-0 items-center gap-2">
             <LanguageButton />
-            <Button asChild size="icon" className="size-11" aria-label="సందేశాలు · Messages"><Link to="/chats"><MessageCircle className="size-5" /></Link></Button>
+            <Button asChild variant="outline" className="h-auto min-h-11 gap-1 px-2" aria-label="మా గురించి"><Link to="/about"><Info className="size-5" />గురించి</Link></Button>
           </div>
         </div>
         <p className="mt-2 text-center font-serif text-4xl font-extrabold text-gold">GAYATRI ONE</p>
@@ -82,6 +76,7 @@ function Index() {
         </BellJoin> : <img src={[mata, mataGreen, mataIvory][devotional]} alt="గాయత్రి మాత బంగారు గంట" className="home-engraved-bell" width={768} height={768} />}
 
         <TopProfileBox compact />
+        <Button asChild variant="outline" className="mt-3 min-h-14 w-full whitespace-normal text-lg"><Link to="/dashboard"><LayoutDashboard />నా పేజీ తెరవండి</Link></Button>
         <div className="mt-2"><InstallButton /></div>
 
         <p className="text-center text-base opacity-90">మన ఊరు · మన బండి · మన పని</p>
@@ -89,12 +84,7 @@ function Index() {
       </section>
       <section className="space-y-2 px-4 pb-6 pt-0">
         {profileReady ? <HomeListings today={day} settings={homeSettings} /> : <GuestCategories />}
-        {ytId && (
-          <div className="overflow-hidden rounded-xl border bg-card shadow-card">
-            <p className="p-3 font-bold">🎬 మా గురించి · About us</p>
-            <iframe className="aspect-video w-full" src={`https://www.youtube.com/embed/${ytId}`} title="About Gayatri One" allowFullScreen />
-          </div>
-        )}
+        <AboutVideos />
         {profileReady && <>{homeSettings.showSharing && <SharingImage />}<WeeklyWinners /><ReferralBoard /></>}
         <Button asChild variant="secondary" size="xl" className="w-full">
           <Link to="/auth">ప్రారంభించండి · Get Started</Link>

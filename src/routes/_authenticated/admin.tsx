@@ -6,9 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { PostCard, type Post } from "@/components/PostCard";
 import { useMe } from "@/lib/session";
-import { useState } from "react";
 import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
+import { AdminAboutVideos } from '@/components/AdminAboutVideos';
 import { AdminScannerUpload, AdminNewPaymentAlert } from "@/components/AdminScannerUpload";
 import { AdminReferralCash } from "@/components/AdminReferralCash";
 import { AdminPayments } from "@/components/AdminPayments";
@@ -71,7 +70,6 @@ function Admin() {
     },
   });
 
-  const [yt, setYt] = useState<string | null>(null);
   if (isLoading) return null;
   if (!me?.isAdmin) return <p className="p-8 text-center text-muted-foreground">అనుమతి లేదు · Admins only</p>;
 
@@ -94,10 +92,6 @@ function Admin() {
     await qc.invalidateQueries();
   };
 
-  const saveYt = async () => {
-    const { error } = await supabase.from("app_settings").upsert({ key: "youtube_url", value: (yt ?? "").trim(), updated_at: new Date().toISOString() });
-    if (error) toast.error(error.message); else { toast.success("సేవ్ అయ్యింది · Saved"); qc.invalidateQueries(); }
-  };
   const togglePrime = async (id: string, v: boolean) => {
     const { error } = await supabase.from("profiles").update({ is_prime: v }).eq("id", id);
     if (error) toast.error(error.message); else qc.invalidateQueries();
@@ -128,13 +122,7 @@ function Admin() {
           </div>
         ))}
       </div>
-      <div className="space-y-2 rounded-xl bg-card p-3 shadow-card">
-        <p className="font-bold">🎬 YouTube About వీడియో లింక్ · About video URL</p>
-        <div className="flex gap-2">
-          <Input value={yt ?? data?.yt ?? ""} onChange={(e) => setYt(e.target.value)} placeholder="https://youtube.com/watch?v=..." className="h-11" />
-          <Button onClick={saveYt}>సేవ్ Save</Button>
-        </div>
-      </div>
+      <AdminAboutVideos />
       <div className="space-y-2 rounded-xl bg-card p-3 shadow-card">
         <p className="font-bold">⭐ Prime సభ్యులు · Prime members</p>
         {(data?.people ?? []).map((u) => (
