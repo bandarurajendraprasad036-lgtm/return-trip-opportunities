@@ -1,0 +1,25 @@
+import { PGlite } from '@electric-sql/pglite';
+import { readFileSync } from 'node:fs';
+import { beforeAll, afterAll, it, expect } from 'vitest';
+const a='11111111-1111-4111-8111-111111111111', b='22222222-2222-4222-8222-222222222222', c='33333333-3333-4333-8333-333333333333';
+let db:PGlite;
+const actor=async(id:string)=>db.exec(`SELECT set_config('test.user','${id}',false)`);
+beforeAll(async()=>{
+ db=new PGlite();
+ await db.exec(`CREATE SCHEMA auth; CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role;
+ CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$ SELECT nullif(current_setting('test.user',true),'')::uuid $$;
+ CREATE TABLE paid(user_id uuid,expires timestamptz);
+ CREATE FUNCTION public.has_paid_bell(uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT EXISTS(SELECT 1 FROM paid WHERE user_id=$1 AND expires>now()) $$;
+ CREATE FUNCTION public.account_allowed(uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT true $$;
+ CREATE FUNCTION public.can_post_chat(uuid,uuid) RETURNS boolean LANGUAGE sql AS $$ SELECT true $$;
+ CREATE TABLE messages(sender_id uuid,receiver_id uuid,chat_phone text,created_at timestamptz DEFAULT now());`);
+ await db.exec(readFileSync('drizzle/migrations/0133_paid_pair_private_app_calls.sql','utf8'));
+},30000);
+afterAll(async()=>db.close());
+it('neither paid blocks calls',async()=>{await actor(a);expect((await db.query<{ok:boolean}>(`SELECT can_call_member('${b}') ok`)).rows[0]?.ok).toBe(false);});
+it('only caller paid blocks calls and dial',async()=>{await db.exec(`INSERT INTO paid VALUES('${a}',now()+interval '3 months')`);await actor(a);await expect(db.exec(`SELECT begin_app_call('${b}',false)`)).rejects.toThrow('BOTH_PAID_REQUIRED');await expect(db.exec(`SELECT app_call_dial_number('${b}')`)).rejects.toThrow('BOTH_PAID_REQUIRED');});
+it('only recipient paid also blocks calls even for an administrator-like chat exemption',async()=>{await actor(b);expect((await db.query<{ok:boolean}>(`SELECT can_call_member('${a}') ok`)).rows[0]?.ok).toBe(false);});
+it('both paid allow voice and video without exposing an unshared phone',async()=>{await db.exec(`INSERT INTO paid VALUES('${b}',now()+interval '3 months')`);await actor(a);for(const video of [false,true]){const r=await db.query<{id:string}>(`SELECT begin_app_call('${b}',${video}) id`);const id=r.rows[0]?.id;expect(id).toBeTruthy();await db.exec(`SELECT send_app_call_signal('${id}','end','{}')`);}expect((await db.query<{phone:string|null}>(`SELECT app_call_dial_number('${b}') phone`)).rows[0]?.phone).toBeNull();});
+it('dial uses only number shared by the recipient to this caller',async()=>{await db.exec(`INSERT INTO messages VALUES('${b}','${c}','9876543210',now()),('${a}','${b}','9123456789',now()),('${b}','${a}','9988776655',now())`);await actor(a);expect((await db.query<{phone:string}>(`SELECT app_call_dial_number('${b}') phone`)).rows[0]?.phone).toBe('9988776655');});
+it('third party cannot signal or read participant signalling',async()=>{await actor(a);const r=await db.query<{id:string}>(`SELECT begin_app_call('${b}',false) id`);const id=r.rows[0]?.id;await db.exec(`SELECT send_app_call_signal('${id}','offer','{"sdp":{}}')`);await actor(c);await expect(db.exec(`SELECT send_app_call_signal('${id}','answer','{}')`)).rejects.toThrow('CALL_PARTICIPANT_REQUIRED');await db.exec('GRANT USAGE ON SCHEMA auth TO authenticated; GRANT EXECUTE ON FUNCTION auth.uid() TO authenticated; SET ROLE authenticated');expect((await db.query<{n:number}>('SELECT count(*)::int n FROM app_call_signals')).rows[0]?.n).toBe(0);await db.exec('RESET ROLE');});
+it('expiry blocks ongoing call signalling and telephone dial',async()=>{await db.exec(`UPDATE paid SET expires=now()-interval '1 second' WHERE user_id='${b}'`);await actor(a);const r=await db.query<{id:string}>(`SELECT id FROM app_calls WHERE ended_at IS NULL LIMIT 1`);await expect(db.exec(`SELECT send_app_call_signal('${r.rows[0]?.id}','ice','{}')`)).rejects.toThrow('BOTH_PAID_REQUIRED');await expect(db.exec(`SELECT app_call_dial_number('${b}')`)).rejects.toThrow('BOTH_PAID_REQUIRED');});

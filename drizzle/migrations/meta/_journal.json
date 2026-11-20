@@ -932,6 +932,13 @@
       "when": 1795106086653,
       "tag": "0132_private_admin_activity_inbox",
       "breakpoints": true
+    },
+    {
+      "idx": 133,
+      "version": "7",
+      "when": 1795133419379,
+      "tag": "0133_paid_pair_private_app_calls",
+      "breakpoints": true
     }
   ]
 }

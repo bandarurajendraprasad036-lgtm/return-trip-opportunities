@@ -224,6 +224,71 @@ export type Database = {
           },
         ]
       }
+      app_call_signals: {
+        Row: {
+          call_id: string
+          created_at: string
+          id: number
+          kind: string
+          payload: Json
+          receiver_id: string
+          sender_id: string
+        }
+        Insert: {
+          call_id: string
+          created_at?: string
+          id?: never
+          kind: string
+          payload?: Json
+          receiver_id: string
+          sender_id: string
+        }
+        Update: {
+          call_id?: string
+          created_at?: string
+          id?: never
+          kind?: string
+          payload?: Json
+          receiver_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_call_signals_call_id_fkey"
+            columns: ["call_id"]
+            isOneToOne: false
+            referencedRelation: "app_calls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      app_calls: {
+        Row: {
+          callee_id: string
+          caller_id: string
+          created_at: string
+          ended_at: string | null
+          id: string
+          video: boolean
+        }
+        Insert: {
+          callee_id: string
+          caller_id: string
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          video?: boolean
+        }
+        Update: {
+          callee_id?: string
+          caller_id?: string
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          video?: boolean
+        }
+        Relationships: []
+      }
       app_settings: {
         Row: {
           key: string
@@ -3150,6 +3215,7 @@ export type Database = {
         Args: { _message: string; _url: string }
         Returns: number
       }
+      app_call_dial_number: { Args: { _other: string }; Returns: string }
       apply_referral: { Args: { _code: string }; Returns: boolean }
       apply_service_priority: {
         Args: { _area: string; _category: string }
@@ -3159,6 +3225,10 @@ export type Database = {
         Args: { _id: string }
         Returns: undefined
       }
+      begin_app_call: {
+        Args: { _other: string; _video: boolean }
+        Returns: string
+      }
       bell_route_within_radius: {
         Args: { _actor: string; _demand: string; _post: string }
         Returns: boolean
@@ -3167,6 +3237,7 @@ export type Database = {
         Args: { _reason: string; _user: string }
         Returns: undefined
       }
+      can_call_member: { Args: { _other: string }; Returns: boolean }
       can_notify: { Args: { _uid: string }; Returns: boolean }
       can_post_chat: {
         Args: { _other?: string; _post?: string }
@@ -3680,6 +3751,10 @@ export type Database = {
         Returns: string
       }
       select_weekly_winners: { Args: never; Returns: number }
+      send_app_call_signal: {
+        Args: { _call: string; _kind: string; _payload?: Json }
+        Returns: undefined
+      }
       send_bell_group_message: {
         Args: { _body: string; _group: string }
         Returns: string

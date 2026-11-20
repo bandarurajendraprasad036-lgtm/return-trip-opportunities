@@ -125,12 +125,12 @@ export function DashboardChat({ userId, postId }: { userId: string; postId?: str
 
   return (
     <div className="flex h-[calc(100svh-12rem)] min-h-80 flex-col">
-      <div className="flex items-center gap-3 border-b bg-card px-3 py-2">
+      <div className="flex flex-wrap items-center gap-3 border-b bg-card px-3 py-2">
         <Link to="/dashboard" search={{ view: "chats" }} aria-label="సంభాషణల జాబితా"><ArrowLeft /></Link>
         <div className="flex-1">
           <p className="font-bold">{userId === adminId ? 'అడ్మిన్ తో చాట్ చేయండి / Chat with Admin' : 'సభ్యుడు · Member'}</p>
         </div>
-        {chatAllowed && userId !== me?.id && <CallButtons peer={userId} />}
+        {userId !== me?.id && <CallButtons peer={userId} />}
         {me?.isAdmin && userId !== me.id && <Button size="sm" onClick={async()=>{const r=await supabase.rpc('admin_membership_access',{_user:userId,_enable:true});if(r.error)toast.error('ప్రైమ్ ఇవ్వలేదు');else{toast.success('ప్రైమ్ ఆన్ చేశాం - గంట, చాట్ తెరుచుకున్నాయి');}}}>Give Prime</Button>}
       </div>
       {contextPost && <section className="space-y-1 border-b bg-muted px-3 py-3 text-sm" aria-label="ప్రయాణ వివరాలు · Route details"><p className="font-bold">{contextPost.title}</p>{contextPost.module === "vehicle" ? <><p>{contextPost.from_place} → {contextPost.to_place}</p><p>{contextPost.vehicle_type} {contextPost.capacity_tons != null && `· ${contextPost.capacity_tons} టన్నులు · tons`} · {contextPost.trip_date}</p></> : <p>{contextPost.location}</p>}</section>}
