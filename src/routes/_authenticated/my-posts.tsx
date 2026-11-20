@@ -10,8 +10,10 @@ import { useMe } from "@/lib/session";
 import { jobIsVisible } from '@/lib/post-publication';
 import { PostEvidence } from '@/components/PostEvidence';
 import { PublicationCountdown } from '@/components/PublicationCountdown';
+import { parseDashboardList, postInList, DASHBOARD_LIST_LABELS, type DashboardList } from '@/lib/dashboard-counts';
 
 export const Route = createFileRoute("/_authenticated/my-posts")({
+  validateSearch: (s: Record<string, unknown>): { list?: DashboardList | undefined } => ({ list: parseDashboardList(s['list']) }),
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
@@ -26,6 +28,7 @@ export const Route = createFileRoute("/_authenticated/my-posts")({
 });
 
 function MyPosts() {
+  const { list } = Route.useSearch();
   const { data: me } = useMe();
   const qc = useQueryClient();
   const { data = [] } = useQuery({
@@ -39,6 +42,7 @@ function MyPosts() {
       return data as Post[];
     },
   });
+  const shown = list ? data.filter(p => postInList(p, list)) : data;
   const refresh = () => qc.invalidateQueries();
   const close = async (id: string) => {
     const post = data.find(post => post.id === id);
@@ -64,13 +68,15 @@ function MyPosts() {
           <LogOut />
         </Button>
       </div>
-      <h2 className="text-2xl font-bold">నా పోస్ట్‌లు <span className="text-base font-normal text-muted-foreground">My posts</span></h2>
+      <h2 className="text-2xl font-bold">{list ? <>{DASHBOARD_LIST_LABELS[list]} <span translate="no">({shown.length})</span></> : <>నా పోస్ట్‌లు <span className="text-base font-normal text-muted-foreground">My posts</span></>}</h2>
+      {list && <Button asChild variant="outline"><Link to="/my-posts" search={{}}>నా అన్ని పోస్ట్‌లు</Link></Button>}
+      {list && data.length > 0 && shown.length === 0 && <p className="rounded-xl border border-dashed bg-card p-6 text-center text-muted-foreground">ఈ జాబితాలో మీ ప్రకటనలు లేవు</p>}
       {data.length === 0 && (
         <div className="rounded-xl border border-dashed bg-card p-8 text-center text-muted-foreground">
           పోస్ట్‌లు లేవు · No posts. <Link to="/post/new" className="text-primary underline">Post now</Link>
         </div>
       )}
-      {data.map((p) => (
+      {shown.map((p) => (
         <div key={p.id} className={p.status !== "active" ? "opacity-60" : ""}>
           {p.visible_after && Date.parse(p.visible_after)>Date.now()&&<p role="status" className="py-3 font-semibold">మీ సమాచారం మాకు సమర్పించారు; ఐదు గంటల తర్వాత చూడవచ్చు. · Submitted; visible after five hours.<br/>ప్రచురణ సమయం · Available: {new Date(p.visible_after).toLocaleString('te-IN',{timeZone:'Asia/Kolkata'})}</p>}
           {p.visible_after && <PublicationCountdown visibleAfter={p.visible_after} />}

@@ -25,6 +25,11 @@ import { CommunicationSettings } from '@/components/CommunicationSettings';
 import { IncomingBellList } from '@/components/IncomingBellList';
 import { z } from 'zod';
 import { DashboardGroups } from '@/components/DashboardGroups';
+import { POST_LIST_COLUMNS } from '@/lib/post-access';
+import type { Post } from '@/components/PostCard';
+import { jobIsVisible } from '@/lib/post-publication';
+import { dashboardCounts } from '@/lib/dashboard-counts';
+import { DashboardCountCards } from '@/components/DashboardCountCards';
 
 const MATA_IMAGES = [mataGold, mataGreen, mataIvory];
 
@@ -61,15 +66,22 @@ function Dashboard() {
   const { data, isError: countsError, refetch: refetchCounts } = useQuery({
     queryKey: ["dashboard", me?.id],
     enabled: !!me,
+    refetchInterval: 30000,
     queryFn: async () => {
-      if (!me) return { posts: 0, unread: 0 };
-      const [postResult, notificationResult] = await Promise.all([
-        supabase.from("posts").select("id", { count: "exact", head: true }).eq("user_id", me.id).eq("status", "active"),
+      if (!me) return null;
+      const [postResult, unreadResult, noticeResult, ...bellResults] = await Promise.all([
+        supabase.from("posts").select(POST_LIST_COLUMNS).eq("user_id", me.id),
         supabase.from("notifications").select("id", { count: "exact", head: true }).eq("user_id", me.id).eq("is_read", false),
+        supabase.from("notifications").select("id", { count: "exact", head: true }).eq("user_id", me.id),
+        ...BELL_BOARD_SECTIONS.map(section => supabase.rpc('my_incoming_bells', { _section: section })),
       ]);
       if (postResult.error) throw postResult.error;
-      if (notificationResult.error) throw notificationResult.error;
-      return { posts: postResult.count ?? 0, unread: notificationResult.count ?? 0 };
+      if (unreadResult.error) throw unreadResult.error;
+      if (noticeResult.error) throw noticeResult.error;
+      const bells = new Set<string>();
+      for (const r of bellResults) { if (r.error) throw r.error; for (const row of r.data ?? []) bells.add(`${row.source}:${row.id}`); }
+      const posts = (postResult.data ?? []) as Post[];
+      return { posts: posts.filter(p => jobIsVisible(p)).length, allPosts: posts.length, counts: dashboardCounts(posts), unread: unreadResult.count ?? 0, notices: noticeResult.count ?? 0, bells: bells.size };
     },
   });
   const tile = "flex flex-col items-center gap-1 rounded-xl border bg-card p-4 text-center font-semibold shadow-card";
@@ -99,14 +111,16 @@ function Dashboard() {
       </div>
       {countsError && <div role="alert" className="rounded-xl border p-3"><p>మీ ఖాతా గణాంకాలు రాలేదు · Your account counts could not load</p><Button variant="outline" onClick={() => void refetchCounts()}>మళ్లీ ప్రయత్నించండి · Retry</Button></div>}
       <div className="grid grid-cols-2 gap-3">
-        <Link to="/my-posts" className={tile}><Briefcase className="size-7 text-primary" /><span className="text-2xl">{data?.posts ?? '—'}</span>నా పోస్ట్‌లు · My posts</Link>
-        <Link to="/notifications" className={tile}><Inbox className="size-7 text-primary" /><span className="text-2xl">{data?.unread ?? '—'}</span>కొత్త అలర్ట్స్ · New alerts</Link>
+        <Link to="/my-posts" search={{}} className={tile}><Briefcase className="size-7 text-primary" /><span className="text-2xl" translate="no">{data?.allPosts ?? '—'}</span>నా పోస్ట్‌లు · My posts<span className="text-sm font-normal text-muted-foreground">ఇప్పుడు కనిపించేవి: <span translate="no">{data?.posts ?? '—'}</span></span></Link>
+        <Link to="/notifications" className={tile}><Inbox className="size-7 text-primary" /><span className="text-2xl" translate="no">{data?.unread ?? '—'}</span>కొత్త అలర్ట్స్ · New alerts<span className="text-sm font-normal text-muted-foreground">మొత్తం సందేశాలు: <span translate="no">{data?.notices ?? '—'}</span></span></Link>
+        <a href="#my-bells" className={tile}><Bell className="size-7 text-primary" /><span className="text-2xl" translate="no">{data?.bells ?? '—'}</span>నాకు గంట కొట్టినవారు</a>
         <Link to="/post/new" className={tile}><PlusCircle className="size-7 text-primary" />కొత్త పోస్ట్ · New post</Link>
         <Link to="/ai-match" className={tile}><Sparkles className="size-7 text-primary" />AI మ్యాచ్ · AI Match</Link>
         <Link to="/service-profile" className={tile}><Image className="size-7 text-primary" />నా ఫోటోలు · My photos</Link>
         <Link to="/chats" className={tile}><MessageCircle className="size-7 text-primary" />నా సంభాషణలు</Link>
       </div>
-      <section className="space-y-3 border-y py-4"><h2 className="text-xl font-bold">గంట కొట్టిన వాళ్ళు</h2>{BELL_BOARD_SECTIONS.map(section => <details key={section}><summary className="cursor-pointer py-3 text-lg font-bold">{BELL_BOARD_LABELS[section]}</summary><IncomingBellList section={section} /></details>)}</section>
+      <section className="space-y-3"><h2 className="text-xl font-bold">నా ప్రకటనల లెక్కలు</h2><p className="text-sm text-muted-foreground">పెద్ద సంఖ్య = మీరు నమోదు చేసినవి. నొక్కితే ఆ ప్రకటనలు తెరుచుకుంటాయి.</p><DashboardCountCards counts={data?.counts} to="/my-posts" /></section>
+      <section id="my-bells" className="scroll-mt-4 space-y-3 border-y py-4"><h2 className="text-xl font-bold">గంట కొట్టిన వాళ్ళు</h2>{BELL_BOARD_SECTIONS.map(section => <details key={section}><summary className="cursor-pointer py-3 text-lg font-bold">{BELL_BOARD_LABELS[section]}</summary><IncomingBellList section={section} /></details>)}</section>
       <section className="space-y-3 border-b pb-4"><h2 className="text-xl font-bold">నిర్వాహకుల వీడియోలు</h2><AboutVideos /></section>
       <InstallButton />
       <AccountProfile />

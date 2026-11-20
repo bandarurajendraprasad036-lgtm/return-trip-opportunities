@@ -1,4 +1,5 @@
 import { POST_LIST_COLUMNS } from '@/lib/post-access';
+import { jobIsVisible } from '@/lib/post-publication';
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
@@ -27,9 +28,12 @@ import { DashboardNotifications } from '@/components/DashboardNotificationsView'
 import { CallManager } from '@/components/CallManager';
 import { z } from 'zod';
 import { AdminInbox } from '@/components/AdminInbox';
+import { useEffect } from 'react';
+import { dashboardCounts, parseDashboardList, postInList, DASHBOARD_LIST_LABELS, type DashboardList } from '@/lib/dashboard-counts';
+import { DashboardCountCards, PublicListLink } from '@/components/DashboardCountCards';
 
 export const Route = createFileRoute("/_authenticated/admin")({
-  validateSearch: (s:Record<string,unknown>):{view?:'chat'|'notifications'|undefined;peer?:string|undefined}=>({view:s['view']==='chat'||s['view']==='notifications'?s['view']:undefined,peer:z.string().uuid().safeParse(s['peer']).success?String(s['peer']):undefined}),
+  validateSearch: (s:Record<string,unknown>):{view?:'chat'|'notifications'|undefined;peer?:string|undefined;list?:DashboardList|undefined}=>({view:s['view']==='chat'||s['view']==='notifications'?s['view']:undefined,peer:z.string().uuid().safeParse(s['peer']).success?String(s['peer']):undefined,list:parseDashboardList(s['list'])}),
   beforeLoad: async () => {
     const { data: { user } } = await supabase.auth.getUser();
     const { data: admin } = user ? await supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' }) : { data: false };
@@ -52,7 +56,8 @@ export const Route = createFileRoute("/_authenticated/admin")({
 });
 
 function Admin() {
-  const {view,peer}=Route.useSearch();
+  const {view,peer,list}=Route.useSearch();
+  
   const {data:activity}=useAdminActivity();
   const { data: me, isLoading } = useMe();
   const qc = useQueryClient();
@@ -80,19 +85,20 @@ function Admin() {
     },
   });
 
+  const loaded = !!data;
+  useEffect(() => { if (list && loaded) { const t = window.setTimeout(() => document.getElementById('admin-posts')?.scrollIntoView({ block: 'start' }), 150); return () => window.clearTimeout(t); } return undefined; }, [list, loaded]);
   if (isLoading) return null;
   if (!me?.isAdmin) return <p className="p-8 text-center text-muted-foreground">అనుమతి లేదు · Admins only</p>;
 
   if(view)return <><CallManager/><Button asChild variant="outline" data-subscription-exempt className="m-3"><Link to="/admin" search={{}}>నిర్వాహక పేజీ</Link></Button>{view==='chat'&&peer?<DashboardChat key={peer} userId={peer}/>:<AdminInbox/>}</>;
   const posts = data?.posts ?? [];
-  const count = (k: string) => posts.filter((p) => p.kind === k).length;
+  const counts = data ? dashboardCounts(posts) : undefined;
+  const shown = list ? posts.filter(p => postInList(p, list)) : posts;
   const stats = [
-    ["వినియోగదారులు", "Users", data?.users ?? 0],
-    ["మొత్తం పోస్ట్‌లు", "Posts", posts.length],
-    ["ఉద్యోగం కావాలి", "Job seekers", count("seeker")],
-    ["యజమానులు", "Employers", count("employer")],
-    ["వాహన యజమానులు", "Vehicle owners", count("owner")],
-    ["వ్యాపారులు", "Businessmen", count("business")],
+    ["వినియోగదారులు", "Users", data?.users ?? '—'],
+    ["మొత్తం పోస్ట్‌లు", "Posts", data ? posts.length : '—'],
+    ["వ్యాపారులు", "Businessmen", data ? posts.filter(p => p.kind === 'business').length : '—'],
+    ["వాహన యజమానులు", "Vehicle owners", data ? posts.filter(p => p.kind === 'owner').length : '—'],
   ] as const;
 
   const del = async (id: string) => {
@@ -112,6 +118,9 @@ function Admin() {
     <div className="space-y-4 p-4">
       <div className="flex items-center justify-between gap-3"><h2 className="text-2xl font-bold">అడ్మిన్ డాష్‌బోర్డ్ <span className="text-base font-normal text-muted-foreground">Admin</span></h2><Button asChild variant="outline"><Link to="/admin-settings">సెట్టింగులు · Settings</Link></Button></div>
       <AdminNewPaymentAlert />
+      <h3 className="text-xl font-bold">నిజమైన నమోదుల లెక్కలు</h3>
+      <p className="text-sm text-muted-foreground">పెద్ద సంఖ్య = నమోదైన మొత్తం (గడువు ముగిసినవి కూడా). కింద = ఇప్పుడు జాబితాలో కనిపించేవి. నొక్కితే ఆ ప్రకటనలు కింద కనిపిస్తాయి.</p>
+      <DashboardCountCards counts={counts} to="/admin" active={list} />
       <CallManager />
       <AdminOverview />
       <AdminActivity />
@@ -146,16 +155,17 @@ function Admin() {
         ))}
       </div>
       <AdminScannerUpload />
-      <h3 className="text-xl font-bold">అన్ని పోస్ట్‌లు · All posts</h3>
+      <h3 id="admin-posts" className="scroll-mt-4 text-xl font-bold">{list ? `${DASHBOARD_LIST_LABELS[list]} (${shown.length})` : 'అన్ని పోస్ట్‌లు · All posts'}</h3>
+      {list && <div className="flex flex-wrap gap-2"><Button asChild variant="outline"><Link to="/admin" search={{}}>అన్ని పోస్ట్‌లు చూపండి</Link></Button><PublicListLink list={list} /></div>}
       {postsError && <div role="alert" className="space-y-2 rounded-xl border p-3"><p>పోస్టులు రాలేదు. మళ్లీ ప్రయత్నించండి. · Could not load posts.</p><Button variant="outline" onClick={() => void refetch()}>మళ్లీ ప్రయత్నించండి · Retry</Button></div>}
-      {!postsError && posts.length === 0 && <p className="text-muted-foreground">ఇంకా పోస్టులు లేవు · No posts yet</p>}
-      {posts.map((p) => <div key={p.id} className="space-y-2"><p className="break-words font-semibold" translate="no">{data?.people.find(u=>u.id===p.user_id)?.full_name||'సభ్యుడు'} · గంట కొట్టినవారు: {activity?.bells.find(b=>b.post_id===p.id)?.count??0}</p>
+      {!postsError && data && shown.length === 0 && <p className="text-muted-foreground">ఈ జాబితాలో ఇంకా ప్రకటనలు లేవు</p>}
+      {shown.map((p) => <div key={p.id} className="space-y-2"><p className="break-words font-semibold" translate="no">{data?.people.find(u=>u.id===p.user_id)?.full_name||'సభ్యుడు'} · గంట కొట్టినవారు: {activity?.bells.find(b=>b.post_id===p.id)?.count??0}</p>
         <PostCard
           key={p.id}
           post={p}
           actions={
             <>
-              <span className="flex-1 self-center text-xs text-muted-foreground">{p.status} · {new Date(p.created_at).toLocaleDateString("en-IN")}</span>
+              <span className="flex-1 self-center text-xs text-muted-foreground">{jobIsVisible(p) ? 'ఇప్పుడు కనిపిస్తోంది' : p.status === 'active' ? 'గడువు ముగిసింది / వేచి ఉంది' : 'మూసివేశారు'} · {new Date(p.created_at).toLocaleDateString("en-IN")}</span>
               <Button variant="destructive" onClick={() => del(p.id)}><Trash2 />Delete</Button>
             </>
           }
