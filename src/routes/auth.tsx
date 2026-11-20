@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { DesignFooter } from "@/components/DesignFooter";
 import { PhonePasswordAuth } from "@/components/PhonePasswordAuth";
 import { useMe } from "@/lib/session";
+import { Button } from '@/components/ui/button';
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -22,7 +23,7 @@ function AuthPage() {
   const { data: me } = useMe();
   return <div className="mx-auto flex min-h-screen max-w-md flex-col bg-background">
     <header className="bg-royal px-5 py-8 text-on-royal"><h1 className="text-4xl font-bold"><Brand /></h1>{me?.isAdmin === true && <Link to="/admin" className="block py-3 text-lg font-bold underline">నిర్వాహకుల ప్రవేశం</Link>}<p className="mt-3 text-lg">మొబైల్ నంబర్ + పాస్వర్డ్‌తో ప్రవేశం</p></header>
-    <main className="flex-1 space-y-5 px-5 py-8"><PhonePasswordAuth /><Link to="/feed" className="block py-3 text-center text-primary underline">ఉచితంగా ప్రకటనలు చూడండి</Link></main>
+    <main className="flex-1 space-y-5 px-5 py-8"><PhonePasswordAuth /><Button asChild variant="outline" className="h-auto min-h-12 w-full whitespace-normal"><Link to="/feed">ధృవీకరణ లేకుండా అతిథిగా కొనసాగించండి</Link></Button></main>
     <DesignFooter />
   </div>;
 }

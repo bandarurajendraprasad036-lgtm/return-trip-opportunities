@@ -109,7 +109,6 @@ export function AccountProfile({ completionOnly = false }: { completionOnly?: bo
           if (completionOnly || me.isAdmin) return;
           const paid = await supabase.rpc('has_paid_bell', { _user: me.id });
           if (paid.data) { await supabase.from('notification_preferences').upsert({ user_id: me.id, enabled: true }); await markAccountBellActivated(me.id); }
-          else setSubscribeOpen(true);
         } catch {
           toast.error('మీ వివరాలు భద్రపడలేదు · Profile not saved');
         } finally { setBusy(false); }
