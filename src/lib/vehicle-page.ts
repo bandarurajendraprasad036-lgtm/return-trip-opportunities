@@ -11,6 +11,10 @@ export const VEHICLE_CATALOG: Record<VehiclePageKind, string[]> = {
 export function vehicleDisplay(paid: boolean, loading: boolean, failed: boolean, rowCount: number) {
   return { showCatalog: !loading && !failed && rowCount === 0, showListings: true };
 }
+export function vehicleSearchFrom(from: string, area: string) {
+  // An explicit route wins over the saved work/service village preference.
+  return from.trim() || area.trim();
+}
 export function vehiclePageRows(posts: Post[], kind: VehiclePageKind, from = '', to = '', date = '') {
   const norm = (v: string | null | undefined) => v?.trim().toLocaleLowerCase() || '';
   return posts.filter(p => p.module === 'vehicle' && jobIsVisible(p)

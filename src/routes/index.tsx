@@ -77,7 +77,7 @@ function Index() {
         </BellJoin> : <img src={[mata, mataGreen, mataIvory][devotional]} alt="గాయత్రి మాత బంగారు గంట" className="home-engraved-bell" width={768} height={768} />}
 
         <TopProfileBox compact />
-        <Button asChild variant="outline" className="mt-3 min-h-14 w-full whitespace-normal text-lg"><Link to="/dashboard"><LayoutDashboard />నా పేజీ తెరవండి</Link></Button>
+        <Button asChild variant="outline" className="mt-3 min-h-14 w-full whitespace-normal text-lg"><Link to={me?.isAdmin ? '/admin' : '/dashboard'}><LayoutDashboard />{me?.isAdmin ? 'నిర్వాహక పేజీ తెరవండి' : 'నా పేజీ తెరవండి'}</Link></Button>
         <div className="mt-2"><InstallButton /></div>
 
         <p className="text-center text-base opacity-90">మన ఊరు · మన బండి · మన పని</p>

@@ -1,12 +1,17 @@
 import { beforeEach, expect, it, vi } from 'vitest';
 
-const mocks = vi.hoisted(() => ({ getUser: vi.fn(), from: vi.fn() }));
+const mocks = vi.hoisted(() => ({ getSession: vi.fn(), getUser: vi.fn(), from: vi.fn() }));
 vi.mock('@tanstack/react-query', () => ({ useQuery: (options: { queryFn: () => Promise<unknown> }) => options.queryFn() }));
-vi.mock('@/integrations/supabase/client', () => ({ supabase: { auth: { getUser: mocks.getUser }, from: mocks.from } }));
+vi.mock('@/integrations/supabase/client', () => ({ supabase: { auth: { getSession: mocks.getSession, getUser: mocks.getUser }, from: mocks.from } }));
 import { useMe } from '@/lib/session';
 
 beforeEach(() => {
   mocks.getUser.mockReset(); mocks.from.mockReset();
+  mocks.getSession.mockReset();
+  mocks.getSession.mockImplementation(async () => {
+    const result = await mocks.getUser();
+    return { data: { session: result.data.user ? { user: result.data.user } : null } };
+  });
   mocks.from.mockImplementation((table: string) => {
     const value = table === 'user_roles' ? [{ role: 'user' }] : null;
     const result = { data: value, error: null };
