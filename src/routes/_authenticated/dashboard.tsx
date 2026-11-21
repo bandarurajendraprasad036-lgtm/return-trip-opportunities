@@ -120,7 +120,7 @@ function Dashboard() {
         <Link to="/chats" className={tile}><MessageCircle className="size-7 text-primary" />నా సంభాషణలు</Link>
       </div>
       <section className="space-y-3"><h2 className="text-xl font-bold">నా ప్రకటనల లెక్కలు</h2><p className="text-sm text-muted-foreground">పెద్ద సంఖ్య = మీరు నమోదు చేసినవి. నొక్కితే ఆ ప్రకటనలు తెరుచుకుంటాయి.</p><DashboardCountCards counts={data?.counts} to="/my-posts" /></section>
-      <section id="my-bells" className="scroll-mt-4 space-y-3 border-y py-4"><h2 className="text-xl font-bold">గంట కొట్టిన వాళ్ళు</h2>{BELL_BOARD_SECTIONS.map(section => <details key={section}><summary className="cursor-pointer py-3 text-lg font-bold">{BELL_BOARD_LABELS[section]}</summary><IncomingBellList section={section} /></details>)}</section>
+      <section id="my-bells" className="scroll-mt-4 space-y-3 border-y py-4"><h2 className="text-xl font-bold">గంట కొట్టిన వాళ్ళు</h2>{BELL_BOARD_SECTIONS.map(section => <details key={section} open><summary className="cursor-pointer py-3 text-lg font-bold">{BELL_BOARD_LABELS[section]}</summary><IncomingBellList section={section} hideEmpty /></details>)}</section>
       <section className="space-y-3 border-b pb-4"><h2 className="text-xl font-bold">నిర్వాహకుల వీడియోలు</h2><AboutVideos /></section>
       <InstallButton />
       <AccountProfile />
