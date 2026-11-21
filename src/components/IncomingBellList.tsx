@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { SignedImg } from '@/components/SignedImg';
 import { useNavigate } from '@tanstack/react-router';
-import { BellRing, MessageCircle, Phone } from 'lucide-react';
+import { BellRing, MessageCircle, MessageSquare, Phone } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -38,8 +38,9 @@ export function IncomingBellList({ section, post, hideEmpty = false }: { section
       return <div key={`${row.source}-${row.id}`} className="flex min-h-20 w-full items-center gap-2 rounded-md border border-primary p-2">
         {row.photo ? <SignedImg src={row.photo} alt="" className="size-16 shrink-0 rounded-full border-2 border-primary object-cover" /> : <span aria-hidden className="flex size-16 shrink-0 items-center justify-center rounded-full border-2 border-primary bg-primary text-3xl font-bold text-primary-foreground">{(name[0] ?? '?').toUpperCase()}</span>}
         <span className="min-w-0 flex-1 break-words" translate="no"><span className="block text-xl font-bold leading-tight">{name}</span>{digits && name !== digits && <span className="block text-lg font-semibold">{digits}</span>}<span className="block text-sm">{row.need} · {row.area}</span></span>
-        <div className="flex shrink-0 items-center gap-1">
+        <div className="grid shrink-0 grid-cols-2 items-center gap-1 sm:flex">
           <Button size="icon" className="size-11 [&_svg]:size-6" aria-label={`${name} తో చాట్`} onClick={() => void open(row.id, row.source)}><MessageCircle className="size-6" /></Button>
+          {canDial ? <Button asChild size="icon" variant="outline" className="size-11 [&_svg]:size-6"><a href={`https://wa.me/91${digits}`} target="_blank" rel="noopener noreferrer" aria-label={`${name} కు వాట్సాప్ సందేశం`} title="వాట్సాప్ సందేశం"><MessageSquare className="size-6" /></a></Button> : <Button size="icon" variant="outline" className="size-11 [&_svg]:size-6" disabled aria-label="వాట్సాప్ కోసం నంబర్ లేదు"><MessageSquare className="size-6" /></Button>}
           <span role="img" aria-label="గంట కొట్టారు" className="flex size-11 items-center justify-center rounded-md border border-primary text-primary"><BellRing className="size-6" /></span>
           {canDial ? <Button asChild size="icon" variant="outline" className="size-11 [&_svg]:size-6"><a href={`tel:+91${digits}`} aria-label={`ఫోన్ ${digits}`}><Phone className="size-6" /></a></Button> : <Button size="icon" variant="outline" className="size-11 [&_svg]:size-6" disabled aria-label="ఫోన్ నంబర్ లేదు"><Phone className="size-6" /></Button>}
         </div>

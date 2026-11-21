@@ -1,0 +1,10 @@
+import { expect, it } from 'vitest';
+import { postBellSection } from '@/lib/post-bell-section';
+const base = { module: 'vehicle', kind: 'owner', service_type: null, from_place: 'Village', to_place: 'Village', vehicle_type: 'lorry' };
+it('local goods owner contacts use goods', () => expect(postBellSection(base)).toBe('goods'));
+it('return goods owner contacts use returns', () => expect(postBellSection({ ...base, to_place: 'Town' })).toBe('returns'));
+it('car owner contacts use cars even for a return route', () => expect(postBellSection({ ...base, vehicle_type: 'car', to_place: 'Town' })).toBe('cars'));
+it('job seeker owner contacts use work wanted', () => expect(postBellSection({ ...base, module: 'job', kind: 'seeker' })).toBe('work-wanted'));
+it('employer owner contacts use work offered', () => expect(postBellSection({ ...base, module: 'job', kind: 'employer' })).toBe('work-offered'));
+it('service provider owner contacts use providers', () => expect(postBellSection({ ...base, module: 'job', kind: 'employer', service_type: 'service' })).toBe('service-providers'));
+it('service demand owner contacts use wanted rather than the opposite public board', () => expect(postBellSection({ ...base, module: 'job', kind: 'seeker', service_type: 'service' })).toBe('service-wanted'));

@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { VehicleDemandBell } from '@/components/VehicleDemandBell';
 import { useMasterArea } from '@/lib/master-area';
 import { BELL_BOARD_REFRESH_MS } from '@/lib/bell-board-refresh';
+import { IncomingBellList } from '@/components/IncomingBellList';
 
 export const Route = createFileRoute('/vehicles')({
   validateSearch: (s: Record<string, unknown>): { category: VehiclePageKind; from: string; to: string } => ({ category: s['category'] === 'cars' || s['category'] === 'returns' ? s['category'] : 'goods', from: typeof s['from'] === 'string' ? s['from'].slice(0,80) : '', to: typeof s['to'] === 'string' ? s['to'].slice(0,80) : '' }),
@@ -42,6 +43,7 @@ function Vehicles() {
     {isPending && <p role="status">వస్తున్నాయి · Loading</p>}{isError && <Button onClick={() => void refetch()}>మళ్లీ చూడండి · Retry</Button>}
     <p translate="no" className="text-sm">{from}</p>
     {(display.showCatalog || categories.length > 0) && <ul className="space-y-2">{categoryNames(display.showCatalog ? VEHICLE_CATALOG[search.category] : [], categories).map(name => <li key={name} className="flex items-center justify-between gap-3 rounded-lg border bg-card p-3"><div className="min-w-0"><p className="text-lg font-bold" translate="no">{name}</p><p className="text-sm text-muted-foreground">{paid ? 'వాహన రకం మాత్రమే; ఈ ఎంపికకు నమోదైన వాహనం లేదు · Category, not an available listing' : 'వాహన రకం మాత్రమే'}</p></div><VehicleDemandBell category={search.category} from={from} to={search.to} vehicle={name} /></li>)}</ul>}
+    <IncomingBellList section={search.category} />
     {rows.map(post => <PostCard key={post.id} post={post} meId={me?.id} />)}
     <AddCategoryBox label="కేటగిరి చేర్చండి" section={search.category} />
   </div>;

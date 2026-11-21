@@ -26,6 +26,7 @@ import { playTapBell } from '@/lib/bell';
 import { IncomingBellList } from '@/components/IncomingBellList';
 import { DeleteOwnPost } from '@/components/DeleteOwnPost';
 import { EditOwnPost } from '@/components/EditOwnPost';
+import { postBellSection } from '@/lib/post-bell-section';
 
 export type Post = Database["public"]["Tables"]["posts"]["Row"];
 
@@ -49,6 +50,7 @@ export function PostCard({
   const isJob = post.module === "job";
   const workAction = freeWorkClientAction;
   const section = post.service_type === 'service' ? post.kind === 'seeker' ? 'service-wanted' : 'service-providers' : post.kind === 'seeker' ? 'work-wanted' : 'work-offered';
+  const ownerSection = postBellSection(post);
   // Board where this ad is listed for ringing (service seekers sit under the providers board).
   const ringSection = post.service_type === 'service' ? post.kind === 'seeker' ? 'service-providers' : 'service-wanted' : section;
   const nav = useNavigate();
@@ -120,7 +122,7 @@ export function PostCard({
     </div>
     <PrivateBellDisplay />
     {meId === post.user_id && <Button asChild variant="outline" data-subscription-exempt className="h-auto min-h-11 whitespace-normal"><Link to="/bell-board" search={{ section: isJob ? section : vehicleDemandCategory(post), post: post.id }}>గంట కొట్టిన వాళ్ళ జాబితా</Link></Button>}
-    {isJob && meId === post.user_id && <IncomingBellList section={section} post={post.id} />}
+    {meId === post.user_id && <IncomingBellList section={ownerSection} post={post.id} />}
     {anonymousWork && <Button variant="outline" onClick={contact} disabled={sending}><MessageCircle />చాట్</Button>}
     {isJob && <Button variant="outline" onClick={()=>void openDetails()} disabled={detailsBusy}><Info />వివరాలు</Button>}
     {!isJob && !hideDate && post.trip_date && <p translate="no" className="text-sm">{post.trip_date}</p>}

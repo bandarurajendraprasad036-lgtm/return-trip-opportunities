@@ -15,6 +15,7 @@ import { FREE_WORK_LABELS, freeWorkNames, type FreeWorkSection } from '@/lib/fre
 import { resolveServiceCategory } from '@/lib/service-category-display';
 import { AdminBellRowAction } from '@/components/AdminBellRowAction';
 import { bellErrorMessage, SIGN_IN_MESSAGE, signedInUserId } from '@/lib/bell-request';
+import { IncomingBellList } from '@/components/IncomingBellList';
 
 export function FreeWorkBox({ section, area }: { section: FreeWorkSection; area: string }) {
   const [expanded, setExpanded] = useState(false);
@@ -69,6 +70,7 @@ export function FreeWorkBox({ section, area }: { section: FreeWorkSection; area:
       <div className="space-y-4">
       <Button asChild variant="outline" className="h-auto min-h-14 w-full whitespace-normal"><Link to="/bell-board" search={{ section }}><Bell />గంట కొట్టిన వాళ్ళు</Link></Button>
       {!me && <Button asChild variant="outline" className="h-auto w-full whitespace-normal"><Link to="/auth">ప్రవేశించండి</Link></Button>}
+      <IncomingBellList section={section} hideEmpty />
       <section className="space-y-2 rounded-md border border-primary p-3" data-box="categories">
         <h3 className="font-bold">కేటగిరీలు</h3>
         <div className="flex flex-wrap gap-2">{names.map(category => <div key={category} className="flex max-w-full items-center rounded-md border border-primary bg-card">
