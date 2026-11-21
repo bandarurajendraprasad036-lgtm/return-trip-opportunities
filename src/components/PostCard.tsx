@@ -122,7 +122,7 @@ export function PostCard({
     </div>
     <PrivateBellDisplay />
     {meId === post.user_id && <Button asChild variant="outline" data-subscription-exempt className="h-auto min-h-11 whitespace-normal"><Link to="/bell-board" search={{ section: isJob ? section : vehicleDemandCategory(post), post: post.id }}>గంట కొట్టిన వాళ్ళ జాబితా</Link></Button>}
-    {meId === post.user_id && <IncomingBellList section={ownerSection} post={post.id} />}
+    <IncomingBellList section={ownerSection} post={post.id} hideEmpty={meId !== post.user_id} />
     {anonymousWork && <Button variant="outline" onClick={contact} disabled={sending}><MessageCircle />చాట్</Button>}
     {isJob && <Button variant="outline" onClick={()=>void openDetails()} disabled={detailsBusy}><Info />వివరాలు</Button>}
     {!isJob && !hideDate && post.trip_date && <p translate="no" className="text-sm">{post.trip_date}</p>}

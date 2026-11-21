@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { hidePaymentEvidence } from '@/lib/payment-status';
 import { PrivateBellDisplay } from '@/components/PrivateBellDisplay';
 import { CallButtons } from '@/components/CallManager';
+import { DeleteChatItems } from '@/components/DeleteChatItems';
 
 export function DashboardChats() {
   const { data: me } = useMe();
@@ -53,7 +54,7 @@ export function DashboardChats() {
         <Button variant="ghost" className="h-auto w-full justify-start whitespace-normal px-0 text-left" onClick={() => setOpened(opened === c.id ? null : c.id)}><MessageCircle className="size-5 shrink-0" /><span className="min-w-0"><span className="block font-bold">{c.post ? `${c.post.from_place || '…'} → ${c.post.to_place || '…'}` : 'సంభాషణ'}</span>{c.post && <span className="block text-xs text-muted-foreground">{c.participants.length} మంది · replies</span>}<span className="block text-sm font-normal text-muted-foreground">కొత్త సమాధానం</span></span></Button>
         {opened === c.id && <div className="space-y-3 border-t pt-3">
           {c.post && <p className="text-sm">{c.post.vehicle_type} {c.post.capacity_tons != null && `· ${c.post.capacity_tons} టన్నులు · tons`}</p>}
-          {c.participants.map(person => <div key={person.id} className="space-y-2"><Button asChild variant="outline" className="h-auto min-h-11 w-full whitespace-normal"><Link to="/chat/$userId" params={{ userId: person.id }} search={{ post: c.post?.id }}> {person.name} · మాట్లాడండి</Link></Button><CallButtons peer={person.id} /></div>)}
+          {c.participants.map(person => <div key={person.id} className="space-y-2"><Button asChild variant="outline" className="h-auto min-h-11 w-full whitespace-normal"><Link to="/chat/$userId" params={{ userId: person.id }} search={{ post: c.post?.id }}> {person.name} · మాట్లాడండి</Link></Button><CallButtons peer={person.id} /><DeleteChatItems other={person.id} post={c.post?.id} /></div>)}
         </div>}
       </article>)}
     </div>

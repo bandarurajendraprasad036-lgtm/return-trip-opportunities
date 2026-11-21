@@ -5,3 +5,4 @@
 - In-app calls use participant-private database signalling with both-party receipt checks on every signal; consented dial rechecks the same gate and never reads private profile phones.
 - Member photos/Aadhaar use private buckets; storage rules enforce hide choice, Aadhaar is owner/admin only and its result is written only by the server checker (number never stored).
 - Ad deletion uses delete_post_everywhere (owner or admin) so bell records go with the ad.
+- Shared post bell contacts use explicit member publication consent and field hiding; dashboard message/bell dismissal is durable and account-only, preserving the other participant's copy and payment evidence.

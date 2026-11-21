@@ -628,6 +628,35 @@ export type Database = {
           },
         ]
       }
+      dashboard_dismissals: {
+        Row: {
+          item_id: string
+          kind: string
+          source: string
+          user_id: string
+        }
+        Insert: {
+          item_id: string
+          kind: string
+          source?: string
+          user_id: string
+        }
+        Update: {
+          item_id?: string
+          kind?: string
+          source?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dashboard_dismissals_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deferred_listing_notices: {
         Row: {
           available_at: string
@@ -1899,6 +1928,7 @@ export type Database = {
           phone: string
           photo_path: string
           prime_until: string | null
+          public_bell_consent: boolean
           public_brand: string
           public_photo: string
           referral_code: string | null
@@ -1920,6 +1950,7 @@ export type Database = {
           phone?: string
           photo_path?: string
           prime_until?: string | null
+          public_bell_consent?: boolean
           public_brand?: string
           public_photo?: string
           referral_code?: string | null
@@ -1941,6 +1972,7 @@ export type Database = {
           phone?: string
           photo_path?: string
           prime_until?: string | null
+          public_bell_consent?: boolean
           public_brand?: string
           public_photo?: string
           referral_code?: string | null
@@ -3391,6 +3423,19 @@ export type Database = {
         Returns: undefined
       }
       delete_post_everywhere: { Args: { _post: string }; Returns: boolean }
+      dismiss_chat_items: {
+        Args: {
+          _all?: boolean
+          _message?: string
+          _other?: string
+          _post?: string
+        }
+        Returns: number
+      }
+      dismiss_incoming_bell: {
+        Args: { _id: string; _post?: string; _section: string; _source: string }
+        Returns: boolean
+      }
       dispatch_approximate_route_alerts: { Args: never; Returns: number }
       dispatch_daily_referral_board: { Args: never; Returns: number }
       dispatch_free_work_notices: { Args: never; Returns: number }
@@ -3472,6 +3517,21 @@ export type Database = {
           area: string
           category: string
           id: string
+          source: string
+        }[]
+      }
+      list_post_bell_contacts: {
+        Args: { _post: string }
+        Returns: {
+          area: string
+          can_delete: boolean
+          full_name: string
+          id: string
+          need: string
+          other_id: string
+          phone: string
+          photo: string
+          post_id: string
           source: string
         }[]
       }
@@ -3656,6 +3716,7 @@ export type Database = {
       }
       process_program_referral: { Args: { _user: string }; Returns: number }
       profile_ready_for_actions: { Args: { _user: string }; Returns: boolean }
+      public_bell_photo_allowed: { Args: { _path: string }; Returns: boolean }
       public_competition_areas: { Args: never; Returns: Json }
       public_referral_vip_board: { Args: never; Returns: Json }
       public_service_directory: { Args: never; Returns: Json }

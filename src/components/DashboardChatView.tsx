@@ -11,7 +11,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { sendSupportMessage } from "@/lib/support.functions";
 import { z } from "zod";
 import { PostEvidence } from '@/components/PostEvidence';
-import { sendChatEntry, viewChatImage, deleteChatEntry } from '@/lib/chat-upload.functions';
+import { sendChatEntry, viewChatImage } from '@/lib/chat-upload.functions';
+import { DeleteChatItems } from '@/components/DeleteChatItems';
 import { CHAT_IMAGE_LIMIT, chatEntrySchema } from '@/lib/chat-rules';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { hidePaymentEvidence } from '@/lib/payment-status';
@@ -39,7 +40,6 @@ export function DashboardChat({ userId, postId }: { userId: string; postId?: str
   const fileInput = useRef<HTMLInputElement>(null);
   const sendEntry = useServerFn(sendChatEntry);
   const showImage = useServerFn(viewChatImage);
-  const removeEntry = useServerFn(deleteChatEntry);
   const { data: adminId } = useQuery({ queryKey: ['support-admin-id'], queryFn: async () => { const result = await supabase.rpc('support_admin_id'); if (result.error) throw result.error; return result.data; } });
   const {data:chatAllowed} = useQuery({queryKey:['chat-allowed',me?.id,userId,postId],enabled:!!me,queryFn:async()=>{
     const result=await supabase.rpc('can_post_chat',{...(postId ? {_post:postId} : {}),_other:userId});
@@ -141,6 +141,7 @@ export function DashboardChat({ userId, postId }: { userId: string; postId?: str
           {userId !== adminId && peerDigits && peerName !== peerDigits && <p className="text-sm">{peerDigits}</p>}
         </div>
         {userId !== me?.id && <CallButtons peer={userId} />}
+        {msgs.length > 0 && <DeleteChatItems other={userId} post={postId} />}
         {me?.isAdmin && userId !== me.id && <Button size="sm" onClick={async()=>{const r=await supabase.rpc('admin_membership_access',{_user:userId,_enable:true});if(r.error)toast.error('ప్రైమ్ ఇవ్వలేదు');else{toast.success('ప్రైమ్ ఆన్ చేశాం - గంట, చాట్ తెరుచుకున్నాయి');}}}>Give Prime</Button>}
       </div>
       {contextPost && <section className="space-y-1 border-b bg-muted px-3 py-3 text-sm" aria-label="ప్రయాణ వివరాలు · Route details"><p className="font-bold">{contextPost.title}</p>{contextPost.module === "vehicle" ? <><p>{contextPost.from_place} → {contextPost.to_place}</p><p>{contextPost.vehicle_type} {contextPost.capacity_tons != null && `· ${contextPost.capacity_tons} టన్నులు · tons`} · {contextPost.trip_date}</p></> : <p>{contextPost.location}</p>}</section>}
@@ -153,14 +154,14 @@ export function DashboardChat({ userId, postId }: { userId: string; postId?: str
         {msgs.map((m) => {
           const mine = m.sender_id === me?.id;
           const paymentHidden=hidePaymentEvidence(m.body,userId===adminId,me?.isAdmin===true);
-          if(paymentHidden)return <p key={m.id} role="status">చెల్లింపు పరిశీలనలో ఉంది</p>;
+          if(paymentHidden)return <div key={m.id}><p role="status">చెల్లింపు పరిశీలనలో ఉంది</p><DeleteChatItems message={m.id} /></div>;
           return (
             <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
               <div className={`max-w-[80%] space-y-2 break-words rounded-2xl px-3 py-2 text-base ${mine ? "bg-primary text-primary-foreground" : "bg-card shadow-card"}`}>
                 <p translate="no" className="whitespace-pre-wrap">{m.body.replace(/\/chat\/[0-9a-f-]{36}/g,'ప్రకటన గంట నొక్కండి · Ring listing bell')}</p>
                 {m.chat_phone && <p className="flex items-center gap-1"><Phone className="size-4" />{m.chat_phone}</p>}
                 {m.image_path && <Button variant="outline" onClick={async()=>{try{const result=await showImage({data:{message:m.id}});setImageUrl(result.url);}catch{setSendError('చిత్రం తెరవలేకపోయాం · Image unavailable');}}}><ImagePlus />ఫోటో చూడండి · View image</Button>}
-                {mine && (m.image_path || m.chat_phone) && <Button variant="ghost" size="icon" aria-label="నా పంపిన వివరాలు తొలగించండి · Delete my attachment" onClick={async()=>{try{await removeEntry({data:{message:m.id}});await qc.invalidateQueries({queryKey:key});}catch{setSendError('తొలగించలేకపోయాం · Could not delete');}}}><X /></Button>}
+                <DeleteChatItems message={m.id} />
               </div>
             </div>
           );

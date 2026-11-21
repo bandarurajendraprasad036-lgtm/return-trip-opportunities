@@ -9,6 +9,7 @@ import { viewChatImage } from '@/lib/chat-upload.functions';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
+import { DeleteChatItems } from '@/components/DeleteChatItems';
 
 export function AdminMessages() {
   const { data: me } = useMe();
@@ -45,6 +46,8 @@ export function AdminMessages() {
         <div className="flex flex-wrap gap-2">
           {message.image_path && <Button type="button" variant="outline" onClick={async () => { setImageError(''); try { const result = await showImage({ data: { message: message.id } }); setImageUrl(result.url); } catch { setImageError('చిత్రం తెరవలేకపోయాం · Image unavailable'); } }}><ImagePlus />చిత్రం · Image</Button>}
           <Button asChild variant="outline"><Link to="/chat/$userId" params={{ userId: other }} search={{ post: message.post_id ?? undefined }}><MessageCircle />సంభాషణ · Open</Link></Button>
+          <DeleteChatItems message={message.id} />
+          <DeleteChatItems other={other} post={message.post_id ?? undefined} />
           <Button variant="outline" onClick={async()=>{const r=await supabase.rpc('admin_membership_access',{_user:other,_enable:true});if(r.error)toast.error('ప్రైమ్ ఇవ్వలేదు');else toast.success('ప్రైమ్ ఆన్ చేశాం');}}>ప్రైమ్ ఆన్ చేయండి / Give Prime</Button>
         </div>
       </article>;

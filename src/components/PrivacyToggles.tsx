@@ -22,6 +22,15 @@ export function PrivacyToggles() {
   };
   return <section data-subscription-exempt className="space-y-2 rounded-xl border p-3" aria-label="చూపించు / దాచు">
     <h3 className="text-lg font-bold">ఇతరులకు చూపించు / దాచు</h3>
+    <label className="flex items-start gap-2 py-2"><input type="checkbox" className="mt-1 size-5 shrink-0" checked={profile.public_bell_consent} disabled={busy} onChange={async e => {
+      const consent = e.target.checked;
+      if (consent && !window.confirm('మీరు గంట కొట్టిన ప్రకటనల్లో మీ ఫోటో, పేరు, ఫోన్ నంబర్ అందరికీ చూపించాలా? దాచిన వివరాలు బయట కనిపించవు.')) return;
+      setBusy(true);
+      const r = await supabase.from('profiles').update({ public_bell_consent: consent }).eq('id', me.id);
+      setBusy(false);
+      if (r.error) { toast.error('మార్పు భద్రపడలేదు'); return; }
+      await qc.invalidateQueries();
+    }} /><span>నేను గంట కొట్టిన ప్రకటనల్లో నా వివరాలు అందరికీ చూపించేందుకు అంగీకరిస్తున్నాను</span></label>
     {FIELDS.map(([key, label]) => { const hidden = profile[key]; return <div key={key} className="flex items-center justify-between gap-2">
       <span className="text-lg">{label}: <b>{hidden ? 'దాచారు' : 'కనబడుతుంది'}</b></span>
       <Button type="button" variant={hidden ? 'default' : 'outline'} disabled={busy} className="min-h-11" onClick={() => void toggle(key)}>{hidden ? <><Eye />చూపించు</> : <><EyeOff />దాచు</>}</Button>
