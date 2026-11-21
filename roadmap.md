@@ -321,5 +321,5 @@
 - [x] Admin notices inside home "మీ వివరాలు నింపండి" box; tap opens the ad / bell list; beller photo, name, phone, area
 - [x] Show / hide photo, name, phone (admin always sees)
 - [x] Admin delete on every ad with confirm; owner edit + delete own ads
-- [ ] Profile photo round box with + (camera / gallery, change)
-- [ ] Aadhaar card box with + (private to owner + admin, automatic name check)
+- [x] Profile photo round box with + (camera / gallery, change)
+- [x] Aadhaar card box with + (private to owner + admin, automatic name check)

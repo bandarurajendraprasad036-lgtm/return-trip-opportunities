@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      aadhaar_checks: {
+        Row: {
+          checked_at: string
+          name_matched: boolean
+          note: string
+          path: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          checked_at?: string
+          name_matched?: boolean
+          note?: string
+          path: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          checked_at?: string
+          name_matched?: boolean
+          note?: string
+          path?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aadhaar_checks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       account_blocks: {
         Row: {
           blocked_at: string
@@ -1862,6 +1897,7 @@ export type Database = {
           is_prime: boolean
           location: string
           phone: string
+          photo_path: string
           prime_until: string | null
           public_brand: string
           public_photo: string
@@ -1882,6 +1918,7 @@ export type Database = {
           is_prime?: boolean
           location?: string
           phone?: string
+          photo_path?: string
           prime_until?: string | null
           public_brand?: string
           public_photo?: string
@@ -1902,6 +1939,7 @@ export type Database = {
           is_prime?: boolean
           location?: string
           phone?: string
+          photo_path?: string
           prime_until?: string | null
           public_brand?: string
           public_photo?: string

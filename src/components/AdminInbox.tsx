@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SignedImg } from '@/components/SignedImg';
 import { Link } from '@tanstack/react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -36,7 +37,7 @@ export function AdminInbox() {
       const what = n.post_label || n.detail;
       const body = <>
         {n.actor_id && name && <span className="flex items-center gap-3">
-          {n.photo ? <img src={n.photo} alt="" className="size-14 shrink-0 rounded-full border-2 border-primary object-cover" /> : <span aria-hidden className="flex size-14 shrink-0 items-center justify-center rounded-full border-2 border-primary bg-primary text-2xl font-bold text-primary-foreground">{(name[0] ?? '?').toUpperCase()}</span>}
+          {n.photo ? <SignedImg src={n.photo} alt="" className="size-14 shrink-0 rounded-full border-2 border-primary object-cover" /> : <span aria-hidden className="flex size-14 shrink-0 items-center justify-center rounded-full border-2 border-primary bg-primary text-2xl font-bold text-primary-foreground">{(name[0] ?? '?').toUpperCase()}</span>}
           <span className="min-w-0 break-words" translate="no"><span className="block text-lg font-bold leading-tight">{name}</span>{digits && digits !== name && <span className="block text-base font-semibold">{digits}</span>}{n.hidden && <span className="block text-sm">(ఇతరులకు దాచారు)</span>}</span>
         </span>}
         <span className="block font-semibold">{n.message}</span>

@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { SignedImg } from '@/components/SignedImg';
 import { useNavigate } from '@tanstack/react-router';
 import { BellRing, MessageCircle, Phone } from 'lucide-react';
 import { toast } from 'sonner';
@@ -35,7 +36,7 @@ export function IncomingBellList({ section, post, hideEmpty = false }: { section
       const name = row.full_name.trim() || digits || 'వివరాలు దాచారు';
       const canDial = digits.length === 10;
       return <div key={`${row.source}-${row.id}`} className="flex min-h-20 w-full items-center gap-2 rounded-md border border-primary p-2">
-        {row.photo ? <img src={row.photo} alt="" className="size-16 shrink-0 rounded-full border-2 border-primary object-cover" /> : <span aria-hidden className="flex size-16 shrink-0 items-center justify-center rounded-full border-2 border-primary bg-primary text-3xl font-bold text-primary-foreground">{(name[0] ?? '?').toUpperCase()}</span>}
+        {row.photo ? <SignedImg src={row.photo} alt="" className="size-16 shrink-0 rounded-full border-2 border-primary object-cover" /> : <span aria-hidden className="flex size-16 shrink-0 items-center justify-center rounded-full border-2 border-primary bg-primary text-3xl font-bold text-primary-foreground">{(name[0] ?? '?').toUpperCase()}</span>}
         <span className="min-w-0 flex-1 break-words" translate="no"><span className="block text-xl font-bold leading-tight">{name}</span>{digits && name !== digits && <span className="block text-lg font-semibold">{digits}</span>}<span className="block text-sm">{row.need} · {row.area}</span></span>
         <div className="flex shrink-0 items-center gap-1">
           <Button size="icon" className="size-11 [&_svg]:size-6" aria-label={`${name} తో చాట్`} onClick={() => void open(row.id, row.source)}><MessageCircle className="size-6" /></Button>

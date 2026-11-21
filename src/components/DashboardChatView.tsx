@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { SignedImg } from '@/components/SignedImg';
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Send, ImagePlus, Plus, X, Phone } from "lucide-react";
@@ -134,7 +135,7 @@ export function DashboardChat({ userId, postId }: { userId: string; postId?: str
     <div className="flex h-[calc(100svh-12rem)] min-h-80 flex-col">
       <div className="flex flex-wrap items-center gap-3 border-b bg-card px-3 py-2">
         <Link to="/dashboard" search={{ view: "chats" }} aria-label="సంభాషణల జాబితా"><ArrowLeft /></Link>
-        {userId !== adminId && peerName && (peer?.photo ? <img src={peer.photo} alt="" className="size-10 shrink-0 rounded-full object-cover" /> : <span aria-hidden className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">{(peerName[0] ?? '?').toUpperCase()}</span>)}
+        {userId !== adminId && peerName && (peer?.photo ? <SignedImg src={peer.photo} alt="" className="size-10 shrink-0 rounded-full object-cover" /> : <span aria-hidden className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">{(peerName[0] ?? '?').toUpperCase()}</span>)}
         <div className="min-w-0 flex-1" translate="no">
           <p className="break-words font-bold">{userId === adminId ? 'అడ్మిన్ తో చాట్ చేయండి / Chat with Admin' : peerName || 'సభ్యుడు · Member'}</p>
           {userId !== adminId && peerDigits && peerName !== peerDigits && <p className="text-sm">{peerDigits}</p>}

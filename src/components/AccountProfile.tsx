@@ -22,6 +22,8 @@ import { BilingualLabel } from '@/components/BilingualLabel';
 import { PROFILE_NEEDS, PROFILE_OCCUPATIONS, TECHNICIAN_WORKS, FINAL_PROFILE_PARAGRAPHS } from '@/lib/november-profile';
 import { Plus } from 'lucide-react';
 import { PrivacyToggles } from '@/components/PrivacyToggles';
+import { ProfilePhotoBox } from '@/components/ProfilePhotoBox';
+import { AadhaarBox } from '@/components/AadhaarBox';
 
 export function AccountProfile({ completionOnly = false }: { completionOnly?: boolean }) {
   const { data: me } = useMe();
@@ -75,6 +77,7 @@ export function AccountProfile({ completionOnly = false }: { completionOnly?: bo
     <SubscribeAfterProfile open={subscribeOpen} onOpenChange={setSubscribeOpen} />
     <section id="account-profile" className="profile-panel space-y-4 border-y px-3 py-5">
       <div>
+        <ProfilePhotoBox />
         <h2 className="text-xl font-bold">నా వివరాలు · My profile</h2>
         <div className="flex items-center justify-between gap-2"><p className="profile-copy">మీ వృత్తి: {PROFILE_OCCUPATIONS.find(item => item.value === occupation)?.te || occupation || 'ఉద్యోగం'}</p><Button type="button" variant="outline" onClick={() => setChangeProfession(value => !value)}>మార్చండి</Button></div>
         {changeProfession && <select aria-label="మీ వృత్తి" value={occupation} onChange={event => { setOccupation(event.target.value); setChangeProfession(false); }} className="h-12 w-full rounded-md border bg-card px-3"><option value="Driver">డ్రైవర్</option><option value="Job">ఉద్యోగం</option><option value="Business">బిజినెస్</option><option value="Other">ఇతరము</option></select>}
@@ -165,6 +168,7 @@ export function AccountProfile({ completionOnly = false }: { completionOnly?: bo
         {kind === 'service' && <Button type="button" variant="outline" className="min-h-12 w-full whitespace-normal" disabled={busy || !location.trim() || !category.trim()} onClick={async () => { setBusy(true); try { const result = await supabase.rpc('apply_service_priority', { _area: location.trim(), _category: category.trim() }); if (result.error) { if (result.error.message.includes('PAID_BELL_REQUIRED')) setSubscribeOpen(true); else toast.error('ముందుగా సేవా వివరాలు భద్రపరచండి'); return; } await qc.invalidateQueries({ queryKey: ['service-priority'] }); toast.success('మీ దరఖాస్తు నమోదైంది; ఈ ప్రాంతంలో మొదటి పది అర్హమైన దరఖాస్తులకే ప్రత్యేక స్థానం'); } finally { setBusy(false); } }}>నేను సర్వీస్ పాయింట్ లో ఉన్నాను</Button>}
         <Button type="submit" disabled={busy || isLoading || isError || !location.trim()} className="min-h-12 w-full">వివరాలు భద్రపరచండి · Save profile</Button>
       </form>
+      <AadhaarBox />
       <PrivacyToggles />
       <div data-subscription-exempt><AdminChatButton /></div>
       {isError && <p role="alert">వివరాలు రాలేదు · Profile unavailable</p>}

@@ -1,4 +1,5 @@
 import { POST_LIST_COLUMNS } from '@/lib/post-access';
+import { AdminAadhaarList } from '@/components/AdminAadhaarList';
 import { jobIsVisible } from '@/lib/post-publication';
 import { createFileRoute, Link, Navigate, redirect } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -129,6 +130,7 @@ function Admin() {
       <AdminActivity />
       <AdminPhoneEntries />
       <AdminPasswordResets />
+      <AdminAadhaarList />
       <AdminMessages />
       <AdminPrime99 />
       <ProviderContacts admin />

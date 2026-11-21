@@ -967,6 +967,13 @@
       "when": 1795241149174,
       "tag": "0137_admin_notice_section",
       "breakpoints": true
+    },
+    {
+      "idx": 138,
+      "version": "7",
+      "when": 1795241528470,
+      "tag": "0138_profile_photo_aadhaar",
+      "breakpoints": true
     }
   ]
 }
