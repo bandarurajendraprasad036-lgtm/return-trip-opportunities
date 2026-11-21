@@ -1,10 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, Phone } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { PrivateBellDisplay } from '@/components/PrivateBellDisplay';
 import { useMe } from '@/lib/session';
 import { BELL_BOARD_REFRESH_MS } from '@/lib/bell-board-refresh';
 import type { BellBoardSection } from '@/lib/bell-board';
@@ -16,7 +15,7 @@ export function IncomingBellList({ section, post }: { section: BellBoardSection;
     queryKey: ['incoming-bells', me?.id, section, post], enabled: !!me,
     refetchInterval: BELL_BOARD_REFRESH_MS,
     queryFn: async () => {
-      const result = await supabase.rpc('my_incoming_bells', { _section: section, ...(post ? { _post: post } : {}) });
+      const result = await supabase.rpc('my_incoming_bell_contacts', { _section: section, ...(post ? { _post: post } : {}) });
       if (result.error) throw result.error;
       return result.data;
     },
@@ -30,8 +29,16 @@ export function IncomingBellList({ section, post }: { section: BellBoardSection;
   }
   return <section data-subscription-exempt className="space-y-3 border-y py-4" aria-label="మీ ప్రకటనకు గంట కొట్టిన వాళ్ళు">
     <h2 className="text-xl font-bold">మీ ప్రకటనకు గంట కొట్టిన వాళ్ళు</h2>
-    {isPending ? <p role="status">జాబితా వస్తోంది</p> : isError ? <p role="alert">జాబితా రాలేదు. మళ్లీ ప్రయత్నించండి</p> : !rows.length ? <p>మీ ప్రకటనకు ఇంకా ఎవరూ గంట కొట్టలేదు</p> : rows.map(row => <Button key={`${row.source}-${row.id}`} variant="outline" className="h-auto min-h-20 w-full justify-start gap-3 whitespace-normal text-left" onClick={() => void open(row.id, row.source)}>
-      <PrivateBellDisplay /><span className="min-w-0 flex-1 break-words" translate="no">{row.need}<span className="block font-normal">{row.area}</span></span><MessageCircle className="shrink-0" /><span>మాట్లాడండి</span>
-    </Button>)}
+    {isPending ? <p role="status">జాబితా వస్తోంది</p> : isError ? <p role="alert">జాబితా రాలేదు. మళ్లీ ప్రయత్నించండి</p> : !rows.length ? <p>మీ ప్రకటనకు ఇంకా ఎవరూ గంట కొట్టలేదు</p> : rows.map(row => {
+      const digits = row.phone.replace(/\D/g, '').slice(-10);
+      return <div key={`${row.source}-${row.id}`} className="flex min-h-20 w-full items-center gap-3 rounded-md border border-primary p-2">
+        {row.photo ? <img src={row.photo} alt="" className="size-14 shrink-0 rounded-full object-cover" /> : <span aria-hidden className="flex size-14 shrink-0 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">{(row.full_name.trim()[0] ?? '?').toUpperCase()}</span>}
+        <span className="min-w-0 flex-1 break-words" translate="no"><span className="block font-bold">{row.full_name || 'పేరు లేదు'}</span>{digits && <span className="block">{digits}</span>}<span className="block text-sm">{row.need} · {row.area}</span></span>
+        <div className="flex shrink-0 flex-col gap-1">
+          <Button className="min-h-11 gap-1 px-2" onClick={() => void open(row.id, row.source)}><MessageCircle />చాట్</Button>
+          {digits.length === 10 && <Button asChild variant="outline" className="min-h-11 gap-1 px-2"><a href={`tel:+91${digits}`} aria-label={`ఫోన్ ${digits}`}><Phone />ఫోన్</a></Button>}
+        </div>
+      </div>;
+    })}
   </section>;
 }

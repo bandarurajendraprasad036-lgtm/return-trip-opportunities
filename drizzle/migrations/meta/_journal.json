@@ -939,6 +939,13 @@
       "when": 1795133419379,
       "tag": "0133_paid_pair_private_app_calls",
       "breakpoints": true
+    },
+    {
+      "idx": 134,
+      "version": "7",
+      "when": 1795231817470,
+      "tag": "0134_owner_bell_contacts_first_free_chat",
+      "breakpoints": true
     }
   ]
 }

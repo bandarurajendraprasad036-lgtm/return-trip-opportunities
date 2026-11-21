@@ -3308,6 +3308,7 @@ export type Database = {
       dispatch_vehicle_availability: { Args: never; Returns: number }
       dispatch_visible_post_matches: { Args: never; Returns: number }
       ensure_my_referral_code: { Args: never; Returns: string }
+      first_free_chat_available: { Args: { _other: string }; Returns: boolean }
       follow_vehicle_route: { Args: { _post: string }; Returns: string }
       free_work_category: { Args: { v: string }; Returns: string }
       free_work_chat: { Args: { _other: string }; Returns: boolean }
@@ -3460,6 +3461,20 @@ export type Database = {
         }[]
       }
       my_goods_membership: { Args: never; Returns: boolean }
+      my_incoming_bell_contacts: {
+        Args: { _post?: string; _section: string }
+        Returns: {
+          area: string
+          full_name: string
+          id: string
+          need: string
+          other_id: string
+          phone: string
+          photo: string
+          post_id: string
+          source: string
+        }[]
+      }
       my_incoming_bells: {
         Args: { _post?: string; _section: string }
         Returns: {

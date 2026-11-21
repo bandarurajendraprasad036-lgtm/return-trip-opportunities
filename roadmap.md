@@ -315,3 +315,4 @@
 - [x] November 18 16:53 (live-tested): mobile number + password sign-in/sign-up; "పాస్వర్డ్ మర్చిపోయాను?" under password box; admin password reset option. Number-only self reset would let anyone take over an account, so self reset goes to admin approval instead.
 - [ ] Not verifiable here: sound on a phone in silent mode (phone decides), real second-phone receipt, owner vehicle notice needs ₹100 + saved route within 20%. Old phone-code sign-in test file is stale (feature replaced). Not published.
 - [ ] Chat voice/video call (WebRTC) + dashboard + for bell pairs, then publish
+- [x] Nov 21: admin button only at top (admin-only); bellers' name/phone/photo in owner's list with chat+dial; first chat free then ₹100/3 months
