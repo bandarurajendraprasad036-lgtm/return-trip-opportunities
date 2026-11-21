@@ -76,5 +76,3 @@
 - gayatrione.com host lacks server env: boards, free work, admin block/remove and push-device writes use browser RPC/RLS; vehicle bells store no names.
 - Village search: deduped shards (scripts/build-place-shards.py),no map
 - VERCEL builds force public backend env in vite.config.ts (stale Vercel vars).
-- Member photos and Aadhaar pictures live in private storage buckets; photos are signed client-side and storage rules enforce the member's hide choice, Aadhaar is owner/admin only and its check result is written only by the authenticated server checker (the number is never read or stored).
-- Ad deletion goes through the delete_post_everywhere RPC (owner or admin) so bell records and evidence are removed with the ad.

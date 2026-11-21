@@ -3,3 +3,5 @@
 - Dashboard conversation views live in browser-safe component modules, not imported route modules, to avoid route bootstrap cycles; group access and phone-message blocking are enforced by database functions.
 - Administrator activity uses a role-checked metadata-only RPC; support messages/images are fetched only for the administrator’s own participant conversations, avoiding unrelated message disclosure.
 - In-app calls use participant-private database signalling with both-party receipt checks on every signal; consented dial rechecks the same gate and never reads private profile phones.
+- Member photos/Aadhaar use private buckets; storage rules enforce hide choice, Aadhaar is owner/admin only and its result is written only by the server checker (number never stored).
+- Ad deletion uses delete_post_everywhere (owner or admin) so bell records go with the ad.
