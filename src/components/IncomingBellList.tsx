@@ -32,7 +32,7 @@ export function IncomingBellList({ section, post, hideEmpty = false }: { section
     <h2 className="text-xl font-bold">మీ ప్రకటనకు గంట కొట్టిన వాళ్ళు</h2>
     {isPending ? <p role="status">జాబితా వస్తోంది</p> : isError ? <p role="alert">జాబితా రాలేదు. మళ్లీ ప్రయత్నించండి</p> : !rows.length ? <p>మీ ప్రకటనకు ఇంకా ఎవరూ గంట కొట్టలేదు</p> : rows.map(row => {
       const digits = row.phone.replace(/\D/g, '').slice(-10);
-      const name = row.full_name.trim() || digits || 'సభ్యుడు';
+      const name = row.full_name.trim() || digits || 'వివరాలు దాచారు';
       const canDial = digits.length === 10;
       return <div key={`${row.source}-${row.id}`} className="flex min-h-20 w-full items-center gap-2 rounded-md border border-primary p-2">
         {row.photo ? <img src={row.photo} alt="" className="size-16 shrink-0 rounded-full border-2 border-primary object-cover" /> : <span aria-hidden className="flex size-16 shrink-0 items-center justify-center rounded-full border-2 border-primary bg-primary text-3xl font-bold text-primary-foreground">{(name[0] ?? '?').toUpperCase()}</span>}

@@ -1,8 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
-export async function deleteOwnPost(id: string, owner: string) {
-  const session = await supabase.auth.getUser();
-  if (!session.data.user || session.data.user.id !== owner) throw new Error('OWNER_ONLY');
-  const result = await supabase.from('posts').delete().eq('id', id).eq('user_id', owner).select('id');
+// Owner or admin; the database checks who may delete and also removes the ad's bell records.
+export async function deleteOwnPost(id: string) {
+  const result = await supabase.rpc('delete_post_everywhere', { _post: id });
   if (result.error) throw result.error;
-  if (!result.data?.some(row => row.id === id)) throw new Error('NOT_DELETED');
+  if (result.data !== true) throw new Error('NOT_DELETED');
 }

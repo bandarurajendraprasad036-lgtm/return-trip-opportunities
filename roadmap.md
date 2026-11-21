@@ -316,3 +316,10 @@
 - [ ] Not verifiable here: sound on a phone in silent mode (phone decides), real second-phone receipt, owner vehicle notice needs ₹100 + saved route within 20%. Old phone-code sign-in test file is stale (feature replaced). Not published.
 - [ ] Chat voice/video call (WebRTC) + dashboard + for bell pairs, then publish
 - [x] Nov 21: admin button only at top (admin-only); bellers' name/phone/photo in owner's list with chat+dial; first chat free then ₹100/3 months
+
+## Nov 21 requests
+- [x] Admin notices inside home "మీ వివరాలు నింపండి" box; tap opens the ad / bell list; beller photo, name, phone, area
+- [x] Show / hide photo, name, phone (admin always sees)
+- [x] Admin delete on every ad with confirm; owner edit + delete own ads
+- [ ] Profile photo round box with + (camera / gallery, change)
+- [ ] Aadhaar card box with + (private to owner + admin, automatic name check)

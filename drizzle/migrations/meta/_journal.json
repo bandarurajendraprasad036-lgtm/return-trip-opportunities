@@ -953,6 +953,20 @@
       "when": 1795233226311,
       "tag": "0135_owner_bell_list_sections_chat_peer",
       "breakpoints": true
+    },
+    {
+      "idx": 136,
+      "version": "7",
+      "when": 1795241073783,
+      "tag": "0136_admin_notice_details_privacy_post_delete",
+      "breakpoints": true
+    },
+    {
+      "idx": 137,
+      "version": "7",
+      "when": 1795241149174,
+      "tag": "0137_admin_notice_section",
+      "breakpoints": true
     }
   ]
 }

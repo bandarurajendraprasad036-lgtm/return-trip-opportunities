@@ -10,6 +10,7 @@ import { useRouterState } from '@tanstack/react-router';
 import { PROFILE_ACCESS_MESSAGE } from '@/lib/profile-access';
 import { Prime99Payment } from '@/components/Prime99Payment';
 import { AdminChatButton } from '@/components/AdminChatButton';
+import { AdminInbox } from '@/components/AdminInbox';
 
 export function useProfileAccess() {
   const { data: me } = useMe();
@@ -19,6 +20,8 @@ export function useProfileAccess() {
 export function TopProfileBox({ compact = false }: { compact?: boolean }) {
   const { me, ready, loading } = useProfileAccess();
   const [selected, setSelected] = useState<'payment' | 'profile' | null>(null);
+  // The admin bell links here with #admin-notices: open the details box so the notices show.
+  useEffect(() => { if (window.location.hash === '#admin-notices') { setSelected('profile'); window.setTimeout(() => document.getElementById('admin-notices')?.scrollIntoView({ block: 'start' }), 300); } }, []);
 
   if (!compact) return <section id="top-profile-box" className="space-y-3 border-y bg-background px-4 py-4 text-foreground" aria-label="పైన ప్రొఫైల్ బాక్స్">
     <h2 className="text-xl font-bold">{ready ? 'పేమెంట్ చేయండి / చందా పొందండి' : 'మీ పూర్తి వివరాలు'}</h2>
@@ -37,6 +40,7 @@ export function TopProfileBox({ compact = false }: { compact?: boolean }) {
     {open !== 'payment' && <Button type="button" variant="outline" className="h-auto min-h-20 w-full justify-start gap-3 whitespace-normal border-2 border-primary px-3 py-3 text-left text-lg" aria-controls="home-payment-details" onClick={() => setSelected('payment')}><Plus className="size-9 shrink-0" /><span className="min-w-0 break-words"><span className="block">మీ పేమెంట్ స్కానర్ స్క్రీన్ షాట్ అటాచ్ చేయండి</span><span className="mt-1 block text-base">నింపండి</span></span></Button>}
     {open === 'payment' && <div id="home-payment-details"><Prime99Payment compact />{!loading && !me && <PhoneSignIn />}</div>}
     {open === 'profile' && <div id="home-profile-details">
+      {me?.isAdmin && <AdminInbox />}
       {me && <div className="mb-3"><AdminChatButton /></div>}
       <p className="mb-3 text-lg">{PROFILE_ACCESS_MESSAGE}</p>
       {loading ? <p role="status">మీ వివరాలు చూస్తున్నాం…</p> : me ? <>

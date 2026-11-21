@@ -1,6 +1,6 @@
 import { POST_LIST_COLUMNS } from '@/lib/post-access';
 import { jobIsVisible } from '@/lib/post-publication';
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate, redirect } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -29,7 +29,7 @@ import { CallManager } from '@/components/CallManager';
 import { z } from 'zod';
 import { IncomingBellList } from '@/components/IncomingBellList';
 import { BELL_BOARD_LABELS, BELL_BOARD_SECTIONS } from '@/lib/bell-board';
-import { AdminInbox } from '@/components/AdminInbox';
+
 import { useEffect } from 'react';
 import { dashboardCounts, parseDashboardList, postInList, DASHBOARD_LIST_LABELS, type DashboardList } from '@/lib/dashboard-counts';
 import { DashboardCountCards, PublicListLink } from '@/components/DashboardCountCards';
@@ -92,7 +92,7 @@ function Admin() {
   if (isLoading) return null;
   if (!me?.isAdmin) return <p className="p-8 text-center text-muted-foreground">అనుమతి లేదు · Admins only</p>;
 
-  if(view)return <><CallManager/><Button asChild variant="outline" data-subscription-exempt className="m-3"><Link to="/admin" search={{}}>నిర్వాహక పేజీ</Link></Button>{view==='chat'&&peer?<DashboardChat key={peer} userId={peer}/>:<AdminInbox/>}</>;
+  if(view)return <><CallManager/><Button asChild variant="outline" data-subscription-exempt className="m-3"><Link to="/admin" search={{}}>నిర్వాహక పేజీ</Link></Button>{view==='chat'&&peer?<DashboardChat key={peer} userId={peer}/>:<Navigate to="/" hash="admin-notices" />}</>;
   const posts = data?.posts ?? [];
   const counts = data ? dashboardCounts(posts) : undefined;
   const shown = list ? posts.filter(p => postInList(p, list)) : posts;

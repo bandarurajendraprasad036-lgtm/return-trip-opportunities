@@ -194,24 +194,39 @@ export type Database = {
       }
       admin_activity_notices: {
         Row: {
+          actor_id: string | null
+          category: string
           created_at: string
+          detail: string
           id: string
           is_read: boolean
           message: string
+          post_id: string | null
+          section: string
           user_id: string
         }
         Insert: {
+          actor_id?: string | null
+          category?: string
           created_at?: string
+          detail?: string
           id?: string
           is_read?: boolean
           message: string
+          post_id?: string | null
+          section?: string
           user_id: string
         }
         Update: {
+          actor_id?: string | null
+          category?: string
           created_at?: string
+          detail?: string
           id?: string
           is_read?: boolean
           message?: string
+          post_id?: string | null
+          section?: string
           user_id?: string
         }
         Relationships: [
@@ -1840,6 +1855,9 @@ export type Database = {
           created_at: string
           free_months: number
           full_name: string
+          hide_name: boolean
+          hide_phone: boolean
+          hide_photo: boolean
           id: string
           is_prime: boolean
           location: string
@@ -1857,6 +1875,9 @@ export type Database = {
           created_at?: string
           free_months?: number
           full_name?: string
+          hide_name?: boolean
+          hide_phone?: boolean
+          hide_photo?: boolean
           id: string
           is_prime?: boolean
           location?: string
@@ -1874,6 +1895,9 @@ export type Database = {
           created_at?: string
           free_months?: number
           full_name?: string
+          hide_name?: boolean
+          hide_phone?: boolean
+          hide_photo?: boolean
           id?: string
           is_prime?: boolean
           location?: string
@@ -3193,6 +3217,26 @@ export type Database = {
         Args: { _creator: string; _name: string; _section: string }
         Returns: string
       }
+      admin_activity_feed: {
+        Args: never
+        Returns: {
+          actor_id: string
+          category: string
+          created_at: string
+          detail: string
+          full_name: string
+          hidden: boolean
+          id: string
+          is_read: boolean
+          message: string
+          phone: string
+          photo: string
+          post_exists: boolean
+          post_id: string
+          post_label: string
+          section: string
+        }[]
+      }
       admin_activity_overview: { Args: never; Returns: Json }
       admin_broadcast: { Args: { _message: string }; Returns: number }
       admin_evidence_sender: { Args: { _id: string }; Returns: string }
@@ -3308,6 +3352,7 @@ export type Database = {
         Args: { _id: string; _user: string }
         Returns: undefined
       }
+      delete_post_everywhere: { Args: { _post: string }; Returns: boolean }
       dispatch_approximate_route_alerts: { Args: never; Returns: number }
       dispatch_daily_referral_board: { Args: never; Returns: number }
       dispatch_free_work_notices: { Args: never; Returns: number }
