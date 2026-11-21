@@ -96,6 +96,7 @@ function Index() {
       </section>
       <div className="px-4 py-3"><AdminChatButton /></div>
       <ResponsibilityNotice />
+      <div className="px-4 pb-2 text-center"><Button asChild variant="outline" className="min-h-11"><Link to="/admin-login">అడ్మిన్ ప్రవేశం · Admin Login</Link></Button></div>
       <DesignFooter />
     </div>
   );

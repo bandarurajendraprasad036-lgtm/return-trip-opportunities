@@ -75,3 +75,4 @@
 - Foreground pushes read owner notices by ID; stored eligibility always wins over paid flags.
 - gayatrione.com host lacks server env: boards, free work, admin block/remove and push-device writes use browser RPC/RLS; vehicle bells store no names.
 - Village search: deduped shards (scripts/build-place-shards.py),no map
+- VERCEL builds force public backend env in vite.config.ts (stale Vercel vars).

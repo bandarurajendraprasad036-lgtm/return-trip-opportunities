@@ -7,6 +7,17 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { VitePWA } from "vite-plugin-pwa";
 
+// gayatrione.com is also built by a separate Vercel project whose variables point at an old,
+// wrong database (every request returned 401). Force that build onto this app's own backend.
+// Only public browser values are set here; nothing secret.
+if (process.env["VERCEL"]) {
+  process.env["VITE_SUPABASE_URL"] = "https://txzzxuvjwkqhcjeshfai.supabase.co";
+  process.env["VITE_SUPABASE_PUBLISHABLE_KEY"] = "sb_publishable_mt_ficWmT4BtHokB-lP8Dw_wPQsvLBV";
+  process.env["VITE_SUPABASE_PROJECT_ID"] = "txzzxuvjwkqhcjeshfai";
+  process.env["SUPABASE_URL"] = "https://txzzxuvjwkqhcjeshfai.supabase.co";
+  process.env["SUPABASE_PUBLISHABLE_KEY"] = "sb_publishable_mt_ficWmT4BtHokB-lP8Dw_wPQsvLBV";
+}
+
 export default defineConfig({
   vite: {
     plugins: [{
