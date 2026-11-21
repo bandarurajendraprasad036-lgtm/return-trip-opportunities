@@ -9,41 +9,43 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useMe } from '@/lib/session';
 import type { Post } from '@/components/PostCard';
+import { POST_LIST_COLUMNS } from '@/lib/post-access';
 
-// Owner-only edit of the ad's own visible fields; row-level rules also restrict updates to the owner.
+type Field = { key: keyof Post; label: string; type?: string };
+const JOB: Field[] = [{ key: 'skill', label: 'పని / కేటగిరీ' }, { key: 'location', label: 'ఊరు / ఏరియా' }, { key: 'salary', label: 'జీతం / ధర' }, { key: 'contact_phone', label: 'ఫోన్ నంబర్', type: 'tel' }, { key: 'description', label: 'వివరాలు' }];
+const VEHICLE: Field[] = [{ key: 'vehicle_name', label: 'వాహనం పేరు' }, { key: 'vehicle_type', label: 'వాహనం రకం' }, { key: 'from_place', label: 'ఎక్కడినుండి' }, { key: 'to_place', label: 'ఎక్కడికి' }, { key: 'trip_date', label: 'తేదీ', type: 'date' }, { key: 'salary', label: 'ధర' }, { key: 'driver_name', label: 'డ్రైవర్ పేరు' }, { key: 'contact_phone', label: 'ఫోన్ నంబర్', type: 'tel' }, { key: 'description', label: 'వివరాలు' }];
+
+// Owner edits own ad; admin edits any ad. Row rules allow update only to the owner or admin.
 export function EditOwnPost({ post }: { post: Post }) {
   const { data: me } = useMe(); const qc = useQueryClient();
   const [open, setOpen] = useState(false); const [busy, setBusy] = useState(false);
-  const isJob = post.module === 'job';
-  const [skill, setSkill] = useState(post.skill ?? post.title ?? '');
-  const [location, setLocation] = useState(post.location ?? '');
-  const [salary, setSalary] = useState(post.salary ?? '');
-  const [from, setFrom] = useState(post.from_place ?? '');
-  const [to, setTo] = useState(post.to_place ?? '');
-  const [date, setDate] = useState(post.trip_date ?? '');
-  if (!me || me.id !== post.user_id) return null;
+  const [values, setValues] = useState<Record<string, string>>({});
+  const fields = post.module === 'job' ? JOB : VEHICLE;
+  if (!me || (me.id !== post.user_id && !me.isAdmin)) return null;
+  const start = async () => {
+    const [r, extra] = await Promise.all([supabase.from('posts').select(POST_LIST_COLUMNS).eq('id', post.id).maybeSingle(), supabase.rpc('post_edit_fields', { _post: post.id })]);
+    if (r.error || !r.data || extra.error) { toast.error('ప్రకటన రాలేదు'); return; }
+    const row = { ...(r.data as Record<string, unknown>), ...(extra.data?.[0] ?? {}) } as Record<string, unknown>;
+    setValues(Object.fromEntries(fields.map(f => [f.key, row[f.key] == null ? '' : String(row[f.key])]))); setOpen(true);
+  };
   const save = async () => {
     if (busy) return; setBusy(true);
-    const changes = isJob ? { skill: skill.trim(), title: skill.trim() || post.title, location: location.trim(), salary: salary.trim() } : { from_place: from.trim(), to_place: to.trim(), trip_date: date || null };
-    const r = await supabase.from('posts').update(changes).eq('id', post.id).eq('user_id', me.id).select('id');
+    const changes: Record<string, string | null> = {};
+    for (const f of fields) { const v = (values[f.key] ?? '').trim(); changes[f.key] = v || (f.key === 'trip_date' ? null : ''); }
+    if (post.module === 'job' && changes['skill']) changes['title'] = changes['skill'];
+    let q = supabase.from('posts').update(changes as never).eq('id', post.id);
+    if (!me.isAdmin) q = q.eq('user_id', me.id);
+    const r = await q.select('id');
     setBusy(false);
     if (r.error || !r.data?.length) { toast.error(r.error?.message.includes('BAD') ? 'ఈ పదాలు అనుమతి లేదు' : 'మార్పు భద్రపడలేదు; మళ్లీ ప్రయత్నించండి'); return; }
     toast.success('ప్రకటన మార్చారు'); setOpen(false); await qc.invalidateQueries();
   };
   return <>
-    <Button variant="outline" data-subscription-exempt className="h-auto min-h-11 whitespace-normal" onClick={() => setOpen(true)}><Pencil />ప్రకటన మార్చండి</Button>
+    <Button variant="outline" data-subscription-exempt className="h-auto min-h-11 whitespace-normal" onClick={() => void start()}><Pencil />ఎడిట్</Button>
     <Dialog open={open} onOpenChange={value => { if (!busy) setOpen(value); }}><DialogContent aria-describedby={undefined} className="max-h-[85svh] overflow-y-auto">
       <DialogTitle>ప్రకటన మార్చండి</DialogTitle>
-      {isJob ? <>
-        <div className="space-y-1"><Label htmlFor={`edit-skill-${post.id}`}>పని</Label><Input id={`edit-skill-${post.id}`} value={skill} onChange={e => setSkill(e.target.value)} maxLength={80} translate="no" /></div>
-        <div className="space-y-1"><Label htmlFor={`edit-loc-${post.id}`}>ఊరు / ఏరియా</Label><Input id={`edit-loc-${post.id}`} value={location} onChange={e => setLocation(e.target.value)} maxLength={120} translate="no" /></div>
-        <div className="space-y-1"><Label htmlFor={`edit-sal-${post.id}`}>జీతం</Label><Input id={`edit-sal-${post.id}`} value={salary} onChange={e => setSalary(e.target.value)} maxLength={60} translate="no" /></div>
-      </> : <>
-        <div className="space-y-1"><Label htmlFor={`edit-from-${post.id}`}>ఎక్కడినుండి</Label><Input id={`edit-from-${post.id}`} value={from} onChange={e => setFrom(e.target.value)} maxLength={120} translate="no" /></div>
-        <div className="space-y-1"><Label htmlFor={`edit-to-${post.id}`}>ఎక్కడికి</Label><Input id={`edit-to-${post.id}`} value={to} onChange={e => setTo(e.target.value)} maxLength={120} translate="no" /></div>
-        <div className="space-y-1"><Label htmlFor={`edit-date-${post.id}`}>తేదీ</Label><Input id={`edit-date-${post.id}`} type="date" value={date} onChange={e => setDate(e.target.value)} /></div>
-      </>}
-      <Button disabled={busy} className="min-h-12" onClick={() => void save()}>{busy ? 'భద్రపరుస్తున్నాం…' : 'భద్రపరచండి'}</Button>
+      {fields.map(f => <div key={f.key} className="space-y-1"><Label htmlFor={`edit-${f.key}-${post.id}`}>{f.label}</Label><Input id={`edit-${f.key}-${post.id}`} type={f.type ?? 'text'} value={values[f.key] ?? ''} onChange={e => setValues(v => ({ ...v, [f.key]: e.target.value }))} maxLength={300} translate="no" /></div>)}
+      <Button disabled={busy} className="min-h-12" onClick={() => void save()}>{busy ? 'భద్రపరుస్తున్నాం…' : 'సేవ్'}</Button>
     </DialogContent></Dialog>
   </>;
 }

@@ -974,6 +974,13 @@
       "when": 1795241528470,
       "tag": "0138_profile_photo_aadhaar",
       "breakpoints": true
+    },
+    {
+      "idx": 139,
+      "version": "7",
+      "when": 1795242353186,
+      "tag": "0139_post_edit_private_fields",
+      "breakpoints": true
     }
   ]
 }
