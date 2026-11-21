@@ -3243,6 +3243,14 @@ export type Database = {
         Args: { _other?: string; _post?: string }
         Returns: boolean
       }
+      chat_peer_identity: {
+        Args: { _other: string }
+        Returns: {
+          full_name: string
+          phone: string
+          photo: string
+        }[]
+      }
       check_my_new_mobile: { Args: { _phone: string }; Returns: boolean }
       claim_push_deliveries: {
         Args: never

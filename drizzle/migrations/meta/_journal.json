@@ -946,6 +946,13 @@
       "when": 1795231817470,
       "tag": "0134_owner_bell_contacts_first_free_chat",
       "breakpoints": true
+    },
+    {
+      "idx": 135,
+      "version": "7",
+      "when": 1795233226311,
+      "tag": "0135_owner_bell_list_sections_chat_peer",
+      "breakpoints": true
     }
   ]
 }

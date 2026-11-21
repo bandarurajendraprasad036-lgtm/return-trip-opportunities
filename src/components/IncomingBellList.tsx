@@ -31,9 +31,10 @@ export function IncomingBellList({ section, post }: { section: BellBoardSection;
     <h2 className="text-xl font-bold">మీ ప్రకటనకు గంట కొట్టిన వాళ్ళు</h2>
     {isPending ? <p role="status">జాబితా వస్తోంది</p> : isError ? <p role="alert">జాబితా రాలేదు. మళ్లీ ప్రయత్నించండి</p> : !rows.length ? <p>మీ ప్రకటనకు ఇంకా ఎవరూ గంట కొట్టలేదు</p> : rows.map(row => {
       const digits = row.phone.replace(/\D/g, '').slice(-10);
+      const name = row.full_name.trim() || digits;
       return <div key={`${row.source}-${row.id}`} className="flex min-h-20 w-full items-center gap-3 rounded-md border border-primary p-2">
-        {row.photo ? <img src={row.photo} alt="" className="size-14 shrink-0 rounded-full object-cover" /> : <span aria-hidden className="flex size-14 shrink-0 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">{(row.full_name.trim()[0] ?? '?').toUpperCase()}</span>}
-        <span className="min-w-0 flex-1 break-words" translate="no"><span className="block font-bold">{row.full_name || 'పేరు లేదు'}</span>{digits && <span className="block">{digits}</span>}<span className="block text-sm">{row.need} · {row.area}</span></span>
+        {row.photo ? <img src={row.photo} alt="" className="size-14 shrink-0 rounded-full object-cover" /> : <span aria-hidden className="flex size-14 shrink-0 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">{(name[0] ?? '?').toUpperCase()}</span>}
+        <span className="min-w-0 flex-1 break-words" translate="no"><span className="block font-bold">{name}</span>{digits && name !== digits && <span className="block">{digits}</span>}<span className="block text-sm">{row.need} · {row.area}</span></span>
         <div className="flex shrink-0 flex-col gap-1">
           <Button className="min-h-11 gap-1 px-2" onClick={() => void open(row.id, row.source)}><MessageCircle />చాట్</Button>
           {digits.length === 10 && <Button asChild variant="outline" className="min-h-11 gap-1 px-2"><a href={`tel:+91${digits}`} aria-label={`ఫోన్ ${digits}`}><Phone />ఫోన్</a></Button>}

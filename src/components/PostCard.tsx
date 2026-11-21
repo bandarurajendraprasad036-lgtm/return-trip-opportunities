@@ -48,6 +48,8 @@ export function PostCard({
   const isJob = post.module === "job";
   const workAction = freeWorkClientAction;
   const section = post.service_type === 'service' ? post.kind === 'seeker' ? 'service-wanted' : 'service-providers' : post.kind === 'seeker' ? 'work-wanted' : 'work-offered';
+  // Board where this ad is listed for ringing (service seekers sit under the providers board).
+  const ringSection = post.service_type === 'service' ? post.kind === 'seeker' ? 'service-providers' : 'service-wanted' : section;
   const nav = useNavigate();
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [details, setDetails] = useState<PostDetails | null>(null);
@@ -98,7 +100,7 @@ export function PostCard({
     try {
     await requireCompleteProfile();
     if (isJob) {
-      const result = await workAction({ data: { action: 'ring', section, id: post.id, source: 'post' } });
+      const result = await workAction({ data: { action: 'ring', section: ringSection, id: post.id, source: 'post' } });
       if (result.target) await nav({ to: '/chat/$userId', params: { userId: result.target }, search: { post: undefined } });
       return;
     }

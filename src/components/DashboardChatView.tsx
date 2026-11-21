@@ -58,6 +58,13 @@ export function DashboardChat({ userId, postId }: { userId: string; postId?: str
     if (error) throw error; return data;
   }});
 
+  const { data: peer } = useQuery({ queryKey: ['chat-peer', me?.id, userId], enabled: !!me && userId !== me?.id, queryFn: async () => {
+    const result = await supabase.rpc('chat_peer_identity', { _other: userId });
+    if (result.error) return null;
+    return result.data?.[0] ?? null;
+  } });
+  const peerDigits = (peer?.phone ?? '').replace(/\D/g, '').slice(-10);
+  const peerName = peer?.full_name.trim() || peerDigits;
   const key = ["chat", userId, postId];
   const { data: msgs = [] } = useQuery({
     queryKey: [...key, adminId],
@@ -127,8 +134,10 @@ export function DashboardChat({ userId, postId }: { userId: string; postId?: str
     <div className="flex h-[calc(100svh-12rem)] min-h-80 flex-col">
       <div className="flex flex-wrap items-center gap-3 border-b bg-card px-3 py-2">
         <Link to="/dashboard" search={{ view: "chats" }} aria-label="సంభాషణల జాబితా"><ArrowLeft /></Link>
-        <div className="flex-1">
-          <p className="font-bold">{userId === adminId ? 'అడ్మిన్ తో చాట్ చేయండి / Chat with Admin' : 'సభ్యుడు · Member'}</p>
+        {userId !== adminId && peerName && (peer?.photo ? <img src={peer.photo} alt="" className="size-10 shrink-0 rounded-full object-cover" /> : <span aria-hidden className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">{(peerName[0] ?? '?').toUpperCase()}</span>)}
+        <div className="min-w-0 flex-1" translate="no">
+          <p className="break-words font-bold">{userId === adminId ? 'అడ్మిన్ తో చాట్ చేయండి / Chat with Admin' : peerName || 'సభ్యుడు · Member'}</p>
+          {userId !== adminId && peerDigits && peerName !== peerDigits && <p className="text-sm">{peerDigits}</p>}
         </div>
         {userId !== me?.id && <CallButtons peer={userId} />}
         {me?.isAdmin && userId !== me.id && <Button size="sm" onClick={async()=>{const r=await supabase.rpc('admin_membership_access',{_user:userId,_enable:true});if(r.error)toast.error('ప్రైమ్ ఇవ్వలేదు');else{toast.success('ప్రైమ్ ఆన్ చేశాం - గంట, చాట్ తెరుచుకున్నాయి');}}}>Give Prime</Button>}
