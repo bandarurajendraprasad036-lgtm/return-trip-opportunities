@@ -23,5 +23,11 @@ export async function loadBellBoard(section: BellBoardSection, area: string) {
   });
   if (result.error) throw result.error;
 
-  return { paid: !!access.data, rows: result.data ?? [] };
+  type Contact = { id: string; rang_at: string; own: boolean; shown: boolean; full_name: string; phone: string; photo: string };
+  const contacts = new Map<string, Contact>();
+  if (['goods', 'returns', 'cars'].includes(section)) {
+    const c = await supabase.rpc('list_vehicle_bell_contacts', { _section: section, _area: normalizedArea });
+    for (const row of (c.data ?? []) as Contact[]) contacts.set(row.id, row);
+  }
+  return { paid: !!access.data, rows: (result.data ?? []).map(row => ({ ...row, contact: contacts.get(row.id) ?? null })) };
 }

@@ -3788,6 +3788,20 @@ export type Database = {
           source: string
         }[]
       }
+      list_vehicle_bell_contacts: {
+        Args: { _area?: string; _section: string }
+        Returns: {
+          area: string
+          full_name: string
+          id: string
+          need: string
+          own: boolean
+          phone: string
+          photo: string
+          rang_at: string
+          shown: boolean
+        }[]
+      }
       list_vehicle_bell_demands: {
         Args: never
         Returns: {
