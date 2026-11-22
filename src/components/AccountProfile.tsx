@@ -71,6 +71,12 @@ export function AccountProfile({ completionOnly = false }: { completionOnly?: bo
     }
   }, [program]);
 
+  useEffect(() => {
+    if (!me || window.location.hash !== '#account-profile') return;
+    const timer = window.setTimeout(() => document.getElementById('account-profile')?.scrollIntoView({ block: 'start' }), 300);
+    return () => window.clearTimeout(timer);
+  }, [me, program]);
+
   const vehicleProfile = kind === 'owner' || kind === 'business';
 
   return <>

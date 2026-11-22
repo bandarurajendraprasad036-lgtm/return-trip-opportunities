@@ -32,7 +32,12 @@ export function PhonePasswordAuth() {
     const role=await supabase.rpc('has_role',{_user_id:identity.data.user.id,_role:'admin'});
     if(role.error)throw role.error;
     if(role.data){takeAuthReturn('/');await navigate({to:accountDashboard(true),search:{},replace:true});}
-    else await navigate({ href: takeAuthReturn('/'), replace: true });
+    else {
+      const profile=await supabase.from('profiles').select('full_name,location').eq('id',identity.data.user.id).maybeSingle();
+      const incomplete=!profile.data?.full_name?.trim()||!profile.data?.location?.trim();
+      if(incomplete){takeAuthReturn('/');await navigate({to:'/dashboard',search:{},hash:'account-profile',replace:true});}
+      else await navigate({ href: takeAuthReturn('/'), replace: true });
+    }
   };
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
