@@ -1023,6 +1023,20 @@
       "when": 1795321275030,
       "tag": "0145_private_vehicle_post_photos",
       "breakpoints": true
+    },
+    {
+      "idx": 146,
+      "version": "7",
+      "when": 1795322784375,
+      "tag": "0146_consented_free_work_bell_contacts",
+      "breakpoints": true
+    },
+    {
+      "idx": 147,
+      "version": "7",
+      "when": 1795322914867,
+      "tag": "0147_fix_free_work_bell_contact_visibility",
+      "breakpoints": true
     }
   ]
 }

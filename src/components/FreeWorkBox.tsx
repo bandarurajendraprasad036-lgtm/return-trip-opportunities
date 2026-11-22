@@ -19,7 +19,7 @@ import { IncomingBellList } from '@/components/IncomingBellList';
 import { postingLimit } from '@/lib/bell-details';
 import { PostingLimitShare } from '@/components/PostingLimitShare';
 
-export function FreeWorkBox({ section, area }: { section: FreeWorkSection; area: string }) {
+export function FreeWorkBox({ section, area: chosenArea }: { section: FreeWorkSection; area: string }) {
   const [expanded, setExpanded] = useState(false);
   const [selected, setSelected] = useState('');
   const [name, setName] = useState('');
@@ -38,6 +38,8 @@ export function FreeWorkBox({ section, area }: { section: FreeWorkSection; area:
   const refresh = async () => { await Promise.all([qc.invalidateQueries({ queryKey: ['free-work'] }), qc.invalidateQueries({ queryKey: ['free-work-interests'] })]); };
   const action = async (action: 'category' | 'ring' | 'chat', category = selected, row?: { id: string; source: string }): Promise<boolean> => {
     if (!me && !await signedInUserId()) { toast.error(SIGN_IN_MESSAGE); return false; }
+    // No chosen village yet: use the place already saved in the member's own profile.
+    const area = chosenArea.trim().replaceAll('/', '').trim() ? chosenArea : (me?.profile?.location ?? '');
     if (action === 'category' && !area.trim().replaceAll('/', '').trim()) { toast.error('మీ ఊరు / వాడ పేరు రాయండి'); return false; }
     setBusy(true);
     try {
