@@ -1037,6 +1037,13 @@
       "when": 1795322914867,
       "tag": "0147_fix_free_work_bell_contact_visibility",
       "breakpoints": true
+    },
+    {
+      "idx": 148,
+      "version": "7",
+      "when": 1795327602958,
+      "tag": "0148_private_call_chat_events",
+      "breakpoints": true
     }
   ]
 }

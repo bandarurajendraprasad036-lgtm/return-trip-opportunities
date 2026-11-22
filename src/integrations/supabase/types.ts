@@ -314,26 +314,32 @@ export type Database = {
       }
       app_calls: {
         Row: {
+          accepted_at: string | null
           callee_id: string
           caller_id: string
           created_at: string
           ended_at: string | null
+          ended_by: string | null
           id: string
           video: boolean
         }
         Insert: {
+          accepted_at?: string | null
           callee_id: string
           caller_id: string
           created_at?: string
           ended_at?: string | null
+          ended_by?: string | null
           id?: string
           video?: boolean
         }
         Update: {
+          accepted_at?: string | null
           callee_id?: string
           caller_id?: string
           created_at?: string
           ended_at?: string | null
+          ended_by?: string | null
           id?: string
           video?: boolean
         }
@@ -1294,7 +1300,9 @@ export type Database = {
       }
       messages: {
         Row: {
+          app_call_id: string | null
           body: string
+          call_event: string | null
           chat_phone: string
           created_at: string
           id: string
@@ -1306,7 +1314,9 @@ export type Database = {
           sender_id: string
         }
         Insert: {
+          app_call_id?: string | null
           body: string
+          call_event?: string | null
           chat_phone?: string
           created_at?: string
           id?: string
@@ -1318,7 +1328,9 @@ export type Database = {
           sender_id: string
         }
         Update: {
+          app_call_id?: string | null
           body?: string
+          call_event?: string | null
           chat_phone?: string
           created_at?: string
           id?: string
@@ -1431,8 +1443,10 @@ export type Database = {
       }
       notifications: {
         Row: {
+          app_call_id: string | null
           bell_actor: string | null
           bell_demand: string | null
+          call_event: string | null
           created_at: string
           id: string
           is_read: boolean
@@ -1443,8 +1457,10 @@ export type Database = {
           vehicle_bell: boolean
         }
         Insert: {
+          app_call_id?: string | null
           bell_actor?: string | null
           bell_demand?: string | null
+          call_event?: string | null
           created_at?: string
           id?: string
           is_read?: boolean
@@ -1455,8 +1471,10 @@ export type Database = {
           vehicle_bell?: boolean
         }
         Update: {
+          app_call_id?: string | null
           bell_actor?: string | null
           bell_demand?: string | null
+          call_event?: string | null
           created_at?: string
           id?: string
           is_read?: boolean
@@ -3336,6 +3354,10 @@ export type Database = {
         Returns: number
       }
       app_call_dial_number: { Args: { _other: string }; Returns: string }
+      app_call_event_text: {
+        Args: { _event: string; _video: boolean }
+        Returns: string
+      }
       apply_referral: { Args: { _code: string }; Returns: boolean }
       apply_service_priority: {
         Args: { _area: string; _category: string }
@@ -3450,6 +3472,7 @@ export type Database = {
       dispatch_vehicle_availability: { Args: never; Returns: number }
       dispatch_visible_post_matches: { Args: never; Returns: number }
       ensure_my_referral_code: { Args: never; Returns: string }
+      expire_app_calls: { Args: never; Returns: number }
       first_free_chat_available: { Args: { _other: string }; Returns: boolean }
       follow_vehicle_route: { Args: { _post: string }; Returns: string }
       free_work_category: { Args: { v: string }; Returns: string }

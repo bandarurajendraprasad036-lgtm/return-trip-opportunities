@@ -23,6 +23,7 @@ import { BellPaymentNotice } from '@/components/BellPaymentNotice';
 import { usePrime99 } from '@/lib/prime99';
 import { CallButtons } from '@/components/CallManager';
 import { ResponsibilityNotice } from '@/components/ResponsibilityNotice';
+import { bellDateTime } from '@/lib/bell-details';
 
 export function DashboardChat({ userId, postId }: { userId: string; postId?: string | undefined }) {
   const { data: me } = useMe();
@@ -76,7 +77,7 @@ export function DashboardChat({ userId, postId }: { userId: string; postId?: str
         .from("messages")
         .select("*")
         .or(`and(sender_id.eq.${me.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${me.id})`);
-      if (postId) query = query.eq("post_id", postId);
+      if (postId) query = query.or(`post_id.eq.${postId},app_call_id.not.is.null`);
       const { data, error } = await query.order("created_at");
       if (error) throw error;
       return data;
@@ -90,6 +91,9 @@ export function DashboardChat({ userId, postId }: { userId: string; postId?: str
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.${me.id}` }, () =>
         qc.invalidateQueries({ queryKey: key }),
       )
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `sender_id=eq.${me.id}` }, payload => {
+        if (payload.new['app_call_id']) void qc.invalidateQueries({ queryKey: key });
+      })
       .subscribe();
     return () => {
       supabase.removeChannel(ch);
@@ -159,6 +163,7 @@ export function DashboardChat({ userId, postId }: { userId: string; postId?: str
             <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
               <div className={`max-w-[80%] space-y-2 break-words rounded-2xl px-3 py-2 text-base ${mine ? "bg-primary text-primary-foreground" : "bg-card shadow-card"}`}>
                 <p translate="no" className="whitespace-pre-wrap">{m.body.replace(/\/chat\/[0-9a-f-]{36}/g,'ప్రకటన గంట నొక్కండి · Ring listing bell')}</p>
+                {m.app_call_id && <time dateTime={m.created_at} translate="no" className="block text-xs opacity-80">{bellDateTime(m.created_at)}</time>}
                 {m.chat_phone && <p className="flex items-center gap-1"><Phone className="size-4" />{m.chat_phone}</p>}
                 {m.image_path && <Button variant="outline" onClick={async()=>{try{const result=await showImage({data:{message:m.id}});setImageUrl(result.url);}catch{setSendError('చిత్రం తెరవలేకపోయాం · Image unavailable');}}}><ImagePlus />ఫోటో చూడండి · View image</Button>}
                 <DeleteChatItems message={m.id} />

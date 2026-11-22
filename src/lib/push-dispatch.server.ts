@@ -2,11 +2,13 @@ import { pushFailure, pushPolicy } from './push-rules';
 import { phoneNoticeData } from './phone-notice';
 
 export async function dispatchPush() {
+  const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
+  const expiredCalls = await db.rpc('expire_app_calls');
+  if (expiredCalls.error) throw expiredCalls.error;
   const {cleanupExpiredEvidence}=await import('./evidence-cleanup.server');
   await cleanupExpiredEvidence();
   const key = process.env['LOVABLE_API_KEY']; const connection = process.env['FIREBASE_MESSAGING_API_KEY'];
   if (!key || !connection) throw new Error('Push connection not configured');
-  const { supabaseAdmin: db } = await import('@/integrations/supabase/client.server');
   const expiredGroups = await db.rpc('cleanup_expired_bell_groups');
   if (expiredGroups.error) throw expiredGroups.error;
   const { cleanupRemovedAccountFiles } = await import('./storage-cleanup.server');

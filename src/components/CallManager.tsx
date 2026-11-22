@@ -71,6 +71,8 @@ export function CallManager() {
     active.current = true;
     let cursor = 0, polling = false;
     const since = new Date().toISOString();
+    // Recover unanswered calls even if the calling phone closed before its timer ran.
+    void supabase.rpc('expire_app_calls');
     const poll = async () => {
       if (polling) return; polling = true;
       try {
