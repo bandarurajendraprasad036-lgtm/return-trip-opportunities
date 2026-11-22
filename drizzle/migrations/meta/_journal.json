@@ -1002,6 +1002,27 @@
       "when": 1795307411584,
       "tag": "0142_visible_bell_actual_times",
       "breakpoints": true
+    },
+    {
+      "idx": 143,
+      "version": "7",
+      "when": 1795320968162,
+      "tag": "0143_vehicle_only_payment_free_work_and_immediate_posts",
+      "breakpoints": true
+    },
+    {
+      "idx": 144,
+      "version": "7",
+      "when": 1795321019680,
+      "tag": "0144_vehicle_quota_scope_and_admin_contact_exemption",
+      "breakpoints": true
+    },
+    {
+      "idx": 145,
+      "version": "7",
+      "when": 1795321275030,
+      "tag": "0145_private_vehicle_post_photos",
+      "breakpoints": true
     }
   ]
 }

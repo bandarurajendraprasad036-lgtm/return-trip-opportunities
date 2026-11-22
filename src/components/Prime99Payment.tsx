@@ -21,21 +21,22 @@ export function Prime99Payment({ compact = false }: { bellPayment?: boolean; com
     },
   });
 
-  const plans = <p className="text-base">₹100 — మూడు నెలల చందా మాత్రమే. పని, సేవలు, వాహనాల గంట, సంభాషణ కోసం. నిర్వాహకుల ఆమోదం తర్వాతే మూడు నెలల చందా మొదలవుతుంది.</p>;
+  const plans = <p className="text-base">₹100 — వాహన యజమానికి గంట కొట్టడం, సంభాషణ, అనుమతించిన నంబరు కోసం మూడు నెలలు. వాహనాలు చూడటం, పని, ఉద్యోగాలు, సేవలు ఉచితం. నిర్వాహకుల ఆమోదం తర్వాతే చందా మొదలవుతుంది.</p>;
+  // Explicit scanner clicks must open the scanner, irrespective of account/payment status.
+  // This is not an automatic payment request; administrators never need to submit a receipt.
+  if (compact) return <section className="space-y-3 profile-copy">{!me?.isAdmin && plans}<PaymentScanner amount={amount} compact />{!me?.isAdmin && <MembershipEvidenceForm key={amount} amount={amount} />}</section>;
   if (me?.isAdmin) return null;
   const paid = !!prime?.active;
-  // Approved accounts must never see the payment form again, including the compact home box.
+  // Ordinary membership pages do not request another payment from approved accounts.
   if (me && prime === undefined) return <p role="status" className="text-center">వివరాలు వస్తున్నాయి…</p>;
   if (paid) return <p role="status" className="text-center text-lg font-bold">✅ చెల్లింపు పూర్తయింది — మీ చందా ఆన్‌లో ఉంది{prime?.ends_at && ` · ${new Date(prime.ends_at).toLocaleDateString('te-IN')} వరకు`}</p>;
-  if (compact && me && request.data === 'pending') return <p role="status" className="text-center text-lg font-bold">మీ చెల్లింపు ఫోటో అందింది. అడ్మిన్ చెక్ చేసి ఆమోదిస్తారు.</p>;
-  if (compact) return <section className="space-y-3 profile-copy">{plans}<PaymentScanner amount={amount} compact /><MembershipEvidenceForm key={amount} amount={amount} /></section>;
   if (!me) return null;
   const completed = !!prime?.active;
   const waiting = !completed && request.data === 'pending';
   return <section className="space-y-4 border-y py-4 profile-copy">
     <h2 className="text-center text-2xl font-bold">₹100 — మూడు నెలల చందా</h2>
     {plans}
-    {!completed && <p className="text-lg">నిర్వాహకులు ఆమోదించినప్పటి నుంచి మూడు నెలలు సంభాషణ, గంట ఉపయోగించవచ్చు. పేరు, ఫోటో, మొబైల్ నంబరు దాచబడతాయి. మూడు నెలలు ముగిశాక మళ్లీ ₹100 చెల్లించి ఆమోదం పొందాలి.</p>}
+    {!completed && <p className="text-lg">నిర్వాహకులు ఆమోదించినప్పటి నుంచి మూడు నెలలు వాహన గంట, సంభాషణ ఉపయోగించవచ్చు. యజమాని అనుమతించిన వివరాలే కనిపిస్తాయి. మూడు నెలలు ముగిశాక మళ్లీ ₹100 చెల్లించి ఆమోదం పొందాలి.</p>}
     {completed ? <p role="status" className="text-center text-lg font-bold">మీ ప్రైమ్ ఆన్ అయింది{prime.ends_at && ` · ${new Date(prime.ends_at).toLocaleDateString('te-IN')} వరకు`}</p>
       : waiting ? <p role="status" className="text-center text-lg font-bold">మీ చెల్లింపు ఫోటో అందింది. అడ్మిన్ చెక్ చేసి ఆమోదిస్తారు.</p>
         : <><PaymentScanner amount={amount} /><MembershipEvidenceForm key={`${me.id}-${amount}`} amount={amount} /></>}

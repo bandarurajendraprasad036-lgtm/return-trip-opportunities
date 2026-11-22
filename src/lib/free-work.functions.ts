@@ -7,7 +7,8 @@ export const freeWorkAction = createServerFn({ method: 'POST' }).middleware([req
   .inputValidator((input: unknown) => z.object({ section: z.enum(FREE_WORK_SECTIONS), action: z.enum(['join', 'ring', 'category', 'chat']), category: z.string().trim().max(40).default(''), area: z.string().trim().max(80).default(''), id: z.string().max(100).default(''), source: z.enum(['entry', 'post', 'provider', 'interest']).default('entry') }).parse(input))
   .handler(async ({ data, context }) => {
     const allowed = await context.supabase.rpc('account_allowed', { _uid: context.userId });
-    if (allowed.error || !allowed.data) throw new Error('SIGN_IN_REQUIRED');
+    if (allowed.error) throw allowed.error;
+    if (!allowed.data) throw new Error('ACCOUNT_UNAVAILABLE');
     let target: string | null = null;
     if (data.action === 'chat') {
       // Opening a chat only creates the private pair; it never rings a bell or sends a notice.

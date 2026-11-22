@@ -4,4 +4,4 @@ export const POST_LIST_COLUMNS = 'id,user_id,module,kind,title,location,skill,sa
 export function isGoodsPost(post: { module: string; vehicle_type?: string | null }) {
   return post.module === 'vehicle' && !isCar(post.vehicle_type);
 }
-export type PostDetails = { description?: string | null; goods_type?: string | null; capacity_tons?: number | null; trip_date?: string | null; public_photo?: string; public_brand?: string; contact_phone?: string; vehicle_name?: string | null; vehicle_number?: string | null; driver_name?: string | null };
+export type PostDetails = { description?: string | null; goods_type?: string | null; capacity_tons?: number | null; trip_date?: string | null; created_at?: string | null; vehicle_photo_path?: string; public_photo?: string; public_brand?: string; contact_phone?: string; vehicle_name?: string | null; vehicle_number?: string | null; driver_name?: string | null };

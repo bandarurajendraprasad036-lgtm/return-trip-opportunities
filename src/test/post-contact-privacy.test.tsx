@@ -3,7 +3,7 @@ import { cleanup, render, screen, fireEvent, waitFor } from '@testing-library/re
 import { toast } from 'sonner';
 import { PostCard, type Post } from '@/components/PostCard';
 import { supabase } from '@/integrations/supabase/client';
-vi.mock('@tanstack/react-router',()=>({useNavigate:()=>vi.fn(),Link:({children}:{children:React.ReactNode})=><a>{children}</a>}));
+vi.mock('@tanstack/react-router',()=>({useHydrated:()=>true,useNavigate:()=>vi.fn(),Link:({children}:{children:React.ReactNode})=><a>{children}</a>}));
 vi.mock('@/integrations/supabase/client',()=>({supabase:{auth:{getSession:vi.fn(async()=>({data:{session:{user:{id:'member'}}}})),getUser:vi.fn(async()=>({data:{user:{id:'member'}}}))},rpc:vi.fn(async()=>({data:{description:'Work details'},error:null}))}}));
 vi.mock('@/components/ResponsibilityNotice',()=>({ResponsibilityNotice:()=>null}));
 vi.mock('@/lib/use-account-program',()=>({useAccountProgram:()=>({data:{completed_at:'2026-11-07'}})}));
@@ -43,17 +43,17 @@ describe('post contact disclosure',()=>{
     expect(screen.queryByText('9876543210')).toBeNull();
     expect(screen.queryByText('Consented name')).toBeNull();
   });
-  it('strips identity from opened discovery details even when the response contains it',async()=>{
+  it('shows only the consent-scoped contact returned by the details RPC, never profile fallback data',async()=>{
     vi.mocked(supabase.rpc).mockReset();
-    vi.mocked(supabase.rpc).mockResolvedValueOnce({data:{driver_name:'Private owner',contact_phone:'9876543210',public_photo:'https://example.com/private.jpg',public_brand:'Private brand',description:'Private owner 9876543210',capacity_tons:4},error:null} as never);
+    vi.mocked(supabase.rpc).mockResolvedValueOnce({data:{driver_name:'',contact_phone:'9876543210',public_photo:'',public_brand:'',description:'Consented work details',capacity_tons:4},error:null} as never);
     render(<PostCard post={post} meId="member" />);
     fireEvent.click(screen.getByRole('button',{name:'వివరాలు'}));
     await screen.findByRole('dialog');
     expect(screen.queryByText('Private owner')).toBeNull();
-    expect(screen.queryByText('9876543210')).toBeNull();
+    expect(screen.getByText('9876543210')).toBeTruthy();
     expect(screen.queryByText('Private brand')).toBeNull();
     expect(document.querySelector('img')).toBeNull();
-    expect(document.querySelector('a[href^="tel:"]')).toBeNull();
+    expect(screen.getByRole('link',{name:'9876543210'}).getAttribute('href')).toBe('tel:+919876543210');
   });
   it('never requests interest or broadcasts from a display-only vehicle listing',async()=>{
     vi.mocked(supabase.rpc).mockClear();

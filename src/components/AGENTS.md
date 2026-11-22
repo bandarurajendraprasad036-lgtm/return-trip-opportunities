@@ -2,9 +2,11 @@
 - Subscription forms use the sole current price; approvals read each receipt’s stored calendar-month duration to preserve history.
 - Dashboard conversation views live in browser-safe component modules, not imported route modules, to avoid route bootstrap cycles; group access and phone-message blocking are enforced by database functions.
 - Administrator activity uses a role-checked metadata-only RPC; support messages/images are fetched only for the administrator’s own participant conversations, avoiding unrelated message disclosure.
-- In-app calls use participant-private database signalling with both-party receipt checks on every signal; consented dial rechecks the same gate and never reads private profile phones.
+- In-app calls use participant-private signalling with receipt checks except validated administrator participation; consented dial rechecks the gate and never reads private profile phones.
 - Member photos/Aadhaar use private buckets; storage rules enforce hide choice, Aadhaar is owner/admin only and its result is written only by the server checker (number never stored).
 - Ad deletion uses delete_post_everywhere (owner or admin) so bell records go with the ad.
 - Shared post bell contacts use explicit member publication consent and field hiding; dashboard message/bell dismissal is durable and account-only, preserving the other participant's copy and payment evidence.
 - Bell timestamps come from the consent-scoped incoming_bell_times RPC and display in India time; hydrate account-dependent lists before rendering to avoid server/client identity-state mismatch.
 - Posting quota rejection offers the existing sharing artwork without awarding slots; generic artwork remains shareable without a referral code and never includes private profile photos automatically.
+- Payment prompts originate only from vehicle authorization failures and embed the shared scanner/evidence form; never infer paid scope from button labels.
+- Vehicle ad images use their own private bucket and consent/receipt-checked details projection; never copy account photos or read private profile fallbacks.

@@ -1367,16 +1367,19 @@ export type Database = {
       }
       monthly_post_usage: {
         Row: {
+          module_scope: string
           post_id: string
           used_at: string
           user_id: string
         }
         Insert: {
+          module_scope?: string
           post_id: string
           used_at?: string
           user_id: string
         }
         Update: {
+          module_scope?: string
           post_id?: string
           used_at?: string
           user_id?: string
@@ -1754,6 +1757,7 @@ export type Database = {
           user_id: string
           vehicle_name: string
           vehicle_number: string
+          vehicle_photo_path: string
           vehicle_type: string | null
           visibility_notified_at: string | null
           visible_after: string | null
@@ -1788,6 +1792,7 @@ export type Database = {
           user_id: string
           vehicle_name?: string
           vehicle_number?: string
+          vehicle_photo_path?: string
           vehicle_type?: string | null
           visibility_notified_at?: string | null
           visible_after?: string | null
@@ -1822,6 +1827,7 @@ export type Database = {
           user_id?: string
           vehicle_name?: string
           vehicle_number?: string
+          vehicle_photo_path?: string
           vehicle_type?: string | null
           visibility_notified_at?: string | null
           visible_after?: string | null
@@ -3997,6 +4003,8 @@ export type Database = {
         Args: { _from: string; _to: string }
         Returns: string
       }
+      vehicle_contact_access: { Args: { _user: string }; Returns: boolean }
+      vehicle_post_photo_allowed: { Args: { _path: string }; Returns: boolean }
       vehicle_public_details: { Args: { _post: string }; Returns: Json }
       vip_daily_reconcile: { Args: never; Returns: number }
       weekly_winner_photo_ok: { Args: { _path: string }; Returns: boolean }

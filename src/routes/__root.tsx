@@ -139,13 +139,18 @@ function RootComponent() {
   useEffect(() => { restoreLanguage(); }, []);
   useEffect(() => installBellAudioUnlock(), []);
   useEffect(() => {
+    let refresh: ReturnType<typeof setTimeout> | undefined;
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
-      router.invalidate();
-      if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
-      else queryClient.clear();
+      // Leave the auth client's lock before refetches call getSession/getUser.
+      clearTimeout(refresh);
+      refresh = setTimeout(() => {
+        if (event === "SIGNED_OUT") queryClient.clear();
+        else void queryClient.invalidateQueries();
+        void router.invalidate();
+      }, 0);
     });
-    return () => data.subscription.unsubscribe();
+    return () => { clearTimeout(refresh); data.subscription.unsubscribe(); };
   }, [router, queryClient]);
 
   return (

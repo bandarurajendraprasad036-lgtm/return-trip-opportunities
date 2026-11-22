@@ -21,6 +21,7 @@ export function isNetworkFailure(error: unknown) {
 export function bellErrorMessage(error: unknown) {
   const message = errorText(error);
   if (message.includes('PROFILE_REQUIRED')) return PROFILE_ACCESS_MESSAGE;
+  if (message.includes('ACCOUNT_UNAVAILABLE')) return 'మీ ఖాతాకు అనుమతి లేదు; నిర్వాహకులను సంప్రదించండి';
   if (message.includes('BELL_LIMIT_REACHED')) return BELL_LIMIT_MESSAGE;
   if (/SUBSCRIPTION_REQUIRED|PAID_BELL_REQUIRED|GOODS_MEMBERSHIP_REQUIRED|SERVICE_PLAN_ONLY/.test(message)) { showSubscriptionNotice(); return SUBSCRIPTION_MESSAGE; }
   if (message.includes('SIGN_IN_REQUIRED') || message.includes('JWT') || message.includes('AuthSessionMissing')) return SIGN_IN_MESSAGE;

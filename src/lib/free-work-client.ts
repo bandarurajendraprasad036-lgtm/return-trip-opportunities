@@ -14,7 +14,8 @@ export async function freeWorkClientAction({ data: input }: { data: FreeWorkInpu
   const { data: auth } = await supabase.auth.getSession();
   if (!auth.session) throw new Error('SIGN_IN_REQUIRED');
   const allowed = await supabase.rpc('account_allowed', { _uid: auth.session.user.id });
-  if (allowed.error || !allowed.data) throw new Error('SIGN_IN_REQUIRED');
+  if (allowed.error) throw allowed.error;
+  if (!allowed.data) throw new Error('ACCOUNT_UNAVAILABLE');
   if (data.action !== 'join') await requireCompleteProfile();
   if (data.action === 'chat') {
     // Opening a chat only creates the private pair; it never rings a bell or sends a notice.

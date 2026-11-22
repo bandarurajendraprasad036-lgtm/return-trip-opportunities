@@ -19,11 +19,13 @@ import { vehicleDemandCategory } from '@/lib/vehicle-demand';
 import type { VehiclePageKind } from '@/lib/vehicle-page';
 import { BellPaymentNotice } from '@/components/BellPaymentNotice';
 import { PrivateBellDisplay } from '@/components/PrivateBellDisplay';
-import { anonymousPostDetails } from '@/lib/display-privacy';
+import { consentedPostDetails } from '@/lib/display-privacy';
+import { bellDateTime } from '@/lib/bell-details';
 import { AdminBellRowAction } from '@/components/AdminBellRowAction';
 import { bellErrorMessage, requireCompleteProfile, retryBell } from '@/lib/bell-request';
 import { playTapBell } from '@/lib/bell';
 import { IncomingBellList } from '@/components/IncomingBellList';
+import { VehiclePostPhoto } from '@/components/VehiclePostPhoto';
 import { DeleteOwnPost } from '@/components/DeleteOwnPost';
 import { EditOwnPost } from '@/components/EditOwnPost';
 import { postBellSection } from '@/lib/post-bell-section';
@@ -79,7 +81,7 @@ export function PostCard({
     try {
       const { data, error } = await supabase.rpc('get_post_details', { _post: post.id });
       if (error) { if (error.message.includes('PAID_BELL_REQUIRED') || error.message.includes('GOODS_MEMBERSHIP_REQUIRED')) setUpgradeOpen(true); else toast.error('వివరాలు రాలేదు'); return; }
-      setDetails(data ? anonymousPostDetails(data as PostDetails) : null); setDetailsOpen(true);
+      setDetails(data ? consentedPostDetails(data as PostDetails) : null); setDetailsOpen(true);
     } finally { setDetailsBusy(false); }
   };
   const openVehicle = async (chat: boolean) => {
@@ -89,7 +91,7 @@ export function PostCard({
       if (!await checkAccess()) return;
       if (chat) {
         const result = await supabase.rpc('open_vehicle_chat', { _post: post.id });
-        if (result.error) { toast.error('సంభాషణ ప్రారంభం కాలేదు'); return; }
+        if (result.error) { toast.error(bellErrorMessage(result.error)); return; }
         if (result.data) await nav({ to: '/chat/$userId', params: { userId: result.data }, search: { post: post.id } });
       } else { await openDetails(); }
     } catch (error) { toast.error(bellErrorMessage(error)); } finally { setSending(false); }
@@ -125,14 +127,14 @@ export function PostCard({
     <IncomingBellList section={ownerSection} post={post.id} hideEmpty={meId !== post.user_id} />
     {anonymousWork && <Button variant="outline" onClick={contact} disabled={sending}><MessageCircle />చాట్</Button>}
     {isJob && <Button variant="outline" onClick={()=>void openDetails()} disabled={detailsBusy}><Info />వివరాలు</Button>}
-    {!isJob && !hideDate && post.trip_date && <p translate="no" className="text-sm">{post.trip_date}</p>}
-    {!isJob && <Button variant="outline" className="h-auto min-h-11 w-full whitespace-normal" onClick={()=>{setSelectedCategory(null);setChoicesOpen(true);}} disabled={sending}><Info />వాహన వివరాలు చూడండి</Button>}
+    {!isJob && !hideDate && <><p translate="no" className="text-sm">{post.trip_date}</p><p className="text-sm">ప్రకటన తేదీ / సమయం: <time dateTime={post.created_at} translate="no">{bellDateTime(post.created_at)}</time></p></>}
+    {!isJob && <Button variant="outline" className="h-auto min-h-11 w-full whitespace-normal" onClick={()=>void openDetails()} disabled={detailsBusy}><Info />వాహన వివరాలు చూడండి</Button>}
     {!isJob && <Dialog open={choicesOpen} onOpenChange={setChoicesOpen}><DialogContent className="max-h-[85svh] overflow-y-auto" aria-describedby={undefined}><DialogTitle>వాహన వివరాలు</DialogTitle>
       {(Object.keys(VEHICLE_DEMAND_SECTIONS) as VehiclePageKind[]).map(kind => <Button key={kind} variant={selectedCategory === kind ? 'default' : 'outline'} className="h-auto w-full whitespace-normal text-left" onClick={() => setSelectedCategory(kind)}><Bell />{VEHICLE_DEMAND_SECTIONS[kind]}</Button>)}
       {selectedCategory && <div className="space-y-3 border-t pt-3"><p translate="no" className="break-all font-bold">గుర్తింపు: {post.id}</p><PrivateBellDisplay /><div className="flex flex-wrap gap-2"><Button variant="outline" disabled={sending} onClick={() => { setChoicesOpen(false); void openVehicle(true); }}><MessageCircle />చాట్</Button><Button variant="outline" asChild><a href={`/bell-board?section=${selectedCategory}`}>గంట కొట్టిన వాళ్ళ జాబితా</a></Button><VehicleDemandBell postId={post.id} ownerId={post.user_id} postRoute={post} category={selectedCategory} /></div></div>}
     </DialogContent></Dialog>}
     
-    <Dialog open={detailsOpen} onOpenChange={open => { setDetailsOpen(open); if (!open) setDetails(null); }}><DialogContent className="max-h-[85svh] overflow-y-auto"><DialogTitle>ప్రకటన వివరాలు · Post details</DialogTitle><DialogDescription>{isJob ? post.skill || 'ఉద్యోగం · Job' : vehicleTypeLabel(post.vehicle_type)}</DialogDescription><p translate="no" className="break-words">{isJob ? post.location : `${post.from_place || '…'} → ${post.to_place || '…'}`}</p>{post.salary && <p translate="no">{post.salary}</p>}{details?.description && <p translate="no" className="whitespace-pre-wrap break-words">{details.description}</p>}{details?.trip_date && <p translate="no">{details.trip_date}</p>}{details?.capacity_tons != null && <p>{details.capacity_tons} టన్నులు · tons</p>}{details?.public_photo && <img src={details.public_photo} alt="ప్రకటన ఫోటో" className="max-h-64 w-full object-contain" />}{details?.public_brand && <p translate="no">{details.public_brand}</p>}{details?.vehicle_name && <p translate="no">{details.vehicle_name}</p>}{details?.vehicle_number && <p translate="no">{details.vehicle_number}</p>}{details?.driver_name && <p translate="no">{details.driver_name}</p>}{details?.contact_phone && /^[6-9]\d{9}$/.test(details.contact_phone) && <Button asChild><a href={`tel:+91${details.contact_phone}`}><Phone /><span translate="no">{details.contact_phone}</span></a></Button>}</DialogContent></Dialog>
+    <Dialog open={detailsOpen} onOpenChange={open => { setDetailsOpen(open); if (!open) setDetails(null); }}><DialogContent className="max-h-[85svh] overflow-y-auto"><DialogTitle>ప్రకటన వివరాలు · Post details</DialogTitle><DialogDescription>{isJob ? post.skill || 'ఉద్యోగం · Job' : vehicleTypeLabel(post.vehicle_type)}</DialogDescription><p translate="no" className="break-words">{isJob ? post.location : `${post.from_place || '…'} → ${post.to_place || '…'}`}</p>{post.salary && <p translate="no">{post.salary}</p>}{details?.description && <p translate="no" className="whitespace-pre-wrap break-words">{details.description}</p>}{details?.trip_date && <p translate="no">{details.trip_date}</p>}{details?.capacity_tons != null && <p>{details.capacity_tons} టన్నులు · tons</p>}{details?.vehicle_photo_path && <VehiclePostPhoto path={details.vehicle_photo_path} />}{details?.created_at && <p>ప్రకటన తేదీ / సమయం: <time dateTime={details.created_at} translate="no">{bellDateTime(details.created_at)}</time></p>}{details?.public_photo && <img src={details.public_photo} alt="ప్రకటన ఫోటో" className="max-h-64 w-full object-contain" />}{details?.public_brand && <p translate="no">{details.public_brand}</p>}{details?.vehicle_name && <p translate="no">{details.vehicle_name}</p>}{details?.vehicle_number && <p translate="no">{details.vehicle_number}</p>}{details?.driver_name && <p translate="no">{details.driver_name}</p>}{details?.contact_phone && /^[6-9]\d{9}$/.test(details.contact_phone) && <Button asChild><a href={`tel:+91${details.contact_phone}`}><Phone /><span translate="no">{details.contact_phone}</span></a></Button>}</DialogContent></Dialog>
     {!isJob && <BellPaymentNotice open={upgradeOpen} onOpenChange={setUpgradeOpen} />}
     {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
     <div className="flex flex-wrap gap-2"><EditOwnPost post={post} /><DeleteOwnPost id={post.id} owner={post.user_id} /></div>

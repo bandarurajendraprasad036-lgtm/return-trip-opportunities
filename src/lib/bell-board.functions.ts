@@ -10,7 +10,6 @@ export const fetchBellBoard = createServerFn({ method: 'GET' }).middleware([requ
   .handler(async ({ context, data }) => {
     const access = await context.supabase.rpc('has_paid_bell', { _user: context.userId });
     if (access.error) throw new Error('మళ్లీ ప్రయత్నించండి');
-    if (!access.data && ['goods','returns','cars'].includes(data.section)) return { paid: false, rows: [] };
 
     // ఏరియా ఖాళీగా ఉన్నా లిస్ట్ రావాలి - ఇక్కడ ఆపొద్దు!
     const result = await context.supabase.rpc('list_area_bell_board', { _section: data.section, _area: data.area });

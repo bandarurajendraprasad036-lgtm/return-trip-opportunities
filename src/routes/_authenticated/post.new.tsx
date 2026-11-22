@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { JOB_CATEGORIES } from "@/lib/jobs";
 import { z } from "zod";
-import { Briefcase, Truck, UserSearch, Users, Package } from "lucide-react";
+import { Briefcase, Truck, UserSearch, Users, Package, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,7 +27,6 @@ import { generalWorkValue, hasProhibitedJobWords, jobPostIdentity, WORK_SUGGESTI
 import { IndiaPlaceInput } from '@/components/IndiaPlaceInput';
 import type { Coordinates } from '@/lib/india-places';
 import { PostSubmissionNotice } from '@/components/PostSubmissionNotice';
-import { showSubscriptionNotice } from '@/lib/subscription-access';
 import { postingLimit } from '@/lib/bell-details';
 import { PostingLimitShare } from '@/components/PostingLimitShare';
 
@@ -134,6 +133,8 @@ function NewPost() {
   const [busy, setBusy] = useState(false);
   const [submitted, setSubmitted] = useState<string | null>(null);
   const [limitReached, setLimitReached] = useState(false);
+  const [vehiclePhoto, setVehiclePhoto] = useState<File | null>(null);
+  const photoInput = useRef<HTMLInputElement>(null);
   const [generalWork, setGeneralWork] = useState(false);
   const [contentError, setContentError] = useState('');
   const [fromPoint, setFromPoint] = useState<Coordinates | null>(null);
@@ -203,16 +204,24 @@ function NewPost() {
     setBusy(true);
     const mod = await checkText({ data: { text: Object.values(v).join(" \n ") } }).catch(() => ({ ok: false }));
     if (!mod.ok) { setBusy(false); await qc.invalidateQueries({queryKey:['me']}); setContentError('తనిఖీ పూర్తికాలేదు లేదా అనుమతించని విషయం ఉంది; ప్రకటన పంపలేదు. · Check unavailable or prohibited content; not submitted.'); return; }
-    const { data: savedPost, error } = await supabase.from("posts").insert({ ...v, ...(isJob ? { service_type: search.service ? 'service' : '', area_scope: v['location'] === 'ఏ ప్రాంతమైనా' ? 'country' : 'local' } : { capacity_tons: capacity?.success ? capacity.data : null, vehicle_type: f["vehicle_type"]?.trim().slice(0, 60) || null }), show_contact: f['show_contact'] === 'yes', user_id: me.id, ...identity }).select('id,visible_after').single();
+    let photoPath = '';
+    if (!isJob && vehiclePhoto) {
+      const extension = vehiclePhoto.type === 'image/png' ? 'png' : vehiclePhoto.type === 'image/webp' ? 'webp' : 'jpg';
+      photoPath = `${me.id}/${crypto.randomUUID()}.${extension}`;
+      const upload = await supabase.storage.from('vehicle-post-photos').upload(photoPath, vehiclePhoto, { contentType: vehiclePhoto.type });
+      if (upload.error) { setBusy(false); toast.error('వాహన ఫోటో భద్రపడలేదు; ప్రకటన పంపలేదు'); return; }
+    }
+    const { data: savedPost, error } = await supabase.from("posts").insert({ ...v, ...(isJob ? { service_type: search.service ? 'service' : '', area_scope: v['location'] === 'ఏ ప్రాంతమైనా' ? 'country' : 'local' } : { vehicle_photo_path: photoPath, capacity_tons: capacity?.success ? capacity.data : null, vehicle_type: f["vehicle_type"]?.trim().slice(0, 60) || null }), show_contact: f['show_contact'] === 'yes', user_id: me.id, ...identity }).select('id,visible_after').single();
     if (!error && savedPost && !isJob && capturedPoints.from && capturedPoints.to) {
       const registered = await supabase.rpc('save_vehicle_post_points', { _post: savedPost.id, _from_lat: capturedPoints.from.latitude, _from_lng: capturedPoints.from.longitude, _to_lat: capturedPoints.to.latitude, _to_lng: capturedPoints.to.longitude });
       if (registered.error) toast.error('ప్రకటన భద్రపడింది; పరిధి స్థానాలు భద్రపడలేదు · Post saved; radius coordinates not saved');
     }
     setBusy(false);
     if (error) {
+      if (photoPath) await supabase.storage.from('vehicle-post-photos').remove([photoPath]);
       const limit = postingLimit(error);
       if (limit) setLimitReached(true);
-      if (limit === 1) { toast.info('ఉచితంగా ఒక్క ప్రకటన మాత్రమే. మరిన్ని ప్రకటనలకు చందా తీసుకోండి'); showSubscriptionNotice(); }
+      if (limit === 1) toast.info('ఉచిత వాహన ప్రకటన పరిమితి పూర్తయింది; చిత్రం పంచుకోండి');
       else if (limit) toast.info(limit === 10 ? 'ఈ నెల పది ప్రకటనలు పూర్తయ్యాయి. వచ్చే నెల మళ్లీ పెట్టవచ్చు' : 'ఈ నెల ఐదు ప్రకటనలు పూర్తయ్యాయి. వచ్చే నెల మళ్లీ పెట్టవచ్చు');
       else toast.error(error.message.includes("MOBILE_REQUIRED") ? "ప్రకటనకు ముందు మొబైల్ నంబరు ఇవ్వండి" : error.message.includes("BAD_CONTENT") ? "అనుచిత విషయాలు పోస్ట్ చేయకూడదు" : error.message);
       return;
@@ -269,6 +278,7 @@ function NewPost() {
           {!isCar(f['vehicle_type']) && field("capacity_tons", "బరువు సామర్థ్యం (టన్నులు)", "Capacity (tons)", { type: "number", min: "0.1", max: "100", step: "0.1", required: true })}
           {kind === "owner" && <>{field("vehicle_name", "వాహనం పేరు", "Vehicle name", { placeholder: "e.g. Tata Ace, Ashok Leyland" })}{field("vehicle_number", "వాహనం నంబర్", "Vehicle number", { placeholder: "TS 09 AB 1234" })}{field("driver_name", "డ్రైవర్ పేరు", "Driver name")}{field("contact_phone", "మొబైల్ నంబర్", "Mobile number", { inputMode: "numeric", maxLength: 10 })}</>}
           {kind === "business" && field("goods_type", "సరుకు రకం", "Goods type", { placeholder: "e.g. Rice bags, Cement" })}
+          <div className="flex items-center gap-3"><Button type="button" variant="outline" size="icon" className="size-16 shrink-0" disabled={busy} aria-label="వాహన ఫోటో జతచేయండి" onClick={() => photoInput.current?.click()}><Plus /></Button><span className="min-w-0 break-words" translate="no">{vehiclePhoto?.name || 'వాహన ఫోటో'}</span><Input ref={photoInput} className="hidden" type="file" accept="image/jpeg,image/png,image/webp" aria-label="వాహన ఫోటో" disabled={busy} onChange={event => { const file = event.target.files?.[0]; if (!file) return; if (!['image/jpeg','image/png','image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) { toast.error('ఫోటో ఐదు మెగాబైట్లలోపు ఉండాలి'); event.target.value = ''; return; } setVehiclePhoto(file); }} /></div>
         </>
       )}
       {isJob && field('contact_phone', 'మొబైల్ నంబర్', 'Mobile number', { inputMode: 'numeric', maxLength: 10 })}
