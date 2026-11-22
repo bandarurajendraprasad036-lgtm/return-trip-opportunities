@@ -28,6 +28,8 @@ import { IndiaPlaceInput } from '@/components/IndiaPlaceInput';
 import type { Coordinates } from '@/lib/india-places';
 import { PostSubmissionNotice } from '@/components/PostSubmissionNotice';
 import { showSubscriptionNotice } from '@/lib/subscription-access';
+import { postingLimit } from '@/lib/bell-details';
+import { PostingLimitShare } from '@/components/PostingLimitShare';
 
 function AiJobAd({ kind, onDraft, work }: { kind: "seeker" | "employer"; onDraft: (d: JobAdDraft) => void; work: string }) {
   const run = useServerFn(draftJobAd);
@@ -131,6 +133,7 @@ function NewPost() {
   const [f, setF] = useState<Record<string, string>>(search.loc ? { location: search.loc } : {});
   const [busy, setBusy] = useState(false);
   const [submitted, setSubmitted] = useState<string | null>(null);
+  const [limitReached, setLimitReached] = useState(false);
   const [generalWork, setGeneralWork] = useState(false);
   const [contentError, setContentError] = useState('');
   const [fromPoint, setFromPoint] = useState<Coordinates | null>(null);
@@ -207,12 +210,15 @@ function NewPost() {
     }
     setBusy(false);
     if (error) {
-      if (error.message.includes('FREE_ONE_POST_LIMIT')) { toast.info('ఉచితంగా ఒక్క ప్రకటన మాత్రమే. మరిన్ని ప్రకటనలకు చందా తీసుకోండి'); showSubscriptionNotice(); }
-      else if (error.message.includes('MONTHLY_POST_LIMIT_')) toast.info(error.message.includes('_10') ? 'ఈ నెల పది ప్రకటనలు పూర్తయ్యాయి. వచ్చే నెల మళ్లీ పెట్టవచ్చు' : 'ఈ నెల ఐదు ప్రకటనలు పూర్తయ్యాయి. వచ్చే నెల మళ్లీ పెట్టవచ్చు');
+      const limit = postingLimit(error);
+      if (limit) setLimitReached(true);
+      if (limit === 1) { toast.info('ఉచితంగా ఒక్క ప్రకటన మాత్రమే. మరిన్ని ప్రకటనలకు చందా తీసుకోండి'); showSubscriptionNotice(); }
+      else if (limit) toast.info(limit === 10 ? 'ఈ నెల పది ప్రకటనలు పూర్తయ్యాయి. వచ్చే నెల మళ్లీ పెట్టవచ్చు' : 'ఈ నెల ఐదు ప్రకటనలు పూర్తయ్యాయి. వచ్చే నెల మళ్లీ పెట్టవచ్చు');
       else toast.error(error.message.includes("MOBILE_REQUIRED") ? "ప్రకటనకు ముందు మొబైల్ నంబరు ఇవ్వండి" : error.message.includes("BAD_CONTENT") ? "అనుచిత విషయాలు పోస్ట్ చేయకూడదు" : error.message);
       return;
     }
     qc.invalidateQueries();
+    setLimitReached(false);
     if (savedPost) setSubmitted(savedPost.id);
   };
 
@@ -275,6 +281,7 @@ function NewPost() {
       <Button type="submit" variant="secondary" size="xl" className="w-full" disabled={busy}>
         {busy ? "..." : "పోస్ట్ చేయండి · Post"}
       </Button>
+      {limitReached && <PostingLimitShare />}
     </form>
   );
 }

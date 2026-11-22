@@ -3476,6 +3476,14 @@ export type Database = {
         Args: { _other: string; _post?: string }
         Returns: boolean
       }
+      incoming_bell_times: {
+        Args: { _post?: string; _section: string }
+        Returns: {
+          id: string
+          rang_at: string
+          source: string
+        }[]
+      }
       is_goods_post: {
         Args: { _post: Database["public"]["Tables"]["posts"]["Row"] }
         Returns: boolean

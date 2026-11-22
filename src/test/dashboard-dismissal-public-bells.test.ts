@@ -37,15 +37,23 @@ beforeAll(async () => {
     GRANT USAGE ON SCHEMA auth TO authenticated,anon;`);
   await db.exec(readFileSync('drizzle/migrations/0140_consented_post_bells_and_private_dismissal.sql','utf8'));
   await db.exec(readFileSync('drizzle/migrations/0141_dismissed_bells_owner_read_filter.sql','utf8'));
+  await db.exec(`CREATE FUNCTION my_incoming_bell_contacts(_section text) RETURNS TABLE(id uuid,source text) LANGUAGE sql SECURITY DEFINER SET search_path=public AS $$ SELECT b.id,b.source FROM my_incoming_bells(_section) b $$;`);
+  await db.exec(`ALTER TABLE free_work_interests ADD COLUMN created_at timestamptz;
+    ALTER TABLE post_bell_interests ADD COLUMN created_at timestamptz;
+    ALTER TABLE vehicle_bell_demands ADD COLUMN rang_at timestamptz;
+    UPDATE post_bell_interests SET created_at='2026-11-21T20:00:00Z' WHERE id='${bell}';`);
+  await db.exec(readFileSync('drizzle/migrations/0142_visible_bell_actual_times.sql','utf8'));
 }, 30000);
 afterAll(async () => { await db.close(); });
 
 it('public bell identities require explicit ringer consent', async () => {
   await asUser(outsider);
   expect((await db.query('SELECT * FROM list_post_bell_contacts($1)', [post])).rows).toEqual([]);
+  expect((await db.query('SELECT * FROM incoming_bell_times($1,$2)', ['work-offered', post])).rows).toEqual([]);
   await db.exec(`RESET ROLE; UPDATE profiles SET public_bell_consent=true WHERE id='${ringer}';`);
   await asUser(outsider);
   expect((await db.query('SELECT full_name,phone,can_delete FROM list_post_bell_contacts($1)',[post])).rows).toEqual([{full_name:'Ringer',phone:'9876543211',can_delete:false}]);
+  expect((await db.query('SELECT rang_at::text FROM incoming_bell_times($1,$2)', ['work-offered',post])).rows).toEqual([{rang_at:'2026-11-21 20:00:00+00'}]);
 });
 it('guests can see consented contacts but cannot see hidden or expired post records', async () => {
   await db.exec("RESET ROLE; SELECT set_config('test.user','',false); SET ROLE anon;");
@@ -77,6 +85,7 @@ it('only owner/admin may dismiss incoming bells and dismissal persists without d
   await asUser(owner);
   expect((await db.query('SELECT * FROM my_incoming_bells($1)', ['work-offered'])).rows).toEqual([]);
   expect((await db.query('SELECT * FROM list_post_bell_contacts($1)', [post])).rows).toEqual([]);
+  expect((await db.query('SELECT * FROM incoming_bell_times($1,$2)', ['work-offered',post])).rows).toEqual([]);
   await db.exec('RESET ROLE');
   expect((await db.query<{n:number}>('SELECT count(*)::int n FROM post_bell_interests')).rows[0]?.n).toBe(1);
 });
@@ -98,4 +107,22 @@ it('delete all targets only the selected conversation and does not hide new mess
   await db.exec(`RESET ROLE; INSERT INTO messages(sender_id,receiver_id,body) VALUES('${ringer}','${owner}','New');`);
   await asUser(owner);
   expect((await db.query('SELECT body FROM messages ORDER BY body')).rows).toEqual([{body:'New'},{body:'Separate'}]);
+});
+it('work, service and vehicle rows use their own stored times, not current time', async () => {
+  const free = 'dddddddd-dddd-4ddd-8ddd-dddddddddddd';
+  const vehicle = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
+  await db.exec(`RESET ROLE; UPDATE profiles SET public_bell_consent=true WHERE id='${ringer}';
+    INSERT INTO free_work_interests(id,entry_id,source,user_id,section,area,category,created_at) VALUES('${free}','${post}','post','${ringer}','service-providers','Village','Electrician','2026-11-20T01:00:00Z');
+    INSERT INTO vehicle_bell_demands VALUES('${vehicle}','${post}','${ringer}','returns','A','B','Lorry','2026-11-19T02:00:00Z');
+    INSERT INTO vehicle_demand_chat_pairs VALUES('${vehicle}','${owner}','${ringer}','2026-11-18T03:00:00Z');`);
+  await asUser(outsider);
+  expect((await db.query('SELECT source,rang_at::text FROM incoming_bell_times($1,$2) ORDER BY source',['returns',post])).rows).toEqual([
+    {source:'free',rang_at:'2026-11-20 01:00:00+00'}, {source:'post',rang_at:'2026-11-21 20:00:00+00'}, {source:'vehicle',rang_at:'2026-11-19 02:00:00+00'}
+  ]);
+  await asUser(owner);
+  expect((await db.query('SELECT source,rang_at::text FROM incoming_bell_times($1) ORDER BY source',['returns'])).rows).toEqual([
+    {source:'board',rang_at:'2026-11-18 03:00:00+00'}, {source:'vehicle',rang_at:'2026-11-19 02:00:00+00'}
+  ]);
+  await asUser(outsider);
+  expect((await db.query('SELECT * FROM incoming_bell_times($1)', ['returns'])).rows).toEqual([]);
 });

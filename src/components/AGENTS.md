@@ -6,3 +6,5 @@
 - Member photos/Aadhaar use private buckets; storage rules enforce hide choice, Aadhaar is owner/admin only and its result is written only by the server checker (number never stored).
 - Ad deletion uses delete_post_everywhere (owner or admin) so bell records go with the ad.
 - Shared post bell contacts use explicit member publication consent and field hiding; dashboard message/bell dismissal is durable and account-only, preserving the other participant's copy and payment evidence.
+- Bell timestamps come from the consent-scoped incoming_bell_times RPC and display in India time; hydrate account-dependent lists before rendering to avoid server/client identity-state mismatch.
+- Posting quota rejection offers the existing sharing artwork without awarding slots; generic artwork remains shareable without a referral code and never includes private profile photos automatically.

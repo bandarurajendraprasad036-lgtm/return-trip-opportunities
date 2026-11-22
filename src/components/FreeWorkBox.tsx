@@ -16,12 +16,15 @@ import { resolveServiceCategory } from '@/lib/service-category-display';
 import { AdminBellRowAction } from '@/components/AdminBellRowAction';
 import { bellErrorMessage, SIGN_IN_MESSAGE, signedInUserId } from '@/lib/bell-request';
 import { IncomingBellList } from '@/components/IncomingBellList';
+import { postingLimit } from '@/lib/bell-details';
+import { PostingLimitShare } from '@/components/PostingLimitShare';
 
 export function FreeWorkBox({ section, area }: { section: FreeWorkSection; area: string }) {
   const [expanded, setExpanded] = useState(false);
   const [selected, setSelected] = useState('');
   const [name, setName] = useState('');
   const [busy, setBusy] = useState(false);
+  const [limitReached, setLimitReached] = useState(false);
   const [categoryFeedback, setCategoryFeedback] = useState('');
   const saving = useRef(false);
   const { data: me } = useMe();
@@ -49,7 +52,7 @@ export function FreeWorkBox({ section, area }: { section: FreeWorkSection; area:
         else toast.success(`${count} మందికి సూచన పంపే ఏర్పాటు చేశాం; సుమారు ఒక నిమిషంలో వారి యాప్ నోటిఫికేషన్లలో చేరుతుంది. వారు తమ ఫోన్‌లో "గంట సూచనలు అనుమతించండి" నొక్కి ఉంటేనే ఫోన్‌కు శబ్దంతో వస్తుంది. వారు చూశారో లేదో ఇక్కడ తెలియదు.`, { duration: 12000 });
       }
       return true;
-    } catch (error) { toast.error(bellErrorMessage(error), { duration: 8000 }); return false; }
+    } catch (error) { if (postingLimit(error)) setLimitReached(true); toast.error(bellErrorMessage(error), { duration: 8000 }); return false; }
     finally { setBusy(false); }
   };
   const saveCategory = async () => {
@@ -71,6 +74,7 @@ export function FreeWorkBox({ section, area }: { section: FreeWorkSection; area:
       <Button asChild variant="outline" className="h-auto min-h-14 w-full whitespace-normal"><Link to="/bell-board" search={{ section }}><Bell />గంట కొట్టిన వాళ్ళు</Link></Button>
       {!me && <Button asChild variant="outline" className="h-auto w-full whitespace-normal"><Link to="/auth">ప్రవేశించండి</Link></Button>}
       <IncomingBellList section={section} hideEmpty />
+      {limitReached && <PostingLimitShare />}
       <section className="space-y-2 rounded-md border border-primary p-3" data-box="categories">
         <h3 className="font-bold">కేటగిరీలు</h3>
         <div className="flex flex-wrap gap-2">{names.map(category => <div key={category} className="flex max-w-full items-center rounded-md border border-primary bg-card">

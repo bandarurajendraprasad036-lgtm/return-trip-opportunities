@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { SignedImg } from '@/components/SignedImg';
-import { useNavigate } from '@tanstack/react-router';
+import { useHydrated, useNavigate } from '@tanstack/react-router';
 import { BellRing, MessageCircle, MessageSquare, Phone, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,28 +8,33 @@ import { Button } from '@/components/ui/button';
 import { useMe } from '@/lib/session';
 import { BELL_BOARD_REFRESH_MS } from '@/lib/bell-board-refresh';
 import type { BellBoardSection } from '@/lib/bell-board';
+import { bellDateTime } from '@/lib/bell-details';
 
 export function IncomingBellList({ section, post, hideEmpty = false }: { section: BellBoardSection; post?: string | undefined; hideEmpty?: boolean }) {
+  const hydrated = useHydrated();
   const { data: me } = useMe();
   const nav = useNavigate();
   const qc = useQueryClient();
   const { data: rows = [], isPending, isError } = useQuery({
-    queryKey: ['incoming-bells', me?.id, section, post], enabled: !!me || !!post,
+    queryKey: ['incoming-bells', me?.id, section, post], enabled: hydrated && (!!me || !!post),
     refetchInterval: BELL_BOARD_REFRESH_MS,
     queryFn: async () => {
+      const times = await supabase.rpc('incoming_bell_times', { _section: section, ...(post ? { _post: post } : {}) });
+      if (times.error) throw times.error;
+      const withTime = <T extends { id: string; source: string }>(row: T) => ({ ...row, rang_at: times.data.find(time => time.id === row.id && time.source === row.source)?.rang_at ?? null });
       if (post) {
         const result = await supabase.rpc('list_post_bell_contacts', { _post: post });
         if (result.error) throw result.error;
-        return result.data;
+        return result.data.map(withTime);
       }
       const result = await supabase.rpc('my_incoming_bell_contacts', { _section: section });
       if (result.error) throw result.error;
       const hidden = await supabase.from('dashboard_dismissals').select('item_id,source').eq('kind', 'bell');
       if (hidden.error) throw hidden.error;
-      return result.data.filter(row => !hidden.data.some(d => d.item_id === row.id && d.source === row.source)).map(row => ({ ...row, can_delete: true }));
+      return result.data.filter(row => !hidden.data.some(d => d.item_id === row.id && d.source === row.source)).map(row => withTime({ ...row, can_delete: true }));
     },
   });
-  if (!me && !post) return null;
+  if (!hydrated || (!me && !post)) return null;
   if (hideEmpty && !isPending && !isError && !rows.length) return null;
   async function open(id: string, source: string, other: string, own: boolean) {
     if (!me) { toast.error('సంభాషణ కోసం మీ ఖాతాలోకి ప్రవేశించండి'); return; }
@@ -45,9 +50,10 @@ export function IncomingBellList({ section, post, hideEmpty = false }: { section
       const digits = row.phone.replace(/\D/g, '').slice(-10);
       const name = row.full_name.trim() || digits || 'వివరాలు దాచారు';
       const canDial = digits.length === 10;
+      const dateTime = bellDateTime(row.rang_at);
       return <div key={`${row.source}-${row.id}`} className="flex min-h-20 w-full items-center gap-2 rounded-md border border-primary p-2">
         {row.photo ? <SignedImg src={row.photo} alt="" className="size-16 shrink-0 rounded-full border-2 border-primary object-cover" /> : <span aria-hidden className="flex size-16 shrink-0 items-center justify-center rounded-full border-2 border-primary bg-primary text-3xl font-bold text-primary-foreground">{(name[0] ?? '?').toUpperCase()}</span>}
-        <span className="min-w-0 flex-1 break-words" translate="no"><span className="block text-xl font-bold leading-tight">{name}</span>{digits && name !== digits && <span className="block text-lg font-semibold">{digits}</span>}<span className="block text-sm">{row.need} · {row.area}</span></span>
+        <span className="min-w-0 flex-1 break-words" translate="no"><span className="block text-xl font-bold leading-tight">{name}</span>{digits && name !== digits && <span className="block text-lg font-semibold">{digits}</span>}<span className="block text-sm">{row.need} · {row.area}</span>{dateTime ? <span className="block text-sm">గంట కొట్టిన తేదీ / సమయం: <time dateTime={row.rang_at ?? undefined}>{dateTime}</time></span> : <span className="block text-sm">గంట కొట్టిన సమయం అందుబాటులో లేదు</span>}</span>
         <div className="grid shrink-0 grid-cols-2 items-center gap-1 sm:flex">
           <Button size="icon" className="size-11 [&_svg]:size-6" aria-label={`${name} తో చాట్`} onClick={() => void open(row.id, row.source, row.other_id, row.can_delete)}><MessageCircle className="size-6" /></Button>
           {canDial ? <Button asChild size="icon" variant="outline" className="size-11 [&_svg]:size-6"><a href={`https://wa.me/91${digits}`} target="_blank" rel="noopener noreferrer" aria-label={`${name} కు వాట్సాప్ సందేశం`} title="వాట్సాప్ సందేశం"><MessageSquare className="size-6" /></a></Button> : <Button size="icon" variant="outline" className="size-11 [&_svg]:size-6" disabled aria-label="వాట్సాప్ కోసం నంబర్ లేదు"><MessageSquare className="size-6" /></Button>}
