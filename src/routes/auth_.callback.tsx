@@ -23,9 +23,9 @@ function Callback() {
     let done = false;
     const stored = sessionStorage.getItem('gayatri-auth-destination');
     const to = stored === '/admin-login' ? '/admin-login' : '/feed';
-    const go = () => { if (done) return; done = true; sessionStorage.removeItem('gayatri-auth-destination'); void navigate({ href: takeAuthReturn(to), replace: true }); };
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => { if (session) go(); });
-    void supabase.auth.getSession().then(({ data }) => { if (data.session) go(); });
+    const go = async () => { if (done) return; done = true; sessionStorage.removeItem('gayatri-auth-destination'); const u = (await supabase.auth.getUser()).data.user; const p = u ? (await supabase.from('profiles').select('phone,full_name,location').eq('id', u.id).maybeSingle()).data : null; if (u && to !== '/admin-login' && (!p?.phone || !p?.location?.trim())) { takeAuthReturn('/'); void navigate({ to: '/my-details', replace: true }); return; } void navigate({ href: takeAuthReturn(to), replace: true }); };
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => { if (session) void go(); });
+    void supabase.auth.getSession().then(({ data }) => { if (data.session) void go(); });
     const timer = setTimeout(() => { if (!done) setFailed(true); }, 12000);
     return () => { sub.subscription.unsubscribe(); clearTimeout(timer); };
   }, [navigate]);
