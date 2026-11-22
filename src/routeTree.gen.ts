@@ -28,6 +28,7 @@ import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authen
 import { Route as AuthenticatedAiMatchRouteImport } from './routes/_authenticated/ai-match'
 import { Route as AuthenticatedChatsRouteImport } from './routes/_authenticated/chats'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedMyDetailsRouteImport } from './routes/_authenticated/my-details'
 import { Route as AuthenticatedMyPostsRouteImport } from './routes/_authenticated/my-posts'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedServiceProfileRouteImport } from './routes/_authenticated/service-profile'
@@ -134,6 +135,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMyDetailsRoute = AuthenticatedMyDetailsRouteImport.update({
+  id: '/my-details',
+  path: '/my-details',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMyPostsRoute = AuthenticatedMyPostsRouteImport.update({
   id: '/my-posts',
   path: '/my-posts',
@@ -207,6 +213,7 @@ export interface FileRoutesByFullPath {
   '/ai-match': typeof AuthenticatedAiMatchRoute
   '/chats': typeof AuthenticatedChatsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/my-details': typeof AuthenticatedMyDetailsRoute
   '/my-posts': typeof AuthenticatedMyPostsRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/service-profile': typeof AuthenticatedServiceProfileRoute
@@ -237,6 +244,7 @@ export interface FileRoutesByTo {
   '/ai-match': typeof AuthenticatedAiMatchRoute
   '/chats': typeof AuthenticatedChatsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/my-details': typeof AuthenticatedMyDetailsRoute
   '/my-posts': typeof AuthenticatedMyPostsRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/service-profile': typeof AuthenticatedServiceProfileRoute
@@ -269,6 +277,7 @@ export interface FileRoutesById {
   '/_authenticated/ai-match': typeof AuthenticatedAiMatchRoute
   '/_authenticated/chats': typeof AuthenticatedChatsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/my-details': typeof AuthenticatedMyDetailsRoute
   '/_authenticated/my-posts': typeof AuthenticatedMyPostsRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/service-profile': typeof AuthenticatedServiceProfileRoute
@@ -301,6 +310,7 @@ export interface FileRouteTypes {
     | '/ai-match'
     | '/chats'
     | '/dashboard'
+    | '/my-details'
     | '/my-posts'
     | '/notifications'
     | '/service-profile'
@@ -331,6 +341,7 @@ export interface FileRouteTypes {
     | '/ai-match'
     | '/chats'
     | '/dashboard'
+    | '/my-details'
     | '/my-posts'
     | '/notifications'
     | '/service-profile'
@@ -362,6 +373,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ai-match'
     | '/_authenticated/chats'
     | '/_authenticated/dashboard'
+    | '/_authenticated/my-details'
     | '/_authenticated/my-posts'
     | '/_authenticated/notifications'
     | '/_authenticated/service-profile'
@@ -530,6 +542,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/my-details': {
+      id: '/_authenticated/my-details'
+      path: '/my-details'
+      fullPath: '/my-details'
+      preLoaderRoute: typeof AuthenticatedMyDetailsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/my-posts': {
       id: '/_authenticated/my-posts'
       path: '/my-posts'
@@ -609,6 +628,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAiMatchRoute: typeof AuthenticatedAiMatchRoute
   AuthenticatedChatsRoute: typeof AuthenticatedChatsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedMyDetailsRoute: typeof AuthenticatedMyDetailsRoute
   AuthenticatedMyPostsRoute: typeof AuthenticatedMyPostsRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedServiceProfileRoute: typeof AuthenticatedServiceProfileRoute
@@ -623,6 +643,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAiMatchRoute: AuthenticatedAiMatchRoute,
   AuthenticatedChatsRoute: AuthenticatedChatsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedMyDetailsRoute: AuthenticatedMyDetailsRoute,
   AuthenticatedMyPostsRoute: AuthenticatedMyPostsRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedServiceProfileRoute: AuthenticatedServiceProfileRoute,
