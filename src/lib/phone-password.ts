@@ -8,3 +8,11 @@ export function passwordPairError(first: string, second: string) {
   return '';
 }
 export function loginEmailForPhone(phone: string) { return phoneToEmail(phone); }
+export const PIN_LENGTH = 4;
+/** A 4-digit PIN is stretched into the stored credential; older full passwords still work at login. */
+export function pinCredential(pin: string) { return `gayatri-pin-${pin}`; }
+export function pinPairError(first: string, second: string) {
+  if (!/^\d{4}$/.test(first)) return '4 అంకెల పిన్ ఇవ్వండి';
+  if (first !== second) return 'రెండు పిన్‌లు ఒకేలా లేవు. మళ్ళీ కొట్టండి';
+  return '';
+}

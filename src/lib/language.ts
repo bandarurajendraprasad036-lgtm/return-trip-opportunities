@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import catalog from './locales/interface.json';
 import { serviceCatalog } from './service-catalog';
+import { simplifyWords } from './simple-words';
 
 export const LANGUAGES = [
   { code: 'te', name: 'తెలుగు' }, { code: 'hi', name: 'हिन्दी' },
@@ -42,7 +43,8 @@ export function translateText(value: string, language: Language): string {
     const preferred = language === 'te' ? parts[0] : parts[parts.length - 1];
     if (preferred) result = messages[preferred]?.[language];
   }
-  if (!result) return value;
+  if (!result) return simplifyWords(value, language);
+  result = simplifyWords(result, language);
   const leading = value.match(/^\s*/)?.[0] ?? '';
   const trailing = value.match(/\s*$/)?.[0] ?? '';
   return `${leading}${result}${trailing}`;

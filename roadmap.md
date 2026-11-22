@@ -329,3 +329,4 @@
 - [x] Admin delete on every ad with confirm; owner edit + delete own ads
 - [x] Profile photo round box with + (camera / gallery, change)
 - [x] Aadhaar card box with + (private to owner + admin, automatic name check)
+- [x] 4-digit PIN login; everyday words
