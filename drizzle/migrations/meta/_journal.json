@@ -1079,6 +1079,13 @@
       "when": 1795353279682,
       "tag": "0153_consented_vehicle_bell_contacts",
       "breakpoints": true
+    },
+    {
+      "idx": 154,
+      "version": "7",
+      "when": 1795356656703,
+      "tag": "0154_bell_hide_applies_to_own_rows",
+      "breakpoints": true
     }
   ]
 }

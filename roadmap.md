@@ -332,3 +332,6 @@
 - [x] Profile photo round box with + (camera / gallery, change)
 - [x] Aadhaar card box with + (private to owner + admin, automatic name check)
 - [x] 4-digit PIN login; everyday words
+
+- [x] Bell lists: mobile number for dialing not showing when member chose "show" (Nov 22 14:09)
+- [x] Bell lists: hidden name/photo/mobile still visible on another phone (Nov 22 14:08)
