@@ -68,7 +68,7 @@ export function PhonePasswordAuth() {
     try {
       const result = await supabase.rpc('request_password_reset', { _phone: forgotPhone });
       if (result.error) throw result.error;
-      setForgotDone('మీ అభ్యర్థన అడ్మిన్‌కు చేరింది. ఈ నంబర్‌తో ఖాతా ఉంటే, అడ్మిన్ మీకు ఫోన్ చేసి నిర్ధారించి కొత్త పాస్వర్డ్ పెడతారు. ఆ తర్వాత ఆ పాస్వర్డ్‌తో ప్రవేశించండి.');
+      setForgotDone('మీ రిక్వెస్ట్ అందింది. ఈ నంబర్‌తో ఖాతా ఉంటే, చెక్ చేసి కొత్త పిన్ పెడతాం.');
     } catch { setForgotDone('అభ్యర్థన చేరలేదు. మళ్ళీ ప్రయత్నించండి'); }
     finally { setBusy(false); }
   };
@@ -80,13 +80,13 @@ export function PhonePasswordAuth() {
     <form className="space-y-3" onSubmit={submit}>
       <div className="space-y-1"><Label htmlFor="pw-phone" className="text-base">మొబైల్ నంబర్</Label><Input id="pw-phone" type="tel" inputMode="numeric" autoComplete="username" value={phone} onChange={e => { setPhone(e.target.value.replace(/\D/g, '').slice(0, 10)); setError(''); }} maxLength={10} placeholder="10 అంకెల నంబర్" className="h-12 text-lg" /></div>
       <div className="space-y-1"><Label htmlFor="pw-password" className="text-base">4 అంకెల పిన్</Label><Input id="pw-password" type="password" inputMode={mode === 'signup' ? 'numeric' : 'text'} autoComplete={mode === 'login' ? 'current-password' : 'new-password'} value={password} onChange={e => { setPassword(mode === 'signup' ? e.target.value.replace(/\D/g, '').slice(0, 4) : e.target.value); setError(''); }} maxLength={mode === 'signup' ? 4 : 72} className="h-12 text-lg" /><p className="text-sm text-muted-foreground">{mode === 'signup' ? 'మీకు నచ్చిన 4 అంకెలు పెట్టుకోండి (ఉదా: 1234 కాకుండా). ఇది మీ ఖాతా తాళం చెవి — మళ్ళీ లాగిన్ అయ్యేటప్పుడు ఇదే వాడాలి. ఎవరికీ చెప్పకండి.' : 'ఖాతా నమోదు చేసినప్పుడు మీరు పెట్టుకున్న 4 అంకెలు ఇవ్వండి.'}</p></div>
-      {mode === 'login' && <Button type="button" variant="link" className="h-auto px-0 text-base" onClick={() => { setForgotPhone(phone); setForgotDone(''); setForgotOpen(true); }}><KeyRound />పిన్ మర్చిపోయాను?</Button>}
+      {mode === 'login' && <Button type="button" variant="link" className="h-auto px-0 text-base" onClick={() => { setForgotPhone(''); setForgotDone(''); setForgotOpen(true); }}><KeyRound />పిన్ మర్చిపోయాను?</Button>}
       {mode === 'signup' && <div className="space-y-1"><Label htmlFor="pw-again" className="text-base">పిన్ మళ్ళీ</Label><Input id="pw-again" type="password" inputMode="numeric" autoComplete="new-password" value={again} onChange={e => { setAgain(e.target.value.replace(/\D/g, '').slice(0, 4)); setError(''); }} maxLength={4} className="h-12 text-lg" /></div>}
       <Button type="submit" className="min-h-14 w-full text-lg" disabled={busy}>{busy ? 'వేచి ఉండండి…' : mode === 'login' ? 'ప్రవేశించండి' : 'ఖాతా తయారు చేయండి'}</Button>
       {error && <p role="alert" className="text-base text-destructive">{error}</p>}
     </form>
-    <Dialog open={forgotOpen} onOpenChange={setForgotOpen}><DialogContent><DialogTitle>పాస్వర్డ్ మర్చిపోయాను</DialogTitle><DialogDescription>మీ మొబైల్ నంబర్ ఇవ్వండి. అడ్మిన్ మీతో మాట్లాడి నిర్ధారించిన తర్వాతే కొత్త పాస్వర్డ్ పెడతారు.</DialogDescription>
-      <form className="space-y-3" onSubmit={sendForgot}><Input type="tel" inputMode="numeric" aria-label="మొబైల్ నంబర్" value={forgotPhone} onChange={e => { setForgotPhone(e.target.value.replace(/\D/g, '').slice(0, 10)); setForgotDone(''); }} maxLength={10} placeholder="10 అంకెల నంబర్" className="h-12 text-lg" /><Button type="submit" className="min-h-12 w-full" disabled={busy || !hasValidMobile(forgotPhone)}>అడ్మిన్‌కు పంపండి</Button>{forgotDone && <p role="status" className="text-base">{forgotDone}</p>}</form>
+    <Dialog open={forgotOpen} onOpenChange={setForgotOpen}><DialogContent><DialogTitle>పిన్ మర్చిపోయాను</DialogTitle><DialogDescription>మీ ఖాతా మొబైల్ నంబర్ ఇవ్వండి. చెక్ చేసిన తర్వాత కొత్త పిన్ పెడతాం.</DialogDescription>
+      <form className="space-y-3" onSubmit={sendForgot}><Input type="tel" inputMode="numeric" aria-label="మొబైల్ నంబర్" autoComplete="off" value={forgotPhone} onChange={e => { setForgotPhone(e.target.value.replace(/\D/g, '').slice(0, 10)); setForgotDone(''); }} maxLength={10} placeholder="10 అంకెల నంబర్" className="h-12 text-lg" /><Button type="submit" className="min-h-12 w-full" disabled={busy || !hasValidMobile(forgotPhone)}>పంపండి</Button>{forgotDone && <p role="status" className="text-base">{forgotDone}</p>}</form>
     </DialogContent></Dialog>
   </section>;
 }
