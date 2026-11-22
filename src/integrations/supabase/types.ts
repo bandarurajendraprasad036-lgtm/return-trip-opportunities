@@ -3334,6 +3334,7 @@ export type Database = {
       admin_activity_overview: { Args: never; Returns: Json }
       admin_broadcast: { Args: { _message: string }; Returns: number }
       admin_evidence_sender: { Args: { _id: string }; Returns: string }
+      admin_login_email_for_phone: { Args: { _phone: string }; Returns: string }
       admin_manage_account: {
         Args: { _action: string; _user: string }
         Returns: string

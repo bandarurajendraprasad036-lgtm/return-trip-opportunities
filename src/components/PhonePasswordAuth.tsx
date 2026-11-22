@@ -45,6 +45,7 @@ export function PhonePasswordAuth() {
       if (mode === 'login') {
         let result = await supabase.auth.signInWithPassword({ email, password: pinCredential(password) });
         if (result.error && password.length >= 6) result = await supabase.auth.signInWithPassword({ email, password });
+        if (result.error) { const admin = await supabase.rpc('admin_login_email_for_phone', { _phone: phone }); if (admin.data) { result = await supabase.auth.signInWithPassword({ email: admin.data, password }); if (result.error) result = await supabase.auth.signInWithPassword({ email: admin.data, password: pinCredential(password) }); } }
         if (result.error) { setError('మొబైల్ నంబర్ లేదా పిన్ సరిపోలలేదు. కొత్తవారైతే "కొత్త ఖాతా" నొక్కండి'); return; }
       } else {
         const result = await supabase.auth.signUp({ email, password: pinCredential(password), options: { data: { phone }, emailRedirectTo: window.location.origin } });
