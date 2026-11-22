@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { indianDay } from "@/lib/daily-devotional";
 import { jobIsVisible } from '@/lib/post-publication';
 import { listedVehicle } from '@/lib/vehicle-types';
+import { ReelsFeed } from '@/components/ReelsFeed';
 
 type FeedSearch = { module?: "all" | "job" | "vehicle" | undefined; from?: string | undefined; to?: string | undefined; loc?: string | undefined };
 
@@ -139,6 +140,7 @@ function Feed() {
           </div>
         )}
         {sections.filter(section => section.posts.length > 0).map(section => <section key={section.title} className="space-y-3 border-t pt-4"><h2 className="text-xl font-bold">{section.title}</h2>{section.posts.map(p => <PostCard key={p.id} post={p} meId={me?.id} highlight={mine.some(m => isMatch(m, p))} />)}</section>)}
+        <ReelsFeed preview />
       </div>
     </div>
   );

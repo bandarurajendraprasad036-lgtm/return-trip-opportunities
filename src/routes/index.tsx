@@ -23,6 +23,7 @@ import { WeeklyWinners } from '@/components/WeeklyWinners';
 import { GuestCategories, TopProfileBox, useProfileAccess } from '@/components/TopProfileBox';
 
 import { InstallButton } from '@/components/AppHelpers';
+import { ReelsFeed } from '@/components/ReelsFeed';
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -86,6 +87,7 @@ function Index() {
       <section className="space-y-2 px-4 pb-6 pt-0">
         {profileReady ? <HomeListings today={day} settings={homeSettings} /> : <GuestCategories />}
         <AboutVideos />
+        <ReelsFeed preview />
         {profileReady && <>{homeSettings.showSharing && <SharingImage />}<WeeklyWinners /><ReferralBoard /></>}
         <Button asChild variant="secondary" size="xl" className="w-full">
           <Link to="/auth">ప్రారంభించండి · Get Started</Link>

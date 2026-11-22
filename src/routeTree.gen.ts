@@ -17,6 +17,8 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BellBoardRouteImport } from './routes/bell-board'
 import { Route as FeedRouteImport } from './routes/feed'
 import { Route as PaymentRouteImport } from './routes/payment'
+import { Route as ReelsRouteImport } from './routes/reels'
+import { Route as ReelsBattleRouteImport } from './routes/reels-battle'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as VehiclesRouteImport } from './routes/vehicles'
@@ -74,6 +76,16 @@ const FeedRoute = FeedRouteImport.update({
 const PaymentRoute = PaymentRouteImport.update({
   id: '/payment',
   path: '/payment',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReelsRoute = ReelsRouteImport.update({
+  id: '/reels',
+  path: '/reels',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReelsBattleRoute = ReelsBattleRouteImport.update({
+  id: '/reels-battle',
+  path: '/reels-battle',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -184,6 +196,8 @@ export interface FileRoutesByFullPath {
   '/bell-board': typeof BellBoardRoute
   '/feed': typeof FeedRoute
   '/payment': typeof PaymentRoute
+  '/reels': typeof ReelsRoute
+  '/reels-battle': typeof ReelsBattleRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/vehicles': typeof VehiclesRoute
@@ -212,6 +226,8 @@ export interface FileRoutesByTo {
   '/bell-board': typeof BellBoardRoute
   '/feed': typeof FeedRoute
   '/payment': typeof PaymentRoute
+  '/reels': typeof ReelsRoute
+  '/reels-battle': typeof ReelsBattleRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/vehicles': typeof VehiclesRoute
@@ -242,6 +258,8 @@ export interface FileRoutesById {
   '/bell-board': typeof BellBoardRoute
   '/feed': typeof FeedRoute
   '/payment': typeof PaymentRoute
+  '/reels': typeof ReelsRoute
+  '/reels-battle': typeof ReelsBattleRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/vehicles': typeof VehiclesRoute
@@ -272,6 +290,8 @@ export interface FileRouteTypes {
     | '/bell-board'
     | '/feed'
     | '/payment'
+    | '/reels'
+    | '/reels-battle'
     | '/reset-password'
     | '/services'
     | '/vehicles'
@@ -300,6 +320,8 @@ export interface FileRouteTypes {
     | '/bell-board'
     | '/feed'
     | '/payment'
+    | '/reels'
+    | '/reels-battle'
     | '/reset-password'
     | '/services'
     | '/vehicles'
@@ -329,6 +351,8 @@ export interface FileRouteTypes {
     | '/bell-board'
     | '/feed'
     | '/payment'
+    | '/reels'
+    | '/reels-battle'
     | '/reset-password'
     | '/services'
     | '/vehicles'
@@ -359,6 +383,8 @@ export interface RootRouteChildren {
   BellBoardRoute: typeof BellBoardRoute
   FeedRoute: typeof FeedRoute
   PaymentRoute: typeof PaymentRoute
+  ReelsRoute: typeof ReelsRoute
+  ReelsBattleRoute: typeof ReelsBattleRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ServicesRoute: typeof ServicesRoute
   VehiclesRoute: typeof VehiclesRoute
@@ -425,6 +451,20 @@ declare module '@tanstack/react-router' {
       path: '/payment'
       fullPath: '/payment'
       preLoaderRoute: typeof PaymentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reels': {
+      id: '/reels'
+      path: '/reels'
+      fullPath: '/reels'
+      preLoaderRoute: typeof ReelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reels-battle': {
+      id: '/reels-battle'
+      path: '/reels-battle'
+      fullPath: '/reels-battle'
+      preLoaderRoute: typeof ReelsBattleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -603,6 +643,8 @@ const rootRouteChildren: RootRouteChildren = {
   BellBoardRoute: BellBoardRoute,
   FeedRoute: FeedRoute,
   PaymentRoute: PaymentRoute,
+  ReelsRoute: ReelsRoute,
+  ReelsBattleRoute: ReelsBattleRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ServicesRoute: ServicesRoute,
   VehiclesRoute: VehiclesRoute,

@@ -601,6 +601,48 @@ export type Database = {
           },
         ]
       }
+      comments: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          post_id: string | null
+          reel_id: string | null
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          post_id?: string | null
+          reel_id?: string | null
+          user_id?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          post_id?: string | null
+          reel_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_reel_id_fkey"
+            columns: ["reel_id"]
+            isOneToOne: false
+            referencedRelation: "reels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_referral_board_notices: {
         Row: {
           day: string
@@ -1076,6 +1118,45 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      likes: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string | null
+          reel_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id?: string | null
+          reel_id?: string | null
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string | null
+          reel_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "likes_reel_id_fkey"
+            columns: ["reel_id"]
+            isOneToOne: false
+            referencedRelation: "reels"
             referencedColumns: ["id"]
           },
         ]
@@ -2246,6 +2327,114 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reel_battle_votes: {
+        Row: {
+          battle_id: string
+          created_at: string
+          reel_id: string
+          user_id: string
+        }
+        Insert: {
+          battle_id: string
+          created_at?: string
+          reel_id: string
+          user_id?: string
+        }
+        Update: {
+          battle_id?: string
+          created_at?: string
+          reel_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reel_battle_votes_battle_id_fkey"
+            columns: ["battle_id"]
+            isOneToOne: false
+            referencedRelation: "reels_battle"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reel_battle_votes_reel_id_fkey"
+            columns: ["reel_id"]
+            isOneToOne: false
+            referencedRelation: "reels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reels: {
+        Row: {
+          caption: string
+          created_at: string
+          id: string
+          published: boolean
+          user_id: string
+          video_path: string
+        }
+        Insert: {
+          caption?: string
+          created_at?: string
+          id?: string
+          published?: boolean
+          user_id?: string
+          video_path: string
+        }
+        Update: {
+          caption?: string
+          created_at?: string
+          id?: string
+          published?: boolean
+          user_id?: string
+          video_path?: string
+        }
+        Relationships: []
+      }
+      reels_battle: {
+        Row: {
+          created_at: string
+          ends_at: string
+          id: string
+          reel_a: string
+          reel_b: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          ends_at: string
+          id?: string
+          reel_a: string
+          reel_b: string
+          title: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          ends_at?: string
+          id?: string
+          reel_a?: string
+          reel_b?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reels_battle_reel_a_fkey"
+            columns: ["reel_a"]
+            isOneToOne: false
+            referencedRelation: "reels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reels_battle_reel_b_fkey"
+            columns: ["reel_b"]
+            isOneToOne: false
+            referencedRelation: "reels"
             referencedColumns: ["id"]
           },
         ]
@@ -3796,6 +3985,13 @@ export type Database = {
         Returns: undefined
       }
       redeem_reward_points: { Args: never; Returns: string }
+      reel_battle_results: {
+        Args: { _battle: string }
+        Returns: {
+          reel_id: string
+          votes: number
+        }[]
+      }
       referral_payment_stats: {
         Args: { _from?: string; _to?: string }
         Returns: {
@@ -3997,6 +4193,14 @@ export type Database = {
       service_profile_data: { Args: { _id: string }; Returns: Json }
       set_program_reminders: { Args: { _enabled: boolean }; Returns: undefined }
       set_vehicle_available: { Args: { _post: string }; Returns: undefined }
+      social_like_count: {
+        Args: { _post?: string; _reel?: string }
+        Returns: number
+      }
+      social_target_visible: {
+        Args: { _post: string; _reel: string }
+        Returns: boolean
+      }
       straight_line_km: {
         Args: { a_lat: number; a_lng: number; b_lat: number; b_lng: number }
         Returns: number

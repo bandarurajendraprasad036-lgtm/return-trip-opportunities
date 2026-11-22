@@ -1,0 +1,4 @@
+CREATE FUNCTION public.guard_social_content() RETURNS trigger LANGUAGE plpgsql SET search_path=public AS $$ DECLARE t text; BEGIN t:=lower(coalesce(to_jsonb(NEW)->>'caption','')||' '||coalesce(to_jsonb(NEW)->>'title','')||' '||coalesce(to_jsonb(NEW)->>'body','')); IF t ~ '(fuck|bitch|bastard|asshole|motherfucker|madarchod|behenchod|bhenchod|chutiya|gandu|harami|lanja|dengey|pooku|modda|sulli|లంజ|దెంగ|పూకు|మొడ్డ|సుల్లి|లంజకొడుకు|bomb blast|maoist attack)' THEN RAISE EXCEPTION 'BAD_CONTENT'; END IF; RETURN NEW; END $$;
+CREATE TRIGGER reels_content_guard BEFORE INSERT ON public.reels FOR EACH ROW EXECUTE FUNCTION public.guard_social_content();
+CREATE TRIGGER battle_content_guard BEFORE INSERT ON public.reels_battle FOR EACH ROW EXECUTE FUNCTION public.guard_social_content();
+CREATE TRIGGER comments_content_guard BEFORE INSERT ON public.comments FOR EACH ROW EXECUTE FUNCTION public.guard_social_content();

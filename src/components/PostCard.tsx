@@ -29,6 +29,7 @@ import { VehiclePostPhoto } from '@/components/VehiclePostPhoto';
 import { DeleteOwnPost } from '@/components/DeleteOwnPost';
 import { EditOwnPost } from '@/components/EditOwnPost';
 import { postBellSection } from '@/lib/post-bell-section';
+import { SocialActions } from '@/components/SocialActions';
 
 export type Post = Database["public"]["Tables"]["posts"]["Row"];
 
@@ -138,6 +139,7 @@ export function PostCard({
     {!isJob && <BellPaymentNotice open={upgradeOpen} onOpenChange={setUpgradeOpen} />}
     {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
     <div className="flex flex-wrap gap-2"><EditOwnPost post={post} /><DeleteOwnPost id={post.id} owner={post.user_id} /></div>
+    <SocialActions postId={post.id} />
     <ResponsibilityNotice />
   </article>;
 }

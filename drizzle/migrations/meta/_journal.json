@@ -1051,6 +1051,27 @@
       "when": 1795333041659,
       "tag": "0149_admin_phone_login_email",
       "breakpoints": true
+    },
+    {
+      "idx": 150,
+      "version": "7",
+      "when": 1795344403417,
+      "tag": "0150_reels_battles_comments_likes",
+      "breakpoints": true
+    },
+    {
+      "idx": 151,
+      "version": "7",
+      "when": 1795345051274,
+      "tag": "0151_social_target_visibility_without_private_post_reads",
+      "breakpoints": true
+    },
+    {
+      "idx": 152,
+      "version": "7",
+      "when": 1795345231801,
+      "tag": "0152_social_content_guards",
+      "breakpoints": true
     }
   ]
 }
