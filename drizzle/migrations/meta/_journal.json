@@ -1086,6 +1086,13 @@
       "when": 1795356656703,
       "tag": "0154_bell_hide_applies_to_own_rows",
       "breakpoints": true
+    },
+    {
+      "idx": 155,
+      "version": "7",
+      "when": 1795357851377,
+      "tag": "0155_show_choice_implies_bell_consent",
+      "breakpoints": true
     }
   ]
 }
