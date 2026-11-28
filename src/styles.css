@@ -246,6 +246,10 @@ body { color-scheme: dark; letter-spacing: 0; }
 
 @keyframes unfinished-action-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
 .unfinished-action { animation: unfinished-action-pulse 1.8s ease-in-out infinite; }
+.home-action-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .25rem; margin: .75rem 0; }
+.home-action-row .home-action { display: flex; flex-direction: column; min-width: 0; width: 100%; height: auto; min-height: 4.5rem; gap: .25rem; padding: .5rem .125rem; font-size: .8125rem; white-space: normal; text-align: center; }
+.homeRow-reminder svg { animation: unfinished-action-pulse 1s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .homeRow-reminder svg { animation: none; } }
 @media (prefers-reduced-motion: reduce) { .unfinished-action { animation: none; outline: 2px dashed var(--gold); outline-offset: 3px; } }
 
 html:not([lang="te"]) body { font-family: "Noto Sans", system-ui, sans-serif; }

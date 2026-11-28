@@ -4,18 +4,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from 'sonner';
-import { homeActionPending } from '@/lib/prime99';
 import { pushPolicy } from '@/lib/push-rules';
 
 type InstallEvent = Event & { prompt: () => Promise<void> };
 
 /** Always available installation action with browser prompt or platform help. */
-export function InstallButton({ compact = false, remind = false }: { compact?: boolean; remind?: boolean }) {
+export function InstallButton({ compact = false, remind = false, homeRow = false }: { compact?: boolean; remind?: boolean; homeRow?: boolean }) {
   const [evt, setEvt] = useState<InstallEvent | null>(null);
   const [installed, setInstalled] = useState(false);
   const [help, setHelp] = useState(false);
   const [ios, setIos] = useState(false);
+  const [touched, setTouched] = useState(false);
   useEffect(() => {
+    setTouched(localStorage.getItem('gayatri-download-touched') === '1');
     setInstalled(window.matchMedia("(display-mode: standalone)").matches || ("standalone" in navigator && navigator.standalone === true));
     setIos(/iPad|iPhone|iPod/.test(navigator.userAgent));
     const h = (e: Event) => { e.preventDefault(); setEvt(e as InstallEvent); };
@@ -26,12 +27,14 @@ export function InstallButton({ compact = false, remind = false }: { compact?: b
   }, []);
   return (
     <>
-      <Button variant="outline" aria-label={installed ? 'ఫోన్‌లో ఉంది' : 'ఫోన్‌లో పెట్టుకోండి'} title={installed ? 'ఫోన్‌లో ఉంది' : 'ఫోన్‌లో పెట్టుకోండి'} className={`${compact ? 'gold-ring shrink-0 p-0' : 'h-auto min-h-14 w-full whitespace-normal border-2 border-secondary px-3 py-3'} ${remind ? 'unfinished-action' : ''}`} onClick={async () => {
+      <Button variant="outline" aria-label={installed ? 'ఫోన్‌లో ఉంది' : 'ఫోన్‌లో పెట్టుకోండి'} title={installed ? 'ఫోన్‌లో ఉంది' : 'ఫోన్‌లో పెట్టుకోండి'} className={`${homeRow ? 'home-action' : compact ? 'gold-ring shrink-0 p-0' : 'h-auto min-h-14 w-full whitespace-normal border-2 border-secondary px-3 py-3'} ${remind && !touched && !installed ? 'homeRow-reminder' : ''}`} onClick={async () => {
+        setTouched(true);
+        localStorage.setItem('gayatri-download-touched', '1');
         if (installed) { toast.info('ఈ ఫోన్‌లో ఇప్పటికే జోడించబడింది'); return; }
         if (!evt) { setHelp(true); return; }
         try { await evt.prompt(); } catch { setHelp(true); } finally { setEvt(null); }
       }}>
-        <Download className="size-5 shrink-0" />{!compact && <span className="min-w-0">{installed ? 'ఫోన్‌లో ఉంది' : 'డౌన్లోడ్'}</span>}
+        <Download className="size-5 shrink-0" />{(!compact || homeRow) && <span className="min-w-0">{homeRow ? 'డౌన్లోడ్' : installed ? 'ఫోన్‌లో ఉంది' : 'డౌన్లోడ్'}</span>}
       </Button>
       <Dialog open={help} onOpenChange={setHelp}>
         <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-sm">

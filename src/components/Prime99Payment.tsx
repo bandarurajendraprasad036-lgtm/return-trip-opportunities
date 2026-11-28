@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useMe } from '@/lib/session';
-import { usePrime99 } from '@/lib/prime99';
 import { PaymentScanner } from '@/components/PaymentScanner';
 import { MembershipEvidenceForm } from '@/components/MembershipEvidenceForm';
 import { Button } from '@/components/ui/button';
@@ -12,13 +11,10 @@ export function Prime99Payment({ compact = false, bellPayment = false }: { bellP
   const [details, setDetails] = useState(false);
   const [fullDetails, setFullDetails] = useState(false);
   const { data: me } = useMe();
-  const { data: prime } = usePrime99(me?.id);
   if (!compact && me?.isAdmin) return null;
   return <section className={compact ? 'space-y-3 profile-copy' : 'space-y-4 border-y py-4 profile-copy'}>
-    {!compact && prime?.active && <p role="status">మీ చందా ఉంది{prime.ends_at && ` · ${new Date(prime.ends_at).toLocaleDateString('te-IN')} వరకు`}</p>}
     <PaymentScanner amount={amount} compact={compact} />
     <Button variant="outline" className="w-full" onClick={() => setDetails(true)}>చందా వివరాలు</Button>
-    <p className="text-center">ఎంచుకున్న చందా: ₹{amount} · మూడు నెలలు</p>
     {!me?.isAdmin && <MembershipEvidenceForm key={amount} amount={amount} />}
     <Dialog open={details} onOpenChange={setDetails}><DialogContent className="max-h-[85svh] overflow-y-auto" aria-describedby={undefined}><DialogTitle>చందా వివరాలు</DialogTitle>
       <Button variant={amount === CHAT_PACKAGE_AMOUNT ? 'default' : 'outline'} onClick={() => { setAmount(CHAT_PACKAGE_AMOUNT); }}>₹100 · మూడు నెలలు · చాట్ మాత్రమే</Button>

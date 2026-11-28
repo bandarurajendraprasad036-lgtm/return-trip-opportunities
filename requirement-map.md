@@ -558,3 +558,8 @@
 - 5: Normal posting no longer waits on AI; shared deterministic post-content check and database word-boundary guard retain abusive-content rejection. Database tests checked; live submit/readback remains unverified.
 - 6: Static English prefix shards regenerated without repeated displayed names, complete two-letter results and incremental list rendering; CH/CHE/Chennur/Chittoor covered by tests. Mobile visual verification remains unverified.
 - Completion blocker: workspace credits exhausted before end-to-end browser checks; publication remains with owner.
+
+## November 28 06:27 — home actions and scanner presentation
+- 1: BellJoin owns one three-column row with bell, shared InstallButton and dashboard link. Icon reminders blink once per second until touched; actual installation still requires browser support/permission. 320/390/1280 visual and click checks pass; signed-in dashboard navigation verified. Physical phone installation not exercised.
+- 2: PaymentScanner has no printed heading/amount above QR; Prime99Payment removes status/selected-amount copy while preserving package dialogs, selected payment amount and screenshot evidence. Package selection and plus file chooser checked; no test evidence submitted or receipt approved.
+- 3: Index removes the former dashboard/download controls below the scanner; only the new row remains. No price, access, privacy or database rules changed. Eight existing regression tests pass and preview build OK; owner publishes.

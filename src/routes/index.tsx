@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Info, LayoutDashboard } from "lucide-react";
+import { Info } from "lucide-react";
 import { LanguageButton } from '@/components/LanguageButton';
 import { Button } from "@/components/ui/button";
 import { AboutVideos } from '@/components/AboutVideos';
@@ -22,7 +22,6 @@ import { ReferralBoard } from '@/components/ReferralBoard';
 import { WeeklyWinners } from '@/components/WeeklyWinners';
 import { GuestCategories, TopProfileBox, useProfileAccess } from '@/components/TopProfileBox';
 
-import { InstallButton } from '@/components/AppHelpers';
 import { ReelsFeed } from '@/components/ReelsFeed';
 
 export const Route = createFileRoute("/")({
@@ -78,8 +77,6 @@ function Index() {
         </BellJoin> : <img src={[mata, mataGreen, mataIvory][devotional]} alt="గాయత్రి మాత బంగారు గంట" className="home-engraved-bell" width={768} height={768} />}
 
         <TopProfileBox compact />
-        <Button asChild variant="outline" className="mt-3 min-h-14 w-full whitespace-normal text-lg"><Link to="/dashboard"><LayoutDashboard />నా పేజీ తెరవండి</Link></Button>
-        <div className="mt-2"><InstallButton /></div>
 
         <p className="text-center text-base opacity-90">మన ఊరు · మన బండి · మన పని</p>
         <DailyWelcome />

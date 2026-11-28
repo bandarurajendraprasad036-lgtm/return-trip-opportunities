@@ -10,6 +10,7 @@ vi.mock('@tanstack/react-router', () => ({ Link: ({ children }: {children: React
 vi.mock('@/components/GoogleSignIn', () => ({ GoogleSignIn: () => null }));
 vi.mock('@/lib/firebase-push', () => ({ enablePush: async () => { throw new Error('registration failed'); }, pushDeviceId: vi.fn(), deviceSound: vi.fn() }));
 vi.mock('@/lib/push-client', () => ({ registerPushDevice: vi.fn() }));
+vi.mock('@/lib/bell-request', () => ({ requireCompleteProfile: vi.fn().mockResolvedValue(undefined), retryBell: (action: () => Promise<unknown>) => action(), bellErrorMessage: () => 'గంట పనిచేయలేదు' }));
 vi.mock('@/lib/bell-activation', () => ({ markAccountBellActivated: vi.fn() }));
 vi.mock('@/integrations/supabase/client', () => ({ supabase: { from: () => ({ upsert: async () => ({ error: null }) }), rpc: vi.fn(async () => ({ data: null, error: null })) } }));
 vi.mock('@/lib/share-referral', () => ({ shareReferralWithImage: vi.fn() }));
