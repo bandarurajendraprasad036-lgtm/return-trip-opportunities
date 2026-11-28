@@ -3538,6 +3538,7 @@ export type Database = {
         Args: { _id: string; _section: string; _source: string }
         Returns: boolean
       }
+      admin_unblock_account: { Args: { _user: string }; Returns: boolean }
       admin_vehicle_records: { Args: { _offset?: number }; Returns: Json }
       admin_video_notice: {
         Args: { _message: string; _url: string }

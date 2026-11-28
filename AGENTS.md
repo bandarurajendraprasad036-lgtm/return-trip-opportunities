@@ -9,7 +9,7 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Public SMS entry uses existing-account-only Auth OTP; legacy device-review records remain intact. Profile access requires owner-account verified phone, never a phone claim, to prevent duplicate accounts and identity theft.
+- Legacy SMS stays existing-account-only; Google saves phone claims to the signed-in UUID without changing Auth phone or granting another account's access.
 - Automatic work/service alerts use receipt-gated opposite-demand exact-area and normalized-occupation matching, with a private durable out-of-hours queue; selected listing bells remain exact-owner only to prevent unrelated recipients.
 - First user to sign up becomes admin (handle_new_user trigger); roles live in user_roles.
 - Use the shared Brand component for the bilingual wordmark so headers stay consistent.
@@ -18,7 +18,7 @@
 - Job drafting composes structured seeker inputs into the existing authenticated drafting call; preserve one inference path and do not invent missing facts.
 - Phone installation uses generateSW through vite-plugin-pwa for the explicitly requested offline public pages; register only through the guarded wrapper and never cache private data or OAuth.
 - Mount the existing installation action outside profile gates; use actual standalone state rather than historical storage to prevent stale flags blocking reinstall help.
-- Public entry has no OAuth; retain protected historical admin recovery and server-validated roles to avoid lockout.
+- Google phone claims are not Auth verification; retain old recovery and role checks to avoid account takeover.
 - Post inserts require a valid profile mobile through a database trigger; the same rule is checked in the form.
 - Membership submissions reuse the existing review_membership RPC; the WhatsApp button opens a manual send, never claims verified receipt or automatic delivery.
 - Shareable services use an opt-in service_profiles record separate from private profiles; photos stay in private storage and are signed only after checking publication, while reviewer and viewer identities remain private.

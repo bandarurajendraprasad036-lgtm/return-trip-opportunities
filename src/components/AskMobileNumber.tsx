@@ -23,9 +23,10 @@ export function AskMobileNumber() {
       const { data } = await supabase.auth.getUser();
       if (!data.user) throw new Error('NO_USER');
       const free = await supabase.rpc('check_my_new_mobile', { _phone: phone });
-      if (free.error) { setMsg('ఈ నంబర్ ఇంకో ఖాతాలో ఉంది. వేరే నంబర్ ఇవ్వండి'); return; }
-      const saved = await supabase.from('profiles').update({ phone }).eq('id', data.user.id);
+      if (free.error || !free.data) { setMsg(free.error?.message.includes('MOBILE_ALREADY_REGISTERED') ? 'ఈ నంబర్ ఇంకో ఖాతాలో ఉంది. వేరే నంబర్ ఇవ్వండి' : 'నంబర్ భద్రపరచలేకపోయాం. మళ్లీ ప్రయత్నించండి'); return; }
+      const saved = await supabase.from('profiles').update({ phone }).eq('id', data.user.id).select('phone').single();
       if (saved.error) throw saved.error;
+      if (saved.data.phone !== phone) throw new Error('PHONE_NOT_SAVED');
       await qc.invalidateQueries();
       setMsg('మొబైల్ నంబర్ సేవ్ అయింది');
     } catch { setMsg('సేవ్ కాలేదు. మళ్ళీ ప్రయత్నించండి'); }

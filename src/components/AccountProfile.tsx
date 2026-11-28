@@ -93,7 +93,7 @@ export function AccountProfile({ completionOnly = false }: { completionOnly?: bo
         event.preventDefault();
         if (busy || !me) return;
         const mobile = me.profile?.phone ?? '';
-        if (!completionOnly && !hasValidMobile(mobile)) { toast.error('ముందుగా మొబైల్ నంబరు కోడ్‌తో ధృవీకరించండి · Verify your mobile first'); return; }
+        if (!completionOnly && !hasValidMobile(mobile)) { toast.error('ముందుగా మీ 10 అంకెల మొబైల్ నంబర్ భద్రపరచండి'); return; }
         const savedCategory = vehicleProfile ? vehicleCategory(vehicleType, tons) : category.trim();
         if (!savedCategory) { toast.error(vehicleProfile ? 'వాహనం, సరైన టన్నులు ఇవ్వండి · Check vehicle and tons' : 'వర్గం ఇవ్వండి · Enter category'); return; }
         setBusy(true);
