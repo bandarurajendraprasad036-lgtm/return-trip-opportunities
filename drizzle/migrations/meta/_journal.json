@@ -1163,6 +1163,13 @@
       "when": 1795854090107,
       "tag": "0165_approval_welcome_notification_message",
       "breakpoints": true
+    },
+    {
+      "idx": 166,
+      "version": "7",
+      "when": 1795855205716,
+      "tag": "0166_admin_category_delete_and_owner_bell_delete",
+      "breakpoints": true
     }
   ]
 }

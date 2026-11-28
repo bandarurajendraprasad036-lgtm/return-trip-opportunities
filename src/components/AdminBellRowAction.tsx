@@ -8,12 +8,15 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useManageableAdditions } from '@/lib/manage-additions';
 import { useHydrated } from '@tanstack/react-router';
-export function AdminBellRowAction({ id, source, section }: { id: string; source: string; section: string }) {
+export function AdminBellRowAction({ id, source, section, own = false }: { id: string; source: string; section: string; own?: boolean }) {
   const hydrated = useHydrated();
   const { data: me } = useMe(); const qc = useQueryClient();
   const [open, setOpen] = useState(false); const [busy, setBusy] = useState(false);
   const { data: manageable = [] } = useManageableAdditions();
-  if (!hydrated || !me || (!me.isAdmin && !manageable.some(row => row.id === id && row.source === source && row.section === section))) return null;
+  const canRemove = source === 'category'
+    ? Boolean(me?.isAdmin)
+    : Boolean(me?.isAdmin || own || manageable.some(row => row.id === id && row.source === source && row.section === section));
+  if (!hydrated || !me || !canRemove) return null;
   async function remove() {
     if (busy) return; setBusy(true);
     try {

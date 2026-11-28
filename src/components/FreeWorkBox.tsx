@@ -11,7 +11,7 @@ import { useMe } from '@/lib/session';
 import { useAddedCategories } from './AddCategoryBox';
 import { addDiscoveryCategory } from '@/lib/discovery-category.functions';
 import { freeWorkClientAction } from '@/lib/free-work-client';
-import { FREE_WORK_LABELS, freeWorkNames, type FreeWorkSection } from '@/lib/free-work';
+import { FREE_WORK_LABELS, type FreeWorkSection } from '@/lib/free-work';
 import { resolveServiceCategory } from '@/lib/service-category-display';
 import { AdminBellRowAction } from '@/components/AdminBellRowAction';
 import { bellErrorMessage, SIGN_IN_MESSAGE, signedInUserId } from '@/lib/bell-request';
@@ -33,7 +33,7 @@ export function FreeWorkBox({ section, area: chosenArea }: { section: FreeWorkSe
   const nav = useNavigate();
   const add = useServerFn(addDiscoveryCategory);
   const act = freeWorkClientAction;
-  const names = freeWorkNames(categories);
+  const names = categories.map(row => row.name);
   const openCategory = (category: string) => { setExpanded(false); void nav({ to: '/bell-board', search: { section, category } }); };
   const refresh = async () => { await Promise.all([qc.invalidateQueries({ queryKey: ['free-work'] }), qc.invalidateQueries({ queryKey: ['free-work-interests'] })]); };
   const action = async (action: 'category' | 'ring' | 'chat', category = selected, row?: { id: string; source: string }): Promise<boolean> => {
@@ -79,10 +79,10 @@ export function FreeWorkBox({ section, area: chosenArea }: { section: FreeWorkSe
       {limitReached && <PostingLimitShare />}
       <section className="space-y-2 rounded-md border border-primary p-3" data-box="categories">
         <h3 className="font-bold">కేటగిరీలు</h3>
-        <div className="flex flex-wrap gap-2">{names.map(category => <div key={category} className="flex max-w-full items-center rounded-md border border-primary bg-card">
-          <Button variant="ghost" aria-pressed={selected === category} className="h-auto min-h-12 min-w-0 whitespace-normal px-3 text-left text-lg" onClick={() => openCategory(category)}><span translate="no" className="break-words">{category}</span></Button>
-          <Button variant="ghost" size="icon" className="size-11 shrink-0 border-l border-border" title={`${category} గంట`} aria-label={`${category} గంట`} disabled={busy} onClick={() => { setSelected(category); void action('category', category).then(ok => { if (ok) openCategory(category); }); }}><Bell className="size-4" /></Button>
-          {categories.filter(row => row.name === category).map(row => <AdminBellRowAction key={row.id} id={row.id} source="category" section={section} />)}
+        <div className="flex flex-wrap gap-2">{categories.map(row => <div key={row.id} className="flex max-w-full items-center rounded-md border border-primary bg-card">
+          <Button variant="ghost" aria-pressed={selected === row.name} className="h-auto min-h-12 min-w-0 whitespace-normal px-3 text-left text-lg" onClick={() => openCategory(row.name)}><span translate="no" className="break-words">{row.name}</span></Button>
+          <Button variant="ghost" size="icon" className="size-11 shrink-0 border-l border-border" title={`${row.name} గంట`} aria-label={`${row.name} గంట`} disabled={busy} onClick={() => { setSelected(row.name); void action('category', row.name).then(ok => { if (ok) openCategory(row.name); }); }}><Bell className="size-4" /></Button>
+          <AdminBellRowAction id={row.id} source="category" section={section} />
         </div>)}</div>
       </section>
       <form onSubmit={event => { event.preventDefault(); void saveCategory(); }} className="space-y-2 rounded-md border border-primary p-3" data-box="new-category">
