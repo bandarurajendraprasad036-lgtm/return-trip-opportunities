@@ -66,6 +66,26 @@ export function AdminMembershipRequests() {
         }}>సభ్యత్వం తీసేయండి</Button>
       </div>
     </article>)}
+    <div className="space-y-2 border-t pt-4">
+      <h3 className="text-lg font-bold">₹100 పేమెంట్ చేసినవారు (చాట్ మాత్రమే)</h3>
+      {data && !data.some(r => r.status === 'approved' && r.amount === 100) && <p className="text-sm text-muted-foreground">ఇంకా ఎవరూ లేరు</p>}
+      {data?.filter(r => r.status === 'approved' && r.amount === 100).map(r => (
+        <div key={`paid-100-${r.id}`} className="flex items-center justify-between border-b py-2 text-sm last:border-0" translate="no">
+          <span className="font-semibold">{r.person?.full_name || '—'}</span>
+          <span>{r.person?.phone || '—'}</span>
+        </div>
+      ))}
+    </div>
+    <div className="space-y-2 border-t pt-4">
+      <h3 className="text-lg font-bold">₹349 పేమెంట్ చేసినవారు (గంట, చాట్, కాల్స్, వివరాలు)</h3>
+      {data && !data.some(r => r.status === 'approved' && r.amount === 349) && <p className="text-sm text-muted-foreground">ఇంకా ఎవరూ లేరు</p>}
+      {data?.filter(r => r.status === 'approved' && r.amount === 349).map(r => (
+        <div key={`paid-349-${r.id}`} className="flex items-center justify-between border-b py-2 text-sm last:border-0" translate="no">
+          <span className="font-semibold">{r.person?.full_name || '—'}</span>
+          <span>{r.person?.phone || '—'}</span>
+        </div>
+      ))}
+    </div>
     <Dialog open={!!image} onOpenChange={open => { if (!open) setImage(''); }}><DialogContent><DialogTitle>పేమెంట్ స్క్రీన్ షాట్</DialogTitle>{image && <img src={image} alt="పేమెంట్ స్క్రీన్ షాట్" className="max-h-[70svh] w-full object-contain" />}</DialogContent></Dialog>
     <AdminAdditionalRecipientPayments />
   </section>;

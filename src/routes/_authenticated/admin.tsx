@@ -28,7 +28,7 @@ import { DashboardChat } from '@/components/DashboardChatView';
 import { DashboardNotifications } from '@/components/DashboardNotificationsView';
 import { CallManager } from '@/components/CallManager';
 import { z } from 'zod';
-import { IncomingBellList } from '@/components/IncomingBellList';
+import { AdminBellBoardSection } from '@/components/AdminBellBoardSection';
 import { BELL_BOARD_LABELS, BELL_BOARD_SECTIONS } from '@/lib/bell-board';
 
 import { useEffect } from 'react';
@@ -121,7 +121,7 @@ function Admin() {
     <div className="space-y-4 p-4">
       <div className="flex items-center justify-between gap-3"><h2 className="text-2xl font-bold">అడ్మిన్ డాష్‌బోర్డ్ <span className="text-base font-normal text-muted-foreground">Admin</span></h2><Button asChild variant="outline"><Link to="/admin-settings">సెట్టింగులు · Settings</Link></Button></div>
       <AdminNewPaymentAlert />
-      <section id="my-bells" className="scroll-mt-4 space-y-3 border-y py-4"><h2 className="text-xl font-bold">గంట కొట్టిన వాళ్ళు</h2>{BELL_BOARD_SECTIONS.map(section => <details key={section} open><summary className="cursor-pointer py-3 text-lg font-bold">{BELL_BOARD_LABELS[section]}</summary><IncomingBellList section={section} hideEmpty /></details>)}</section>
+      <section id="my-bells" className="scroll-mt-4 space-y-3 border-y py-4"><h2 className="text-xl font-bold">గంట కొట్టిన వాళ్ళు</h2>{BELL_BOARD_SECTIONS.map(section => <details key={section} className="rounded-lg border px-3"><summary className="cursor-pointer py-3 text-lg font-bold">{BELL_BOARD_LABELS[section]}</summary><AdminBellBoardSection section={section} /></details>)}</section>
       <h3 className="text-xl font-bold">నిజమైన నమోదుల లెక్కలు</h3>
       <p className="text-sm text-muted-foreground">పెద్ద సంఖ్య = నమోదైన మొత్తం (గడువు ముగిసినవి కూడా). కింద = ఇప్పుడు జాబితాలో కనిపించేవి. నొక్కితే ఆ ప్రకటనలు కింద కనిపిస్తాయి.</p>
       <DashboardCountCards counts={counts} to="/admin" active={list} />

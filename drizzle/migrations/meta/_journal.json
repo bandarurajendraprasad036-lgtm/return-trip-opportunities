@@ -1156,6 +1156,13 @@
       "when": 1795848312984,
       "tag": "0164_allow_both_current_screenshot_package_amounts",
       "breakpoints": true
+    },
+    {
+      "idx": 165,
+      "version": "7",
+      "when": 1795854090107,
+      "tag": "0165_approval_welcome_notification_message",
+      "breakpoints": true
     }
   ]
 }
