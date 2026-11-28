@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useMe } from '@/lib/session';
 import { PaymentScanner } from '@/components/PaymentScanner';
 import { MembershipEvidenceForm } from '@/components/MembershipEvidenceForm';
 import { Button } from '@/components/ui/button';
@@ -10,12 +9,10 @@ export function Prime99Payment({ compact = false, bellPayment = false }: { bellP
   const [amount, setAmount] = useState(bellPayment ? FULL_PACKAGE_AMOUNT : CHAT_PACKAGE_AMOUNT);
   const [details, setDetails] = useState(false);
   const [fullDetails, setFullDetails] = useState(false);
-  const { data: me } = useMe();
-  if (!compact && me?.isAdmin) return null;
   return <section className={compact ? 'space-y-3 profile-copy' : 'space-y-4 border-y py-4 profile-copy'}>
     <PaymentScanner amount={amount} compact={compact} />
     <Button variant="outline" className="w-full" onClick={() => setDetails(true)}>చందా వివరాలు</Button>
-    {!me?.isAdmin && <MembershipEvidenceForm key={amount} amount={amount} />}
+    <MembershipEvidenceForm key={amount} amount={amount} />
     <Dialog open={details} onOpenChange={setDetails}><DialogContent className="max-h-[85svh] overflow-y-auto" aria-describedby={undefined}><DialogTitle>చందా వివరాలు</DialogTitle>
       <Button variant={amount === CHAT_PACKAGE_AMOUNT ? 'default' : 'outline'} onClick={() => { setAmount(CHAT_PACKAGE_AMOUNT); }}>₹100 · మూడు నెలలు · చాట్ మాత్రమే</Button>
       <p>మొబైల్ నంబరు, పేరు, ఫోటో కనబడవు. గంట కొట్టలేరు. చాట్ మాత్రమే చేసుకోవచ్చు. అవతలి వ్యక్తి అందుబాటులో ఉన్నప్పుడు మీతో మాట్లాడవచ్చు.</p>

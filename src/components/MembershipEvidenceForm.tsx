@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Plus } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -13,10 +13,17 @@ export function MembershipEvidenceForm({ amount = 100, beneficiary, recipientId 
   const [image, setImage] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState('');
+  const [preview, setPreview] = useState('');
   const fileInput = useRef<HTMLInputElement>(null);
   const { data: me } = useMe();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  useEffect(() => {
+    if (!image) { setPreview(''); return; }
+    const url = URL.createObjectURL(image);
+    setPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [image]);
 
   return <form aria-label="చెల్లింపు ఫోటో పంపే పెట్టె" noValidate className="space-y-3 rounded-lg border-2 border-primary p-3" onSubmit={async event => {
     event.preventDefault();
@@ -43,8 +50,10 @@ export function MembershipEvidenceForm({ amount = 100, beneficiary, recipientId 
   }}>
     <div className="flex min-w-0 items-center gap-3">
       <Button type="button" variant="outline" size="icon" className="size-16 shrink-0" aria-label="పేమెంట్ స్క్రీన్ షాట్ జత చేయండి" title="పేమెంట్ స్క్రీన్ షాట్ జత చేయండి" disabled={busy} onClick={() => fileInput.current?.click()}><Plus className="size-9" /></Button>
-      <span className={`min-w-0 break-words text-lg ${image ? 'text-foreground' : 'text-muted-foreground'}`} translate={image ? 'no' : undefined}>{image ? image.name : 'ఇక్కడ స్క్రీన్ షాట్ పెట్టండి (పేమెంట్ చేసిన స్క్రీన్ షాట్)'}</span>
+      <span className={`min-w-0 break-words text-lg ${image ? 'text-foreground' : 'text-muted-foreground'}`} translate={image ? 'no' : undefined}>{image ? image.name : 'పేమెంట్ చేసిన స్క్రీన్ షాట్ ఇక్కడ పెట్టండి'}</span>
     </div>
+    <p>పంపే చందా మొత్తం: ₹{amount}</p>
+    {preview && <img src={preview} alt="మీరు జతచేసిన చెల్లింపు ఫోటో" className="mx-auto max-h-60 max-w-full object-contain" />}
     <Input ref={fileInput} id={recipientId ? `additional-recipient-screenshot-${recipientId}` : beneficiary ? `membership-screenshot-${beneficiary}` : 'membership-screenshot'} className="hidden" aria-label="పేమెంట్ స్క్రీన్ షాట్" type="file" accept="image/png,image/jpeg,image/webp" required disabled={busy} onChange={event => {
       setImage(event.target.files?.[0] ?? null);
       setFeedback('');

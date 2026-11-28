@@ -567,3 +567,8 @@
 ## November 28 06:34 — return to home
 - Root PageReturnControls makes back/home available on non-home pages outside account gates, excluding active OAuth callback/bridge. Back uses app router history; direct entry with no earlier page replaces with `/`. AppShell brand and bottom Home also target `/`, not `/feed`; its sticky header sits below the new bar.
 - Seventeen tests pass. Browser verification: 320/390/1280 guest about→back, vehicle/board/auth/service/reels→home, direct board entry→back fallback, and actual signed-in dashboard→back/home all pass. Sticky mobile placement, no overflow/runtime errors confirmed. No publication or account/payment/database change.
+
+## November 28 06:42 — restore screenshot evidence box
+- Existing screenshot/admin review flow retained; Prime99Payment no longer hides it for administrators. Plus opens the photo chooser, the box shows the selected package amount and local image preview, and the authenticated send stores the photo/amount for administrator review. Administrator access remains free; upload never implies receipt verification or automatic approval.
+- Live ₹349 submission reproduced `RETIRED_PAYMENT_PLAN` from the older insertion trigger. Applied 0164 updates that trigger to accept only ₹100/₹349 with three months, preserving settled history and approval guards. Live function readback confirmed.
+- Sixteen tests pass. Actual 390px signed-in scanner→₹349 selection→plus→preview→send→pending request→administrator amount/approval controls/private photo render verified. No approval performed. Exact temporary evidence, message, access and storage removed with zero-count readback. No publication.

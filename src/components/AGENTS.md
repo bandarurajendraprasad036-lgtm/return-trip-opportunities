@@ -1,5 +1,5 @@
 - About video readers and the admin editor share the existing public youtube_url setting and its backward-compatible parser; database role policies remain authoritative for writes, so old videos survive without exposing account data.
-- Subscription forms share the package catalog; approvals use receipt-linked permissions and stored calendar-month duration to preserve history.
+- Subscription forms share the package catalog and stay visible without an administrator payment obligation; receipt insertion triggers validate current package amounts, and approvals use receipt-linked permissions and stored calendar-month duration to preserve history.
 - BellJoin owns the home action row and reuses InstallButton so reminder state and native installation handling stay shared; scanner content remains in the payment section.
 - Root-level PageReturnControls uses router history with a direct-entry home fallback outside account gates; shell home links target the devotional index, not the feed.
 - Dashboard conversation views live in browser-safe component modules, not imported route modules, to avoid route bootstrap cycles; group access and phone-message blocking are enforced by database functions.

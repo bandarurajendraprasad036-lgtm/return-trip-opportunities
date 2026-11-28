@@ -1149,6 +1149,13 @@
       "when": 1795844357237,
       "tag": "0163_silent_vehicle_chat_requires_account_and_receipt",
       "breakpoints": true
+    },
+    {
+      "idx": 164,
+      "version": "7",
+      "when": 1795848312984,
+      "tag": "0164_allow_both_current_screenshot_package_amounts",
+      "breakpoints": true
     }
   ]
 }
