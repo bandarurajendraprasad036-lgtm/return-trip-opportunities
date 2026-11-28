@@ -1170,6 +1170,13 @@
       "when": 1795855205716,
       "tag": "0166_admin_category_delete_and_owner_bell_delete",
       "breakpoints": true
+    },
+    {
+      "idx": 167,
+      "version": "7",
+      "when": 1795855726230,
+      "tag": "0167_admin_rename_discovery_category",
+      "breakpoints": true
     }
   ]
 }

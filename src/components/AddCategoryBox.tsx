@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
-import { categoryInput, type CategorySection } from '@/lib/discovery-categories';
+import { categoryInput, uniqueCategoryRows, type CategorySection } from '@/lib/discovery-categories';
 import { addDiscoveryCategory } from '@/lib/discovery-category.functions';
 import { useMe } from '@/lib/session';
 import { BELL_BOARD_REFRESH_MS } from '@/lib/bell-board-refresh';
@@ -17,7 +17,7 @@ export function useAddedCategories(section: CategorySection) {
   return useQuery({ queryKey: ['discovery-categories', section], refetchInterval: BELL_BOARD_REFRESH_MS, queryFn: async () => {
     const result = await supabase.from('discovery_categories').select('id,name').eq('section', section).order('created_at');
     if (result.error) throw result.error;
-    return result.data;
+    return uniqueCategoryRows(result.data);
   } });
 }
 

@@ -22,9 +22,9 @@ export function AdminBellRowAction({ id, source, section, own = false }: { id: s
     try {
       const result = await supabase.rpc('remove_my_addition', { _id: id, _source: source, _section: section });
       if (result.error || result.data !== true) throw new Error('NOT_REMOVED');
-      setOpen(false); await qc.invalidateQueries(); toast.success('గంట నమోదు తొలగించారు.');
+      setOpen(false); await qc.invalidateQueries(); toast.success(source === 'category' ? 'కేటగిరీ తొలగించారు.' : 'గంట నమోదు తొలగించారు.');
     } catch { toast.error('నమోదు తొలగించలేదు; మళ్లీ ప్రయత్నించండి.'); }
     finally { setBusy(false); }
   }
-  return <><Button data-subscription-exempt variant="destructive" size="icon" className="size-11 shrink-0" aria-label="గంట నమోదు తొలగించండి" onClick={event => { event.stopPropagation(); setOpen(true); }}><Trash2 /></Button><Dialog open={open} onOpenChange={value => { if (!busy) setOpen(value); }}><DialogContent data-subscription-exempt aria-describedby={undefined} onClick={event => event.stopPropagation()}><DialogTitle>ఈ గంట నమోదు తొలగించాలా?</DialogTitle><p>ఇది అందరి జాబితాల నుంచి పోతుంది. ఖాతా, వ్యక్తిగత సంభాషణ తొలగించబడవు.</p><Button variant="destructive" disabled={busy} onClick={() => void remove()}>{busy ? 'తొలగిస్తున్నాం…' : 'అవును, తొలగించండి'}</Button></DialogContent></Dialog></>;
+  return <><Button data-subscription-exempt variant="destructive" size="icon" className="size-11 shrink-0" aria-label={source === 'category' ? 'కేటగిరీ తొలగించండి' : 'గంట నమోదు తొలగించండి'} onClick={event => { event.stopPropagation(); setOpen(true); }}><Trash2 /></Button><Dialog open={open} onOpenChange={value => { if (!busy) setOpen(value); }}><DialogContent data-subscription-exempt aria-describedby={undefined} onClick={event => event.stopPropagation()}><DialogTitle>{source === 'category' ? 'ఈ కేటగిరీ తొలగించాలా?' : 'ఈ గంట నమోదు తొలగించాలా?'}</DialogTitle><p>ఇది అందరి జాబితాల నుంచి పోతుంది. ఖాతా, వ్యక్తిగత సంభాషణ తొలగించబడవు.</p><Button variant="destructive" disabled={busy} onClick={() => void remove()}>{busy ? 'తొలగిస్తున్నాం…' : 'అవును, తొలగించండి'}</Button></DialogContent></Dialog></>;
 }

@@ -2,6 +2,7 @@ import { createServerFn } from '@tanstack/react-start';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 import { categoryInput } from '@/lib/discovery-categories';
 import { checkPostText } from '@/lib/moderation.functions';
+import { freeWorkCategory } from '@/lib/free-work';
 
 export const addDiscoveryCategory = createServerFn({ method: 'POST' })
   .middleware([requireSupabaseAuth])
@@ -11,7 +12,7 @@ export const addDiscoveryCategory = createServerFn({ method: 'POST' })
     if (allowed.error || !allowed.data) throw new Error('ACCOUNT_NOT_ALLOWED');
     const existing = await context.supabase.from('discovery_categories').select('id,name').eq('section', data.section);
     if (existing.error) throw existing.error;
-    const duplicate = existing.data.find(row => row.name.trim().normalize('NFC').toLowerCase() === data.name.toLowerCase());
+    const duplicate = existing.data.find(row => freeWorkCategory(row.name) === freeWorkCategory(data.name));
     if (duplicate) return duplicate.id;
     const moderation = await checkPostText({ data: { text: data.name } });
     if (!moderation.ok) throw new Error('BAD_CONTENT');

@@ -13,3 +13,4 @@
 - Posting quota rejection offers the existing sharing artwork without awarding slots; generic artwork remains shareable without a referral code and never includes private profile photos automatically.
 - Payment prompts originate only from vehicle authorization failures and embed the shared scanner/evidence form; never infer paid scope from button labels.
 - Vehicle ad images use their own private bucket and consent/receipt-checked details projection; never copy account photos or read private profile fallbacks.
+- Category lists dedupe by the shared freeWorkCategory alias (Telugu/English same work = one); admin add/rename/delete lives in AdminCategoryManager, and rename goes through the admin-only RPC that also moves existing bells to the new name.
