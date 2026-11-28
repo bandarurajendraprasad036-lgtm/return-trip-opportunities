@@ -2,13 +2,14 @@ import { createServerFn } from '@tanstack/react-start';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 import { z } from 'zod';
 import { CHAT_IMAGE_LIMIT, validChatImage } from '@/lib/chat-rules';
+import { validVehiclePackage } from '@/lib/vehicle-packages';
 
 export type PrimePaymentResult = { status: 'approved' | 'pending' };
 
 export const submitPrimePayment = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => {
     if (!(input instanceof FormData)) throw new Error('Invalid form');
-    const amount = z.coerce.number().int().refine(v => v === 100).parse(input.get('amount') ?? 100);
+    const amount = z.coerce.number().int().refine(validVehiclePackage).parse(input.get('amount') ?? 100);
     const beneficiary = z.string().uuid().nullable().parse(input.get('beneficiary') || null);
     const image = input.get('image');
     if (!(image instanceof File) || !image.size || image.size > CHAT_IMAGE_LIMIT) throw new Error('IMAGE_REQUIRED');

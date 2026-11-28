@@ -30,7 +30,7 @@ export async function loadAdminOverview() {
     ...prime.map(p => ({ ...p, amount: p.payable_amount, reviewed_at: p.received_at, source: 'prime' })),
     ...historical.map(p => ({ ...p, reference: p.transaction_id, submitted_at: p.created_at, source: 'historical' })),
   ];
-  const periods = [...access, ...prime.filter(p => p.status === 'approved' && p.payable_amount === 100 && p.received_at && p.ends_at).map(p => ({ user_id: p.user_id, starts_at: p.received_at ?? '', ends_at: p.ends_at ?? '', revoked_at: null }))];
+  const periods = [...access, ...prime.filter(p => p.status === 'approved' && (p.payable_amount === 100 || p.payable_amount === 349) && p.received_at && p.ends_at).map(p => ({ user_id: p.user_id, starts_at: p.received_at ?? '', ends_at: p.ends_at ?? '', revoked_at: null }))];
   const now = new Date();
   const programByUser = new Map(programs.map(program => [program.user_id, program]));
   return { ...summarizeAdminPayments(people.map(person => ({ ...person, ...programByUser.get(person.id) })), payments, periods, now), vehicles, loadedAt: now.toISOString() };

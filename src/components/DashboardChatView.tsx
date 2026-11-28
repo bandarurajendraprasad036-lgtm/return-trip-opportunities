@@ -25,9 +25,11 @@ import { bellErrorMessage } from '@/lib/bell-request';
 import { CallButtons } from '@/components/CallManager';
 import { ResponsibilityNotice } from '@/components/ResponsibilityNotice';
 import { bellDateTime } from '@/lib/bell-details';
+import { usePrime99 } from '@/lib/prime99';
 
 export function DashboardChat({ userId, postId }: { userId: string; postId?: string | undefined }) {
   const { data: me } = useMe();
+  const { data: packageAccess } = usePrime99(me?.id);
   const [paymentOpen, setPaymentOpen] = useState(false);
   const qc = useQueryClient();
   const [text, setText] = useState("");
@@ -61,23 +63,19 @@ export function DashboardChat({ userId, postId }: { userId: string; postId?: str
     const result = await supabase.rpc('chat_peer_identity', { _other: userId });
     if (result.error) return null;
     return result.data?.[0] ?? null;
-  } });
+  }, refetchInterval: 5000 });
   const peerDigits = (peer?.phone ?? '').replace(/\D/g, '').slice(-10);
   const peerName = peer?.full_name.trim() || peerDigits;
   const key = ["chat", userId, postId];
   const { data: msgs = [] } = useQuery({
     queryKey: [...key, adminId],
     enabled: !!me && adminId !== undefined,
+    refetchInterval: 5000,
     queryFn: async () => {
       if (!me) return [];
-      let query = supabase
-        .from("messages")
-        .select("*")
-        .or(`and(sender_id.eq.${me.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${me.id})`);
-      if (postId) query = query.or(`post_id.eq.${postId},app_call_id.not.is.null`);
-      const { data, error } = await query.order("created_at");
+      const { data, error } = await supabase.rpc('list_chat_messages', { _other: userId, ...(postId ? { _post: postId } : {}) });
       if (error) throw error;
-      return data;
+      return [...data].reverse();
     },
   });
 
@@ -171,7 +169,7 @@ export function DashboardChat({ userId, postId }: { userId: string; postId?: str
         <div ref={bottom} />
       </div>
       {sendError && <p role="alert" className="px-3 py-2 text-sm text-destructive">{sendError}</p>}
-      {chatAllowed===false && <div className="mx-3 flex items-center gap-2 py-2"><p className="min-w-0 flex-1">మీరు గంట కొడితేనే చాట్ ప్రారంభించవచ్చు</p><Button variant="outline" size="icon" disabled={busy} aria-label="గంట కొట్టి చాట్ ప్రారంభించండి" title="గంట కొట్టి చాట్ ప్రారంభించండి" onClick={async () => {
+      {chatAllowed===false && packageAccess?.active && !packageAccess.bell_active ? <p className="mx-3 py-2">వాహన ప్రకటనలో చాట్ గుర్తు నొక్కి మాట్లాడండి. మీ చందాలో గంట లేదు.</p> : chatAllowed===false && <div className="mx-3 flex items-center gap-2 py-2"><p className="min-w-0 flex-1">మీరు గంట కొడితేనే చాట్ ప్రారంభించవచ్చు</p><Button variant="outline" size="icon" disabled={busy} aria-label="గంట కొట్టి చాట్ ప్రారంభించండి" title="గంట కొట్టి చాట్ ప్రారంభించండి" onClick={async () => {
         if (!window.confirm('ఈ వ్యక్తికి గంట కొట్టి సంభాషణ ప్రారంభించాలా?')) return;
         setBusy(true); setSendError('');
         try {

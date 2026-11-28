@@ -20,12 +20,13 @@ export function AdminMessages() {
     queryKey: ['admin-messages', me?.id],
     enabled: !!me?.isAdmin,
     queryFn: async () => {
-      const result = await supabase.from('messages').select('*').or(`sender_id.eq.${me?.id},receiver_id.eq.${me?.id}`).order('created_at', { ascending: false }).limit(300);
+      const result = await supabase.rpc('list_chat_messages');
       if (result.error) throw result.error;
-      const ids = [...new Set((result.data ?? []).flatMap(message => [message.sender_id, message.receiver_id]))];
+      const ownMessages = (result.data ?? []).filter(message => message.sender_id === me?.id || message.receiver_id === me?.id).slice(0, 300);
+      const ids = [...new Set(ownMessages.flatMap(message => [message.sender_id, message.receiver_id]))];
       const people = ids.length ? await supabase.from('profiles').select('id,full_name,phone').in('id', ids) : { data: [], error: null };
       if (people.error) throw people.error;
-      return { messages: result.data ?? [], people: people.data ?? [] };
+      return { messages: ownMessages, people: people.data ?? [] };
     },
   });
   const person = (id: string) => {

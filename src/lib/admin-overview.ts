@@ -8,7 +8,7 @@ export function summarizeAdminPayments(people: AdminPerson[], payments: AdminPay
   const receipts = [...new Map(approved.map(p => [`${p.user_id}:${p.reference || `${p.source}:${p.submitted_at}`}`, p])).values()];
   const current = (a: AdminAccess) => !a.revoked_at && Date.parse(a.starts_at) <= now.getTime() && Date.parse(a.ends_at) > now.getTime();
   const members = people.map(person => {
-    const records = payments.filter(p => p.user_id === person.id && p.amount === 100);
+    const records = payments.filter(p => p.user_id === person.id && (p.amount === 100 || p.amount === 349));
     const paid = records.some(p => p.status === 'approved');
     const active = access.filter(a => a.user_id === person.id && current(a));
     const expires = active.map(a => a.ends_at).sort().at(-1) ?? null;

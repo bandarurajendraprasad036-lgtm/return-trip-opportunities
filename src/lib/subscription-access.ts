@@ -1,6 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 
-export const SUBSCRIPTION_MESSAGE = 'వాహన యజమానికి గంట, సంభాషణ, అనుమతించిన నంబరు కోసం ₹100 — మూడు నెలలు';
+export const SUBSCRIPTION_MESSAGE = 'చాట్‌కు ₹100; గంట, కాల్స్, అనుమతించిన వివరాలకు ₹349 — మూడు నెలలు';
 
 export function showSubscriptionNotice() {
   window.dispatchEvent(new Event('gayatri-subscription-required'));

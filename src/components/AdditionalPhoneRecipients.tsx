@@ -70,7 +70,7 @@ export function AdditionalPhoneRecipients() {
     <div>
       <h2 className="text-xl font-bold">అదనపు మొబైల్ నంబర్లు</h2>
       <p className="text-lg">పాత అదనపు నంబర్ల వివరాలు అలాగే ఉంటాయి. కొత్త అదనపు నంబరు చందా కొనుగోళ్లు నిలిపివేశాం.</p>
-      <p>ప్రతి వ్యక్తి తన ఖాతాలో ₹100కు మూడు నెలల చందా తీసుకోవచ్చు.</p>
+      <p>ప్రతి వ్యక్తి తన ఖాతాలో మూడు నెలలకు ₹100 చాట్ చందా లేదా ₹349 పూర్తి చందా తీసుకోవచ్చు.</p>
     </div>
     <div className="space-y-2">
       <Label htmlFor="additional-phone">అదనపు మొబైల్ నంబరు</Label>
@@ -91,7 +91,7 @@ export function AdditionalPhoneRecipients() {
     {recipients.data?.map(recipient => <article key={recipient.id} className="space-y-3 rounded-lg border p-3">
       <p className="text-lg font-bold" translate="no">{recipient.phone}</p>
       {!recipient.verified_at ? <p role="status">నంబరు యజమాని కోడ్‌తో ప్రవేశించి అనుమతి ఇవ్వాలి.</p>
-        : recipient.payment_status === 'approved' ? <p role="status">₹80 చెల్లింపు నిర్వాహకులు ఆమోదించారు.</p>
+        : recipient.payment_status === 'approved' ? <p role="status">పాత చెల్లింపు నిర్వాహకులు ఆమోదించారు.</p>
           : recipient.payment_status === 'pending' ? <p role="status">చెల్లింపు ఫోటో నిర్వాహకుల పరిశీలనలో ఉంది.</p>
             : <p>కొత్త అదనపు నంబరు చందా కొనుగోలు అందుబాటులో లేదు.</p>}
     </article>)}

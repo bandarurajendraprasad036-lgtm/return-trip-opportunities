@@ -1,4 +1,4 @@
 - Normal posting uses the shared deterministic content check plus authoritative database triggers, not a required AI request, so valid ads survive moderation-service outages.
-- Chat composition requires the existing private pair/payment checks and a verified explicit bell; support/admin exceptions preserve account help.
+- Chat composition uses private pair and receipt checks; chat-only vehicle access can create a silent pair without a bell, while other flows preserve explicit bell and support exceptions.
 - Incoming plain chat creates one guarded participant-private generic notice using the existing push dispatcher; locked-screen payloads never contain private message bodies.
 - Village search matches English displayed-name prefixes from two characters and deduplicates by that name across regions; complete source shards and incremental rendering avoid missing matches and oversized lists.

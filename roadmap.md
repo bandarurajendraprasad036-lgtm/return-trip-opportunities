@@ -338,3 +338,4 @@
 - [x] Bell lists: hidden name/photo/mobile still visible on another phone (Nov 22 14:08)
 
 - [ ] November 28 03:35: Implemented guarded incoming-message notices through the existing active minute push schedule, explicit-bell chat authorization/composer control, deterministic browser/database post checks, and complete unique English two-letter village prefixes. Focused tests and build checked. Remaining: signed-in end-to-end posting/chat/mobile UI and physical locked-phone delivery checks; workspace credits exhausted. Owner requested to publish themselves; no publication performed.
+- [ ] November 28 05:27: Enforce hidden identity across contact projections/storage/chat reads; ₹100 chat-only and ₹349 full three-month receipt-linked packages; scanner package dialogs; restore blinking home actions. Preserve settled receipts and design; verify signed-in mobile flow before completion. User will publish.

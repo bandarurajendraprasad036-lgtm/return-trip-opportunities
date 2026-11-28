@@ -5,7 +5,9 @@ import type { BellBoardSection } from './bell-board';
 export async function loadBellBoard(section: BellBoardSection, area: string) {
   const { data: auth } = await supabase.auth.getSession();
   const access = auth.session ? await supabase.rpc('has_paid_bell', { _user: auth.session.user.id }) : { data: false, error: null };
+  const chat = auth.session ? await supabase.rpc('has_paid_vehicle_chat', { _user: auth.session.user.id }) : { data: false, error: null };
   if (access.error) throw access.error;
+  if (chat.error) throw chat.error;
 
   // చూడటం అందరికీ ఫ్రీ - goods / returns / cars అయినా సరే!
   // పేమెంట్ అడ్డు బెల్ కొట్టేటప్పుడు మాత్రమే, చూసేటప్పుడు కాదు!
@@ -27,7 +29,8 @@ export async function loadBellBoard(section: BellBoardSection, area: string) {
   const contacts = new Map<string, Contact>();
   if (['goods', 'returns', 'cars'].includes(section)) {
     const c = await supabase.rpc('list_vehicle_bell_contacts', { _section: section, _area: normalizedArea });
+    if (c.error) throw c.error;
     for (const row of (c.data ?? []) as Contact[]) contacts.set(row.id, row);
   }
-  return { paid: !!access.data, rows: (result.data ?? []).map(row => ({ ...row, contact: contacts.get(row.id) ?? null })) };
+  return { paid: !!access.data, chat: !!chat.data, rows: (result.data ?? []).map(row => ({ ...row, contact: contacts.get(row.id) ?? null })) };
 }

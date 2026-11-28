@@ -1,5 +1,5 @@
 - About video readers and the admin editor share the existing public youtube_url setting and its backward-compatible parser; database role policies remain authoritative for writes, so old videos survive without exposing account data.
-- Subscription forms use the sole current price; approvals read each receipt’s stored calendar-month duration to preserve history.
+- Subscription forms share the package catalog; approvals use receipt-linked permissions and stored calendar-month duration to preserve history.
 - Dashboard conversation views live in browser-safe component modules, not imported route modules, to avoid route bootstrap cycles; group access and phone-message blocking are enforced by database functions.
 - Administrator activity uses a role-checked metadata-only RPC; support messages/images are fetched only for the administrator’s own participant conversations, avoiding unrelated message disclosure.
 - In-app calls use participant-private signalling with receipt checks except validated administrator participation; consented dial rechecks the gate and never reads private profile phones.

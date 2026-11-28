@@ -3590,6 +3590,7 @@ export type Database = {
         Args: { _other: string; _post?: string }
         Returns: boolean
       }
+      chat_only_viewer: { Args: never; Returns: boolean }
       chat_peer_identity: {
         Args: { _other: string }
         Returns: {
@@ -3655,6 +3656,10 @@ export type Database = {
         Args: { _id: string; _user: string }
         Returns: undefined
       }
+      contact_field_allowed: {
+        Args: { _field: string; _owner: string; _vehicle?: boolean }
+        Returns: boolean
+      }
       delete_post_everywhere: { Args: { _post: string }; Returns: boolean }
       dismiss_chat_items: {
         Args: {
@@ -3692,6 +3697,7 @@ export type Database = {
       group_phone_text: { Args: { _body: string }; Returns: boolean }
       has_goods_membership: { Args: { _user?: string }; Returns: boolean }
       has_paid_bell: { Args: { _user: string }; Returns: boolean }
+      has_paid_vehicle_chat: { Args: { _user: string }; Returns: boolean }
       has_prime99: { Args: { _user: string }; Returns: boolean }
       has_role: {
         Args: {
@@ -3743,6 +3749,29 @@ export type Database = {
           need: string
           source: string
         }[]
+      }
+      list_chat_messages: {
+        Args: { _other?: string; _post?: string }
+        Returns: {
+          app_call_id: string | null
+          body: string
+          call_event: string | null
+          chat_phone: string
+          created_at: string
+          id: string
+          image_path: string
+          is_auto: boolean
+          needs_admin: boolean
+          post_id: string | null
+          receiver_id: string
+          sender_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "messages"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       list_free_work: {
         Args: { _area?: string; _category?: string; _section: string }
@@ -3965,6 +3994,10 @@ export type Database = {
       open_service_chat: { Args: { _other: string }; Returns: boolean }
       open_vehicle_chat: { Args: { _post: string }; Returns: string }
       open_vehicle_demand_chat: { Args: { _demand: string }; Returns: string }
+      package_previous_can_post_chat: {
+        Args: { _other?: string; _post?: string }
+        Returns: boolean
+      }
       paid_alert_ready: { Args: { _user: string }; Returns: boolean }
       post_alert_eligible: { Args: { _user: string }; Returns: boolean }
       post_edit_fields: {

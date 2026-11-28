@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { CHAT_IMAGE_LIMIT, validChatImage } from '@/lib/chat-rules';
+import { validVehiclePackage } from '@/lib/vehicle-packages';
 
 async function uploadScreenshot(userId: string, image: File) {
   if (image.size === 0 || image.size > CHAT_IMAGE_LIMIT) throw new Error('చిత్రం పరిమాణం ఎక్కువగా ఉంది');
@@ -26,7 +27,7 @@ export async function uploadMembershipScreenshot(input: {
   beneficiary?: string | undefined;
 }) {
   const { userId, image, amount, beneficiary } = input;
-  if (amount !== 100 || (beneficiary && beneficiary !== userId)) throw new Error("₹100 — మూడు నెలల చందా మాత్రమే అందుబాటులో ఉంది");
+  if (!validVehiclePackage(amount) || (beneficiary && beneficiary !== userId)) throw new Error('₹100 లేదా ₹349 చందా ఎంచుకోండి');
   const { reference, path } = await uploadScreenshot(userId, image);
   const saved = await supabase.rpc('submit_membership_screenshot', {
     _amount: amount,

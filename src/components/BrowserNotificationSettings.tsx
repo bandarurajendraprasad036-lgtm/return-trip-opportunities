@@ -49,7 +49,7 @@ export function BrowserNotificationSettings() {
         {muted ? <VolumeX /> : <Volume2 />}{muted ? 'ఆఫ్ · Off' : 'ఆన్ · On'}
       </Button>
     </div>
-    <p className="text-sm">{!prime?.alerts_ready ? 'సూచనలకు నిర్వాహకులు ఆమోదించిన చందా, హోమ్ గంట ఎంపిక అవసరం. కొత్త చందా ₹100కు మూడు నెలలు.' : muted ? 'ఆఫ్: గంట శబ్దం రాదు; అర్హమైన సమాచారం తెరపై కనిపిస్తుంది. · Silent eligible alerts.' : 'ఆన్: మీ ఎంపికలకు లోబడి అర్హమైన సూచనలకు గంట శబ్దం. · Eligible alerts with sound, subject to preferences.'}</p>
+    <p className="text-sm">{!prime?.alerts_ready ? 'ఫోన్ సూచనలకు హోమ్ గంట దగ్గర అనుమతి ఇవ్వండి. వాహన గంటకు ₹349 మూడు నెలల చందా అవసరం.' : muted ? 'ఆఫ్: గంట శబ్దం రాదు; అర్హమైన సమాచారం తెరపై కనిపిస్తుంది. · Silent eligible alerts.' : 'ఆన్: మీ ఎంపికలకు లోబడి అర్హమైన సూచనలకు గంట శబ్దం. · Eligible alerts with sound, subject to preferences.'}</p>
     <p role="status">{permissionHelp[permission]}</p>
     <p role="status">{delivery?.registered ? 'ఈ ఫోన్ నమోదైంది; చేరినట్లు ఇంకా నిర్ధారణ లేదు · Device registered; delivery unverified' : 'ఫోన్ నమోదు కోసం హోమ్ పేజీలో ప్రధాన గంటను ఎంచుకోండి · Use home bell to register'}</p>
     {delivery?.latest && <p role="status">{delivery.latest.status === 'accepted' ? 'సేవ సూచనను స్వీకరించింది; ఫోన్‌కు చేరినట్లు నిర్ధారణ కాదు · Provider accepted; not a delivery receipt' : delivery.latest.status === 'failed' ? `పంపడం విఫలమైంది · Send failed (${delivery.latest.provider_status ?? '—'})` : delivery.latest.status === 'skipped' ? 'చదివిన సమాచారం లేదా మీ ఎంపికల కారణంగా పంపలేదు · Skipped' : 'పంపేందుకు వేచి ఉంది · Awaiting send'}</p>}

@@ -60,7 +60,7 @@ export function CallManager() {
       if (allowed.error || allowed.data !== true) throw new Error('BOTH_PAID_REQUIRED');
       const conn = await connect(offer.video); await conn.setRemoteDescription(offer.sdp); await applyCandidates(conn);
       const sdp = await conn.createAnswer(); await conn.setLocalDescription(sdp); await sendDescription('answer', sdp); setState('calling');
-    } catch { toast.error('పిలుపు కలవలేదు. ఇద్దరి చందా, మైకు అనుమతి పరిశీలించండి'); void end().catch(() => {}); }
+    } catch { toast.error('పిలుపు కలవలేదు. చందా, మైకు అనుమతి పరిశీలించండి'); void end().catch(() => {}); }
   };
   useEffect(() => {
     if (localV.current) localV.current.srcObject = stream.current;
@@ -111,7 +111,7 @@ export function CallManager() {
         if (r.error || !r.data) throw new Error('CALL_DENIED');
         call.current = r.data; peer.current = to; setVideo(v); setState('calling');
         const conn = await connect(v); const sdp = await conn.createOffer(); await conn.setLocalDescription(sdp); await sendDescription('offer', sdp);
-      } catch { toast.error('పిలుపు కలవలేదు. ఇద్దరి చందా, మైకు అనుమతి, అంతర్జాలం పరిశీలించండి'); void end().catch(() => {}); }
+      } catch { toast.error('పిలుపు కలవలేదు. చందా, మైకు అనుమతి, అంతర్జాలం పరిశీలించండి'); void end().catch(() => {}); }
     };
     const timer = window.setInterval(() => void poll(), 1000);
     window.addEventListener(START_CALL_EVENT, start);
@@ -132,7 +132,7 @@ export function CallButtons({ peer }: { peer: string }) {
   const { data: allowed } = useQuery({ queryKey: ['call-allowed', me?.id, peer], enabled: !!me && me.id !== peer, refetchInterval: 5000, queryFn: async () => { const r = await supabase.rpc('can_call_member', { _other: peer }); if (r.error) throw r.error; return r.data; } });
   const { data: phone } = useQuery({ queryKey: ['call-dial', me?.id, peer], enabled: allowed === true, refetchInterval: 5000, queryFn: async () => { const r = await supabase.rpc('app_call_dial_number', { _other: peer }); if (r.error) throw r.error; return r.data; } });
   if (!me || me.id === peer) return null;
-  if (allowed !== true) return <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><LockKeyhole className="size-4 shrink-0" />ఇద్దరి చందా ఉంటేనే పిలుపులు</p>;
+  if (allowed !== true) return <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><LockKeyhole className="size-4 shrink-0" />వాహన పిలుపులకు ₹349 చందా లేదా వచ్చిన పిలుపు అనుమతి అవసరం</p>;
   return <div className="flex flex-wrap gap-2" data-subscription-exempt>
     <Button variant="outline" title="యాప్‌లో మాట పిలుపు" aria-label="మాట పిలుపు" onClick={() => startCall(peer, false)}><Phone />పిలుపు</Button>
     <Button variant="outline" title="యాప్‌లో వీడియో పిలుపు" aria-label="వీడియో పిలుపు" onClick={() => startCall(peer, true)}><Video />వీడియో</Button>

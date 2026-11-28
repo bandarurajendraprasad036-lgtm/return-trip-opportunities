@@ -27,7 +27,7 @@ export function AdminAdditionalRecipientPayments() {
   });
 
   const action = async (id: string, approve: boolean) => {
-    if (approve && !window.confirm('బ్యాంకులో అదనపు నంబరు ₹80 నిజంగా అందిందని చూశారా?')) return;
+    if (approve && !window.confirm('బ్యాంకులో పాత అదనపు నంబరు చెల్లింపు నిజంగా అందిందని చూశారా?')) return;
     setBusy(true);
     const result = await supabase.rpc('review_additional_recipient_payment', { _id: id, _approve: approve });
     setBusy(false);
@@ -44,13 +44,13 @@ export function AdminAdditionalRecipientPayments() {
   };
 
   return <section className="space-y-3 border-t py-4" aria-label="అదనపు నంబర్ల చెల్లింపులు">
-    <h2 className="text-xl font-bold">అదనపు నంబర్ల ₹80 చెల్లింపులు</h2>
+    <h2 className="text-xl font-bold">పాత అదనపు నంబర్ల చెల్లింపులు</h2>
     {isPending && <p role="status">వివరాలు వస్తున్నాయి</p>}
     {isError && <p role="alert">అదనపు నంబర్ల చెల్లింపు వివరాలు రాలేదు</p>}
     {data?.length === 0 && <p>అదనపు నంబర్ల చెల్లింపులు లేవు</p>}
     {data?.map(payment => <article className="space-y-2 border-b py-3" key={payment.id}>
       <p translate="no">{payment.person?.full_name || '—'} · {payment.person?.phone || '—'}</p>
-      <p translate="no">అదనపు నంబరు: {payment.recipient?.phone || '—'} · ₹80</p>
+      <p translate="no">అదనపు నంబరు: {payment.recipient?.phone || '—'} · ₹{payment.amount}</p>
       <p>{new Date(payment.submitted_at).toLocaleString('te-IN')} · {payment.status === 'pending' ? 'నిర్వాహక పరిశీలన కోసం వెయిటింగ్' : payment.status === 'approved' ? 'చెల్లింపు ఆమోదించాం' : 'చెల్లింపు తిరస్కరించాం'}</p>
       <div className="flex flex-wrap gap-2">
         <Button variant="outline" onClick={() => void showImage(payment.message_id)}>స్క్రీన్ షాట్ చూడండి</Button>

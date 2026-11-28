@@ -26,12 +26,12 @@ export function InstallButton({ compact = false, remind = false }: { compact?: b
   }, []);
   return (
     <>
-      <Button variant="outline" aria-label={installed ? 'ఫోన్‌లో ఉంది' : 'ఫోన్‌లో పెట్టుకోండి'} title={installed ? 'ఫోన్‌లో ఉంది' : 'ఫోన్‌లో పెట్టుకోండి'} className={`${compact ? 'gold-ring shrink-0 p-0' : 'h-auto min-h-14 w-full whitespace-normal border-2 border-secondary px-3 py-3'} ${remind && homeActionPending('install', installed) ? 'unfinished-action' : ''}`} onClick={async () => {
+      <Button variant="outline" aria-label={installed ? 'ఫోన్‌లో ఉంది' : 'ఫోన్‌లో పెట్టుకోండి'} title={installed ? 'ఫోన్‌లో ఉంది' : 'ఫోన్‌లో పెట్టుకోండి'} className={`${compact ? 'gold-ring shrink-0 p-0' : 'h-auto min-h-14 w-full whitespace-normal border-2 border-secondary px-3 py-3'} ${remind ? 'unfinished-action' : ''}`} onClick={async () => {
         if (installed) { toast.info('ఈ ఫోన్‌లో ఇప్పటికే జోడించబడింది'); return; }
         if (!evt) { setHelp(true); return; }
         try { await evt.prompt(); } catch { setHelp(true); } finally { setEvt(null); }
       }}>
-        <Download className="size-5 shrink-0" />{!compact && <span className="min-w-0">{installed ? 'ఫోన్‌లో ఉంది' : 'ఫోన్‌లో పెట్టుకోండి'}</span>}
+        <Download className="size-5 shrink-0" />{!compact && <span className="min-w-0">{installed ? 'ఫోన్‌లో ఉంది' : 'డౌన్లోడ్'}</span>}
       </Button>
       <Dialog open={help} onOpenChange={setHelp}>
         <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-sm">

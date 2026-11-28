@@ -3,6 +3,7 @@ import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 import { z } from 'zod';
 import { chatEntrySchema, CHAT_IMAGE_LIMIT, validChatImage } from '@/lib/chat-rules';
 import { paymentUtr } from '@/lib/november-profile';
+import { validVehiclePackage } from '@/lib/vehicle-packages';
 
 export const sendChatEntry = createServerFn({ method:'POST' }).middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => {
@@ -10,7 +11,7 @@ export const sendChatEntry = createServerFn({ method:'POST' }).middleware([requi
     const entry = chatEntrySchema.parse({ receiver:input.get('receiver'), post:input.get('post') || null, body:input.get('body') || '', phone:input.get('phone') || '' });
     const image = input.get('image');
     if (image && (!(image instanceof File) || image.size>CHAT_IMAGE_LIMIT)) throw new Error('చిత్రం పరిమాణం ఎక్కువ · Image too large');
-    const amount = input.get('membership_amount') ? z.coerce.number().int().refine(value => value === 80 || value === 100).parse(input.get('membership_amount')) : null;
+    const amount = input.get('membership_amount') ? z.coerce.number().int().refine(validVehiclePackage).parse(input.get('membership_amount')) : null;
     const beneficiary = z.string().uuid().nullable().parse(input.get('beneficiary') || null);
     if (amount && (!(image instanceof File) || !image.size || !paymentUtr(entry.body))) throw new Error('12 అంకెల లావాదేవీ సంఖ్య, స్క్రీన్ షాట్ ఇవ్వండి');
     return { ...entry, amount, beneficiary, image:image instanceof File && image.size>0 ? image : null };

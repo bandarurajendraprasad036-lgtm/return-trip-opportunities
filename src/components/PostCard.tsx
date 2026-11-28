@@ -66,12 +66,12 @@ export function PostCard({
   const [sending, setSending] = useState(false);
   const { data: access = false } = useQuery({ queryKey: ['vehicle-display-access', meId], enabled: !!meId && !isJob, refetchInterval: 10000, queryFn: async () => { if (!meId) return false; const [paid, admin] = await Promise.all([supabase.rpc('has_paid_bell', { _user: meId }), supabase.rpc('has_role', { _user_id: meId, _role: 'admin' })]); if (paid.error || admin.error) throw paid.error || admin.error; return !!paid.data || !!admin.data; } });
   const vehicleUnlocked = access || post.user_id === meId;
-  const checkAccess = async () => {
-    await requireCompleteProfile();
+  const checkAccess = async (chat = false) => {
+    if (!chat) await requireCompleteProfile();
     if (isJob) return true;
     if (vehicleUnlocked) return true;
     if (!meId) { setUpgradeOpen(true); return false; }
-    const { data, error } = await supabase.rpc('has_paid_bell', { _user: meId });
+    const { data, error } = await supabase.rpc(chat ? 'has_paid_vehicle_chat' : 'has_paid_bell', { _user: meId });
     if (error) { toast.error('ప్రవేశం తనిఖీ కాలేదు · Could not check access'); return false; }
     if (!data) { setUpgradeOpen(true); return false; }
     return true;
@@ -89,7 +89,7 @@ export function PostCard({
     if (sending || (chat && post.user_id === meId)) return;
     setSending(true);
     try {
-      if (!await checkAccess()) return;
+      if (!await checkAccess(chat)) return;
       if (chat) {
         const result = await supabase.rpc('open_vehicle_chat', { _post: post.id });
         if (result.error) { toast.error(bellErrorMessage(result.error)); return; }

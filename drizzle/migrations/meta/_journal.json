@@ -1121,6 +1121,34 @@
       "when": 1795840551029,
       "tag": "0159_fix_privacy_hide_enforcement",
       "breakpoints": true
+    },
+    {
+      "idx": 160,
+      "version": "7",
+      "when": 1795843911405,
+      "tag": "0160_vehicle_chat_and_full_packages",
+      "breakpoints": true
+    },
+    {
+      "idx": 161,
+      "version": "7",
+      "when": 1795843994787,
+      "tag": "0161_authoritative_hidden_identity_and_chat_reads",
+      "breakpoints": true
+    },
+    {
+      "idx": 162,
+      "version": "7",
+      "when": 1795844274754,
+      "tag": "0162_full_package_incoming_calls_and_privacy_trigger",
+      "breakpoints": true
+    },
+    {
+      "idx": 163,
+      "version": "7",
+      "when": 1795844357237,
+      "tag": "0163_silent_vehicle_chat_requires_account_and_receipt",
+      "breakpoints": true
     }
   ]
 }

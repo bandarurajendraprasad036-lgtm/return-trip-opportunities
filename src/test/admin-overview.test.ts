@@ -13,6 +13,10 @@ it('remaining subscription days use current unrevoked periods and drop to zero a
   expect(summarizeAdminPayments(people, [], [access], now).members[0]?.daysRemaining).toBe(1);
   expect(summarizeAdminPayments(people, [], [access], new Date(access.ends_at)).members[0]?.daysRemaining).toBe(0);
 });
+it('approved ₹349 receipts are counted without counting pending ones as paid', () => {
+  expect(summarizeAdminPayments(people, [payment('approved', 349)], [], now).members[0]?.paid).toBe(true);
+  expect(summarizeAdminPayments(people, [payment('pending', 349)], [], now).members[0]?.paid).toBe(false);
+});
 it('confirmed revenue excludes unapproved payments and counts a shared receipt once', () => {
   expect(summarizeAdminPayments(people, [payment('approved'), { ...payment('approved'), source: 'prime' }, payment('pending', 500)], [], now).revenue).toBe(100);
 });

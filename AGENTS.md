@@ -59,7 +59,7 @@
 - Chat attachments remain participant-private; plain vehicle chat is silent, while explicit board bells atomically create the paid pair and one exact-owner interest notice before opening chat.
 - Direct-referral campaign ranks count only new campaign join edges, enforce one inviter and no cycles, and expose only owner-scoped stats; cash awards never imply payout.
 - Confirmed receipts atomically credit only the eligible direct inviter; historical invitee ledgers remain read-only evidence, new accounts keep unique codes, and remaining-slot reads expose aggregates only.
-- Paid alert eligibility is enforced by receipt-linked periods at database insertion/read and every screen/device delivery path, never by editable profile flags; post usage persists separately from deletable posts to prevent quota bypass.
+- Package permissions derive from approved receipt-linked periods independently for chat and bell/identity/calls; shared field authorization and short-lived actor-keyed photo reads enforce hiding without rewriting settled records.
 - Daily competition notices reuse the managed dispatcher and an atomic per-user/day ledger; public photo signing accepts only publication-and-competition-consent-checked paths to prevent private image disclosure.
 - Vehicle choices share free anonymous area/date-filtered lists; ordinary detail reads never expose vehicle identity, even with paid access, because subscription authorizes only chat/bell; owner/admin records remain private.
 - Vehicle interest notices are normalized to actual endpoints before notification guards run; screen notices use non-data identity placeholders and never preview chat bodies, preventing identity leaks and duplicate bell greetings.

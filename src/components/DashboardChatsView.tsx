@@ -20,7 +20,7 @@ export function DashboardChats() {
     refetchInterval: 10000,
     queryFn: async () => {
       if (!me) return [];
-      const { data, error } = await supabase.from("messages").select("*").order("created_at", { ascending: false }).limit(500);
+      const { data, error } = await supabase.rpc('list_chat_messages');
       if (error) throw error;
       const admin=await supabase.rpc('support_admin_id');if(admin.error)throw admin.error;
       for(const message of data){if(hidePaymentEvidence(message.body,message.sender_id===admin.data||message.receiver_id===admin.data,me.isAdmin)){message.body='చెల్లింపు పరిశీలనలో ఉంది';message.image_path='';}}
