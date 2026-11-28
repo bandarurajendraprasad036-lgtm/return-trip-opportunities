@@ -18,8 +18,14 @@ export function PrivacyToggles() {
     // "Shown" means others really see it: consent given AND this item not hidden. Showing an item also gives consent.
     const show = !shownToOthers(key);
     if (show && !profile.public_bell_consent && !window.confirm('మీరు గంట కొట్టిన ప్రకటనల్లో ఇది అందరికీ చూపించాలా?')) { setBusy(false); return; }
-    const changes: { hide_photo?: boolean; hide_name?: boolean; hide_phone?: boolean; public_bell_consent?: boolean } = {}; changes[key] = !show;
-    if (show) changes.public_bell_consent = true;
+    const changes: { hide_photo?: boolean; hide_name?: boolean; hide_phone?: boolean; public_bell_consent?: boolean } = {};
+    if (show && !profile.public_bell_consent) {
+      for (const [f] of FIELDS) changes[f] = f !== key;
+      changes.public_bell_consent = true;
+    } else {
+      changes[key] = !show;
+      if (show) changes.public_bell_consent = true;
+    }
     const r = await supabase.from('profiles').update(changes).eq('id', me.id);
     setBusy(false);
     if (r.error) { toast.error('మార్పు భద్రపడలేదు; మళ్లీ ప్రయత్నించండి'); return; }
@@ -31,7 +37,10 @@ export function PrivacyToggles() {
       const consent = e.target.checked;
       if (consent && !window.confirm('మీరు గంట కొట్టిన ప్రకటనల్లో మీ ఫోటో, పేరు, ఫోన్ నంబర్ అందరికీ చూపించాలా? దాచిన వివరాలు బయట కనిపించవు.')) return;
       setBusy(true);
-      const r = await supabase.from('profiles').update({ public_bell_consent: consent }).eq('id', me.id);
+      const patch = consent
+        ? { public_bell_consent: true }
+        : { public_bell_consent: false, hide_photo: true, hide_name: true, hide_phone: true };
+      const r = await supabase.from('profiles').update(patch).eq('id', me.id);
       setBusy(false);
       if (r.error) { toast.error('మార్పు భద్రపడలేదు'); return; }
       await qc.invalidateQueries();
