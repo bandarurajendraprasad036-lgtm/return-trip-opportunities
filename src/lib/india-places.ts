@@ -12,16 +12,16 @@ export function placeShards(query: string) {
   if (chars.length === 3) return [shardKey(chars, 3)];
   return [shardKey(chars, 4), shardKey(chars, 3)];
 }
-export function placeShard(query: string) { return placeShards(query)[0]!; }
+export function placeShard(query: string) { return placeShards(query)[0] ?? 'top'; }
 export function findPlaces(rows: PlaceRow[], query: string) {
   const q = normalizePlace(query);
-  if (!q) return [];
+  if (Array.from(q).length < 2) return [];
   const seen = new Set<string>();
   return rows.filter(row => {
-    if (!row[6].some(name => normalizePlace(name).startsWith(q))) return false;
-    const key = `${normalizePlace(row[1])}|${normalizePlace(row[3])}`;
+    if (!normalizePlace(row[1]).startsWith(q)) return false;
+    const key = normalizePlace(row[1]);
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
-  }).slice(0, 8);
+  });
 }

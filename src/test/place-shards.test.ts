@@ -16,4 +16,11 @@ describe('village search from our own list', () => {
   it('uses 4-letter then 3-letter files for longer names', () => {
     expect(placeShards('Mancherial')).toEqual(['6d-61-6e-63', '6d-61-6e']);
   });
+  it('CH includes Chennur and Chittoor once and CHE narrows to Chennur', () => {
+    const names = search('CH').map(row => row[1]);
+    expect(names.filter(name => name === 'Chennur')).toHaveLength(1);
+    expect(names.filter(name => name === 'Chittoor')).toHaveLength(1);
+    expect(search('CHE').filter(row => row[1] === 'Chennur')).toHaveLength(1);
+    expect(search('CHE').some(row => row[1] === 'Chittoor')).toBe(false);
+  });
 });

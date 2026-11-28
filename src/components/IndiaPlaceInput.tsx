@@ -33,8 +33,11 @@ export function IndiaPlaceInput({ id, value, onChange, onSelect, disabled, maxLe
   const [open, setOpen] = useState(false);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(250);
   useEffect(() => {
-    if (!open || !value.trim()) { setRows([]); return; }
+    if (!open || value.trim().length < 2) { setRows([]); setLoading(false); return; }
+    setRows([]);
+    setVisibleCount(250);
     const controller = new AbortController();
     setError(false); setLoading(true);
     const timer = setTimeout(async () => {
@@ -48,8 +51,8 @@ export function IndiaPlaceInput({ id, value, onChange, onSelect, disabled, maxLe
   }, [value, open]);
   return <div className="relative min-w-0" onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false); }}>
     <Input id={id} placeholder={placeholder} role="combobox" aria-expanded={open && rows.length > 0} aria-controls={listId} aria-autocomplete="list" value={value} disabled={disabled} maxLength={maxLength} onFocus={() => setOpen(true)} onChange={e => { onChange(e.target.value); setOpen(true); }} onKeyDown={e => { if (e.key === 'Escape') setOpen(false); if (e.key === 'ArrowDown') { e.preventDefault(); document.getElementById(listId)?.querySelector<HTMLElement>('button')?.focus(); } }} />
-    {open && value.trim() && <div className="absolute inset-x-0 top-full z-50 max-h-80 overflow-auto rounded-md border bg-popover text-popover-foreground shadow-card">
-      <div id={listId} role="listbox">{rows.map(row => <Button key={row[0]} type="button" role="option" aria-selected={false} variant="ghost" className="h-auto w-full justify-start whitespace-normal border-b px-2 py-2 text-left" onClick={() => { onChange(selectedValue ? selectedValue(row[1]) : row[1]); onSelect?.({ latitude: row[4], longitude: row[5] }); setOpen(false); if(selectedValue) document.getElementById(id ?? '')?.focus(); }}><span translate="no">{row[1]}{row[2] ? ` · ${row[2]}` : ''}<small className="block text-muted-foreground">{row[3]} · India</small></span></Button>)}</div>
+    {open && value.trim().length >= 2 && <div className="absolute inset-x-0 top-full z-50 max-h-80 overflow-auto rounded-md border bg-popover text-popover-foreground shadow-card" onScroll={event => { const list = event.currentTarget; if (list.scrollTop + list.clientHeight >= list.scrollHeight - 100) setVisibleCount(count => Math.min(rows.length, count + 100)); }}>
+      <div id={listId} role="listbox">{rows.slice(0, visibleCount).map(row => <Button key={row[0]} type="button" role="option" aria-selected={false} variant="ghost" className="h-auto w-full justify-start whitespace-normal border-b px-2 py-2 text-left" onClick={() => { onChange(selectedValue ? selectedValue(row[1]) : row[1]); onSelect?.({ latitude: row[4], longitude: row[5] }); setOpen(false); if(selectedValue) document.getElementById(id ?? '')?.focus(); }}><span translate="no">{row[1]}{row[2] ? ` · ${row[2]}` : ''}<small className="block text-muted-foreground">{row[3]} · India</small></span></Button>)}</div>
       {loading && <p role="status" className="p-2 text-sm">వస్తున్నాయి · Loading</p>}
       {!loading && !rows.length && <p className="p-2 text-sm">{error ? 'పేర్లు రాలేదు · Unavailable' : 'జాబితాలో లేదు; పేరు రాయవచ్చు · Not listed; enter manually'}</p>}
       <p className="p-2 text-xs text-muted-foreground">ప్రాంత సమాచారం: GeoNames</p>

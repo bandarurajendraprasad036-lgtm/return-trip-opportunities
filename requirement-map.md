@@ -552,3 +552,9 @@
 | 44–50 | `service_profiles`, `feed.tsx`: సేవల పరిచయాలు ఉన్నాయి | నిజమైన 5కి.మీ., జిల్లా, సేవ రకం సరిపోలిక అమలు లేదు; పటాల అనుమతి అవసరం |
 | అదనపు ప్రాంత వెతుకులాట | `feed.tsx`: తిరుగు/ముందస్తు తేదీ విభాగాలు ఉన్నాయి | బెంగళూరు/బీహార్/జిల్లా ప్రత్యేక వడపోత, లోకల్ సరుకు వెతుకులాట మాత్రమే చూపడం మిగిలింది |
 | అదనపు సభ్యత్వ గుర్తుచేయడం | `MembershipReminder.tsx` | ₹499, మూసుకునే గుర్తుచేయడం అమలు; నిజమైన ఖాతాతో రోజువారీ పరీక్ష మిగిలింది |
+## November 28 03:35 — supplied points 3, 4, 5, 6
+- 3: Existing Firebase permission/worker/active managed dispatcher retained; migration 0158 adds one guarded generic incoming-chat notice. No private body in phone payload. Physical locked-phone delivery not exercised this turn.
+- 4: Migration 0157 requires bell evidence plus existing pair/payment gates; DashboardChat disables composition until permitted and adds the requested bell line/action. Admin/support exceptions retained. Database tests checked; signed-in UI flow remains unverified.
+- 5: Normal posting no longer waits on AI; shared deterministic post-content check and database word-boundary guard retain abusive-content rejection. Database tests checked; live submit/readback remains unverified.
+- 6: Static English prefix shards regenerated without repeated displayed names, complete two-letter results and incremental list rendering; CH/CHE/Chennur/Chittoor covered by tests. Mobile visual verification remains unverified.
+- Completion blocker: workspace credits exhausted before end-to-end browser checks; publication remains with owner.

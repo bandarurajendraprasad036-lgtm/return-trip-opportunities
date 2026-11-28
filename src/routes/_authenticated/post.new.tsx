@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useMe } from "@/lib/session";
 import type { Kind } from "@/lib/match";
 import { useServerFn } from "@tanstack/react-start";
-import { checkPostText } from "@/lib/moderation.functions";
+import { hasProhibitedPostText } from "@/lib/post-content";
 import { Sparkles } from "lucide-react";
 import { draftJobAd, type JobAdDraft } from "@/lib/ai-job-ad.functions";
 import { buildJobAdInput } from "@/lib/job-ad-input";
@@ -23,7 +23,7 @@ import { capacityInput } from "@/lib/vehicle-experience";
 import { VEHICLE_TYPES, isCar } from '@/lib/vehicle-types';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { JobSuggestionInput } from '@/components/JobSuggestionInput';
-import { generalWorkValue, hasProhibitedJobWords, jobPostIdentity, WORK_SUGGESTIONS } from '@/lib/job-entry';
+import { generalWorkValue, jobPostIdentity, WORK_SUGGESTIONS } from '@/lib/job-entry';
 import { IndiaPlaceInput } from '@/components/IndiaPlaceInput';
 import type { Coordinates } from '@/lib/india-places';
 import { PostSubmissionNotice } from '@/components/PostSubmissionNotice';
@@ -139,7 +139,6 @@ function NewPost() {
   const [contentError, setContentError] = useState('');
   const [fromPoint, setFromPoint] = useState<Coordinates | null>(null);
   const [toPoint, setToPoint] = useState<Coordinates | null>(null);
-  const checkText = useServerFn(checkPostText);
   useEffect(() => {
     const profile = me?.profile;
     if (!profile) return;
@@ -187,9 +186,9 @@ function NewPost() {
     const { company_name: companyName = '', vacancies = '', ...fields } = f;
     const employerInfo = kind === 'employer' ? [companyName.trim() && `కంపెనీ · Company: ${companyName.trim()}`, vacancies.trim() && `ఖాళీలు · Vacancies: ${vacancies.trim()}`].filter(Boolean).join('\n') : '';
     const jobData = isJob ? { ...fields, ...(employerInfo ? { description: [employerInfo, fields['description']?.trim()].filter(Boolean).join('\n') } : {}), skill: generalWorkValue(f['skill'] ?? '', f['general_work'] ?? '', generalWork), ...(generalWork ? { category: 'other' } : {}) } : f;
-    if (isJob && hasProhibitedJobWords(Object.values(jobData).join(' '))) {
+    if (hasProhibitedPostText(Object.values(jobData).join(' '))) {
       setContentError('అనుచిత పదాలు అనుమతించబడవు. ఊరు, పని, వివరాల్లో ఆ పదాలను తీసివేసి మళ్లీ పంపండి. · Remove prohibited words before posting.');
-      // The authenticated moderation check must also inspect submitted prohibited content.
+      return;
     }
     const r = schema.safeParse(jobData);
     if (!r.success) { const i = r.error.issues[0]; toast.error(`${String(i?.path[0] ?? "")}: ${i?.message ?? ""}`); return; }
@@ -202,8 +201,7 @@ function NewPost() {
       : { module: opt.module, kind, title: kind === 'owner' ? `${v['vehicle_type']} ఖాళీగా వస్తోంది` : `${v['goods_type']} కోసం వాహనం కావాలి` };
     const capturedPoints = { from: fromPoint, to: toPoint };
     setBusy(true);
-    const mod = await checkText({ data: { text: Object.values(v).join(" \n ") } }).catch(() => ({ ok: false }));
-    if (!mod.ok) { setBusy(false); await qc.invalidateQueries({queryKey:['me']}); setContentError('తనిఖీ పూర్తికాలేదు లేదా అనుమతించని విషయం ఉంది; ప్రకటన పంపలేదు. · Check unavailable or prohibited content; not submitted.'); return; }
+    // Database content triggers remain authoritative; normal posts do not depend on AI availability.
     let photoPath = '';
     if (!isJob && vehiclePhoto) {
       const extension = vehiclePhoto.type === 'image/png' ? 'png' : vehiclePhoto.type === 'image/webp' ? 'webp' : 'jpg';

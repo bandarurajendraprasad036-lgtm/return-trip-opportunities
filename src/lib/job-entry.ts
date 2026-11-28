@@ -1,4 +1,5 @@
 import { CITIES, JOB_CATEGORIES } from '@/lib/jobs';
+import { hasProhibitedPostText } from './post-content';
 
 /** Point 8: capture the selected tab in the persisted job identity. */
 export function jobPostIdentity(kind: 'seeker' | 'employer', skill: string) {
@@ -15,7 +16,7 @@ export function jobSuggestions(input: string, options: readonly string[]): strin
   return length < 2 ? [] : [...new Set(options)].filter(option => option.toLocaleLowerCase().includes(query)).slice(0, 8);
 }
 export function hasProhibitedJobWords(text: string): boolean {
-  return /fuck|bitch|bastard|asshole|motherfucker|madarchod|behenchod|bhenchod|chutiya|gandu|lanjakodaka|లంజ|దెంగ|పూకు|మొడ్డ|సుల్లి/i.test(text);
+  return hasProhibitedPostText(text);
 }
 export function generalWorkValue(selected: string, general: string, useGeneral: boolean): string {
   return (useGeneral ? general : selected).trim();

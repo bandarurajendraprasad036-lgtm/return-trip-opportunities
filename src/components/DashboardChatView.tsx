@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { SignedImg } from '@/components/SignedImg';
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Send, ImagePlus, Plus, X, Phone } from "lucide-react";
+import { ArrowLeft, Send, ImagePlus, Plus, X, Phone, Bell } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,14 +20,14 @@ import { toast } from 'sonner';
 import { paymentUtr } from '@/lib/november-profile';
 import { AboutVideos } from '@/components/AboutVideos';
 import { BellPaymentNotice } from '@/components/BellPaymentNotice';
-import { usePrime99 } from '@/lib/prime99';
+import { ringChat } from '@/lib/chat-bell';
+import { bellErrorMessage } from '@/lib/bell-request';
 import { CallButtons } from '@/components/CallManager';
 import { ResponsibilityNotice } from '@/components/ResponsibilityNotice';
 import { bellDateTime } from '@/lib/bell-details';
 
 export function DashboardChat({ userId, postId }: { userId: string; postId?: string | undefined }) {
   const { data: me } = useMe();
-  const { data: subscription } = usePrime99(me?.id);
   const [paymentOpen, setPaymentOpen] = useState(false);
   const qc = useQueryClient();
   const [text, setText] = useState("");
@@ -42,13 +42,10 @@ export function DashboardChat({ userId, postId }: { userId: string; postId?: str
   const sendEntry = useServerFn(sendChatEntry);
   const showImage = useServerFn(viewChatImage);
   const { data: adminId } = useQuery({ queryKey: ['support-admin-id'], queryFn: async () => { const result = await supabase.rpc('support_admin_id'); if (result.error) throw result.error; return result.data; } });
-  const {data:chatAllowed} = useQuery({queryKey:['chat-allowed',me?.id,userId,postId],enabled:!!me,queryFn:async()=>{
+  const {data:chatAllowed} = useQuery({queryKey:['chat-allowed',me?.id,userId,postId],enabled:!!me,refetchInterval:5000,queryFn:async()=>{
     const result=await supabase.rpc('can_post_chat',{...(postId ? {_post:postId} : {}),_other:userId});
     if(result.error)throw result.error;return result.data;
   }});
-  useEffect(() => {
-    if (chatAllowed === false && me && !me.isAdmin && adminId !== undefined && userId !== adminId && subscription && !subscription.bell_active) setPaymentOpen(true);
-  }, [chatAllowed, me, adminId, userId, subscription]);
   const { data: contactAllowed } = useQuery({ queryKey: ['service-chat-open', me?.id, userId], enabled: !!me && !!chatAllowed, refetchInterval: 5000, queryFn: async () => {
     const result = await supabase.rpc('open_service_chat', { _other: userId });
     if (result.error) throw result.error;
@@ -174,7 +171,20 @@ export function DashboardChat({ userId, postId }: { userId: string; postId?: str
         <div ref={bottom} />
       </div>
       {sendError && <p role="alert" className="px-3 py-2 text-sm text-destructive">{sendError}</p>}
-      {chatAllowed===false && <Button variant="outline" className="mx-3 h-auto whitespace-normal" onClick={() => setPaymentOpen(true)}>మూడు నెలల చందా ₹100 — ఇప్పుడే చెల్లించండి</Button>}
+      {chatAllowed===false && <div className="mx-3 flex items-center gap-2 py-2"><p className="min-w-0 flex-1">మీరు గంట కొడితేనే చాట్ ప్రారంభించవచ్చు</p><Button variant="outline" size="icon" disabled={busy} aria-label="గంట కొట్టి చాట్ ప్రారంభించండి" title="గంట కొట్టి చాట్ ప్రారంభించండి" onClick={async () => {
+        if (!window.confirm('ఈ వ్యక్తికి గంట కొట్టి సంభాషణ ప్రారంభించాలా?')) return;
+        setBusy(true); setSendError('');
+        try {
+          await ringChat(userId, postId);
+          await qc.invalidateQueries({ queryKey: ['chat-allowed'] });
+          await qc.invalidateQueries({ queryKey: key });
+          toast.success('గంట కొట్టారు; సందేశం రాయవచ్చు');
+        } catch (error) {
+          const message = error && typeof error === 'object' && 'message' in error ? String(error.message) : '';
+          if (/SUBSCRIPTION_REQUIRED|PAID_BELL_REQUIRED/.test(message)) setPaymentOpen(true);
+          else setSendError(bellErrorMessage(error));
+        } finally { setBusy(false); }
+      }}><Bell /></Button></div>}
       <BellPaymentNotice open={paymentOpen} onOpenChange={setPaymentOpen} />
       <form onSubmit={send} className="space-y-2 border-t bg-card p-2">
         {userId === adminId && <label className="flex items-center gap-2"><input type="checkbox" checked={phoneConsent} onChange={e=>{setPhoneConsent(e.target.checked);setPhone('');}} />నా సంఖ్యను నిర్వాహకుడికి పంపేందుకు అంగీకరిస్తున్నాను</label>}

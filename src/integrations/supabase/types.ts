@@ -1528,6 +1528,7 @@ export type Database = {
           bell_actor: string | null
           bell_demand: string | null
           call_event: string | null
+          chat_message_id: string | null
           created_at: string
           id: string
           is_read: boolean
@@ -1542,6 +1543,7 @@ export type Database = {
           bell_actor?: string | null
           bell_demand?: string | null
           call_event?: string | null
+          chat_message_id?: string | null
           created_at?: string
           id?: string
           is_read?: boolean
@@ -1556,6 +1558,7 @@ export type Database = {
           bell_actor?: string | null
           bell_demand?: string | null
           call_event?: string | null
+          chat_message_id?: string | null
           created_at?: string
           id?: string
           is_read?: boolean
@@ -1566,6 +1569,13 @@ export type Database = {
           vehicle_bell?: boolean
         }
         Relationships: [
+          {
+            foreignKeyName: "notifications_chat_message_id_fkey"
+            columns: ["chat_message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "notifications_matched_post_id_fkey"
             columns: ["matched_post_id"]
@@ -3576,6 +3586,10 @@ export type Database = {
         Args: { _other?: string; _post?: string }
         Returns: boolean
       }
+      chat_bell_ready: {
+        Args: { _other: string; _post?: string }
+        Returns: boolean
+      }
       chat_peer_identity: {
         Args: { _other: string }
         Returns: {
@@ -3965,6 +3979,7 @@ export type Database = {
         Args: { _at?: string; p: Database["public"]["Tables"]["posts"]["Row"] }
         Returns: boolean
       }
+      post_text_prohibited: { Args: { _text: string }; Returns: boolean }
       posts_match_area: {
         Args: {
           a: Database["public"]["Tables"]["posts"]["Row"]
@@ -4095,6 +4110,7 @@ export type Database = {
         Args: { _approve: boolean; _id: string; _note?: string }
         Returns: undefined
       }
+      ring_chat: { Args: { _other: string; _post?: string }; Returns: boolean }
       ring_free_work: {
         Args: { _id: string; _section: string; _source: string }
         Returns: string

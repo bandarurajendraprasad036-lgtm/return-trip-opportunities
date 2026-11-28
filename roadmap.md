@@ -336,3 +336,5 @@
 
 - [x] Bell lists: mobile number for dialing not showing when member chose "show" (Nov 22 14:09)
 - [x] Bell lists: hidden name/photo/mobile still visible on another phone (Nov 22 14:08)
+
+- [ ] November 28 03:35: Implemented guarded incoming-message notices through the existing active minute push schedule, explicit-bell chat authorization/composer control, deterministic browser/database post checks, and complete unique English two-letter village prefixes. Focused tests and build checked. Remaining: signed-in end-to-end posting/chat/mobile UI and physical locked-phone delivery checks; workspace credits exhausted. Owner requested to publish themselves; no publication performed.
