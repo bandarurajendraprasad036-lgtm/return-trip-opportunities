@@ -54,8 +54,8 @@ export function AppShell({ children, hideTopActions = false }: { children: React
 
   return (
     <div className="mx-auto flex min-h-screen max-w-md flex-col bg-background">
-      <header className="sticky top-0 z-20 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b bg-background px-3 py-3 text-foreground">
-        <Link to="/feed" className="min-w-0 font-display text-lg font-extrabold leading-none">
+      <header className="sticky top-14 z-20 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b bg-background px-3 py-3 text-foreground">
+        <Link to="/" className="min-w-0 font-display text-lg font-extrabold leading-none">
           <Brand />
         </Link>
         <div className="flex shrink-0 items-center gap-1"><LanguageButton />{!hideTopActions && <Button asChild variant="outline" size="icon" aria-label="మా గురించి" title="మా గురించి"><Link to="/about"><Info className="size-5" /></Link></Button>}{me && <Button asChild data-subscription-exempt variant="outline" size="icon" className="relative" aria-label="నా పేజీలో తెలియజేతలు">{me.isAdmin ? <Link to="/" hash="admin-notices"><Bell className="size-5" /><ClientOnly>{unread > 0 && <span className="absolute -right-1 -top-1 rounded-full bg-primary px-1 text-xs text-primary-foreground">{unread}</span>}</ClientOnly></Link> : <Link to="/dashboard" search={{ view: 'notifications' }}><Bell className="size-5" /><ClientOnly>{unread > 0 && <span className="absolute -right-1 -top-1 rounded-full bg-primary px-1 text-xs text-primary-foreground">{unread}</span>}</ClientOnly></Link>}</Button>}</div>
@@ -63,9 +63,9 @@ export function AppShell({ children, hideTopActions = false }: { children: React
       <main className="flex-1 pb-24">{location.pathname === '/dashboard' && !location.searchStr.includes('view=chat') && <div className="px-4 pt-4"><AdminChatButton /></div>}{children}<ResponsibilityNotice /><DesignFooter /></main>
       {me && <MessagePhoneNotices userId={me.id} />}
       <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-md border-t bg-card">
-        <Link to="/feed" className={tab} activeProps={active}>
+        <Link to="/" className={tab} activeProps={active}>
           <Home className="size-6" />
-          హోమ్ Home
+          హోమ్
         </Link>
         <Link to="/post/new" className="-mt-5 flex flex-1 flex-col items-center gap-0.5 text-xs font-semibold">
           <span className="grid size-14 place-items-center rounded-full border-4 border-card bg-secondary text-secondary-foreground shadow-card">

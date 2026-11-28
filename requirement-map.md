@@ -563,3 +563,7 @@
 - 1: BellJoin owns one three-column row with bell, shared InstallButton and dashboard link. Icon reminders blink once per second until touched; actual installation still requires browser support/permission. 320/390/1280 visual and click checks pass; signed-in dashboard navigation verified. Physical phone installation not exercised.
 - 2: PaymentScanner has no printed heading/amount above QR; Prime99Payment removes status/selected-amount copy while preserving package dialogs, selected payment amount and screenshot evidence. Package selection and plus file chooser checked; no test evidence submitted or receipt approved.
 - 3: Index removes the former dashboard/download controls below the scanner; only the new row remains. No price, access, privacy or database rules changed. Eight existing regression tests pass and preview build OK; owner publishes.
+
+## November 28 06:34 — return to home
+- Root PageReturnControls makes back/home available on non-home pages outside account gates, excluding active OAuth callback/bridge. Back uses app router history; direct entry with no earlier page replaces with `/`. AppShell brand and bottom Home also target `/`, not `/feed`; its sticky header sits below the new bar.
+- Seventeen tests pass. Browser verification: 320/390/1280 guest about→back, vehicle/board/auth/service/reels→home, direct board entry→back fallback, and actual signed-in dashboard→back/home all pass. Sticky mobile placement, no overflow/runtime errors confirmed. No publication or account/payment/database change.

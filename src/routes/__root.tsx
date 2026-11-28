@@ -24,6 +24,7 @@ import { useMe } from '@/lib/session';
 import { IncomingNotice } from '@/components/IncomingNotice';
 import { installBellAudioUnlock } from '@/lib/bell';
 import { SubscriptionActionGate } from '@/components/SubscriptionActionGate';
+import { PageReturnControls } from '@/components/PageReturnControls';
 
 function NotFoundComponent() {
   return (
@@ -156,6 +157,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+      <PageReturnControls />
       <AccountBlockGate><ProfileAccessGate><Outlet /></ProfileAccessGate><PushSoundSync /><Referral /></AccountBlockGate>
       <AccountIncomingNotice />
       <SubscriptionActionGate />
